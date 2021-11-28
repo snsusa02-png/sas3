@@ -1,0 +1,12 @@
+id,name,description,mimetype_id,direct,active,storage,catalog,handler,created_at,created_by,updated_at,updated_by
+1,"Прайс-лист из 1С","Прайс лист загружаемый из 1С",2,1,0,local,price1C,App\Services\Parsers\price1CDaloil,"2020-01-15 03:15:55",0,"2020-01-15 03:15:55",0
+2,"Характеристики товара","Загрузка характеристик товара основные и расширенные",2,1,0,local,ProductDetail,App\Services\Parsers\productDetailDaloil,"2020-01-15 03:15:55",1,"2020-01-15 03:15:55",1
+3,"1C Счет","Счет для 1С ",3,-1,0,local,1SInvoice,NULL,"2020-01-15 03:15:55",1,"2020-01-15 03:15:55",1
+4,"Фото для товара","Фото для позиции прайслиста",4,1,0,local,product,App\Services\Parsers\productImagesDaloil,"2020-01-15 03:15:55",1,"2020-01-15 03:15:55",1
+5,"Документы из 1С",XML,3,1,0,local,from1C,App\Services\Parsers\doc1CDaloil,"2020-01-15 03:15:55",1,"2020-01-15 03:15:55",1
+6,"Контрагенты из 1С",XML,3,1,1,local,from1C,App\Services\Parsers\org1CInterface,"2020-01-15 03:15:55",1,"2020-01-15 03:15:55",1
+7,"Остатки на складах 1С",XML,3,1,0,local,from1C,App\Services\Parsers\stock1CDaloil,"2020-01-15 03:15:55",1,"2020-01-15 03:15:55",1
+8,"Номенклатура из 1С",XML,3,1,1,local,from1C,App\Services\Parsers\product1C,"2020-01-15 03:15:55",1,"2020-01-15 03:15:55",1
+9,"Сальдо контрагентов из 1С",XML,3,1,0,local,from1C,App\Services\Parsers\saldo1C,"2020-01-15 03:15:55",1,"2020-01-15 03:15:55",1
+10,"Заказы клиентов из 1С",XML,3,1,1,local,from1C,App\Services\Parsers\ord1CInterface,"2020-01-15 03:15:55",1,"2020-01-15 03:15:55",1
+11,"Оплата заказов из 1С",XML,3,1,1,local,from1C,App\Services\Parsers\pays1CInterface,"2020-01-15 09:13:12",1,"2020-01-15 09:13:12",1

@@ -1,0 +1,12 @@
+id,name,description,extension,mimetype,readclass,iconfile,created_at,created_by,updated_at,updated_by
+1,"Microsoft Excel 2007/ 2010/2013 XML","Microsoft Excel 2007/ 2010/2013 XML",xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,App\Services\Readers\XLSX,NULL,"2020-05-30 21:31:09",0,"2020-05-30 21:31:09",0
+2,"Text CSV","Text CSV",csv,text/csv,App\Services\Readers\CSV,NULL,"2020-05-30 21:31:09",0,"2020-05-30 21:31:09",0
+3,"1C XML","1С XML",xml,text/xml,App\Services\Readers\XML,NULL,"2020-05-30 21:31:09",0,"2020-05-30 21:31:09",0
+4,image/jpeg,NULL,jpg,image/jpeg,NULL,NULL,"2020-05-30 21:31:09",1,"2020-05-30 21:31:09",1
+5,image/png,NULL,png,image/png,NULL,NULL,"2020-05-30 21:31:09",1,"2020-05-30 21:31:09",1
+6,image/gif,NULL,gif,image/gif,NULL,NULL,"2020-05-30 21:31:09",1,"2020-05-30 21:31:09",1
+7,image/svg+xml,NULL,svg,image/svg+xml,NULL,NULL,"2020-05-30 21:31:09",1,"2020-05-30 21:31:09",1
+8,"Adobe Portable Document Format",PDF,pdf,application/pdf,NULL,/images/fileicons/pdf.png,"2020-05-30 21:31:09",1,"2020-05-30 21:31:09",1
+9,"Microsoft Word",NULL,doc,application/msword,NULL,/images/fileicons/doc.jpg,"2020-05-30 21:35:00",1,"2020-05-30 21:35:00",1
+10,"Microsoft Word (OpenXML)",NULL,docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document,NULL,/images/fileicons/doc.jpg,"2020-05-30 21:35:41",1,"2020-05-30 21:35:41",1
+11,"Microsoft PowerPoint",NULL,ppt,application/vnd.ms-powerpoint,NULL,/images/fileicons/ppt.png,"2020-05-30 21:36:33",1,"2020-05-30 21:36:33",1

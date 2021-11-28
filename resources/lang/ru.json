@@ -1,0 +1,19 @@
+{
+  "Login" : "Вход",
+  "Logout" : "Выход",
+  "Register" : "Регистрация",
+  "Password" : "Пароль",
+  "Send Password Reset Link" : "Отправить ссылку на сброс пароля",
+  "Name" : "Имя",
+  "Reset Password" : "Сброс пароля",
+  "Verify Your Email Address" : "Проверьте Ваш адрес эл.почты",
+  "Confirm Password" : "Подтвердите пароль",
+  "Remember Me" : "Запомнить меня",
+  "Forgot Your Password?" : "Забыли пароль?",
+  "E-Mail Address" : "Адрес эл.почты",
+  "Home" : "В начало",
+  "Reset Password Notification": "Уведомление о смене пароля",
+  "You are receiving this email because we received a password reset request for your account.":"Вы получили это письмо потому, что мы получили запрос на сброс пароля для Вашей учетной записи.",
+  "This password reset link will expire in 60 minutes.": "Эта ссылка будет действовать в течение 1 часа.",
+  "If you did not request a password reset, no further action is required.": "Если Вы не запрашивали сброс пароля, то ничего делать не нужно."
+}

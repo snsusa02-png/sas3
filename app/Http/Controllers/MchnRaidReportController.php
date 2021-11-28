@@ -1,0 +1,458 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\buildobj;
+use App\driver_work;
+use App\equiprqst_item;
+use App\eritm_offer;
+use App\eritm_supply;
+use App\Exports\InvoicesExport;
+use App\Exports\PayPlanExport;
+use App\mchn_raid;
+use App\orgplnpay;
+use App\orgplnpay_item;
+use App\pay_category;
+use App\prodplan_fact;
+use App\report;
+use App\org;
+use App\group;
+use App\machine;
+use App\mchnrqsttype;
+use App\mchnrqst;
+use App\mchntype;
+use App\contract;
+use App\objflag;
+use App\objlog;
+use App\Traits\SearchDataTrait;
+use App\usrsysright;
+use http\Env\Response;
+use Illuminate\Http\Request;
+use DB;
+use DateTime;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Date;
+use App\Events\notifyEvent;
+use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Config;
+
+class MchnRaidReportController extends Controller
+{
+    use SearchDataTrait;
+
+    public function __construct()
+    {
+        $this->middleware('auth');
+        $this->sysobjid = 855;  //reports
+        //$this->objcode = 'reports';
+        $this->objcode = 'mchn_raids';
+    }
+
+
+    protected function setInterfaceRight($id)
+    {
+        /*
+         * Формирует массив прав пользователя для текущего объекта
+        */
+        $userid = \Auth::user()->id;
+
+        $usrrights = array();
+        $usrrights['read'] = usrsysright::isUserHasRightByCode_cached($userid, $this->objcode . '.read');
+        $usrrights['create'] = usrsysright::isUserHasRightByCode_cached($userid, $this->objcode . '.create');
+        $usrrights['save'] = false;
+        $usrrights['delete'] = false;
+        $usrrights['admindelete'] = false;
+        $usrrights['registrate'] = false;
+        $usrrights['unregistrate'] = false;
+        $usrrights['approve'] = false;
+        $usrrights['setfact'] = false;
+
+
+        if ($id == -1) {
+            $usrrights['save'] = $usrrights['create'];
+            $usrrights['delete'] = false;
+        } else {
+            $usrrights['save'] = usrsysright::isUserHasRightByCode_cached($userid, $this->objcode . '.update');
+            $usrrights['delete'] = usrsysright::isUserHasRightByCode_cached($userid, $this->objcode . '.delete');
+            $usrrights['approve'] = usrsysright::isUserHasRightByCode_cached($userid, $this->objcode . '.approve');
+            $usrrights['setfact'] = usrsysright::isUserHasRightByCode_cached($userid, $this->objcode . '.setfact');
+        }
+
+        return $usrrights;
+    }
+
+
+    public function rep46(Request $request)
+    {
+        //
+
+        $report_id = 46;
+
+        $userid = \Auth::user()->id;
+
+        if (!usrsysright::isUserHasRightByCode_cached($userid, $this->objcode . '.read'))
+            return redirect(route('home'))
+                ->with(['error' => 'У вас нет полномочий для работы с платежами для этой организации!']);
+
+        // - параметры поиска: массив из имени и значения по-умолчанию -----------------------------------------------
+        $fdom = new DateTime('first day of this month');
+        $fdomc = $fdom->format('Y-m-d');
+        $year = $fdom->format('Y');
+        $ldom = new DateTime('last day of this month');
+        $ldomc = $ldom->format('Y-m-d');
+        $curdate = new DateTime();
+        $cd = $curdate->format('Y-m-d');
+
+        $month = date("n");
+        $yearQuarter = ceil($month / 3);
+
+        $param_names = [
+            's_pageitmcnt' => 20
+            , 's_ownorgid' => '' //Auth::user()->curorgid
+            , 's_period_type' => 9
+            , 's_begdate' => $cd //$fdomc
+            , 's_enddate' => $cd //$ldomc
+            , 's_month' => $month
+            , 's_quarter' => $yearQuarter
+            , 's_year' => $year
+        ];
+
+        $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);
+
+
+        //зачистим ненужные параметры поиска
+        switch ($search_params['s_period_type'] ?? 0) {
+            case 1: //месяц/год
+                $year = $search_params['s_year'];
+                $month = $search_params['s_month'];
+                $begdate = new DateTime($year . '-' . $month . '-1 00:00:00');
+
+                $search_params['s_begdate'] = $begdate->format('Y-m-d');
+                $search_params['s_enddate'] = $begdate->format('Y-m-t');
+                break;
+            case 2: //квартал/год
+
+                $year = $search_params['s_year'];
+                $quarter = $search_params['s_quarter'];
+                $begdate = new DateTime($year . '-' . (3 * $quarter - 2) . '-1 00:00:00');
+                $enddate = new DateTime($year . '-' . (3 * $quarter) . '-' . ($quarter == 1 || $quarter == 4 ? 31 : 30) . ' 23:59:59');
+                $search_params['s_begdate'] = $begdate->format('Y-m-d');
+                $search_params['s_enddate'] = $enddate->format('Y-m-d');
+                break;
+
+            case 3://год
+                $year = $search_params['s_year'];
+                $begdate = new DateTime($year . '-1-1 00:00:00');
+                $enddate = new DateTime($year . '-12-31 23:59:59');
+
+                $search_params['s_begdate'] = $begdate->format('Y-m-d');
+                $search_params['s_enddate'] = $enddate->format('Y-m-d');
+                break;
+            case 9://календарь
+                $search_params['s_quarter'] = '';
+                $search_params['s_month'] = '';
+                $search_params['s_year'] = '';
+                break;
+            default:
+                $search_params['s_quarter'] = '';
+                $search_params['s_month'] = '';
+                $search_params['s_year'] = '';
+        }
+
+        $need_search = false;
+        $sc = "1=1";
+
+        foreach ($search_params as $item => $val) {
+            if (isset($val) and strlen($val) > 0) {
+
+                //служебные поля не являются побудителями поиска
+                if (!in_array($item, ['s_pageitmcnt']))
+                    $need_search = true;
+
+
+                if ($item == 's_ownorgid') {
+                    $sc = $sc . " and mr.ownorgid = '{$val}'";
+
+                } elseif ($item == 's_begdate') {
+                    $sc = $sc . " and mr.wrkdate >= '{$val}'";
+
+                } elseif ($item == 's_enddate') {
+                    $sc = $sc . " and mr.wrkdate <= '{$val}'";
+
+                } elseif ($item == 's_month') {
+                    //$sc = $sc . " and month(mr.docdate) = '{$val}'";
+
+                } elseif ($item == 's_quarter') {
+                    //$sc = $sc . " and quarter(mr.docdate) = '{$val}'";
+
+                } elseif ($item == 's_year') {
+                    //$sc = $sc . " and year(mr.docdate) = '{$val}'";
+
+                }
+            }
+        }
+
+        $recs = null;
+        $recs2 = null;
+
+        if ($need_search) {
+
+            //1-й набор - сырые данные по перевозкам за период
+            $recs = mchn_raid::
+            from('mchn_raids as mr')
+                ->leftjoin('orgs as oo', 'oo.id', 'mr.ownorgid')
+                ->leftjoin('orgs as o', 'o.id', 'mr.orgid')
+                ->leftjoin('refitems as ri', 'ri.id', 'mr.refitmid')
+                ->leftjoin('users as u_d', 'u_d.id', 'mr.disp_userid')
+                ->whereRaw($sc);
+
+            $recs = $recs->select(
+                'mr.*', 'o.name'
+                , 'mr.unload_qty'
+                , db::raw("mr.unload_qty*mr.unload_price as unload_sum")
+                , 'oo.name as ownorgname'
+                , 'o.name as orgname'
+                , db::raw("concat(ifnull(u_d.fname,''),' ',u_d.lname) as dispuser_name")
+                , 'ri.name as refitm_name'
+                , db::raw("orgSaldo_onDate(mr.orgid, mr.ownorgid, mr.wrkdate) as org_saldo")
+            )
+                ->orderby('mr.wrkdate', 'asc')
+                ->orderby('mr.org_name', 'asc')
+                ->get();
+
+            //2-й набор - нпуппировка по местам погрузки
+            $recs2 = mchn_raid::
+            from('mchn_raids as mr')
+                ->leftjoin('places as p', 'p.id', 'mr.load_placeid')
+                ->leftjoin('refitems as ri', 'ri.id', 'mr.refitmid')
+                ->whereRaw($sc);
+
+            $recs2 = $recs2->select(
+                'mr.load_placeid', 'p.name as load_placename'
+                , 'mr.load_price'
+                , 'mr.refitmid'
+                , db::raw("sum(mr.load_qty) as load_qty")
+                , db::raw("sum(mr.load_sum) as load_sum")
+                , 'ri.name as refitm_name'
+            )
+                ->groupBy('mr.load_placeid')
+                ->groupBy('mr.load_price')
+                ->groupBy('mr.refitmid')
+                ->orderby('p.name', 'asc')
+                ->orderby('ri.name', 'asc')
+                ->get();
+
+
+            //обновим счетчик использования отчета
+            report::updUseCnt($report_id, $userid, \Auth::user()->name);
+
+            //занесем в журнал
+            objlog::log_info(855, $report_id, 'запрошен отчет; ' . $sc);
+        } else {
+            $recs = null;
+        }
+
+        $data = new \stdClass();
+
+        $data->period_types = [1 => 'месяц', 2 => 'квартал', 3 => 'год', 9 => 'календарь'];
+
+        $data->monthes = Config::get('constants.monthes');
+        $data->quarters = [1 => 1, 2 => 2, 3 => 3, 4 => 4];
+
+        $data->years = Cache::remember('orgplnpays_years', now()->addMinutes(55)
+            , function () {
+                return mchn_raid::selectRaw("year(wrkdate) as year")->distinct()->orderby('year')
+                    ->get()->pluck('year', 'year')->toArray();
+            });
+
+
+        $data->ownorgs = org::lstFor_cached([
+            'in_mchn_raids_ownorgid' => 1,
+        ]);
+
+        return view('mchn_raids.rep' . $report_id, compact('recs', 'recs2', 'search_params', 'data'));
+    }
+
+
+    public function rep51(Request $request)
+    {
+        //
+        $report_id = 51;
+
+        $userid = \Auth::user()->id;
+
+        if (!usrsysright::isUserHasRightByCode_cached($userid, $this->objcode . '.read'))
+            return redirect(route('home'))
+                ->with(['error' => 'У вас нет полномочий для работы с платежами для этой организации!']);
+
+        // - параметры поиска: массив из имени и значения по-умолчанию -----------------------------------------------
+        $fdom = new DateTime('first day of this month');
+        $fdomc = $fdom->format('Y-m-d');
+        $year = $fdom->format('Y');
+        $ldom = new DateTime('last day of this month');
+        $ldomc = $ldom->format('Y-m-d');
+        $curdate = new DateTime();
+        $cd = $curdate->format('Y-m-d');
+
+        $month = date("n");
+        $yearQuarter = ceil($month / 3);
+
+        $param_names = [
+            's_pageitmcnt' => 20
+            , 's_ownorgid' => '' //Auth::user()->curorgid
+            , 's_period_type' => 9
+            , 's_begdate' => $cd //$fdomc
+            , 's_enddate' => $cd //$ldomc
+            , 's_month' => $month
+            , 's_quarter' => $yearQuarter
+            , 's_year' => $year
+        ];
+
+        $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);
+
+
+        //месяц/год
+        $year = $search_params['s_year'];
+        $month = $search_params['s_month'];
+        $begdate = new DateTime($year . '-' . $month . '-1 00:00:00');
+
+        $search_params['s_begdate'] = $begdate->format('Y-m-d');
+        $search_params['s_enddate'] = $begdate->format('Y-m-t');
+
+        $need_search = false;
+        $sc = "1=1";
+
+        foreach ($search_params as $item => $val) {
+            if (isset($val) and strlen($val) > 0) {
+
+                //служебные поля не являются побудителями поиска
+                if (!in_array($item, ['s_pageitmcnt']))
+                    $need_search = true;
+
+
+                if ($item == 's_ownorgid') {
+                    $sc = $sc . " and os.orgid = '{$val}'";
+
+                } elseif ($item == 's_begdate') {
+                    $sc = $sc . " and dw.wrkdate >= '{$val}'";
+
+                } elseif ($item == 's_enddate') {
+                    $sc = $sc . " and dw.wrkdate <= '{$val}'";
+
+                } elseif ($item == 's_month') {
+                    //$sc = $sc . " and month(dw.wrkdate) = '{$val}'";
+
+                } elseif ($item == 's_quarter') {
+                    //$sc = $sc . " and quarter(dw.wrkdate) = '{$val}'";
+
+                } elseif ($item == 's_year') {
+                    //$sc = $sc . " and year(dw.wrkdate) = '{$val}'";
+
+                }
+            }
+        }
+
+        $recs = null;
+        $recs2 = null;
+
+        if ($need_search) {
+
+            $recs = driver_work::from('driver_works as dw')
+                ->join('orgstaff as os', 'os.id', 'dw.staffid')
+                ->leftJoin('machines as m', 'm.id', 'dw.machineid')
+                ->whereRaw($sc)
+                ->select('dw.*'
+                    , 'os.lname as staff_lname'
+                    , 'os.fname as staff_fname'
+                    , 'os.mname as staff_mname'
+                    , 'm.regnum as machine_regnum'
+                )
+                ->orderBy('os.name')
+                ->orderBy('os.id')
+                ->orderBy('dw.wrkdate')
+                ->get();
+            //dd($sc,$recs);
+
+            //обновим счетчик использования отчета
+            report::updUseCnt($report_id, $userid, \Auth::user()->name);
+
+            //занесем в журнал
+            objlog::log_info(855, $report_id, 'запрошен отчет; ' . $sc);
+        } else {
+            $recs = null;
+        }
+
+        $data = new \stdClass();
+
+        $data->years = Cache::remember('driver_works_years', now()->addMinutes(55)
+            , function () {
+                return driver_work::selectRaw("year(wrkdate) as year")->distinct()->orderby('year')
+                    ->get()->pluck('year', 'year')->toArray();
+            });
+        //dd($data->years);
+
+        $month_names = Config::get('constants.monthes');
+        $data->monthes = Cache::remember('driver_works_monthes', now()->addMinutes(15)
+            , function () {
+                return driver_work::selectRaw("month(wrkdate) as month")->distinct()->orderby('month')
+                    ->get()->pluck('month', 'month')->toArray();
+            });
+        foreach ($data->monthes as $key => $val) {
+            //dd($key,$val);
+            $data->monthes[$val] = $month_names[$key];
+        }
+        //dd($data->monthes);
+
+        $data->ownorgs = org::lstFor_cached([
+            'in_driver_works_ownorgid' => 1,
+        ]);
+        //dd($data->ownorgs);
+
+        return view('driver_works.rep' . $report_id, compact('recs', 'search_params', 'data'));
+    }
+
+
+    public function prnt_table(Request $request, $docid)
+    {
+        //dd($docid);
+        $prodplan = prodplan::find($docid);
+        if (!isset($prodplan))
+            return redirect(route('prodplans.index'))->with(['error' => 'ППР не найден']);
+
+        $items = prodplan_item::from('prodplan_items as i')
+            ->leftJoin('prodplan_items as i1', 'i1.id', 'i.parid')
+            ->leftJoin(DB::raw('(SELECT p.ppiid, sum(edi.itmsum/edi.qty*p.plnqty) as getsum
+                    FROM ppi_edi_parts as p
+                    join estdoc_items as edi on edi.id=p.ediid
+                    group by p.ppiid) as s'),
+                function ($join) {
+                    $join->on('i.id', '=', 's.ppiid');
+                })
+            ->where('i.docid', $docid)
+            ->where('i.lvltypeid', '>', 1)
+            ->whereNotNull('i.drctbegdt')
+            ->whereNotNull('i.drctenddt')
+            ->select('i1.name as par_name', 'i.parid', 'i.id', 'i.name', 'i.plnqty', 'i.unit'
+                , db::raw("date(i.drctbegdt) as begdate")
+                , db::raw("date(i.drctenddt) as enddate")
+                //, 'i.plncost'
+                , 's.getsum as plncost')
+            ->orderBy('i1.ordr')
+            ->orderBy('i1.id')
+            ->orderBy('i.drctbegdt')
+            ->orderBy('i.drctenddt')
+            ->orderBy('i.id')
+            ->get();
+
+        $prodplan->mindate = $items->min('begdate');
+        $prodplan->maxdate = $items->max('enddate');
+        $prodplan->days = (strtotime($prodplan->maxdate) - strtotime($prodplan->mindate)) / 3600 / 24 + 1;
+//        dd($prodplan->mindate,$prodplan->maxdate,$prodplan->days);
+        $prodplan->monthes = Config::get('constants.monthes');
+
+        return view('prodplans.prnt_table', compact('prodplan', 'items'));
+    }
+
+
+}

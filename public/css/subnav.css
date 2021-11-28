@@ -1,0 +1,121 @@
+/* NAVIGATION */
+.subnav {
+    /*width: 90%;*/
+    margin: 0 auto;
+    /*background: #fff;*/
+    font-size: .9em;
+    padding: 8px 0;
+    box-shadow: 0px 0px 1px 0px #dedede;
+    border-top: 1px solid #dedede;
+}
+
+.subnav ul {
+    list-style: none;
+    /*text-align: center;*/
+}
+
+.subnav ul li {
+    display: inline-block;
+}
+
+.subnav ul li a {
+    display: block;
+    /*padding: 12px;*/
+    text-decoration: none;
+    color: #8c98aa;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin: 0 8px;
+}
+
+.subnav ul li a,
+.subnav ul li a:after,
+.subnav ul li a:before {
+    transition: all .5s;
+}
+
+.subnav ul li a:hover {
+    color: #3790b7;
+}
+
+
+/* stroke */
+.subnav.stroke ul li a,
+.subnav.fill ul li a {
+    position: relative;
+}
+
+.subnav.stroke ul li a:after,
+.subnav.fill ul li a:after {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    width: 0%;
+    content: '.';
+    color: transparent;
+    background: #aaa;
+    height: 1px;
+}
+
+.subnav.stroke ul li a:hover:after {
+    width: 100%;
+}
+
+.subnav.fill ul li a {
+    transition: all 2s;
+}
+
+.subnav.fill ul li a:after {
+    text-align: left;
+    content: '.';
+    margin: 0;
+    opacity: 0;
+}
+
+.subnav.fill ul li a:hover {
+    color: #fff;
+    z-index: 1;
+}
+
+.subnav.fill ul li a:hover:after {
+    z-index: -10;
+    animation: fill 1s forwards;
+    -webkit-animation: fill 1s forwards;
+    -moz-animation: fill 1s forwards;
+    opacity: 1;
+}
+
+
+/* SHIFT */
+.subnav.shift ul li a {
+    position:relative;
+    z-index: 1;
+    padding: 0 6px;
+}
+.subnav.shift ul li a:hover {
+    color: snow;
+}
+.subnav.shift ul li a:after {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    margin: auto;
+    width: 100%;
+    height: 1px;
+    content: '.';
+    color: transparent;
+    background: #2e8dd6;
+    visibility: none;
+    opacity: 0;
+    z-index: -1;
+}
+.subnav.shift ul li a:hover:after {
+    opacity: 1;
+    visibility: visible;
+    height: 100%;
+}

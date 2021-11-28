@@ -1,0 +1,3 @@
+id,name,imap_host,imap_port,imap_protocol,imap_encryption,imap_validate_cert,imap_authentication,imap_default_account,imap_username,imap_password,active,created_at,created_by,updated_at,updated_by
+1,shevchenko.s@basko.su,imap.yandex.com,993,imap,ssl,true,null,default,shevchenko.s@basko.su,vcHe_1956,1,"2021-03-10 06:01:00",1,"2021-03-10 06:01:00",1
+2,robot@basko.su,imap.yandex.com,933,imap,ssl,true,null,default,robot@basko.su,Robo7812,1,"2021-03-10 06:02:40",1,"2021-03-10 06:02:40",1

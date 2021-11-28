@@ -1,0 +1,182 @@
+﻿--------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------------
+2021.11.05
+--------------------------------------------------------------------------------------------------
+ALTER TABLE `mchn_raids`
+ADD COLUMN `suporgid` BIGINT UNSIGNED NULL COMMENT 'Поставщик' AFTER `driver_sum`;
+
+ALTER TABLE `checkrqsts`
+ADD COLUMN `pdf_at` TIMESTAMP NULL COMMENT 'время создания pdf-файла с отбразом заявки' AFTER `updated_by`,
+ADD COLUMN `pdf_by` BIGINT UNSIGNED NULL AFTER `pdf_at`
+ADD COLUMN `send_at` TIMESTAMP NULL AFTER `pdf_by`,
+ADD COLUMN `send_by` BIGINT UNSIGNED NULL AFTER `send_at`;
+
+
+--------------------------------------------------------------------------------------------------
+2021.10.29
+--------------------------------------------------------------------------------------------------
+ALTER TABLE `prodplan_items`
+ADD COLUMN `fctenddt` DATETIME NULL COMMENT 'дата-время фактического завершения работы' AFTER `fctbegdt`;
+
+ALTER TABLE `prodplan_items`
+ADD COLUMN `buildopertypeid` BIGINT UNSIGNED NULL COMMENT 'id вида работ - по buildopertypes.id' AFTER `fixed`;
+ALTER TABLE `prodplan_items`
+CHANGE COLUMN `buildopertypeid` `buildopertypeid` BIGINT UNSIGNED NULL DEFAULT NULL COMMENT 'id вида работ - по buildopertypes.id' AFTER `projectid`;
+
+ALTER TABLE `paydocs`
+ADD COLUMN `reason` VARCHAR(160) NULL COMMENT 'основание оплаты' AFTER `paysum`;
+
+
+Добавляем Бородулькина(81) ко всем договорам, связанным с объектом "Холодильник":
+
+insert into obj_readers (sysobjid,objid,userid, mustread)
+    SELECT 151 as sysobjid, id as objid, 81 as userid, 1 as mustread
+        FROM `contracts` as c
+WHERE exists(select 1 from obj_links as l where l.sysobjid=151 and l.objid=c.id
+            and l.lnksysobjid=466 and l.lnkobjid=34)
+  and !exists(select 1 from obj_readers as r where r.sysobjid=151 and r.objid=c.id and r.userid=81)
+
+
+SELECT 151 as sysobjid, c.id as objid, 81 as userid, null as roletypeid, 1 as mustread
+FROM `contracts` as c
+WHERE exists(select 1 from obj_links as l where l.sysobjid=151 and l.objid=c.id
+            and l.lnksysobjid=466 and l.lnkobjid=34)
+  and !exists(select 1 from obj_readers as r where r.sysobjid=151 and r.objid=c.id and r.userid=81)
+
+
+
+--------------------------------------------------------------------------------------------------
+2021.10.27
+--------------------------------------------------------------------------------------------------
+ALTER TABLE `grantdocs`
+CHANGE COLUMN `docnum` `docnum` VARCHAR(16) NULL DEFAULT NULL COMMENT '№ доверенности (в пределах ownorgid)' ;
+
+--------------------------------------------------------------------------------------------------
+2021.10.21
+--------------------------------------------------------------------------------------------------
+Добавляем Андриянову(35) ко всем договорам ДУ(21) - по задаче Тернавского:
+
+insert into obj_readers (sysobjid,objid,userid, mustread)
+    SELECT 151 as sysobjid, id as objid, 35 as userid, 0 as mustread
+        FROM `contracts` as c
+        where c.contracttypeid=21
+        and !exists(select 1 from obj_readers as r where r.sysobjid=151 and r.objid=c.id and r.userid=35)
+
+--------------------------------------------------------------------------------------------------
+2021.10.19
+--------------------------------------------------------------------------------------------------
+
+ALTER TABLE `reports`
+ADD COLUMN `acs_rightid` BIGINT UNSIGNED NULL COMMENT 'право, необходимое для доступа пользователя' AFTER `acsid`;
+
+--------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------
+
+ALTER TABLE `task_users`
+ADD COLUMN `nxtrepdt` DATETIME NULL COMMENT 'Дать отчет до указанного времени' AFTER `enddt`;
+
+--------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------
+INSERT INTO `roletypes` (`id`, `name`) VALUES ('7', 'исполнитель');
+INSERT INTO `roletypes` (`id`, `name`) VALUES ('8', 'куратор');
+
+INSERT INTO `sysobj_roletypes` (`id`, `sysobjid`, `roletypeid`, `ordr`) VALUES ('11', '963', '7', '1');
+INSERT INTO `sysobj_roletypes` (`id`, `sysobjid`, `roletypeid`, `ordr`) VALUES ('12', '963', '8', '2');
+
+
+--------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------
+ALTER TABLE `sysobj_roletypes`
+DROP FOREIGN KEY `sysobj_roletypes_sysobjid_foreign`;
+
+ALTER TABLE `sysobj_roletypes`
+ADD COLUMN `objid` BIGINT UNSIGNED NULL COMMENT 'id объекта - привязки. NULL - к любой записи' AFTER `sysobjid`,
+ADD COLUMN `tgt_sysobjid` BIGINT UNSIGNED NULL COMMENT 'для какой системы предназначен' AFTER `objid`,
+CHANGE COLUMN `sysobjid` `sysobjid` BIGINT UNSIGNED NOT NULL COMMENT 'ID системного объекта - привязки' ;
+
+ALTER TABLE `sysobj_roletypes`
+ADD CONSTRAINT `sysobj_roletypes_sysobjid_foreign`
+  FOREIGN KEY (`sysobjid`)
+  REFERENCES `sysobjs` (`id`);
+
+--------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------
+
+ALTER TABLE `obj_orgs`
+ADD COLUMN `orgdepname` VARCHAR(60) NULL COMMENT 'название подразделения' AFTER `orgid`;
+
+--------------------------------------------------------------------------------------------------
+
+ALTER TABLE `documents`
+ADD COLUMN `orgdepname` VARCHAR(60) NULL COMMENT 'Название подразделения выпустившего документ' AFTER `orgid`;
+
+--------------------------------------------------------------------------------------------------
+ALTER TABLE `documents`
+ADD COLUMN `ref_regnum` VARCHAR(36) NULL COMMENT 'В ответ на №' AFTER `org_regdate`,
+ADD COLUMN `ref_regdate` DATE NULL AFTER `ref_regnum`;
+
+
+
+--------------------------------------------------------------------------------------------------
+ALTER TABLE `ocl_items`
+CHANGE COLUMN `ordr` `ordr` INT UNSIGNED NOT NULL DEFAULT 999999999 COMMENT 'порядок в списке' ;
+
+--------------------------------------------------------------------------------------------------
+
+ALTER TABLE `obj_links`
+ADD COLUMN `objrolename` VARCHAR(60) NULL COMMENT 'роль объекта в связи' AFTER `objid`,
+ADD COLUMN `lnkobjrolename` VARCHAR(60) NULL COMMENT 'роль связанного объекта в связи' AFTER `lnkobjid`;
+
+--------------------------------------------------------------------------------------------------
+
+ALTER TABLE `tasks`
+ADD COLUMN `categoryid` BIGINT UNSIGNED NULL COMMENT 'id категории задачи ( по post_categories)' AFTER `category`;
+
+--------------------------------------------------------------------------------------------------
+
+ALTER TABLE `task_reptypes`
+ADD COLUMN `ordr` TINYINT UNSIGNED NULL DEFAULT 250 COMMENT 'порядок вывода в списках' AFTER `days_interval`;
+
+--------------------------------------------------------------------------------------------------
+
+ALTER TABLE `documents`
+ADD COLUMN `ownorg_regnum` VARCHAR(36) NULL AFTER `ownorgid`,
+ADD COLUMN `ownorg_regdate` DATE NULL AFTER `ownorg_regnum`,
+ADD COLUMN `org_regnum` VARCHAR(36) NULL AFTER `orgid`,
+ADD COLUMN `org_regdate` DATE NULL AFTER `org_regnum`;
+
+
+--------------------------------------------------------------------------------------------------
+
+-- распределить общие доп.затраты счета на позиции счета, использованные в заявках
+update eritm_offers as ofr
+set ord_auxsum =
+ round(ord_sum * (select aux_sum/usedsum from invoices as inv where inv.id=ofr.invoiceid),6);
+
+-- расчет фактической цены закупки ( с учетом доп.затрат)
+update eritm_offers as ofr
+set ord_fctprice = round((ord_sum + ifnull(ord_auxsum,0))/ord_qty,6)
+where ord_qty>0;
+
+--------------------------------------------------------------------------------------------------
+
+update equiprqst_items ri set ord_qty=(select sum(ord_qty) from eritm_offers as o where o.eritmid=ri.id);
+update equiprqst_items ri set get_qty=(select sum(get_qty) from eritm_supplies as s where s.eritmid=ri.id);
+
+update eritm_offers ofr set dlvrd_qty=(select sum(dlvrd_qty) from ersup_deliveries as dlv where dlv.erofrid=ofr.id);
+update equiprqst_items ri set dlvrd_qty=(select sum(dlvrd_qty) from eritm_offers as o where o.eritmid=ri.id);
+
+--------------------------------------------------------------------------------------------------
+
+alter EVENT myevent disable;
+drop EVENT if exists myevent ;
+
+--------------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------------

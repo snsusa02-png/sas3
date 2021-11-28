@@ -1,0 +1,2 @@
+id,parent_id,name,acsid,active,created_at,created_by,updated_at,updated_by
+270,NULL,"паспорт гражданина РФ",2,1,"2021-06-09 14:29:07",1,"2021-06-09 14:29:07",12

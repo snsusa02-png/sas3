@@ -1,0 +1,15 @@
+id,name,description,mimetype_id,direct,active,datamodel,storage,catalog,handler,created_at,created_by,updated_at,updated_by
+1,"Прайс-лист из 1С","Прайс лист загружаемый из 1С",2,1,0,NULL,local,price1C,App\Services\Parsers\price1CDaloil,"2020-06-20 19:05:12",0,"2020-06-20 19:05:12",0
+2,"Характеристики товара","Загрузка характеристик товара основные и расширенные",2,1,0,NULL,local,ProductDetail,App\Services\Parsers\productDetailDaloil,"2020-06-20 19:05:12",1,"2020-06-20 19:05:12",1
+3,"1C Счет","Счет для 1С ",3,-1,0,NULL,local,1SInvoice,NULL,"2020-06-20 19:05:12",1,"2020-06-20 19:05:12",1
+4,"Фото для товара","Фото для позиции прайслиста",4,1,0,NULL,local,product,App\Services\Parsers\productImagesDaloil,"2020-06-20 19:05:12",1,"2020-06-20 19:05:12",1
+5,"Документы из 1С",XML,3,1,0,NULL,local,from1C,App\Services\Parsers\doc1CDaloil,"2020-06-20 19:05:12",1,"2020-06-20 19:05:12",1
+6,"Контрагенты из 1С",XML,3,1,1,Контрагенты,local,from1C,App\Services\Parsers\org1CInterface,"2020-06-20 19:05:12",1,"2020-06-20 19:05:12",1
+7,"Остатки на складах 1С",XML,3,1,0,NULL,local,from1C,App\Services\Parsers\stock1CDaloil,"2020-06-20 19:05:12",1,"2020-06-20 19:05:12",1
+8,"Номенклатура из 1С",XML,3,1,1,Номенклатура,local,from1C,App\Services\Parsers\product1C,"2020-06-20 19:05:12",1,"2020-06-20 19:05:12",1
+9,"Сальдо контрагентов из 1С",XML,3,1,0,NULL,local,from1C,App\Services\Parsers\saldo1C,"2020-06-20 19:05:12",1,"2020-06-20 19:05:12",1
+10,"Заказы клиентов из 1С",XML,3,1,0,Заказы,local,from1C,App\Services\Parsers\ord1CInterface,"2020-06-20 19:05:12",1,"2020-06-20 19:05:12",1
+11,"Оплата заказов из 1С",XML,3,1,0,NULL,local,from1C,App\Services\Parsers\pays1CInterface,"2020-06-20 19:05:12",1,"2020-06-20 19:05:12",1
+12,"Быстрая продажа",XML,3,1,0,БыстраяПродажа,local,from1C,App\Services\Parsers\ord1CInterface,"2020-06-20 19:05:12",1,"2020-06-20 19:05:12",1
+13,"Квитанции 1С о загрузке заказов",XML,3,1,0,КвитанцииЗагрузкиЗаказов,local,from1C,App\Services\Parsers\rcpt1CordInterface,"2020-06-20 19:05:12",1,"2020-06-20 19:05:12",1
+14,"Локальная смета (Гранд-Смета)",XML,3,1,1,NULL,local,fromGrand,App\Services\Parsers\grandSmeta,"2020-06-20 19:45:50",1,"2020-06-20 19:45:50",1

@@ -1,0 +1,15 @@
+users,U,id
+user_acs,U,id
+usrsysrights,U,id
+reports,U,id
+orgs,U,id
+orgstaff,U,id
+doctypes,U,id
+bdgtacnttypes,U,id
+refitems,U,id
+places,U,id
+mchntypes,U,id
+machines,U,id
+mchn_opertypes,U,id
+mchn_raids,U,id
+paydocs,U,id

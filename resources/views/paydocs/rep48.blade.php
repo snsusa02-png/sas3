@@ -1,0 +1,195 @@
+@extends('layouts.report')
+
+<?php
+$thisTitle = "-";
+$thisSysObjId = 855;    //reports
+$thisObjId = 48;
+//$retURL = route('admin') . '#nsi-rep';
+$retURL = $data->returl ?? route('paydocs.index');
+
+$report = \App\report::find($thisObjId);
+
+if (!isset($report))
+    return redirect($retURL);
+
+$thisTitle = $report->title ?? $report->name;
+//$action_url = route('reports.rep' . $thisObjId);
+
+?>
+@section('title')
+    {{$thisTitle}}
+@endsection
+
+@section('content')
+
+    <style>
+        .rep-data td {
+            padding: 5px;
+            border-collapse: collapse;
+            border: 1px solid #e2e2e2;
+        }
+
+        .page {
+            background-color: white;
+        }
+
+        .totSum {
+            background-color: white;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+    </style>
+
+    <div class="container">
+
+        @if (isset($recs))
+            @if ($recs->count()==0)
+
+                <div class="page p-3 d-print-none" align="center">
+                    нет операций для заданных значений
+                </div>
+
+            @else
+
+                <div class="page p-2 container-fluid">
+
+                    <span class="float-right">
+                    <a class="btn btn-warning btn-sm print-window d-print-none "
+                       onclick="window.print();"
+                       title="печать">
+                        <i class="fa fa-print" aria-hidden="true"></i>
+                    </a>
+                        @if(1==0)
+                            <a class="btn btn-success btn-sm mr-3"
+                               href="{{ route('reports.rep43_excel')  }}" title="Выгрузить результаты в Excel">
+                                        <i class="fa fa-file-excel-o" aria-hidden="true"></i>
+                                    </a>
+                        @endif
+                        <a class="btn btn-close btn-info btn-sm"
+                           href="{{ $retURL  }}">
+                                        <i class="fa fa-times" aria-hidden="true"></i>
+                                    </a>
+                        </span>
+
+                    <div class="mt-2" align="center"
+                         style="font-size: 18px;">
+                        <h4>{{$thisTitle}}</h4>
+                        между <b>{{$data->org->name??'-'}}</b>
+                        и <b>{{$data->ownorg->name??'-'}}</b>
+                        <span class="small ml-3 d-print-none"><br>по состоянию на {{now()}}</span>
+
+                        @if(1==0)
+                            <button class="btn btn-primary btn-sm d-print-none" type="button" data-toggle="collapse"
+                                    data-target=".multi-collapse" aria-expanded="false"
+                                    aria-controls="multiCollapseExample1 multiCollapseExample2">
+                                <i class="fa fa-eye-slash" aria-hidden="true"></i>
+                            </button>
+                        @endif
+                    </div>
+
+                    <table class="table table-sm table-striped rep-data mt-3"
+                           style="background-color: snow; font-size:16px; max-width:960px"
+                           align=center>
+                        <thead>
+                        <tr class="text-left small" valign="top">
+                            <td class="text-center">Дата</td>
+                            <td class="text-left">Операция</td>
+                            <td class="text-right">Кол-во</td>
+                            <td class="text-right">Цена,руб</td>
+                            <td class="text-right">Сумма, руб</td>
+                            <td class="text-right">Тек. сальдо, руб</td>
+                        </tr>
+
+                        </thead>
+                        <tbody>
+                        <?php
+                        $npp = 0;
+                        $totSum = $curSum = 0;
+                        ?>
+                        @if(isset($data->org_saldo))
+                            <?php
+                            $td_class = ($data->org_saldo->saldo < 0) ? 'text-danger' : (($data->org_saldo->saldo > 0) ? 'text-success' : '');
+                            $curSum += $data->org_saldo->saldo;
+                            ?>
+
+                            <tr class="text-left ">
+                                <td class="text-center small">
+                                    {{date_create($data->org_saldo->ondate)->format('d.m.Y')}}
+                                </td>
+                                <td class="text-center small font-weight-bold">
+                                    - начальное сальдо -
+                                </td>
+                                <td class="text-right "></td>
+                                <td class="text-right "></td>
+                                <td class="text-right {{$td_class}}">{{number_format($data->org_saldo->saldo,2)}}</td>
+                                <td class="text-right small {{$td_class}}">{{number_format($curSum,2)}}</td>
+                            </tr>
+                            <?php
+                            $totSum += $data->org_saldo->saldo;
+                            ?>
+                        @endif
+
+                        @foreach($recs as $rec)
+                            <?php
+                            $curSum += $rec->itmsum;
+
+                            $td_class = ($rec->itmsum < 0) ? 'text-danger' : (($rec->itmsum > 0) ? 'text-success' : '');
+                            $tdс_class = ($curSum < 0) ? 'text-danger' : (($totSum > 0) ? 'text-success' : '');
+
+                            $sh_qty = (isset($rec->itmqty)) ? number_format($rec->itmqty, 2) : '';
+                            $sh_price = (isset($rec->itmprice)) ? number_format($rec->itmprice, 2) : '';
+
+                            if ($rec->sysobjid == 520)
+                                $ref_url = route('paydocs.edit', $rec->objid);
+                            elseif ($rec->sysobjid == 1106)
+                                $ref_url = route('mchn_raids.edit', $rec->objid);
+                            else
+                                $ref_url = null;
+
+                            ?>
+                            <tr class="text-left ">
+                                <td class="text-center small">
+                                    {{date_create($rec->operdate)->format('d.m.Y')}}
+                                </td>
+                                <td class="text-left small">
+                                    @if(isset($ref_url))
+                                        <a href="{{$ref_url}}" target="_blank">{{$rec->itmname}}</a>
+                                    @else
+                                        {{$rec->itmname}}
+                                    @endif
+                                </td>
+                                <td class="text-right small">{{$sh_qty}}</td>
+                                <td class="text-right small">{{$sh_price}}</td>
+                                <td class="text-right {{$td_class}}">{{number_format($rec->itmsum,2)}}</td>
+                                <td class="text-right small {{$tdс_class}}">{{number_format($curSum,2)}}</td>
+                            </tr>
+                            <?php
+                            $totSum += $rec->itmsum;
+                            ?>
+                        @endforeach
+
+                        @if(1==1)
+                            <?php
+                            $td_class = ($totSum < 0) ? 'text-danger' : (($totSum > 0) ? 'text-success' : '');
+                            $tdс_class = ($curSum < 0) ? 'text-danger' : (($totSum > 0) ? 'text-success' : '');
+                            ?>
+                            <tr style="border-top:1px solid darkred !important;">
+                                <td colspan="4" class="text-right">Итого:</td>
+                                <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totSum,2)}}</td>
+                                <td class="text-right small {{$tdс_class}}">{{number_format($curSum,2)}}</td>
+                            </tr>
+                        @endif
+                        </tbody>
+                        <tfoot>
+                    </table>
+
+                </div>
+            @endif
+        @endif
+
+    </div>
+
+    <script src="{{ asset('js/rep43.js') }}" defer></script>
+
+@endsection

@@ -1,0 +1,6 @@
+id,name,mchntypeid,regnum,descript,orgid,photourl,opercodes,fueltypeid,fuelper1hour,fuelper100km,hour_work_cost,hour_fuel_cost,active,created_at,created_by,updated_at,updated_by
+1,самосвал,NULL,к160мх,NULL,31,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,"2021-10-24 07:51:18",1,"2021-10-24 07:51:18",1
+2,самосвал,NULL,в150но,NULL,31,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,"2021-10-24 07:51:18",1,"2021-10-24 07:51:18",1
+3,самосвал,NULL,с216ок,NULL,31,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,"2021-10-24 07:51:18",1,"2021-10-24 07:51:18",1
+4,самосвал,NULL,н232нр,NULL,31,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,"2021-10-24 07:51:18",1,"2021-10-24 07:51:18",1
+5,самосвал,NULL,н017се,NULL,31,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,"2021-10-24 07:51:18",1,"2021-10-24 07:51:18",1

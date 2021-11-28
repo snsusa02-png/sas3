@@ -1,0 +1,11 @@
+input[type="checkbox"][readonly] {
+    pointer-events: none;
+}
+
+label.required:after {
+	font-size: 75%;
+	vertical-align: super;
+	content: "*";
+	color: red;
+}
+

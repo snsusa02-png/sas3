@@ -1,0 +1,372 @@
+ul.no-bullets {
+    list-style-type: none; /* Remove bullets */
+    padding: 0; /* Remove padding */
+    margin: 0; /* Remove margins */
+}
+
+.tagcloud01 ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.tagcloud01 ul li {
+    display: inline-block;
+    margin: 0 .3em .3em 0;
+    padding: 0;
+}
+
+.tagcloud01 ul li a {
+    display: inline-block;
+    max-width: 180px;
+    height: 22px;
+    line-height: 22px;
+    padding: 0 1em;
+    background-color: #fff;
+    border: 1px solid #aaa;
+    border-radius: 3px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    color: #333;
+    font-size: 10px;
+    text-decoration: none;
+    -webkit-transition: .2s;
+    transition: .2s;
+}
+
+.tagcloud01 ul li a:hover {
+    background-color: #3498db;
+    border: 1px solid #3498db;
+    color: #fff;
+}
+
+
+.tagcloud02 ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow: hidden;
+}
+
+.tagcloud02 ul li {
+    float: left;
+    width: 150px;
+    margin: 0 10px 10px 0;
+    padding: 0;
+}
+
+.tagcloud02 ul li a {
+    display: block;
+    width: 100%;
+    height: 32px;
+    line-height: 32px;
+    padding: 0 1em;
+    background-color: #fff;
+    border: 1px solid #aaa;
+    border-radius: 3px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    color: #333;
+    font-size: 13px;
+    text-decoration: none;
+    -webkit-transition: .2s;
+    transition: .2s;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.tagcloud02 ul li a:hover {
+    background-color: #3498db;
+    border: 1px solid #3498db;
+    color: #fff;
+}
+
+
+.tagcloud03 ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.tagcloud03 ul li {
+    display: inline-block;
+    margin: 0 .3em .3em 0;
+    padding: 0;
+}
+
+.tagcloud03 ul li a {
+    position: relative;
+    display: inline-block;
+    max-width: 100px;
+    height: 28px;
+    line-height: 28px;
+    padding: 0 2.5em 0 1em;
+    background-color: #fff;
+    border: 1px solid #aaa;
+    border-radius: 3px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    color: #333;
+    font-size: 13px;
+    text-decoration: none;
+    -webkit-transition: .2s;
+    transition: .2s;
+}
+
+.tagcloud03 li span {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    z-index: 2;
+    width: 22px;
+    height: 22px;
+    line-height: 22px;
+    background-color: #3498db;
+    border-radius: 100%;
+    color: #fff;
+    font-size: 12px;
+    text-align: center;
+    -webkit-transition: .2s;
+    transition: .2s;
+}
+
+.tagcloud03 ul li a:hover {
+    background-color: #3498db;
+    border: 1px solid #3498db;
+    color: #fff;
+}
+
+.tagcloud03 ul li a:hover span {
+    background-color: #fff;
+    color: #3498db;
+}
+
+
+.tagcloud04 ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.tagcloud04 ul li {
+    position: relative;
+    display: inline-block;
+    margin: 0 .75em .5em 0;
+    padding: 0;
+}
+
+.tagcloud04 ul li a {
+    position: relative;
+    display: inline-block;
+    max-width: 190px;
+    height: 28px;
+    line-height: 28px;
+    padding: 0 1em;
+    background: #fff;
+    border: 1px solid #aaa;
+    border-radius: 3px;
+    word-wrap: normal;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    color: #333;
+    font-size: 13px;
+    text-decoration: none;
+    -webkit-transition: .2s;
+    transition: .2s;
+}
+
+.tagcloud04 ul li span {
+    position: absolute;
+    top: 0;
+    right: -10px;
+    z-index: 2;
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    background-color: #3498db;
+    border: 1px solid #3498db;
+    border-radius: 100%;
+    color: #fff;
+    font-size: 13px;
+    text-align: center;
+    opacity: 0;
+    -webkit-transition: .2s;
+    transition: .2s;
+    -webkit-transform: scale(.4);
+    transform: scale(.4);
+}
+
+.tagcloud04 ul li span::after {
+    position: absolute;
+    top: 50%;
+    left: -8px;
+    content: '';
+    width: 0;
+    height: 0;
+    margin-top: -7px;
+    border-color: transparent #3498db transparent transparent;
+    border-style: solid;
+    border-width: 7px 14px 7px 0;
+}
+
+.tagcloud04 ul li a:hover {
+    border: 1px solid #3498db;
+    color: #3498db;
+}
+
+.tagcloud04 ul li:hover span {
+    right: -26px;
+    opacity: 1;
+    -webkit-transform: scale(1);
+    transform: scale(1);
+}
+
+
+.tagcloud05 ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.tagcloud05 ul li {
+    display: inline-block;
+    margin: 0 0 .3em 1em;
+    padding: 0;
+}
+
+.tagcloud05 ul li a {
+    position: relative;
+    display: inline-block;
+    height: 30px;
+    line-height: 30px;
+    padding: 0 1em;
+    background-color: #3498db;
+    border-radius: 0 3px 3px 0;
+    color: #fff;
+    font-size: 13px;
+    text-decoration: none;
+    -webkit-transition: .2s;
+    transition: .2s;
+}
+
+.tagcloud05 ul li a::before {
+    position: absolute;
+    top: 0;
+    left: -15px;
+    content: '';
+    width: 0;
+    height: 0;
+    border-color: transparent #3498db transparent transparent;
+    border-style: solid;
+    border-width: 15px 15px 15px 0;
+    -webkit-transition: .2s;
+    transition: .2s;
+}
+
+.tagcloud05 ul li a::after {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    z-index: 2;
+    display: block;
+    content: '';
+    width: 6px;
+    height: 6px;
+    margin-top: -3px;
+    background-color: #fff;
+    border-radius: 100%;
+}
+
+.tagcloud05 ul li span {
+    display: block;
+    max-width: 100px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.tagcloud05 ul li a:hover {
+    background-color: #555;
+    color: #fff;
+}
+
+.tagcloud05 ul li a:hover::before {
+    border-right-color: #555;
+}
+
+
+.tagcloud06 ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.tagcloud06 ul li {
+    display: inline-block;
+    margin: 0 0 .3em 1em;
+    padding: 0;
+}
+
+.tagcloud06 ul li a {
+    position: relative;
+    display: inline-block;
+    height: 30px;
+    line-height: 30px;
+    padding: 0 1em 0 .75em;
+    background-color: #3498db;
+    border-radius: 0 3px 3px 0;
+    color: #fff;
+    font-size: 13px;
+    text-decoration: none;
+    -webkit-transition: .2s;
+    transition: .2s;
+}
+
+.tagcloud06 ul li a::before {
+    position: absolute;
+    top: 0;
+    left: -15px;
+    z-index: -1;
+    content: '';
+    width: 30px;
+    height: 30px;
+    background-color: #3498db;
+    border-radius: 50%;
+    -webkit-transition: .2s;
+    transition: .2s;
+}
+
+.tagcloud06 ul li a::after {
+    position: absolute;
+    top: 50%;
+    left: -6px;
+    z-index: 2;
+    display: block;
+    content: '';
+    width: 6px;
+    height: 6px;
+    margin-top: -3px;
+    background-color: #fff;
+    border-radius: 100%;
+}
+
+.tagcloud06 ul li span {
+    display: block;
+    max-width: 100px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.tagcloud06 ul li a:hover {
+    background-color: #555;
+    color: #fff;
+}
+
+.tagcloud06 ul li a:hover::before {
+    background-color: #555;
+}

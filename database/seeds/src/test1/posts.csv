@@ -1,0 +1,2 @@
+id,category_id,user_id,title,slug,content,featured_image,is_featured,is_published,published_at,created_at,updated_at
+1,1,12,"Диспетчерское управление в строительстве",dispetcerskoe-upravlenie-v-stroitelstve," ",NULL,0,0,NULL,"2020-08-23 13:06:46","2020-08-23 13:06:46"

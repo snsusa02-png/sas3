@@ -1,0 +1,25 @@
+id,name,description,extension,mimetype,readclass,iconfile,created_at,created_by,updated_at,updated_by
+1,"Microsoft Excel 2007/ 2010/2013 XML","Microsoft Excel 2007/ 2010/2013 XML",xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,App\Services\Readers\XLSX,NULL,"2021-10-07 22:29:26",0,"2021-10-07 22:29:26",0
+2,"Text CSV","Text CSV",csv,text/csv,App\Services\Readers\CSV,NULL,"2021-10-07 22:29:26",0,"2021-10-07 22:29:26",0
+3,"1C XML","1С XML",xml,text/xml,App\Services\Readers\XML,/images/fileicons/xml.svg,"2021-10-07 22:29:26",0,"2021-10-07 22:29:26",0
+4,image/jpeg,NULL,jpg,image/jpeg,NULL,NULL,"2021-10-07 22:29:26",1,"2021-10-07 22:29:26",1
+5,image/png,NULL,png,image/png,NULL,NULL,"2021-10-07 22:29:26",1,"2021-10-07 22:29:26",1
+6,image/gif,NULL,gif,image/gif,NULL,NULL,"2021-10-07 22:29:26",1,"2021-10-07 22:29:26",1
+7,image/svg+xml,NULL,svg,image/svg+xml,NULL,NULL,"2021-10-07 22:29:26",1,"2021-10-07 22:29:26",1
+8,"Adobe Portable Document Format",PDF,pdf,application/pdf,NULL,/images/fileicons/pdf.png,"2021-10-07 22:29:26",1,"2021-10-07 22:29:26",1
+9,"Microsoft Word",NULL,doc,application/msword,NULL,/images/fileicons/doc.jpg,"2021-10-07 22:29:26",1,"2021-10-07 22:29:26",1
+10,"Microsoft Word (OpenXML)",NULL,docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document,NULL,/images/fileicons/doc.jpg,"2021-10-07 22:29:26",1,"2021-10-07 22:29:26",1
+11,"Microsoft PowerPoint",NULL,ppt,application/vnd.ms-powerpoint,NULL,/images/fileicons/ppt.png,"2021-10-07 22:29:26",1,"2021-10-07 22:29:26",1
+12,"Microsoft PowerPoint (OpenXML)",NULL,pptx,application/vnd.openxmlformats-officedocument.presentationml.presentation,NULL,NULL,"2021-10-07 22:29:26",1,"2021-10-07 22:29:26",1
+13,"RAR archive",NULL,rar,application/vnd.rar,NULL,NULL,"2021-10-07 22:29:26",1,"2021-10-07 22:29:26",1
+14,"Rich Text Format (RTF)",NULL,rtf,application/rtf,NULL,NULL,"2021-10-07 22:29:26",1,"2021-10-07 22:29:26",1
+15,"Microsoft Excel",NULL,xls,application/vnd.ms-excel,NULL,NULL,"2021-10-07 22:29:26",1,"2021-10-07 22:29:26",1
+16,"Microsoft Excel (OpenXML)",NULL,xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,NULL,NULL,"2021-10-07 22:29:26",1,"2021-10-07 22:29:26",1
+17,"ZIP archive",NULL,zip,application/zip,NULL,NULL,"2021-10-07 22:29:26",1,"2021-10-07 22:29:26",1
+18,"Microsoft Project",NULL,mpp,application/vnd.ms-project,NULL,/images/fileicons/mpp.png,"2021-10-07 22:29:26",1,"2021-10-07 22:29:26",1
+19,DjVu,NULL,djvu,image/vnd.djvu,NULL,/images/fileicons/djvu.jpg,"2021-10-07 22:29:26",1,"2021-10-07 22:29:26",1
+20,dwg,NULL,dwg,image/vnd.dwg,NULL,/images/fileicons/dwg.jpg,"2021-10-07 22:29:26",1,"2021-10-07 22:29:26",1
+21,image/jpeg,NULL,jpeg,image/jpeg,NULL,NULL,"2021-10-07 22:29:26",1,"2021-10-07 22:29:26",1
+22,image/jpeg,NULL,jfif,image/jpeg,NULL,NULL,"2021-10-07 22:29:26",1,"2021-10-07 22:29:26",1
+23,image/webp,NULL,webp,image/webp,NULL,NULL,"2021-06-28 22:16:17",1,"2021-06-28 22:16:17",1
+24,"digital signature",NULL,sig,text/plain,NULL,/images/fileicons/code-signing.png,"2021-10-08 01:01:22",1,"2021-10-08 01:01:22",1

@@ -1,0 +1,426 @@
+@extends('layouts.report')
+
+<?php
+$thisTitle = "-";
+$thisSysObjId = 855;    //reports
+$thisObjId = 46;
+//$retURL = route('admin') . '#nsi-rep';
+//$retURL = '/admin#nsi-rep';
+$retURL = route('mchn_raids.index');
+
+$report = \App\report::find($thisObjId);
+
+if (!isset($report))
+    return redirect($retURL);
+
+$thisTitle = $report->title ?? $report->name;
+$action_url = route('reports.rep' . $thisObjId);
+
+?>
+@section('title')
+    {{$thisTitle}}
+@endsection
+
+@section('content')
+
+    <style>
+        .rep-data td {
+            padding: 5px;
+            border-collapse: collapse;
+            border: 1px solid #e2e2e2;
+        }
+
+        .page {
+            background-color: white;
+        }
+
+        .totSum {
+            background-color: white;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+    </style>
+
+    <div class="container">
+
+        <div class="row mb-3">
+            <div class="col-md-12">
+
+                <div class="params no-print card mt-3 d-print-none">
+                    <div class="card-header font-weight-bold">
+                        Параметры отчета "{{$thisTitle}}"
+                    </div>
+                    <div class="card-body">
+
+                        <form name="forRep01" id="forRep01" method="post"
+                              action="{{ $action_url }}">
+                            @csrf
+
+                            @if(1==1)
+                                <div class="row">
+                                    <div class="form-group col-md-2 dpt_9 " style="display: none">
+                                        <label for="s_begdate" class="required">Начало периода:</label>
+                                        <input type="date" class="form-control text-center"
+                                               name="s_begdate" id="s_begdate"
+                                               value="{{$search_params['s_begdate']??''}}"
+                                        />
+                                    </div>
+
+                                    <div class="form-group col-md-2 dpt_9 " style="display: none">
+                                        <label for="s_begdate">Окончание периода:</label>
+                                        <input type="date" class="form-control text-center"
+                                               name="s_enddate" id="s_enddate"
+                                               value="{{$search_params['s_enddate']??''}}"
+                                        />
+                                    </div>
+
+                                    <div class="form-group col-md-2 dpt_1" style="display: none">
+                                        <label for="s_month" class="required">Месяц:</label>
+                                        {!! Form::select('s_month', $data->monthes??[], $search_params['s_month'],
+                                                        [
+                                                        'id' => 's_month',
+                                                        'class' => 'form-control',
+                                                        'placeholder' => '-укажите-',
+                                                        ])
+                                                        !!}
+                                    </div>
+
+                                    <div class="form-group col-md-2 dpt_2 " style="display: none">
+                                        <label for="s_quarter" class="required">Квартал:</label>
+                                        {!! Form::select('s_quarter', $data->quarters??[], $search_params['s_quarter'],
+                                                        [
+                                                        'id' => 's_quarter',
+                                                        'class' => 'form-control',
+                                                        'placeholder' => '-укажите-',
+                                                        ])
+                                                        !!}
+                                    </div>
+
+                                    <div class="form-group col-md-2 dpt_3 " style="display: none">
+                                        <label for="s_year" class="required">Год:</label>
+                                        {!! Form::select('s_year', $data->years??[], $search_params['s_year'],
+                                                        [
+                                                        'id' => 's_year',
+                                                        'class' => 'form-control',
+                                                        'placeholder' => '-укажите-',
+                                                        ])
+                                                        !!}
+                                    </div>
+
+                                    <div class="form-group col-md-2">
+                                        <label for="s_period_type" class="">Тип периода:</label>
+                                        {!! Form::select('s_period_type', $data->period_types, $search_params['s_period_type'],
+                                                        [
+                                                        'id' => 's_period_type',
+                                                        'class' => 'form-control small',
+                                                        'placeholder' => '-укажите-',
+                                                        ])
+                                                        !!}
+                                    </div>
+
+                                    <div class="form-group col-md-3">
+                                        <label for="s_ownorgid" class="">Владелец:</label>
+                                        {!! Form::select('s_ownorgid', $data->ownorgs, $search_params['s_ownorgid'],
+                                                        [
+                                                        'class' => 'form-control',
+                                                        'placeholder' => '-все-',
+                                                        ])
+                                                        !!}
+                                    </div>
+
+                                    <?php
+                                    $s_orgname = $search_params['s_orgname'] ?? '';
+                                    ?>
+                                    @if(1==0)
+                                        <div class="form-group col-md-3">
+                                            <label for="name">Получатель:</label>
+                                            {!! Form::select('s_orgid', $data->orgs, $search_params['s_orgid'],
+                                                            [
+                                                            'class' => 'form-control',
+                                                            'placeholder' => '-все-',
+                                                            ])
+                                                            !!}
+                                        </div>
+
+                                        <div class="form-group col-md-3">
+                                            <label for="s_categoryid">Категория:</label>
+                                            {!! Form::select('s_categoryid', $data->categories, $search_params['s_categoryid']??'',
+                                                            [
+                                                            'class' => 'form-control',
+                                                            'placeholder' => '-все-',
+                                                            ])
+                                                            !!}
+                                        </div>
+                                    @endif
+
+                                </div>
+                            @endif
+
+                            <div style="border-top:1px solid silver;" class="mt-1 p-1">
+                                <button type="submit" class="btn btn-sm btn-success"
+                                        formmethod="post">
+                                    <i class="fa fa-refresh" aria-hidden="true"></i>
+                                    Сформировать
+                                </button>
+                                <a class="btn btn-close btn-light btn-sm"
+                                   href="{{ $retURL  }}">
+                                    <i class="fa fa-window-close-o" aria-hidden="true"></i>
+                                    Закрыть
+                                </a>
+                                @if(1==1)
+                                    <span class="small float-right" ml-2>
+									 <a href="{{route('objevntlog',['sysobjid'=>$thisSysObjId, 'objid'=>$thisObjId,'route'=>Route::current()->getName()])}}">журнал</a>
+								</span>
+                                @endif
+
+
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (isset($recs))
+            @if ($recs->count()==0)
+
+                <div class="page p-3 d-print-none" align="center">
+                    нет операций для заданных значений
+                </div>
+
+            @else
+                <?php
+                $s_period_type = $search_params['s_period_type'] ?? '';
+                $ownorgid = $search_params['s_ownorgid'] ?? '';
+                $s_begdate = $search_params['s_begdate'] ?? '';
+                $s_enddate = $search_params['s_enddate'] ?? '';
+
+                $routes = [
+                    915 => 'invoices.edit'
+                ];
+                ?>
+
+                <div class="page p-2 container-fluid">
+
+                    <span class="float-right">
+                    <a class="btn btn-warning btn-sm print-window d-print-none "
+                       onclick="window.print();"
+                       title="печать">
+                        <i class="fa fa-print" aria-hidden="true"></i>
+                    </a>
+                        @if(1==0)
+                            <a class="btn btn-success btn-sm mr-3"
+                               href="{{ route('reports.rep43_excel')  }}" title="Выгрузить результаты в Excel">
+                                        <i class="fa fa-file-excel-o" aria-hidden="true"></i>
+                                    </a>
+                        @endif
+                        <a class="btn btn-close btn-info btn-sm"
+                           href="{{ $retURL  }}">
+                                        <i class="fa fa-times" aria-hidden="true"></i>
+                                    </a>
+                        </span>
+
+                    <div class="font-weight-bold mt-2" align="center"
+                         style="font-size: 18px;">
+                        <h4>{{$thisTitle}}</h4>
+                        {{--                        <b>{{$data->ownorgs[$search_params['s_ownorgid']]??''}}</b><br>--}}
+                        @if($s_period_type==1)
+                            {{$data->monthes[$search_params['s_month']]??''}} {{$search_params['s_year']??''}}<br>
+                        @elseif($s_period_type==2)
+                            {{$search_params['s_quarter']}} квартал {{$search_params['s_year']??''}}<br>
+                        @elseif($s_period_type==3)
+                            {{$search_params['s_year']??''}} год<br>
+                        @endif
+                        @if(isset($s_begdate) and $s_begdate<>'')
+                            с {{date_format(date_create($s_begdate),'d.m.Y')}}
+                        @endif
+                        @if(isset($s_enddate) and $s_enddate<>'')
+                            по {{date_format(date_create($s_enddate),'d.m.Y')}}
+                        @endif
+
+                        <span class="small ml-3 d-print-none"><br>по состоянию на {{now()}}</span>
+
+                        @if(1==0)
+                            <button class="btn btn-primary btn-sm d-print-none" type="button" data-toggle="collapse"
+                                    data-target=".multi-collapse" aria-expanded="false"
+                                    aria-controls="multiCollapseExample1 multiCollapseExample2">
+                                <i class="fa fa-eye-slash" aria-hidden="true"></i>
+                            </button>
+                        @endif
+                    </div>
+
+                    <h5 class="text-center">Оборот по работе</h5>
+                    <table class="table table-sm table-striped rep-data mt-3"
+                           style="background-color: snow; font-size:16px; width:960px"
+                           align=center>
+                        <thead>
+                        <tr class="text-left small" valign="top">
+                            {{--                            <td class="text-center">Дата</td>--}}
+                            <td class="text-left">Компания(физ. лицо)</td>
+                            <td class="text-left">Место выгрузки</td>
+                            <td class="text-center">Диспетчер</td>
+                            <td class="text-center">Товар</td>
+                            <td class="text-right">Кол-во рейсов</td>
+                            <td class="text-right">Объем отгрузки</td>
+                            <td class="text-right">Цена за ЕИ</td>
+                            <td class="text-right">Сумма, руб</td>
+                            <td class="text-right">Сальдо, руб</td>
+                        </tr>
+
+                        </thead>
+                        <tbody>
+                        <?php
+                        $npp = 0;
+                        $curOwnOrgID = -1;
+                        $curOwnOrgName = '';
+                        $curRqstOrgID = -1;
+                        $curPayDate = -1;
+                        $totSum = $totRaidQty = $daySum = $dayRaidQty = 0;
+                        ?>
+                        @foreach($recs as $rec)
+
+                            <?php
+                            $wrkdate = date_create($rec->wrkdate)->format('d.m.Y');
+                            ?>
+                            @if($wrkdate<>$curPayDate)
+                                @if($curPayDate <>-1 )
+                                    <tr data-toggle="collapse" data-target=".date_{{$tr_date}}" style="cursor: pointer">
+                                        <td colspan="4" class="text-right">Итого за {{$curPayDate}}:</td>
+                                        <td class="text-right font-weight-bold h6">{{number_format($dayRaidQty,0)}}</td>
+                                        <td colspan="2" class="text-right"></td>
+                                        <td class="text-right font-weight-bold h6">{{number_format($daySum,2)}}</td>
+                                        <td></td>
+                                    </tr>
+                                @endif
+                                <?php
+                                $tr_date = date_create($rec->wrkdate)->format('dmY');
+                                ?>
+                                <tr class="text-left" style="background-color: #edffe0">
+                                    <td colspan="9" class="text-left pl-2 h6">
+                                        @if(1==0)
+                                            <span data-toggle="collapse" data-target=".date_{{$tr_date}}"
+                                                  class="btn btn-light btn-sm "><b>{{$wrkdate}}</b>
+                                            <i class="fa fa-eye-slash d-print-none" aria-hidden="true"></i>
+                                        </span>
+                                        @else
+                                            <b>{{$wrkdate}}</b>
+                                        @endif
+                                    </td>
+                                </tr>
+                                <?php
+                                $curPayDate = $wrkdate;
+                                $daySum = $dayRaidQty = 0;
+                                ?>
+                            @endif
+                            <?php
+                            $td_class = ($rec->org_saldo < 0) ? 'text-danger' : (($rec->org_saldo > 0) ? 'text-success' : '');
+                            ?>
+
+                            <tr class="text-left collapse show date_{{$tr_date}} multi-collapse">
+                                {{--                                <td></td>--}}
+                                <td class="text-left small">
+                                    <a href="{{route('orgs.edit',$rec->orgid)}}" target="_blank" class="text-decoration-none">{{$rec->orgname}}</a>
+                                </td>
+                                <td class="text-left">{{$rec->unload_placename}}</td>
+                                <td class="text-left small">{{$rec->dispuser_name}}</td>
+                                <td class="text-left small">{{$rec->refitm_name}}</td>
+                                <td class="text-right">{{number_format($rec->raid_qty,0)}}
+                                <td class="text-right small">{{number_format($rec->unload_qty,2)}}
+                                <td class="text-right small">{{number_format($rec->unload_price,2)}}
+                                <td class="text-right">{{number_format($rec->unload_sum,2)}}
+                                <td class="text-right {{$td_class}}">{{number_format($rec->org_saldo,2)}}
+
+                            </tr>
+                            <?php
+                            $totSum += $rec->unload_sum;
+                            $totRaidQty += $rec->raid_qty;
+
+                            $dayRaidQty += $rec->raid_qty;
+                            $daySum += $rec->unload_sum;
+                            ?>
+                        @endforeach
+
+                        @if(1==1)
+                            @if($curPayDate <>-1 )
+                                <tr data-toggle="collapse" data-target=".date_{{$tr_date}}" style="cursor: pointer">
+                                    <td colspan="4" class="text-right">Итого за {{$curPayDate}}:</td>
+                                    <td class="text-right font-weight-bold h6">{{number_format($dayRaidQty,0)}}</td>
+                                    <td colspan="2" class="text-right"></td>
+                                    <td class="text-right font-weight-bold h6">{{number_format($daySum,2)}}</td>
+                                    <td></td>
+                                </tr>
+                            @endif
+
+                            <tr class="text-left" style="background-color: #dacf64">
+                                <td colspan="9" class="text-left pl-2"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-right">Всего:</td>
+                                <td class="text-right font-weight-bold">{{number_format($totRaidQty,0)}}</td>
+                                <td colspan="2" class="text-right"></td>
+                                <td class="text-right font-weight-bold">{{number_format($totSum,2)}}</td>
+                                <td></td>
+                            </tr>
+                        @endif
+                        </tbody>
+                        <tfoot>
+                    </table>
+
+
+                    <h5 class="text-center">Карьеры</h5>
+                    <table class="table table-sm table-striped rep-data mt-3"
+                           style="background-color: snow; font-size:16px; width:960px"
+                           align=center>
+                        <thead>
+                        <tr class="text-left small" valign="top">
+                            <td class="text-left">Название</td>
+                            <td class="text-center">Товар</td>
+                            <td class="text-right">Объем</td>
+                            <td class="text-right">Цена за ЕИ</td>
+                            <td class="text-right">Сумма, руб</td>
+                        </tr>
+
+                        </thead>
+                        <tbody>
+                        <?php
+                        $npp = 0;
+                        $totSum = 0;
+                        ?>
+                        @foreach($recs2 as $rec)
+
+                            <tr class="text-left">
+                                <td class="text-left small">{{$rec->load_placename}}</td>
+                                <td class="text-left small">{{$rec->refitm_name}}</td>
+                                <td class="text-right small">{{number_format($rec->load_qty,2)}}
+                                <td class="text-right small">{{number_format($rec->load_price,2)}}
+                                <td class="text-right">{{number_format($rec->load_sum,2)}}
+                            </tr>
+                            <?php
+                            $totSum += $rec->load_sum;
+                            ?>
+                        @endforeach
+
+                        @if(1==1)
+                            <tr class="text-left" style="background-color: #dacf64">
+                                <td colspan="7" class="text-left pl-2"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-right">Всего:</td>
+                                <td class="text-right font-weight-bold">{{number_format($totSum,2)}}</td>
+                                <td></td>
+                            </tr>
+                        @endif
+                        </tbody>
+                        <tfoot>
+                    </table>
+
+                </div>
+            @endif
+        @endif
+
+    </div>
+
+    <script src="{{ asset('js/rep43.js') }}" defer></script>
+
+@endsection

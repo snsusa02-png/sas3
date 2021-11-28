@@ -1,0 +1,6 @@
+id,qcheckid,ordr,chkreport,category,proof,chkdate,objname,resporgname,resporgid,respstaffid,taskid,fixlimdate,fixfctdate,aprvstaffid,active,notes,created_at,created_by,updated_at,updated_by
+1,1,1,"Проживание в границах строительной площадки. Не обустроено по нормативам.",ОТ,NULL,NULL,NULL,NULL,1,NULL,NULL,2020-06-10,NULL,NULL,1,"СК Баско","2020-07-14 21:05:16",1,"2020-07-14 21:05:16",1
+2,1,2,"Провалы грунта вдоль оси 1/1 . 19",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,"2020-07-14 21:05:16",1,"2020-07-14 21:05:16",1
+3,1,3,"Приготовление пищи на открытом огне",ТБ,NULL,NULL,NULL,NULL,8,NULL,NULL,NULL,NULL,NULL,1,NULL,"2020-07-14 21:05:16",1,"2020-07-14 21:05:16",1
+4,2,1,"Мойка машин не осуществляется",ОТ,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,1,NULL,"2020-07-14 21:05:16",1,"2020-07-14 21:05:16",1
+5,2,2,"Освещение в ночное время недостаточное. Сковзной проход вдоль южной стороны невозможен.",ТБ,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,1,NULL,"2020-07-14 21:05:16",1,"2020-07-14 21:05:16",1

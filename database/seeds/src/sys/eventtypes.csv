@@ -1,0 +1,17 @@
+id,code,sysobjid,name,dflt_subj,dflt_msg,deflt_url,active,created_at,created_by,updated_at,updated_by
+951,events.notify,NULL,events.notify,"Уведомление о событии",NULL,NULL,1,"2021-06-15 22:28:57",1,"2021-06-15 22:28:57",1
+1000,mchnrqsts.needapprove,NULL,mchnrqsts.needapprove,"Необходимо согласовать заявку №$rqst->id на спец-технику ( . $rqst->rqstmachine->name . )",NULL,NULL,1,"2021-06-15 22:28:57",1,"2021-06-15 22:28:57",1
+1001,mchnrqsts.mngr_decision,NULL,mchnrqsts.mngr_decision,NULL,NULL,NULL,1,"2021-06-15 22:28:57",1,"2021-06-15 22:28:57",1
+1002,wrkplans.reg_plan,NULL,wrkplans.reg_plan,NULL,NULL,NULL,1,"2021-06-15 22:28:57",1,"2021-06-15 22:28:57",1
+1151,contracts.mustread,NULL,contracts.mustread,"Уведомление о документе",NULL,NULL,1,"2021-06-15 22:28:57",1,"2021-06-15 22:28:57",1
+1863,qcheck_items.mustread,NULL,qcheck_items.mustread,NULL,NULL,NULL,1,"2021-06-15 22:28:57",1,"2021-06-15 22:28:57",1
+1895,posts.mustread,NULL,posts.mustread,NULL,NULL,NULL,1,"2021-06-15 22:28:57",1,"2021-06-15 22:28:57",1
+1902,orgplnpays.need_approve,NULL,orgplnpays.need_approve,"Необходимо согласовать плановые платежи на сегодня",NULL,NULL,1,"2021-06-15 22:28:57",1,"2021-06-15 22:28:57",1
+1903,orgplnpays.need_regpay,NULL,orgplnpays.need_regpay,"Необходимо провести согласованные платежи на сегодня",NULL,NULL,1,"2021-06-15 22:28:57",1,"2021-06-15 22:28:57",1
+90201,orgplnpay_items.pay_agree,902,orgplnpay_items.pay_agree,"Согласована оплата - необходимо провести/зарегистрировать оплату",NULL,NULL,1,"2021-07-10 05:02:32",1,"2021-07-10 05:02:32",1
+91501,invoices.need_make_child_bill,915,invoices.need_make_child_bill,"Необходимо перевыставить счет",NULL,NULL,1,"2021-06-15 22:28:57",1,"2021-06-15 22:28:57",1
+91502,invoices.child_bill_maked,915,invoices.child_bill_maked,"Счет перевыставлен",NULL,NULL,1,"2021-06-15 22:28:57",1,"2021-06-15 22:28:57",1
+91503,invoices.need_make_child_upd,915,invoices.need_make_child_upd,"Необходимо перевыставить УПД",NULL,NULL,1,"2021-06-15 22:28:57",1,"2021-06-15 22:28:57",1
+91504,invoices.child_upd_maked,915,invoices.child_upd_maked,"УПД перевыставлен",NULL,NULL,1,"2021-06-15 22:28:57",1,"2021-06-15 22:28:57",1
+91505,invoices.pay_cancel,915,invoices.pay_cancel,"Счет снят с оплаты",NULL,NULL,1,"2021-06-15 22:28:57",1,"2021-06-15 22:28:57",1
+91506,invoices.items_no_refitmid,915,invoices.items_no_refitmid,"Нужно связать позиции счета с Номенклатурой",NULL,NULL,1,"2021-06-30 01:28:45",1,"2021-06-30 01:28:45",1

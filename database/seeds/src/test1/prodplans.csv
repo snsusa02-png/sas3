@@ -1,0 +1,4 @@
+id,name,docnum,docdate,buildobjid,buildopertypeid,ownorgid,orgid,contractid,projid,projectid,plnbegdt,plnenddt,estbegdt,estenddt,descript,active,created_at,created_by,updated_at,updated_by
+1,"План производства работ",ППР-0001,2020-06-01,1,NULL,1,2,NULL,1,1,"2019-12-16 20:03:36",NULL,"2020-06-17 20:03:36",NULL,NULL,1,"2020-06-25 21:22:38",1,"2020-06-25 21:22:38",12
+2,Гамарника,ППР-0002,2020-06-01,2,NULL,NULL,NULL,NULL,NULL,NULL,"2020-06-15 09:55:00","2020-07-12 09:55:00","2020-06-24 09:56:37",NULL,NULL,1,"2020-06-25 21:22:38",12,"2020-06-25 21:22:38",12
+3,"уточненный план",ППР-003,2020-06-26,1,NULL,15,NULL,7,NULL,NULL,"2019-12-19 19:44:00",NULL,"2020-06-25 19:44:43",NULL,NULL,1,"2020-06-25 21:22:38",12,"2020-06-25 21:22:38",12

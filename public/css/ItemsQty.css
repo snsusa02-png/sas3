@@ -1,0 +1,46 @@
+.r{
+	text-align: right;
+}
+
+.c{
+	text-align: center;
+}
+.totsum{
+	font-weight: bold;
+}
+.SumTotal{
+	font-weight: bold;
+}
+
+.tbl_footer{
+	border-top: 1px solid black;
+}
+
+.cnt{
+	Display: inline; 
+	text-align: center;
+	width: 50px
+}
+
+.sp_minus{
+	cursor: pointer;	
+	margin-left: 10px;
+	margin-right: 10px
+}
+
+.sp_plus{
+	cursor: pointer;	
+	margin-left: 10px
+}
+
+.sp_trash{
+	cursor: pointer;	
+	margin-left: 10px	;
+	color: red;
+}
+.btn-basket{
+	margin:3px;
+}
+.err{
+	color: red
+}

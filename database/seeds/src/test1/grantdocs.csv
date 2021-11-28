@@ -1,0 +1,2 @@
+id,ownorgid,docnum,docdate,enddate,docsubtypeid,grantstaffid,grantuserid,subj,content,active,created_at,created_by,updated_at,updated_by
+1,15,333,2020-11-02,2021-12-31,1,2,31,rrr,NULL,1,"2021-03-01 04:08:35",1,"2021-03-01 04:08:35",1

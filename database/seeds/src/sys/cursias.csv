@@ -1,0 +1,3 @@
+id,staffid,machineid,wrkdate,wrkbegdt,wrkenddt,stfwrkhrs,wrk_descript,meter_begqty,meter_endqty,fuel_begqty,fuel_inpqty,fuel_endqty,mchnwrkhrs,notes,active,statusid,status_notes,stf_signed,stf_signed_at,mngr_signed,mngr_signed_by,mngr_signed_at,created_at,created_by,updated_at,updated_by
+1,189,12,2021-04-19,"2021-04-19 08:00:00","2021-04-19 17:00:00",8.0,"Русская 99",176258.0,176271.0,41,0,31,2.0,NULL,1,4,NULL,1,NULL,1,1,NULL,"2021-08-02 14:43:53",1,"2021-08-02 14:43:53",1
+2,189,12,2021-04-20,"2021-04-20 08:00:00","2021-04-20 17:00:00",8.0,Снабжение,176271.0,176398.0,31,80,71,3.0,NULL,1,4,NULL,1,NULL,NULL,1,NULL,"2021-08-02 15:40:46",1,"2021-08-02 15:40:46",1

@@ -1,0 +1,2 @@
+id,orgid,docnum,docdate,begdate,enddate,statusid,stfsign1_by,stfsign1_at,stfsign2_by,stfsign2_at,stfsign3_by,stfsign3_at,created_at,created_by,updated_at,updated_by
+1,1,NULL,NULL,2021-01-01,2021-12-31,0,NULL,NULL,NULL,NULL,NULL,NULL,"2021-09-22 04:07:51",1,"2021-09-22 04:07:51",1

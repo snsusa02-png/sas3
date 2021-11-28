@@ -1,0 +1,6 @@
+id,code,name,descript,ordr,css,active,created_at,created_by,updated_at,updated_by
+1,NULL,ЧП,"Чрезвычайное происшествие",1,background-color:red;color:yellow;,1,"2020-07-30 19:48:27",1,"2020-07-30 19:48:27",1
+2,NULL,Замечание,NULL,2,background-color:yellow;,1,"2020-07-30 19:48:27",1,"2020-07-30 19:48:27",1
+3,NULL,Информация,NULL,3,NULL,1,"2020-07-30 19:48:27",1,"2020-07-30 19:48:27",1
+4,NULL,Похвала,NULL,4,background-color:lightgreen;,1,"2020-07-30 19:48:27",1,"2020-07-30 19:48:27",1
+5,NULL,Достижение,NULL,5,background-color:green;color:snow;,0,"2020-07-30 19:48:27",1,"2020-07-30 19:48:27",1

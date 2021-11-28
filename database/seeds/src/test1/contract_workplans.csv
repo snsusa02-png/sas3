@@ -1,0 +1,2 @@
+id,contractid,buildopertypeid,name,docdate,docnum,notes,statusid,active,created_at,created_by,updated_at,updated_by
+1,255,5,NULL,NULL,NULL,NULL,NULL,1,"2020-11-24 23:10:01",12,"2020-11-24 23:10:01",12

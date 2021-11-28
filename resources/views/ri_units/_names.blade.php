@@ -1,0 +1,53 @@
+{{--@dd(isset($rec->obj_names))--}}
+@if ($rec->id != -1 and isset($rec->obj_names) )
+    <div class="row">
+
+        <div class="col-md-12">
+            <div class="card mt-3">
+                <div class="card-header">
+                    Альтернативные названия
+
+                    @if($usrrights['obj_names.create']??true)
+                        <a href="{{ route('obj_names.create',['sysobjid'=>$sysobjid, 'objid'=>$rec->id])}}"
+                           class="btn btn-warning btn-sm"
+                           style="margin-left:16px;float: right;">
+                            <i class="fa fa-plus"></i>
+                        </a>
+                    @endif
+                </div>
+
+                @if (count($rec->obj_names)>0)
+                    <div class="card-body">
+                        <table class="table table-striped " style="">
+                            <thead>
+                            <tr>
+                                <td>#</td>
+                                <td>Название</td>
+                                <td></td>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                            @foreach($rec->obj_names as $itm)
+                                <tr>
+                                    <td style="text-align: right;"
+                                        class="small">{{$loop->iteration}}</td>
+
+                                    <td class="text-left">&nbsp;{{$itm->name}}</td>
+                                    <td style="text-align: right;">
+                                        <a href="{{ route('obj_names.edit',$itm->id)}}"
+                                           class="btn btn-sm btn-primary">
+                                            <i class="fa fa-pencil">
+                                            </i>
+                                        </a>
+                                    <td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+@endif

@@ -1,0 +1,5 @@
+id,name,descript,address,orgid,forsale,active,locked_by,created_at,created_by,updated_at,updated_by
+1,Днепровская,NULL,NULL,NULL,0,1,NULL,"2021-06-15 15:04:32",12,"2021-06-15 15:04:32",12
+2,Невельского,NULL,"Невельского 1а",NULL,0,1,NULL,"2021-06-18 11:05:34",1,"2021-06-18 13:50:31",1
+3,"Снеговая 9",NULL,NULL,NULL,1,1,NULL,"2021-06-18 13:54:07",1,"2021-06-18 13:54:07",1
+4,"Русская, 99",NULL,NULL,NULL,1,1,NULL,"2021-06-18 13:54:07",1,"2021-06-18 13:54:07",1

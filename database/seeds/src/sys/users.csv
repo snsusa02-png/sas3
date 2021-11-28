@@ -1,0 +1,8 @@
+id,name,email,email_verified_at,password,remember_token,lname,fname,mname,phone,note,birthdate,sex,roleid,profile_image,curorgid,active,created_at,created_by,updated_at,updated_by
+1,system,sys@itqua.ru,NULL,$2y$10$Pwyd6JER46NSBe/w1qsvwuzhxGJs/8zYh2y180ZLVD0ZgzIOMGmfe,NULL,system,service,robot,NULL,NULL,NULL,NULL,NULL,NULL,1,1,"2021-10-26 23:43:47",1,"2021-10-26 23:43:47",1
+12,"Шевченко Сергей Николаевич",sns@itqua.ru,NULL,$2y$10$Pwyd6JER46NSBe/w1qsvwuzhxGJs/8zYh2y180ZLVD0ZgzIOMGmfe,NULL,Шевченко,Сергей,Николаевич,89025553294,NULL,NULL,M,NULL,NULL,31,1,"2021-10-26 23:43:47",1,"2021-10-27 07:01:34",12
+31,"Чухалдин Александр",mngr@test.ru,NULL,$2y$10$DYNr7dqfhPTZXFcHMAM0G.ETxhq/bdW.7VDWkTRh/n4Nv7pxN9oKO,NULL,"Чухалдин ",Александр,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,"2021-10-27 08:36:05",1,"2021-10-27 08:36:39",1
+35,Иванов,disp1@test.ru,NULL,$2y$10$uagnWHVJsGuuFtBT2IKfxeKrWwhnv3u9te.7/wHb0cy7a1mRdUBJq,NULL,Иванов,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,"2021-10-26 23:43:47",1,"2021-10-27 08:37:08",1
+36,Петров,disp2@test.ru,NULL,$2y$10$Pwyd6JER46NSBe/w1qsvwuzhxGJs/8zYh2y180ZLVD0ZgzIOMGmfe,NULL,Петров,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,"2021-10-26 23:43:47",1,"2021-10-26 23:43:47",1
+37,Сидоров,disp3@test.ru,NULL,$2y$10$Pwyd6JER46NSBe/w1qsvwuzhxGJs/8zYh2y180ZLVD0ZgzIOMGmfe,NULL,Сидоров,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,"2021-10-26 23:43:47",1,"2021-10-26 23:43:47",1
+38,Константинов,disp4@test.ru,NULL,$2y$10$Pwyd6JER46NSBe/w1qsvwuzhxGJs/8zYh2y180ZLVD0ZgzIOMGmfe,NULL,Константинов,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,"2021-10-26 23:43:47",1,"2021-10-26 23:43:47",1
