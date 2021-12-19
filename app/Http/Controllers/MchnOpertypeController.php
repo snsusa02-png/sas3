@@ -8,6 +8,7 @@ use App\cwp_fact;
 use App\cwp_work;
 use App\mot_price;
 use App\objlog;
+use App\opertype;
 use App\sysobj;
 use App\unittype;
 use App\usrsysright;
@@ -105,6 +106,7 @@ class MchnOpertypeController extends Controller
         //преобразуем для нормальной работы <INPUT TYPE="DATE"...
         //$rec->begdate = strftime('%Y-%m-%dT%H:%M:%S', strtotime($rec->begdate));
 
+        $rec->opertypes = opertype::lstFor(['active_or_current' => 1]);
 
         $usrrights = $this->setInterfaceRight($rec->id);
 
@@ -141,12 +143,12 @@ class MchnOpertypeController extends Controller
         //
         $messages = [
             'machineid.required' => 'Не задана техника',
-            'name.required' => 'Опишите выполняемую работу',
+            'opertypeid.required' => 'Укажите режим эксплуатации техники',
         ];
 
         $rules = [
             "machineid" => "required",
-            "name" => "required",
+            "opertypeid" => "required",
         ];
 
         $request->validate($rules, $messages);
@@ -170,7 +172,8 @@ class MchnOpertypeController extends Controller
             $rec = mchn_opertype::find($id);
             $mess = "Запись обновлена";
         }
-        $rec->name = $request->get('name');
+        $rec->opertypeid = $request->get('opertypeid');
+        $rec->name = $rec->opertype->name;
         $rec->descript = $request->get('descript');
         $rec->active = $request->get('active', 1);
 

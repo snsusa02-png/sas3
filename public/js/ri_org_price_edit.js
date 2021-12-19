@@ -23,7 +23,7 @@ $(document).ready(function () {
                 url: "/api/refitems/for_ac",
                 dataType: "json",
                 data: {
-                    name: request.term,
+                    name_type: request.term,
                     active: 1,
                 },
                 headers: {
@@ -382,8 +382,43 @@ $(document).ready(function () {
         chkCategoryid();
     });
 
+    $('.id_lnk').click(function (e) {
+        //переход в элемент справочника
+        e.preventDefault();
 
-    //при открытии страницы
+        //console.log($(this).data('obj'));
+        const chkfld_id = $(this).data('id');
+        if (chkfld_id) {
+            const id = $("#" + chkfld_id).val();
+            const ref = $(this).data('obj');
+            if (id && ref) {
+                var url = "/" + ref + "/" + id + "/edit";
+                window.open(url, '_blank');
+            }
+        }
+    });
+
+
+    //при загрузке / при открытии страницы -------------------------------------------------
+
+    //покраска в зеленый всех автозаполняемых названий с установленными id в соответств. полях
+    $.each($(".ac_name"), function (key, value) {
+        //console.log( key + ": " + $(value).val() );
+        if ($(this).parent().find('.ac_id').val()) {
+            $(value).addClass("ac-act");
+
+            //отобразить ссылку на карточку редактирования объекта справочника
+            const id_lnk = $(this).parent().find('.id_lnk');
+            id_lnk.hide()
+            if (id_lnk && id_lnk.data('id') && id_lnk.data('obj'))
+                id_lnk.show() //отобразить ссылку на карточку редактирования объекта справочника
+
+        } else {
+            $(this).parent().find('.id_lnk').hide()
+        }
+    });
+
+
     chkCategoryid();
 //    buildopertypes_rfr();
 

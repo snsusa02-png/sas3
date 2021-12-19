@@ -32,6 +32,11 @@ class mchn_opertype extends Model
         return $this->hasOne(machine::class, 'id', 'machineid');
     }
 
+    public function opertype()
+    {
+        return $this->hasOne(opertype::class, 'id', 'opertypeid');
+    }
+
 
     static public function search_cond($params)
     {

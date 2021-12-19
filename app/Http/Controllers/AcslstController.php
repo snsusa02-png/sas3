@@ -155,6 +155,7 @@ class AcslstController extends Controller
         $data->search_params = $search_params;
 
         $data->sysobj = sysobj::find($sysobjid);
+        //dd($sysobjid, $data->sysobj);
 
         $data->sysfuncs = sysfunc::lstFor(['active' => 1, 's_sysobjid' => $sysobjid]);
 
@@ -204,9 +205,13 @@ class AcslstController extends Controller
         $rec->userid = $usrid;
 
         if ($usrid == -1) {
-            $rec->users = User::where('active', 1)
-                ->where('id', '<>', 1)
-                ->orderBy('name')->get()->pluck('name', 'id')->toarray();
+            $rec->users = User::from('users as u')
+                ->where('u.active', 1)
+                ->where('u.id', '<>', 1)
+                ->whereRaw(" not exists(select 1 from usrsysrights as usr where usr.userid=u.id
+                and usr.active=1 and now() between usr.begdt and ifnull(usr.enddt,now())
+                and usr.sysfuncid in (select id from sysfuncs as sf where sf.sysobjid={$sysobjid}) )")
+                ->orderBy('u.name')->get()->pluck('name', 'id')->toarray();
             $rec->rights = [];
         } else {
             $rec->users = [];

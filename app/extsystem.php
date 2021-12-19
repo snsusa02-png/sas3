@@ -37,7 +37,8 @@ class extsystem extends Model
                     ->select('es.id', 'es.name');
                 if (isset($sysobjid)) {
                     $rslt = $rslt->join('extsys_sysobjs as so', 'so.extsysid', 'es.id')
-                        ->where('so.sysobjid', $sysobjid);
+                        ->where('so.sysobjid', $sysobjid)
+                        ->where('so.active', 1);
                 }
                 $rslt = $rslt->get()
                     ->pluck("name", "id")

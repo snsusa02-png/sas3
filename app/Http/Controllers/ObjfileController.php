@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\ocl_item;
 use Illuminate\Support\Facades\Auth;
 use App\ac;
 use App\buildopertype;
@@ -494,8 +495,8 @@ class ObjfileController extends Controller
         $userid = \Auth::user()->id;
 
 
-        //$disk = 'local';
-        $disk = 'ftp';
+        $disk = 'local';
+        //$disk = 'ftp';
 
         $docids = $request->docid;
         $docs = $request->doc;
@@ -569,7 +570,6 @@ class ObjfileController extends Controller
                             $fullname = $name . '.' . $extension;
 
                             $mimetypeid = mimetype::where('extension', $extension)->select('id')->first()->id ?? null;
-
                             if (isset($mimetypeid)) {
                                 // Make a file path where image will be stored [ folder path + file name + file extension]
                                 $filePath = $folder . $fullname;
@@ -594,7 +594,13 @@ class ObjfileController extends Controller
                                 //$fileuri = Storage::disk('local')->getAdapter()->applyPathPrefix($filePath);
                                 $fileuri = Storage::disk($disk)->getAdapter()->applyPathPrefix($filePath);
 
-                                //if (file_exists($fileuri)) {
+                                dd($fullname,$disk,$fileuri, Storage::disk($disk)->exists($fileuri)
+                                , Storage::disk('local')->exists($fileuri)
+                                , Storage::exists($fileuri)
+                                    ,file_exists($fileuri), //this returns true
+                                File::exists($fileuri) //this returns true
+                                );
+
                                 if (Storage::disk($disk)->exists($fileuri)) {
                                     // Save to table
                                     $rec->sysfiletype_id = 4;   //todo: заплатка. Нужно разобраться почему этот параметр обязателен
@@ -1025,13 +1031,13 @@ class ObjfileController extends Controller
 
             //Значения "по-умолчанию" для новой записи
 
-            //создадим шаблон на основе исходного документа/ Сместим sysobjid, чтобы не пересекаться с обычным шаблоном для Архива док-тов
+            //создадим шаблон на основе исходного документа/ Сместим sysobjid,
+            // чтобы не пересекаться с обычным шаблоном для Архива док-тов
             document::make_template($src_doc->id, 1701 * 1);
 
             $newData = [];
 
             $tmplt = user_template::getTemplate($userid, 1701 * 1);
-            //dd($tmplt);
             if (isset($tmplt->document)) {
                 $newData = (array)$tmplt->document; //конвертируем в массив
             } else {
@@ -1050,6 +1056,24 @@ class ObjfileController extends Controller
             $rec->tags_lst = $newData['tags'] ?? '';
 
         }
+
+        //преобразуем для нормальной работы <INPUT TYPE="DATE"...
+        //if (isset($rec->plnbegdt))
+        //    //$rec->plnbegdt = strftime('%Y-%m-%dT%H:%M:%S', strtotime($rec->plnbegdt));
+        //    $rec->plnbegdt = strftime('%Y-%m-%dT%H:%M', strtotime($rec->plnbegdt));
+        if (isset($rec->docdate))
+            $rec->docdate = strftime('%Y-%m-%d', strtotime($rec->docdate));
+        if (isset($rec->docbegdate))
+            $rec->docbegdate = strftime('%Y-%m-%d', strtotime($rec->docbegdate));
+        if (isset($rec->docenddate))
+            $rec->docenddate = strftime('%Y-%m-%d', strtotime($rec->docenddate));
+        if (isset($rec->ownorg_regdate))
+            $rec->ownorg_regdate = strftime('%Y-%m-%d', strtotime($rec->ownorg_regdate));
+        if (isset($rec->org_regdate))
+            $rec->org_regdate = strftime('%Y-%m-%d', strtotime($rec->org_regdate));
+        if (isset($rec->ref_regdate))
+            $rec->ref_regdate = strftime('%Y-%m-%d', strtotime($rec->ref_regdate));
+
 
         $rec->linked_parent_docid = $src_doc->id;
         $rec->linked_parent_doc = null;
@@ -1075,6 +1099,10 @@ class ObjfileController extends Controller
         $rec->ownorgs = org::lstFor(['flagtypeid' => 12]);
 
         $rec->contracts = contract::lstFor(['between_orgs' => [$rec->src_orgid, $rec->tgt_orgid]]);
+
+        $rec->ocl_items = ocl_item::lstFor_cached([
+            'orgid' => $rec->ownorgid
+        ]);
 
         $rec->buildobjs = buildobj::lstFor([
             'active_or_current' => $rec->buildobjid,

@@ -1,5 +1,19 @@
 ﻿--------------------------------------------------------------------------------------------------
+2021.12.04
 --------------------------------------------------------------------------------------------------
+ALTER TABLE `mchn_raids`
+ADD COLUMN `disp_staffid` BIGINT UNSIGNED NULL AFTER `org_name`;
+
+ALTER TABLE `mchn_raids`
+DROP FOREIGN KEY `mchn_raids_disp_userid_foreign`;
+
+ALTER TABLE `mchn_raids`
+CHANGE COLUMN `disp_userid` `reg_userid` BIGINT UNSIGNED NULL DEFAULT NULL COMMENT 'Диспетчер (пользователь ИС)' ;
+
+ALTER TABLE `mchn_raids`
+ADD CONSTRAINT `mchn_raids_disp_userid_foreign`
+  FOREIGN KEY (`reg_userid`)
+  REFERENCES `sasdv`.`users` (`id`);
 
 --------------------------------------------------------------------------------------------------
 2021.11.05

@@ -53,7 +53,7 @@ class org_extservice extends Model
     static public function orgextsrvcsums_for_user($userid)
     {
         //Текущие остатки на субсчетах сервисов, доступных для заданного пользователя
-        Cache::forget('orgextsrvcsums_for_user_' . $userid);
+        //Cache::forget('orgextsrvcsums_for_user_' . $userid);
         return Cache::remember('orgextsrvcsums_for_user_' . $userid, now()->addMinutes(5)
             , function () use ($userid) {
 

@@ -66,6 +66,13 @@ class refItemController extends Controller
         $this->objcode = $this->sysobjcode;
         $this->acl_sysobjcode = sysobj::acl_sysobjcode($this->sysobjcode);
 
+        $this->param_names = [
+            's_pageitmcnt' => 10
+            , 's_name' => ''
+            , 's_photostatus' => ''
+            , 's_itmtypeid' => ''
+            , 's_active' => ''
+        ];
 
     }
 
@@ -472,9 +479,9 @@ class refItemController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
-        return $this->edit(-1);
+        return $this->edit($request, -1);
     }
 
 
@@ -484,7 +491,7 @@ class refItemController extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Request $request, $id)
     {
 //        if ($id < 1) {
 //            //защитимся от недопустимых id
@@ -514,8 +521,21 @@ class refItemController extends Controller
             $rec->helptags = $tags;
 
         } else {
-            $rec = new refitem();
-            $rec->id = -1;
+
+            //----------------------------------------------------------------
+            //восстановим параметры поиска из сессии, чтобы использовать что-нибудь для новой записи
+            $search_params = $this->search_params($request, $this->param_names);
+            //----------------------------------------------------------------
+
+            $rec = new refitem([
+                'id' => -1,
+                'producttypeid' => 2,
+                'active' => 1,
+                'bdgtacnttypeid' => 21,
+                'itmtypeid' => $search_params['s_itmtypeid'],
+                'name' => $search_params['s_name'],
+            ]);
+            //$rec->id = -1;
             $auxinfo = [];
 
             $tags = objtag::lstTags($this->sysobjid, null);
@@ -1161,17 +1181,27 @@ class refItemController extends Controller
     {
         //2021-11-07 SNS. Для автокомплита
 
+        $fields = ['ri.id', 'ri.name', 'ri.code', 'ri.unittypeid', 'ri.unit'];
+        $suporgid = $request->get('suporgid');
+        if (isset($suporgid)) {
+            $fields[] = 'rop.price';
+        }
+        Log::info('refitem::list_for_ac:fields=' . implode(';', $fields));
+
         $result = "";
         try {
 
             $list = refitem::getFor([
                 'name' => $request->name,
+                'name_type' => $request->name_type,
                 'suporgid' => $request->suporgid,
+                'load_placeid' => $request->load_placeid,
                 'active' => $request->active,
                 'itmtypeid' => $request->itmtypeid,
+                'price_on_date' => $request->price_on_date,
             ],
-//                ['ri.id', 'ri.name', 'ri.code', 'ri.unittypeid', 'ri.unit', 'rop.price']
-                ['ri.id', 'ri.name', 'ri.code', 'ri.unittypeid', 'ri.unit', 'rop.price']
+                //['ri.id', 'ri.name', 'ri.code', 'ri.unittypeid', 'ri.unit', 'rop.price']
+                $fields
             );
 
             $result = $list;

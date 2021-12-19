@@ -8,6 +8,7 @@ use App\obj_msg;
 use App\objextid;
 use App\objfile;
 use App\objtag;
+use App\obj_finoper;
 use App\task_report;
 use App\task_user;
 use DB;
@@ -52,6 +53,7 @@ trait DeleteTrait
                                      'App\objtag',
                                      'App\obj_reader',
                                      'App\obj_approval',
+                                     'App\obj_finoper',
                                  ] as $model) {
 
                             $model::where('sysobjid', $sysobjid)

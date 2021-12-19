@@ -3,6 +3,8 @@
 namespace App;
 
 use App\Events\notifyEvent;
+use App\Imports\invoiceImport;
+use App\objextid;
 use App\Traits\FilesTrait;
 use App\Traits\Result;
 use App\Traits\snsTrait;
@@ -14,12 +16,10 @@ use Illuminate\Database\Eloquent\Model;
 
 use App\Http\Middleware\IStock;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 use Nwidart\Modules\Facades\Module;
 
 use App\User;
-
-use App\objextid;
-use App\orgstaff;
 
 use App\Traits\DeleteTrait;
 use Illuminate\Support\Facades\Log;
@@ -1298,9 +1298,9 @@ class org extends Model
                                     where ws.ownorgid=o.id and ws.qty>0)";
 
                     } elseif ($key == 'in_mchn_raids_ownorgid') {
-                        //организация указана в  mchn_raids.ownorgid
+                        //организация указана в  mchn_raids.unload_ownorgid
                         $sc .= " and " . (($val == 0) ? "not" : "")
-                            . " exists (select 1 from mchn_raids as mr where mr.ownorgid=o.id)";
+                            . " exists (select 1 from mchn_raids as mr where mr.unload_ownorgid=o.id)";
 
                     } elseif ($key == 'in_mchn_raids_orgid') {
                         //организация указана в  mchn_raids.ownorgid
@@ -1339,6 +1339,11 @@ class org extends Model
                         // использовалась в платежных документах в контрагенте
                         $sc .= " and " . (($val == 0) ? "not" : "")
                             . " exists (select 1 from paydocs as pd where pd.orgid=o.id)";
+
+                    } elseif ($key == 'in_ri_org_prices') {
+                        // организация имеет "прайслист" на товары
+                        $sc .= " and " . (($val == 0) ? "not" : "")
+                            . " exists (select 1 from ri_org_prices as rop where rop.orgid=o.id)";
 
                     }
                 }
@@ -1725,6 +1730,143 @@ class org extends Model
 //
 //        } finally {
 //        }
+    }
+
+    public static function import_001($file, $rec)
+    {
+        //Импорт списка организаций из xlsx-файла в формате ___
+
+        $userid = \Auth::user()->id;
+        $result = new Result();
+
+        $array = Excel::toArray(new invoiceImport, $file);
+        $array = $array[0];
+        //dd($array);
+
+        //Названия полей ожидаем в первой строке
+        $fields = $array[0];
+        if (!(
+            in_array('name', $fields)
+            and in_array('inn', $fields)
+        )) {
+            $result->err = 1;
+            $result->msg = 'Файл должен содержать колонки "name", "inn"!';
+            $rec->result = $result;
+            return $rec;
+        }
+
+        //перевернем колонки
+        $fld_idx = array_flip($fields);
+
+        $items_add_cnt = 0; //кол-во новых записей
+        $items_upd_cnt = 0; //кол-во обновленных записей
+
+        for ($i = 1; $i < count($array); $i++) {
+
+            $name = $array[$i][$fld_idx['name']];
+            $inn = $array[$i][$fld_idx['inn']];
+            $kpp = (isset($fld_idx['kpp'])) ? $array[$i][$fld_idx['kpp']] : null;
+
+            if (isset($name) and isset($inn)) {
+
+                if (isset($kpp))
+                    //Ключем считаем ИНН+КПП
+                    $org = self::where([
+                        'inn' => $inn,
+                        'kpp' => $kpp,
+                    ])->first();
+                else
+                    //Ключем считаем ИНН
+                    $org = self::where(['inn' => $inn,])->first();
+
+                if (!isset($org)) {
+
+                    $org = new self([
+                        'inn' => $inn,
+                        'kpp' => $kpp,
+                    ]);
+                    ++$items_add_cnt;
+                } else
+                    ++$items_upd_cnt;
+
+                $org->name = $array[$i][$fld_idx['name'] ?? ''] ?? '';
+                //необязательно-присутствующие поля. Обновляем только при наличии - чтобы не затереть предыдущее значение
+                if (isset($fld_idx['address']))
+                    $org->address = $array[$i][$fld_idx['address']];
+                //dd($org);
+                $org->save();
+
+                //обработаем телефоны
+                if (isset($fld_idx['phone'])) {
+                    $phones = $array[$i][$fld_idx['phone']] ?? null;
+                    if (isset($phones)) {
+                        $phones = explode(',', $phones);
+                        if (is_array($phones) and count($phones) > 0) {
+                            foreach ($phones as $phone) {
+                                $phone = trim($phone);
+                                obj_contact::addOrUpdate([
+                                    'sysobjid' => self::$sysobjid,
+                                    'objid' => $org->id,
+                                    'contacttypeid' => 1,
+                                    'contact' => $phone,
+                                ], [
+                                    'sysobjid' => self::$sysobjid,
+                                    'objid' => $org->id,
+                                    'contacttypeid' => 1,
+                                    'contact' => $phone,
+                                ]);
+                            }
+                        }
+                    }
+                }
+
+                //обработаем адреса электронной почты
+                if (isset($fld_idx['email'])) {
+                    $emails = $array[$i][$fld_idx['email']] ?? null;
+                    if (isset($emails)) {
+                        $emails = explode(',', $emails);
+                        if (is_array($emails) and count($emails) > 0) {
+                            foreach ($emails as $email) {
+                                $email = trim($email);
+                                obj_contact::addOrUpdate([
+                                    'sysobjid' => self::$sysobjid,
+                                    'objid' => $org->id,
+                                    'contacttypeid' => 2,
+                                    'contact' => $email,
+                                ], [
+                                    'sysobjid' => self::$sysobjid,
+                                    'objid' => $org->id,
+                                    'contacttypeid' => 2,
+                                    'contact' => $email,
+                                ]);
+                            }
+                        }
+                    }
+                }
+
+                //Обработаем Признаки
+                if (isset($fld_idx['flags'])) {
+                    $flags = $array[$i][$fld_idx['flags']] ?? null;
+                    if (isset($flags)) {
+                        $flags = explode(',', $flags);
+                        if (is_array($flags) and count($flags) > 0) {
+                            foreach ($flags as $flag) {
+                                objflag::AddObjFlag(self::$sysobjid, $org->id, $flag);
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+
+        $result->msg .= "- добавлено записей: {$items_add_cnt}" . PHP_EOL;
+        $result->msg .= "- изменено записей: {$items_upd_cnt}" . PHP_EOL;
+
+        $rec->result = $result;
+        //--------------------------------------------------------------------------
+
+        return $rec;
     }
 
 }

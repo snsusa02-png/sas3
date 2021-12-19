@@ -13,6 +13,7 @@ use App\mchn_raid;
 use App\order;
 use App\org;
 use App\org_curator;
+use App\orgstaff;
 use App\report;
 use App\saleplan;
 use App\objlog;
@@ -891,7 +892,7 @@ class AnaliticsController extends Controller
         $year = date_create_from_format('Y-m-d', date('Y-m-d'))->format("Y");
 
         //Диспетчеры
-        $data->dispatchers = User::lstFor_cached(['in_mchn_raids_dispuserid' => 1]);
+        $data->dispatchers = orgstaff::lstFor_cached(['in_mchn_raids_dispuserid' => 1]);
 
         $conditions = '';
         $sc = null;
@@ -903,7 +904,7 @@ class AnaliticsController extends Controller
 
             $sc = " 1=1 ";
             if (1 == 1 and isset($s_ownorgid)) {
-                $sc .= " and fd.ownorgid=" . $s_ownorgid;
+                $sc .= " and fd.unload_ownorgid=" . $s_ownorgid;
                 $conditions .= 'Исполнитель = "<b>' . $data->ownorgs[$s_ownorgid] . '</b>"; ';
             }
 
@@ -930,10 +931,10 @@ class AnaliticsController extends Controller
 
             if (isset($s_mngrid))
                 if ($s_mngrid == 0) {
-                    $sc .= " and fd.disp_userid is null";
+                    $sc .= " and fd.disp_staffid is null";
                     $conditions .= 'Без диспетчера';
                 } else {
-                    $sc .= " and fd.disp_userid=" . $s_mngrid;
+                    $sc .= " and fd.disp_staffid=" . $s_mngrid;
                     $conditions .= 'Диспетчер: <b>' . $data->dispatchers[$s_mngrid] . '</b>; ';
                 }
         }
@@ -952,20 +953,20 @@ class AnaliticsController extends Controller
             ['title' => 'дата работы', 'jointbl' => '', 'fld' => 'fd.wrkdate', 'lbl' => 'wrkdate', 'timescale' => 1],
             //['title' => 'вид работ', 'jointbl' => 'bot', 'fld' => 'fd.buildopertypeid', 'lbl' => 'buildopertypeid', 'show_val' => 'bot.name'],
 //            ['title' => 'менеджер', 'jointbl' => 'su', 'fld' => 'fd.saleuserid', 'lbl' => 'saleuserid', 'show_val' => 'ifnull(su.name,"-нет-")'],
-            ['title' => 'поставщик', 'jointbl' => '', 'fld' => 'm.orgid', 'lbl' => 'orgid', 'show_val' => 'o.name'],
+//            ['title' => 'поставщик', 'jointbl' => '', 'fld' => 'm.orgid', 'lbl' => 'orgid', 'show_val' => 'o.name'],
             ['title' => 'категория спецтехники', 'jointbl' => 'mt', 'fld' => 'm.mchntypeid', 'lbl' => 'mchntypeid', 'show_val' => 'ifnull(mt.name,"-нет-")'],
             ['title' => 'техника', 'jointbl' => 'm', 'fld' => 'di.machineid', 'lbl' => 'machineid', 'show_val' => "ifnull(concat(m.regnum,', ',m.name),'-не известно-')"],
-            //['title' => 'заказчик', 'jointbl' => 'oo', 'fld' => 'di.orgid', 'lbl' => 'ownorgid', 'show_val' => 'oo.name'],
             ['title' => 'заказчик', 'jointbl' => 'o', 'fld' => 'fd.orgid', 'lbl' => 'orgid', 'show_val' => 'ifnull(o.name,"-не определен-")'],
 //            ['title' => 'договор подряда', 'jointbl' => 'c', 'fld' => 'di.contractid', 'lbl' => 'contractid', 'show_val' => "concat(c.docnum,' от ', c.docdate)"],
 //            ['title' => 'брэнд', 'jointbl' => 'ri', 'fld' => 'ri.brandid', 'lbl' => 'brandid', 'show_val' => 'ifnull(b.name,"-нет-")'],
-            ['title' => 'диспетчер', 'jointbl' => 'su', 'fld' => 'fd.disp_userid', 'lbl' => 'disp_userid', 'show_val' => 'ifnull(su.name,"-нет-")'],
+            ['title' => 'диспетчер', 'jointbl' => 'ds', 'fld' => 'fd.disp_staffid', 'lbl' => 'disp_staffid', 'show_val' => 'ifnull(ds.name,"-нет-")'],
             ['title' => 'поставщик', 'jointbl' => 'so', 'fld' => 'fd.suporgid', 'lbl' => 'suporgid', 'show_val' => 'ifnull(so.name,"-не известен-")'],
-            ['title' => 'груз', 'jointbl' => 'ri', 'fld' => 'fd.refitmid', 'lbl' => 'refitmid', 'show_val' => 'ifnull(ri.name,"-не известен-")'],
+            ['title' => 'поставленный груз', 'jointbl' => 'ri', 'fld' => 'fd.unload_refitmid', 'lbl' => 'refitmid', 'show_val' => 'ifnull(ri.name,"-не известен-")'],
             ['title' => 'водитель', 'jointbl' => 'os', 'fld' => 'fd.driverid', 'lbl' => 'driverid', 'show_val' => 'ifnull(os.name,"-не известен-")'],
             ['title' => 'тип оплаты', 'jointbl' => 'pt', 'fld' => 'fd.paytypeid', 'lbl' => 'paytypeid', 'show_val' => 'ifnull(pt.name,"-не известен-")'],
             ['title' => 'место загрузки', 'jointbl' => 'p_l', 'fld' => 'fd.load_placeid', 'lbl' => 'load_placeid', 'show_val' => 'ifnull(p_l.name,"-не известно-")'],
             ['title' => 'место выгрузки', 'jointbl' => 'p_u', 'fld' => 'fd.unload_placeid', 'lbl' => 'unload_placeid', 'show_val' => 'ifnull(p_u.name,"-не известно-")'],
+            ['title' => 'тип операции', 'jointbl' => 'ot', 'fld' => 'fd.opertypeid', 'lbl' => 'opertypeid', 'show_val' => 'ifnull(ot.name,"-не известно-")'],
         ];
 
 
@@ -1026,9 +1027,6 @@ class AnaliticsController extends Controller
                 $dataset[2] = [$begdate2, $enddate2];
 
                 $recs2 = wrkrep::from('mchn_raids as fd')
-                    //->join('machines as m', 'm.id', 'fd.machineid')
-                    //->where('ft.forsale', '<>', 0)
-                    //->where('fd.ownorgid', $s_ownorgid)
                     ->wherebetween('fd.wrkdate', [$begdate2, $enddate2])
                     ->whereIn('fd.active', [1])
                     ->whereraw($sc);
@@ -1041,7 +1039,7 @@ class AnaliticsController extends Controller
                     $recs2 = $recs2->leftjoin('orgs as o', 'o.id', 'fd.orgid');
 
                 if (isTblInGrps('oo', $grps))
-                    $recs2 = $recs2->leftjoin('orgs as oo', 'oo.id', 'fd.ownorgid');
+                    $recs2 = $recs2->leftjoin('orgs as oo', 'oo.id', 'fd.unload_ownorgid');
 
                 if (isTblInGrps('so', $grps))
                     $recs2 = $recs2->leftjoin('orgs as so', 'so.id', 'fd.suporgid');
@@ -1058,17 +1056,20 @@ class AnaliticsController extends Controller
                 if (isTblInGrps('c', $grps))
                     $recs2 = $recs2->leftjoin('contracts as c', 'c.id', 'fd.contractid');
 
-                if (isTblInGrps('su', $grps))
-                    $recs2 = $recs2->leftjoin('users as su', 'su.id', 'fd.disp_userid');
+                if (isTblInGrps('ds', $grps))
+                    $recs2 = $recs2->leftjoin('orgstaff as ds', 'ds.id', 'fd.disp_staffid');
 
                 if (isTblInGrps('ri', $grps))
-                    $recs2 = $recs2->leftjoin('refitems as ri', 'ri.id', 'fd.refitmid');
+                    $recs2 = $recs2->leftjoin('refitems as ri', 'ri.id', 'fd.unload_refitmid');
 
                 if (isTblInGrps('os', $grps))
                     $recs2 = $recs2->leftjoin('orgstaff as os', 'os.id', 'fd.driverid');
 
                 if (isTblInGrps('pt', $grps))
                     $recs2 = $recs2->leftjoin('paytypes as pt', 'pt.id', 'fd.paytypeid');
+
+                if (isTblInGrps('ot', $grps))
+                    $recs2 = $recs2->leftjoin('opertypes as ot', 'ot.id', 'fd.opertypeid');
 
                 //* Динамически подкючим группы - если нужно
                 foreach ($grptypes as $gt) {
@@ -1113,7 +1114,7 @@ class AnaliticsController extends Controller
                 $recs = $recs->leftjoin('orgs as o', 'o.id', 'fd.orgid');
 
             if (isTblInGrps('oo', $grps))
-                $recs = $recs->leftjoin('orgs as oo', 'oo.id', 'fd.ownorgid');
+                $recs = $recs->leftjoin('orgs as oo', 'oo.id', 'fd.unload_ownorgid');
 
             if (isTblInGrps('so', $grps))
                 $recs = $recs->leftjoin('orgs as so', 'so.id', 'fd.suporgid');
@@ -1124,8 +1125,8 @@ class AnaliticsController extends Controller
             if (isTblInGrps('p_u', $grps))
                 $recs = $recs->leftjoin('org_places as p_u', 'p_u.id', 'fd.unload_placeid');
 
-            if (isTblInGrps('su', $grps))
-                $recs = $recs->leftjoin('users as su', 'su.id', 'fd.disp_userid');
+            if (isTblInGrps('ds', $grps))
+                $recs = $recs->leftjoin('orgstaff as ds', 'ds.id', 'fd.disp_staffid');
 
             if (isTblInGrps('c', $grps))
                 $recs = $recs->leftjoin('contracts as c', 'c.id', 'fd.contractid');
@@ -1134,13 +1135,16 @@ class AnaliticsController extends Controller
                 $recs = $recs->leftjoin('mchntypes as mt', 'mt.id', 'm.mchntypeid');
 
             if (isTblInGrps('ri', $grps))
-                $recs = $recs->leftjoin('refitems as ri', 'ri.id', 'fd.refitmid');
+                $recs = $recs->leftjoin('refitems as ri', 'ri.id', 'fd.unload_refitmid');
 
             if (isTblInGrps('os', $grps))
                 $recs = $recs->leftjoin('orgstaff as os', 'os.id', 'fd.driverid');
 
             if (isTblInGrps('pt', $grps))
                 $recs = $recs->leftjoin('paytypes as pt', 'pt.id', 'fd.paytypeid');
+
+            if (isTblInGrps('ot', $grps))
+                $recs = $recs->leftjoin('opertypes as ot', 'ot.id', 'fd.opertypeid');
 
             //Динамически подкючим группы - если нужно
             foreach ($grptypes as $gt) {

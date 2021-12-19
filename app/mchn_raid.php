@@ -29,7 +29,8 @@ class mchn_raid extends Model
 
     public function dispatcher()
     {
-        return $this->hasOne(User::class, 'id', 'disp_userid')->withDefault();
+        //return $this->hasOne(User::class, 'id', 'disp_userid')->withDefault();
+        return $this->hasOne(orgstaff::class, 'id', 'disp_staffid')->withDefault();
     }
 
     public function machine()
@@ -72,6 +73,16 @@ class mchn_raid extends Model
         return $this->hasOne(org::class, 'id', 'ownorgid')->withDefault();
     }
 
+    public function load_ownorg()
+    {
+        return $this->hasOne(org::class, 'id', 'load_ownorgid')->withDefault();
+    }
+
+    public function unload_ownorg()
+    {
+        return $this->hasOne(org::class, 'id', 'unload_ownorgid')->withDefault();
+    }
+
     public function org()
     {
         return $this->hasOne(org::class, 'id', 'orgid')->withDefault();
@@ -80,6 +91,16 @@ class mchn_raid extends Model
     public function load_place()
     {
         return $this->hasOne(org_place::class, 'id', 'load_placeid')->withDefault();
+    }
+
+    public function load_refitem()
+    {
+        return $this->hasOne(refitem::class, 'id', 'load_refitmid')->withDefault();
+    }
+
+    public function unload_refitem()
+    {
+        return $this->hasOne(refitem::class, 'id', 'unload_refitmid')->withDefault();
     }
 
     public function contract()
@@ -192,5 +213,66 @@ class mchn_raid extends Model
             return $recs;
         } else
             return null;
+    }
+
+    static public function rfr_finopers($rec)
+    {
+        if (!isset($rec))
+            return;
+
+        $userid = \Auth::user()->id;
+
+        //сформируем фин. операции --------------------------------------------------------------
+        obj_finoper::where(['sysobjid' => self::$sysobjid, 'objid' => $rec->id])->update(['updated_by' => 0]);
+        //Покупка у поставщика:
+        obj_finoper::addOrUpdate(
+            ['sysobjid' => self::$sysobjid, 'objid' => $rec->id, 'mark' => 1],
+            ['sysobjid' => self::$sysobjid, 'objid' => $rec->id, 'mark' => 1
+                , 'operdate' => $rec->wrkdate
+                , 'opersum' => $rec->load_sum
+                , 'qty' => $rec->load_qty
+                , 'price' => $rec->load_price
+                , 'descript' => 'поставка: ' . $rec->load_refitem->name . ', ' . $rec->load_refitem->unittype->name
+                , 'sumtypeid' => 2  //1-деньги, 2-товар
+                , 'srcorgid' => $rec->suporgid
+                , 'tgtorgid' => $rec->load_ownorgid
+                , 'updated_by' => $userid
+                , 'updated_at' => now()
+            ]);
+        //если есть промежуточная перепродажа между компаниями ГК
+        if ($rec->unload_ownorgid <> $rec->load_ownorgid) {
+            obj_finoper::addOrUpdate(
+                ['sysobjid' => self::$sysobjid, 'objid' => $rec->id, 'mark' => 2],
+                ['sysobjid' => self::$sysobjid, 'objid' => $rec->id, 'mark' => 2
+                    , 'operdate' => $rec->wrkdate
+                    , 'opersum' => $rec->ownorg_sum
+                    , 'qty' => 1
+                    , 'price' => $rec->ownorg_sum
+                    , 'descript' => 'поставка: ' . $rec->unload_refitem->name . ', партия'
+                    , 'sumtypeid' => 2  //1-деньги, 2-товар
+                    , 'srcorgid' => $rec->load_ownorgid
+                    , 'tgtorgid' => $rec->unload_ownorgid
+                    , 'updated_by' => $userid
+                    , 'updated_at' => now()
+                ]);
+        }
+        //Продажа покупателю
+        obj_finoper::addOrUpdate(
+            ['sysobjid' => self::$sysobjid, 'objid' => $rec->id, 'mark' => 3],
+            ['sysobjid' => self::$sysobjid, 'objid' => $rec->id, 'mark' => 3
+                , 'operdate' => $rec->wrkdate
+                , 'opersum' => $rec->unload_sum
+                , 'qty' => $rec->unload_qty
+                , 'price' => $rec->unload_price
+                , 'descript' => 'поставка: ' . $rec->unload_refitem->name . ', ' . $rec->unload_refitem->unittype->name
+                , 'sumtypeid' => 2  //1-деньги, 2-товар
+                , 'srcorgid' => $rec->unload_ownorgid
+                , 'tgtorgid' => $rec->orgid
+                , 'updated_by' => $userid
+                , 'updated_at' => now()
+            ]);
+        //удалим лишние записи
+        obj_finoper::where(['sysobjid' => self::$sysobjid, 'objid' => $rec->id, 'updated_by' => 0])->delete();
+        //---------------------------------------------------------------------------------------
     }
 }

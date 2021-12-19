@@ -32,6 +32,12 @@ $(document).ready(function () {
         recalc_unloadsum()
     });
 
+    $("#orgid").change(function () {
+        $("#unload_placeid").val('')
+        $("#unload_placename").val('')
+    });
+
+
     function recalc_fuel() {
         const begqty = parseFloat($("#fuel_begqty").val());
         const inpqty = parseFloat($("#fuel_inpqty").val());
@@ -73,10 +79,20 @@ $(document).ready(function () {
         const sum = Math.round(100 * qty * price) / 100;
         $("#load_sum").val(sum);
         //console.log(sum)
+
+        //установить min для ownorg_sum
+        $("#ownorg_sum").attr('min', sum);
+        if ($("#ownorg_sum").val() < sum)
+            $("#ownorg_sum").val(sum)
     }
 
     $("#load_qty, #load_price").change(function () {
         recalc_loadsum();
+    });
+
+    $("#load_qty").change(function () {
+        $("#unload_qty").val($(this).val())
+        recalc_unloadsum()
     });
 
 
@@ -87,6 +103,12 @@ $(document).ready(function () {
         const sum = Math.round(100 * qty * price) / 100;
         $("#unload_sum").val(sum);
         //console.log(sum)
+
+        //установить max для ownorg_sum
+        $("#ownorg_sum").attr('max', sum);
+        if ($("#ownorg_sum").val() > sum)
+            $("#ownorg_sum").val(sum)
+
     }
 
     $("#unload_qty, #unload_price").change(function () {
@@ -123,6 +145,22 @@ $(document).ready(function () {
             }
         }
     });
+
+
+    $("#load_ownorgid, #unload_ownorgid").change(function () {
+
+        const id1 = $("#load_ownorgid").val();
+        const id2 = $("#unload_ownorgid").val();
+
+        if (id1 && id2 && id1 != id2) {
+            //show
+            $(".ownorg_transfer").show()
+        } else {
+            //hide
+            $(".ownorg_transfer").hide()
+        }
+    });
+
 
     if ($(".driver_name").length > 0) {
         $(".driver_name").autocomplete({
@@ -276,6 +314,7 @@ $(document).ready(function () {
                     data: {
                         //q: request.term,
                         s_name: request.term,
+                        opertypeid: $("#opertypeid").val(),
                     },
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -431,10 +470,11 @@ $(document).ready(function () {
         };
     }
 
-    $(".disp_username").autocomplete({
+    $(".disp_name").autocomplete({
         source: function (request, response) {
             $.ajax({
-                url: "/users/autocomplete/search",
+                //url: "/users/autocomplete/search",
+                url: "/orgstaff/autocomplete/search",
                 dataType: "json",
                 data: {
                     q: request.term,
@@ -493,7 +533,8 @@ $(document).ready(function () {
             event.preventDefault();
         },
         search: function () {
-            $(this).parent().find('.userid').val('');
+            //$(this).parent().find('.staffid').val('');
+            $(this).parent().find('.ac_id').val('');
 
             $(this).removeClass("ac-fail").removeClass("ac-warn").addClass("ac-act");
 
@@ -583,8 +624,9 @@ $(document).ready(function () {
                     dataType: "json",
                     data: {
                         name_inn: request.term,
-                        flagtypeid: 13, //13 - признак поставщика
+                        //flagtypeid: 13, //13 - признак поставщика
                         active: 1,
+                        in_ri_org_prices: 1,    //есть записи о товарах/ценах
                     },
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -844,7 +886,7 @@ $(document).ready(function () {
     }
 
 
-    $("#cargo_name").autocomplete({
+    $("#load_cargo_name").autocomplete({
         source: function (request, response) {
             $.ajax({
                 //url: "/refitems/autocomplete/search",
@@ -853,6 +895,8 @@ $(document).ready(function () {
                 data: {
                     name: request.term,
                     suporgid: $("#suporgid").val(),
+                    load_placeid: $("#load_placeid").val(),
+                    price_on_date: $("#wrkdate").val(),
                 },
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -903,7 +947,15 @@ $(document).ready(function () {
                 ac_id.val(ui.item.id);
 
                 $('#load_price').val(ui.item.price).prop('readonly', true);
-                $('#qty_unittypeid').val(ui.item.unittypeid).prop('readonly', true);
+
+                //установим допустимую ЕИ ---------------------------------------------
+                //$('#qty_unittypeid').val(ui.item.unittypeid).prop('readonly', true);
+                $("#qty_unittypeid > option").remove();
+                $("#qty_unittypeid").append($("<option>").attr("value", ui.item.unittypeid).append(ui.item.unit))
+                $("#load_qty_unit").html(ui.item.unit)
+                //$("#unload_qty_unit").html(ui.item.unit)
+                //---------------------------------------------------------------------
+
                 //$('#code1s').val(ui.item.code1s);
                 //$('#code').val(ui.item.id);
                 //$('#unit').html(ui.item.unit);
@@ -997,24 +1049,24 @@ $(document).ready(function () {
     };
 
 
-    $(".load_placename").autocomplete({
+    $("#unload_cargo_name").autocomplete({
         source: function (request, response) {
-
             $.ajax({
-                //url: "/api/places/for_ac",
-                url: "/api/org_places/for_ac",
+                //url: "/refitems/autocomplete/search",
+                url: "/api/refitems/for_ac",
                 dataType: "json",
                 data: {
-                    name_address: request.term,
-                    orgid: $("#suporid").val(),
-                    placetypeid: 2,
-                    active: 1,
+                    name: request.term,
+                    // suporgid: $("#suporgid").val(),
+                    // load_placeid: $("#load_placeid").val(),
+                    // price_on_date: $("#wrkdate").val(),
                 },
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function (data) {
-                    //console.log(data);
+                    //
+                    // console.log(n);
                     response($.map(data, function (item, index) {
                         if (index == 16) {
                             var n = data.length - 16;
@@ -1026,63 +1078,81 @@ $(document).ready(function () {
 
                         if (index > 16) return null;
 
-                        //var lbl = item.name + " (" + item.code + ")";
-                        var lbl = item.name + " (" + (item.address ?? '-') + ")";
+                        //var lbl = item.code + " | " + item.name;
+                        var lbl = item.name;
+                        //lbl = lbl + " (категория: " + item.itname;
+                        //if (item.specinfo) lbl = lbl + "; " + item.specinfo;
+                        lbl = lbl + "(цена: " + item.price + " &#x20bd; / " + item.unit + ")";
                         return {
                             label: lbl,
                             value: item.name,
-                            id: item.id,
-                            //orgid: item.orgid,
-                            //orgname: item.orgname
+                            price: item.price,
+                            code1s: item.code,
+                            icon: item.photourl,
+                            specinfo: item.specinfo,
+                            unit: item.unit,
+                            unittypeid: item.unittypeid,
+                            id: item.id
                         }
                     }));
                 }
             });
         },
-        delay: 250,
-        minLength: 1,
+        delay: 300,
+        minLength: 2,
         autoFill: true,
-        cacheLength: 10,
-        // autoFocus: true,
+        cacheLength: 1,
+        autoFocus: true,
 
         select: function (event, ui) {
             if (ui.item.id) {
-                const ac_id = $(this).parent().find('.ac_id');
+                ac_id = $(this).parent().find('.ac_id')
                 ac_id.val(ui.item.id);
-                $(this).val(ui.item.label);
 
-                var ac_status = $(this).parent().find('.ac_status');
-                ac_status.hide().removeClass("ac-fail");
-                $(this).addClass("ac-act");
+                $('#unload_price').val(ui.item.price)   //.prop('readonly', true);
+
+                //установим допустимую ЕИ ---------------------------------------------
+                //$("#qty_unittypeid > option").remove();
+                //$("#qty_unittypeid").append($("<option>").attr("value", ui.item.unittypeid).append(ui.item.unit))
+                $("#unload_qty_unit").html(ui.item.unit)
+                //---------------------------------------------------------------------
+
+                //$('#code1s').val(ui.item.code1s);
+                //$('#code').val(ui.item.id);
+                //$('#unit').html(ui.item.unit);
+                //$('#unit_html').html(ui.item.unit);
+                //$('#specinfo').html(ui.item.specinfo);
+
+                $(this).val(ui.item.value);
+
+                ac_status = $(this).parent().find('.ac_status');
+                ac_status.hide().val("").removeClass("ac-fail");
 
                 ac_id.change();  //для срабатывания слушателей за изменением этого поля
-            }
-            event.preventDefault();
+                $('#unload_price').change();
+
+            } else
+                event.preventDefault();
         },
         search: function () {
-            $(this).parent().find('.ac_id').val('');
-
             $(this).removeClass("ac-fail").removeClass("ac-warn").addClass("ac-act");
-
-            var ac_status = $(this).parent().find('.ac_status');
+            ac_status = $(this).parent().find('.ac_status');
             ac_status.val("поиск...")
-                .removeClass("ac-fail")
-                .removeClass("ac-warn")
-                .addClass("ac-act")
-                .show();
+                .removeClass("ac-fail").removeClass("ac-warn")
+                .addClass("ac-act").show();
         },
         response: function (event, ui) {
-            var ac_status = $(this).parent().find('.ac_status');
             $(this).removeClass("ac-act");
+            ac_status = $(this).parent().find('.ac_status');
             if (ui.content.length == 0) {
-                ac_status.val("Варианты не найдены.")
-                    .removeClass("ac-act")
-                    .addClass("ac-fail");
+                ac_status.val('Варианты не найдены.').removeClass("ac-act").addClass("ac-fail");
                 $(this).addClass("ac-fail");
+
+                $('#load_price').prop('readonly', false);
+
             } else if (ui.content.length > 15) {
                 ac_status.val('Показаны не все варианты! Уточните критерий')
-                    .removeClass("ac-act")
-                    .addClass("ac-warn");
+                    .removeClass("ac-act").addClass("ac-fail");
             } else {
                 //console.log(ui.content);
                 ac_status.hide().val("");
@@ -1094,19 +1164,22 @@ $(document).ready(function () {
         })
         .on('blur', function (event) {
             ac_id = $(this).parent().find('.ac_id');
+            ac_status = $(this).parent().find('.ac_status');
+            console.log($(this).val().length);
+
             if ($(this).val().length == 0) {
                 ac_id.val('');
-
-                //$(this).parent().find('.machine_name')
                 $(this).removeClass("ac-act").addClass("ac-fail");
 
-                var ac_status = $(this).parent().find('.ac_status');
-                ac_status.val('Укажите рег. номер техники!')
-                    .show()
-                    .removeClass("ac-act")
-                    .addClass("ac-fail");
+                ac_status.val('Укажите товар!').show()
+                    .removeClass("ac-act").addClass("ac-fail");
+
+                //specifics -----------------
+                $('#load_price').prop('readonly', false);
+                $('#unittypeid').prop('readonly', false);
+
             } else
-                $(this).parent().find('.ac_status').hide().val("");
+                ac_status.hide().val("");
 
             ac_id.change();  //для срабатывания слушателей за изменением этого поля
         })
@@ -1137,14 +1210,157 @@ $(document).ready(function () {
     };
 
 
+    if ($(".load_placename").length > 0) {
+        $(".load_placename").autocomplete({
+            source: function (request, response) {
+
+                $.ajax({
+                    //url: "/api/places/for_ac",
+                    url: "/api/org_places/for_ac",
+                    dataType: "json",
+                    data: {
+                        name_address: request.term,
+                        orgid: $("#suporid").val(),
+                        placetypeid: 2,
+                        active: 1,
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function (data) {
+                        //console.log(data);
+                        response($.map(data, function (item, index) {
+                            if (index == 16) {
+                                var n = data.length - 16;
+                                return {
+                                    // label: "- Показаны не все варианты (есть еще " + n + " записей), уточните критерий поиска!"
+                                    label: " ... Показаны не все варианты! Уточните критерий поиска!"
+                                }
+                            }
+
+                            if (index > 16) return null;
+
+                            //var lbl = item.name + " (" + item.code + ")";
+                            var lbl = item.name + " (" + (item.address ?? '-') + ")";
+                            return {
+                                label: lbl,
+                                value: item.name,
+                                id: item.id,
+                                //orgid: item.orgid,
+                                //orgname: item.orgname
+                            }
+                        }));
+                    }
+                });
+            },
+            delay: 250,
+            minLength: 1,
+            autoFill: true,
+            cacheLength: 10,
+            // autoFocus: true,
+
+            select: function (event, ui) {
+                if (ui.item.id) {
+                    const ac_id = $(this).parent().find('.ac_id');
+                    ac_id.val(ui.item.id);
+                    $(this).val(ui.item.label);
+
+                    var ac_status = $(this).parent().find('.ac_status');
+                    ac_status.hide().removeClass("ac-fail");
+                    $(this).addClass("ac-act");
+
+                    ac_id.change();  //для срабатывания слушателей за изменением этого поля
+                }
+                event.preventDefault();
+            },
+            search: function () {
+                $(this).parent().find('.ac_id').val('');
+
+                $(this).removeClass("ac-fail").removeClass("ac-warn").addClass("ac-act");
+
+                var ac_status = $(this).parent().find('.ac_status');
+                ac_status.val("поиск...")
+                    .removeClass("ac-fail")
+                    .removeClass("ac-warn")
+                    .addClass("ac-act")
+                    .show();
+            },
+            response: function (event, ui) {
+                var ac_status = $(this).parent().find('.ac_status');
+                $(this).removeClass("ac-act");
+                if (ui.content.length == 0) {
+                    ac_status.val("Варианты не найдены.")
+                        .removeClass("ac-act")
+                        .addClass("ac-fail");
+                    $(this).addClass("ac-fail");
+                } else if (ui.content.length > 15) {
+                    ac_status.val('Показаны не все варианты! Уточните критерий')
+                        .removeClass("ac-act")
+                        .addClass("ac-warn");
+                } else {
+                    //console.log(ui.content);
+                    ac_status.hide().val("");
+                }
+            }
+        })
+            .on('focus', function (event) {
+                $(this).select();
+            })
+            .on('blur', function (event) {
+                ac_id = $(this).parent().find('.ac_id');
+                if ($(this).val().length == 0) {
+                    ac_id.val('');
+
+                    //$(this).parent().find('.machine_name')
+                    $(this).removeClass("ac-act").addClass("ac-fail");
+
+                    var ac_status = $(this).parent().find('.ac_status');
+                    ac_status.val('Укажите рег. номер техники!')
+                        .show()
+                        .removeClass("ac-act")
+                        .addClass("ac-fail");
+                } else
+                    $(this).parent().find('.ac_status').hide().val("");
+
+                ac_id.change();  //для срабатывания слушателей за изменением этого поля
+            })
+            .data('ui-autocomplete')._renderItem = function (ul, item) {
+            //thanks to Salman Arshad for icon and match highlighting code
+            //http://salman-w.blogspot.ca/2013/12/jquery-ui-autocomplete-examples.html
+            //!подсвечивает только если поиск производится по одному слову.
+            var $div = $("<div></div>");
+            if (item.icon) {
+                $("<img class='m-icon'>").attr("src", "/images/" + item.icon).appendTo($div);
+            } else {
+                $("<span class='x-icon'></span>").appendTo($div);
+            }
+            var mName = $("<span class='m-name'></span>").html(item.label).appendTo($div),
+                searchText = $.trim(this.term).toLowerCase(),
+                currentNode = mName.get(0).firstChild,
+                matchIndex, newTextNode, newSpanNode;
+
+            while ((matchIndex = currentNode.data.toLowerCase().indexOf(searchText)) >= 0) {
+                newTextNode = currentNode.splitText(matchIndex);
+                currentNode = newTextNode.splitText(searchText.length);
+                newSpanNode = document.createElement("span");
+                newSpanNode.className = "highlight";
+                currentNode.parentNode.insertBefore(newSpanNode, currentNode);
+                newSpanNode.appendChild(newTextNode);
+            }
+            return $("<li></li>").append($div).appendTo(ul);
+        };
+    }
+
     $(".unload_placename").autocomplete({
         source: function (request, response) {
 
             $.ajax({
-                url: "/api/places/for_ac",
+                //url: "/api/places/for_ac",
+                url: "/api/org_places/for_ac",
                 dataType: "json",
                 data: {
                     s_name: request.term,
+                    orgid: $("#orgid").val(),
                     s_for_unload: 1,
                     s_active: 1,
                 },
@@ -1164,8 +1380,8 @@ $(document).ready(function () {
 
                         if (index > 16) return null;
 
-                        //var lbl = item.name + " (" + item.code + ")";
-                        var lbl = item.name;
+                        var lbl = item.name + " (" + item.address + ")";
+                        //var lbl = item.name;
                         return {
                             label: lbl,
                             value: item.name,
@@ -1268,6 +1484,82 @@ $(document).ready(function () {
         }
         return $("<li></li>").append($div).appendTo(ul);
     };
+
+
+    function load_places_rfr() {
+        //console.log($("#suporgid").val());
+
+        var selector = "#load_placeid";
+        var save_ID = $(selector).val();
+        //console.log('save_ID='+save_ID)
+
+        $(selector + " > option").remove();
+
+        if ($("#suporgid").val()) {
+
+            $.get("/api/org_places/for_", {
+                    s_orgid: $("#suporgid").val()
+                },
+                function (data) {
+                    //console.log(data);
+
+                    $(selector).append($("<option>"));
+                    $.each(data.org_places, function (index, value) {
+                        $(selector).append($("<option>").attr("value", index).append(value))
+                    });
+
+                    $(selector).val(save_ID);
+                    //console.log('restored save_ID=',$(selector).val())
+                    //Если вариант всего один - попробуем сразу его выбрать. 2 - потому что есть еще placeholder
+                    if ($(selector + ' option').length == 2) {
+                        $(selector).prop('selectedIndex', 1);
+                    }
+                }
+            );
+        }
+    }
+
+    $("#suporgid").change(function () {
+        load_places_rfr();
+    });
+
+
+    function unload_places_rfr() {
+        //console.log($("#suporgid").val());
+
+        var selector = "#unload_placeid";
+        var save_ID = $(selector).val();
+        //console.log('save_ID='+save_ID)
+
+        $(selector + " > option").remove();
+
+        if ($("#orgid").val()) {
+
+            $.get("/api/org_places/for_", {
+                    s_orgid: $("#orgid").val()
+                },
+                function (data) {
+                    //console.log(data);
+
+                    $(selector).append($("<option>"));
+                    $.each(data.org_places, function (index, value) {
+                        $(selector).append($("<option>").attr("value", index).append(value))
+                    });
+
+                    $(selector).val(save_ID);
+                    //console.log('restored save_ID=',$(selector).val())
+                    //Если вариант всего один - попробуем сразу его выбрать. 2 - потому что есть еще placeholder
+                    if ($(selector + ' option').length == 2) {
+                        $(selector).prop('selectedIndex', 1);
+                    }
+                }
+            );
+        }
+    }
+
+    $("#orgid").change(function () {
+        uload_places_rfr();
+    });
 
 
     //при загрузке -------------------------------------------------

@@ -110,7 +110,10 @@
                                                     <label for="name">Тип номенклатуры:</label>
                                                     {!! Form::select('producttypeid', $rec->producttypes,
                                                     $rec->producttypeid,
-                                                    ['class' => 'form-control']) !!}
+                                                    [
+                                                        'class' => 'form-control',
+                                                        'placeholder' => '-',
+                                                    ]) !!}
                                                 </div>
                                             </div>
                                         </div>
@@ -225,13 +228,15 @@
                                             </div>
                                         </div>
                                     @endif
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="name">Производитель:</label>
-                                            <input type="text" class="form-control text-center" name="manufacturer"
-                                                   value="{{$rec->manufacturer}}"/>
+                                    @if(1==0)
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="name">Производитель:</label>
+                                                <input type="text" class="form-control text-center" name="manufacturer"
+                                                       value="{{$rec->manufacturer}}"/>
+                                            </div>
                                         </div>
-                                    </div>
+                                    @endif
                                 </div>
 
                                 @if(1==0)

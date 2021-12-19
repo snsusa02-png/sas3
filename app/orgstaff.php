@@ -2,7 +2,9 @@
 
 namespace App;
 
+use App\Imports\invoiceImport;
 use App\Traits\FilesTrait;
+use App\Traits\Result;
 use DB;
 use App\org;
 use App\orgdep;
@@ -10,6 +12,7 @@ use App\Traits\DeleteTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Maatwebsite\Excel\Facades\Excel;
 
 
 class orgstaff extends Model
@@ -339,6 +342,9 @@ class orgstaff extends Model
                     } elseif ($key == 'driver_in_mchn_raids') {
                         $sc .= " and " . (($val == 1) ? '' : 'not') . " exists(select 1 from mchn_raids as mr where mr.driverid=os.id)";
 
+                    } elseif ($key == 'dispatcher_in_mchn_raids') {
+                        $sc .= " and " . (($val == 1) ? '' : 'not') . " exists(select 1 from mchn_raids as mr where mr.disp_staffid=os.id)";
+
                     }
                 }
 
@@ -419,6 +425,103 @@ class orgstaff extends Model
             return $recs;
         } else
             return null;
+    }
+
+
+    public static function import_001($file, $rec)
+    {
+        //Импорт счета на оплату из xlsx-файла в формате ___
+
+        $userid = \Auth::user()->id;
+        $result = new Result();
+
+        $array = Excel::toArray(new invoiceImport, $file);
+        $array = $array[0];
+        //dd($array);
+
+        //Названия полей ожидаем в первой строке
+        $fields = $array[0];
+        if (!(
+            in_array('lname', $fields)
+            and in_array('fname', $fields)
+            and in_array('mname', $fields)
+            and in_array('orgname', $fields)
+        )) {
+            $result->err = 1;
+            $result->msg = 'Файл должен содержать колонки "lname", "fname", "mname", "orgname"!';
+            $rec->result = $result;
+            return $rec;
+        }
+
+        //перевернем колонки
+        $fld_idx = array_flip($fields);
+
+        $items_add_cnt = 0; //кол-во новых записей
+        $items_upd_cnt = 0; //кол-во обновленных записей
+
+        for ($i = 1; $i < count($array); $i++) {
+
+            $lname = $array[$i][$fld_idx['lname']];
+            $fname = $array[$i][$fld_idx['fname']];
+            $mname = $array[$i][$fld_idx['mname'] ?? ''] ?? '';
+            $orgname = $array[$i][$fld_idx['orgname'] ?? ''] ?? '';
+            //dd($regnum, $name, $typename, $orgname, $other);
+
+            if (isset($lname) and isset($fname) and isset($mname)) {
+
+                //определим id владельца техники
+                $orgid = objextid::objid_by_extsysid_extid(9, 111, $orgname) ?? 21;
+                //dd($orgname, $orgid);
+
+                //Ключем считаем полное ФИО
+                $orgstaff = self::where([
+                    'lname' => $lname,
+                    'fname' => $fname,
+                    'mname' => $mname,
+                ])->first();
+
+                if (!isset($orgstaff)) {
+
+                    $orgstaff = new self([
+                        'lname' => $lname,
+                        'fname' => $fname,
+                        'mname' => $mname,
+                        'name' => $lname . ' ' . $fname . ' ' . $mname,
+                    ]);
+                    ++$items_add_cnt;
+                } else
+                    ++$items_upd_cnt;
+
+                $orgstaff->orgid = $orgid;
+                $orgstaff->postname = $array[$i][$fld_idx['postname'] ?? ''] ?? '';
+                //dd($orgstaff);
+                $orgstaff->save();
+
+                //Обработаем Признаки
+                if (isset($fld_idx['flags'])) {
+                    $flags = $array[$i][$fld_idx['flags']] ?? null;
+                    if (isset($flags)) {
+                        $flags = explode(',', $flags);
+                        if (is_array($flags) and count($flags) > 0) {
+                            foreach ($flags as $flag) {
+                                objflag::AddObjFlag(self::$sysobjid, $orgstaff->id, $flag);
+                            }
+                        }
+                    }
+                }
+
+
+                //continue;
+            }
+        }
+
+        $result->msg .= "- добавлено записей: {$items_add_cnt}" . PHP_EOL;
+        $result->msg .= "- изменено записей: {$items_upd_cnt}" . PHP_EOL;
+
+        $rec->result = $result;
+        //--------------------------------------------------------------------------
+
+        return $rec;
     }
 
 

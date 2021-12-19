@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @section('content')
     <?php
+    $thisSysObjCode = 'orgs';
     $thisTitle = "Контрагенты";
     ?>
     <link rel="stylesheet" href="/css/subnav.css">
@@ -77,6 +78,13 @@
                                            class="btn btn-warning btn-sm"
                                            title="Добавить запись">
                                             <i class="fa fa-plus"></i>
+                                        </a>
+                                    @endif
+                                    @if ($usrrights['load']??false)
+                                        <a href="{{ route($thisSysObjCode.'.load')}}"
+                                           class="btn btn-success btn-sm"
+                                           title="Загрузить записи о технике в формате файла XLS">
+                                            <i class="fa fa-upload" aria-hidden="true"></i>
                                         </a>
                                     @endif
                                 </td>

@@ -603,6 +603,18 @@ Route::get('/altnames/edit/{id}', 'ObjNameController@edit')->name('obj_names.edi
 Route::match(array('POST', 'PUT'), '/altnames/update/{id}', "ObjNameController@update")->name('obj_names.update');
 Route::put('/altnames/delete/{id}', "ObjNameController@destroy")->name("obj_names.delete");
 
+//признаки/особенности объектов ИС
+Route::get('/objflags/create/{sysobjid}/{objid}', "ObjflagController@create")->name('objflags.create');
+Route::get('/objflags/edit/{id}', 'ObjflagController@edit')->name('objflags.edit');
+Route::match(array('POST', 'PUT'), '/objflags/update/{id}', "ObjflagController@update")->name('objflags.update');
+Route::put('/objflags/delete/{id}', "ObjflagController@destroy")->name("objflags.delete");
+
+//контактные данные объектов ИС
+Route::get('/obj_contacts/create/{sysobjid}/{objid}', "ObjContactController@create")->name('obj_contacts.create');
+Route::get('/obj_contacts/edit/{id}', 'ObjContactController@edit')->name('obj_contacts.edit');
+Route::match(array('POST', 'PUT'), '/obj_contacts/update/{id}', "ObjContactController@update")->name('obj_contacts.update');
+Route::put('/obj_contacts/delete/{id}', "ObjContactController@destroy")->name("obj_contacts.delete");
+
 
 //Загрузка файлов (для обработки)
 Route::get('importfiles', 'ImportFileController@index')->name('importfiles.index');
@@ -639,6 +651,7 @@ Route::get('users/autocomplete/search', 'AutoCompleteController@UsersAutocomplet
 Route::get('/refitems/autocomplete/search', 'AutoCompleteController@RefItemsAutocompleteSearch');
 Route::get('/refitems/ac/wrhdoclst', 'AutoCompleteController@refitemsAC_wrhdoclst');
 
+
 //Контрагенты
 Route::match(array('GET', 'POST'), 'orgs/search', "orgController@search")->name("orgs.search");
 Route::match(array('GET', 'POST'), 'orgs', "orgController@index")->name("orgs.index");
@@ -650,6 +663,10 @@ Route::get('orgs/create/{owngrp}', "orgController@create")->name('orgs.create');
 Route::put('org/{id}/delete', "orgController@destroy")->name("org.delete");
 Route::get('orgs/{orgid}/updfrm_zachestnyibiznes', "orgController@updfrm_zachestnyibiznes")->name("orgs.updfrm_zachestnyibiznes");
 Route::get('orgs/{orgid}/impfrm_egrul', "orgController@impfrm_egrul")->name("orgs.impfrm_egrul");
+
+//загрузка новых записей об организациях из файла в формате XLS
+Route::get('orgs/load/xls', "orgController@load")->name('orgs.load');
+Route::put('orgs/import/xls', "orgController@import")->name('orgs.import');
 
 Route::get('/orgs/projects/params/', 'orgController@listprojects');
 
@@ -705,13 +722,17 @@ Route::get('org_places/{orgid}/create', "OrgPlaceController@create")->name('org_
 Route::match(array('POST', 'PUT'), 'org_places/{id}', "OrgPlaceController@update")->name('org_places.update');
 Route::put('org_places/{id}/delete', "OrgPlaceController@destroy")->name("org_places.delete");
 Route::get('/api/org_places/for_ac/', 'OrgPlaceController@list_for_ac');
+Route::get('/api/org_places/for_/', 'OrgPlaceController@list_for');
 
 //Просто места в городе/регионе
 Route::get('/api/places/for_ac/', 'PlaceController@list_for_ac');
 
 
 //Персонал
-//Route::get('orgstaff', "orgstaffController@index")->name('orgstaff.index');
+//загрузка новых записей о сотрудниках из файла в формате XLS
+Route::get('orgstaff/load/xls', "orgstaffController@load")->name('orgstaff.load');
+Route::put('orgstaff/import/xls', "orgstaffController@import")->name('orgstaff.import');
+
 Route::match(array('GET', 'POST'), 'orgstaff', "orgstaffController@index")->name("orgstaff.index");
 Route::get('orgstaff/{id}/show', "orgstaffController@show")->name('orgstaff.show');
 Route::get('orgstaff/{id}/edit', "orgstaffController@edit")->name('orgstaff.edit');
@@ -1354,6 +1375,12 @@ Route::put('mchntypes/{id}/delete', "MchntypeController@destroy")->name("mchntyp
 Route::match(array('GET', 'POST'), '/machines', "MachineController@index")->name('machines.index');
 Route::get('/machines/sort/{field}', 'MachineController@index_sort')->name('machines.sort');
 
+
+//Спецтехника ---------------------------------------------------------------------------------------------------------
+//загрузка новых записей о технике из файла в формате XLS
+Route::get('machines/load/xls', "MachineController@load")->name('machines.load');
+Route::put('machines/import/xls', "MachineController@import")->name('machines.import');
+
 Route::get('machines/create', "MachineController@create")->name('machines.create');
 Route::get('machines/{id}', 'MachineController@edit')->name('machines.edit');
 Route::match(array('POST', 'PUT'), 'machines/{id}', "MachineController@update")->name('machines.update');
@@ -1515,7 +1542,7 @@ Route::match(array('GET', 'POST'), '/refitems/listgoods', "refItemController@lis
 Route::match(array('POST'), 'refitems/getshortinfo', 'refItemController@getshortinfo')
     ->name('refitems.getshortinfo');
 
-Route::get('refitems/{id}', 'refItemController@edit')->name('refitems.edit');
+Route::get('refitems/{id}/edit', 'refItemController@edit')->name('refitems.edit');
 Route::match(array('POST', 'PUT'), 'refitems/{id}', "refItemController@update")
     ->name('refitems.update');
 Route::put('refitems/{id}/delete', "refItemController@destroy")->name("refitems.del");
@@ -1531,8 +1558,7 @@ Route::get('refitems/{srcid}/{tgtid}/join', 'refItemController@join')->name('ref
 Route::get('ri_org_prices/{id}/edit', "RiOrgPriceController@edit")->name('ri_org_prices.edit');
 Route::get('ri_org_prices/{orgid}/create', "RiOrgPriceController@create")->name('ri_org_prices.create');
 Route::match(array('POST', 'PUT'), 'ri_org_prices/{id}', "RiOrgPriceController@update")->name('ri_org_prices.update');
-Route::put('ri_org_prices/{id}/delete', "RiOrgPriceController@destroy")->name("ri_org_prices.delete");
-
+Route::get('ri_org_prices/{id}/delete', "RiOrgPriceController@destroy")->name("ri_org_prices.delete");
 
 
 //Единицы измерения для позиции справочника номенклатуры
@@ -1597,6 +1623,8 @@ Route::get('/api/refitems/for_ac/', 'refItemController@list_for_ac');
 Route::get('/api/machines/for_/', 'MachineController@list_for');
 Route::get('/api/machines/for_ac/', 'MachineController@list_for_ac');
 Route::get('api/buildobj_staffs/_ac', 'BuildobjStaffController@list_for_ac');
+Route::get('/api/estdocs/for_ac/', 'estdocController@list_for_ac');
+Route::get('/api/estdoc_items/for_ac/', 'estdocItemController@list_for_ac');
 Route::get('/api/mchn_opertypes/for_/', 'MchnOpertypeController@list_for');
 Route::get('/api/mchn_raids/data_for_driver_works/', 'MchnRaidController@data_for_driver_works');
 Route::get('/orgstaff/staff/params/', 'orgstaffController@listorgstaff');
@@ -1795,6 +1823,7 @@ Route::get('paydocs/create', "PaydocController@create")->name('paydocs.create');
 Route::get('paydocs/{id}/edit', "PaydocController@edit")->name('paydocs.edit');
 Route::match(array('POST', 'PUT'), 'paydocs/{id}', "PaydocController@update")->name('paydocs.update');
 Route::match(array('GET', 'PUT'), 'paydocs/{id}/delete', "PaydocController@destroy")->name("paydocs.delete");
+Route::get('paydocs/{id}/make_template', "PaydocController@make_template")->name('paydocs.make_template');
 
 
 //Документы
@@ -1908,6 +1937,13 @@ Route::get('/tasks/edit/{id}', 'myTaskController@edit')->name('tasks.edit');
 Route::match(array('POST', 'PUT'), 'tasks/{id}', "myTaskController@update")->name('tasks.update');
 Route::put('/tasks/delete/{id}', 'myTaskController@destroy')->name('tasks.delete');
 
+Route::match(array('GET', 'POST', 'PUT'), '/taskcalendar', 'TaskCalendarController@index')->name('tasks.calendar');
+Route::get('/taskcalendar/get', 'TaskCalendarController@get');
+Route::post('/taskcalendar/create', 'TaskCalendarController@create');
+Route::post('/taskcalendar/update', 'TaskCalendarController@update');
+Route::post('/taskcalendar/move', 'TaskCalendarController@move');
+Route::post('/taskcalendar/delete', 'TaskCalendarController@destroy');
+
 //работники по задаче
 Route::get('/task_users/create/{taskid}', "TaskUserController@create")->name('task_users.create');
 Route::get('/task_users/edit/{id}', 'TaskUserController@edit')->name('task_users.edit');
@@ -1919,6 +1955,21 @@ Route::get('/task_reports/create/{taskid}', "TaskReportController@create")->name
 Route::get('/task_reports/edit/{id}', 'TaskReportController@edit')->name('task_reports.edit');
 Route::match(array('POST', 'PUT'), '/task_reports/update/{id}', "TaskReportController@update")->name('task_reports.update');
 Route::put('/task_reports/delete/{id}', "TaskReportController@destroy")->name("task_reports.delete");
+
+
+//Gantt
+Route::get('/gantt/{sysobjid}/{objid}', function ($sysobjid, $objid) {
+    return view('gantt.gantt', compact('sysobjid', 'objid'));
+})->name('gantt0');
+
+Route::get('/gantt/{sysobjid}/{objid}', 'GanttController@index')->name('gantt');
+Route::get('/gantt/get', 'GanttController@get');
+Route::post('/gantt/link', 'GanttController@link_add');
+Route::post('/gantt/link_del', 'GanttController@link_delete');
+Route::post('/gantt/update', 'GanttController@task_update');
+//Route::post('/gantt/move', 'GanttController@move');
+
+
 
 //Аналитические отчеты
 Route::match(array('POST', 'PUT'), '/reports/rep/32/set', "AnaliticsController@rep32setparams")->name('reports.rep32set');

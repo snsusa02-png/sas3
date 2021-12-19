@@ -42,11 +42,15 @@
                                 <div class="subnav shift">
                                     <ul>
                                         <li class=""><a href="{{route('reports.rep45')}}"
-                                               title="Анализ данных рейсов">Анализ</a>
+                                                        title="Анализ данных рейсов">Анализ</a>
                                         </li>
                                         <li><a href="{{route('reports.rep46')}}"
                                                title="Отчет за день">Отчет за день</a>
                                         </li>
+                                        @if(\App\usrsysright::isUserHasRightByCode_cached($userid,'paydocs.read'))
+                                            <li><a href="{{route('paydocs.index')}}"
+                                                   title="Платежи">Платежи</a></li>
+                                        @endif
                                         @if(\App\usrsysright::isUserHasRightByCode_cached($userid,'machines.read'))
                                             <li><a href="{{route('machines.index')}}"
                                                    title="Спецтехника">Спецтехника</a></li>
@@ -76,9 +80,8 @@
                                 <td>№ авто</td>
                                 <td>Водитель</td>
                                 <td>Место загрузки</td>
-                                <td>Груз</td>
+                                <td>Груз, ЕИ</td>
                                 <td>Объем загрузки</td>
-                                <td>ЕИ</td>
                                 <td>Цена покупки</td>
                                 <td>Стоимость загрузки</td>
                                 <td>Место выгрузки</td>
@@ -86,6 +89,7 @@
                                 <td>Имя диспетчера</td>
                                 <td>Число рейсов</td>
                                 <td>Оплата</td>
+                                <td>Груз, ЕИ</td>
                                 <td>Подписанный объем</td>
                                 <td>Сумма</td>
 
@@ -169,7 +173,6 @@
                                 <td></td>
                                 <td></td>
                                 <td></td>
-                                <td></td>
                                 <td>{!! Form::select('s_unload_placeid', $data->unload_places??[]
                                         , $search_params['s_unload_placeid'],
                                              [
@@ -187,8 +190,8 @@
                                              ]) !!}
                                 </td>
                                 <td>
-                                    {!! Form::select('s_disp_userid', $data->dispatchers??[]
-                                            , $search_params['s_disp_userid']??'',
+                                    {!! Form::select('s_disp_staffid', $data->dispatchers??[]
+                                            , $search_params['s_disp_staffid']??'',
                                                  [
                                                  'class' => 'form-control',
                                                  'placeholder' => '-все-',
@@ -206,6 +209,7 @@
                                              ]) !!}
                                     </div>
                                 </td>
+                                <td></td>
                                 <td></td>
                                 <td></td>
                                 <td>
@@ -231,6 +235,7 @@
                             $curDocID = "";
                             $npp = 0;
                             $curDate = date_format(date_create(), 'Y-m-d');
+                            $cur_opertypeid = -1;
                             $userid = \Auth()->user()->id;
                             ?>
                             @foreach($recs as $item)
@@ -268,7 +273,18 @@
                                         </tr>
                                         <?php
                                         $cur_wrkdate = $item->wrkdate;
+                                        $cur_opertypeid = -1;
                                         $npp = 0;
+                                        ?>
+                                    @endif
+                                    @if($item->opertypeid<>$cur_opertypeid)
+                                        <tr class="bg-warning">
+                                            <td></td>
+                                            <td colspan="17"
+                                                class="font-weight-bold font-italic">{{$item->opertype_name}}</td>
+                                        </tr>
+                                        <?php
+                                        $cur_opertypeid = $item->opertypeid;
                                         ?>
                                     @endif
 
@@ -290,16 +306,13 @@
                                             {{$item->staff_name}}
                                         </td>
                                         <td class="text-center">
-                                            {{$item->load_placename}}
+                                            {{$item->load_place_name}}
                                         </td>
                                         <td class="text-center small">
-                                            {{$item->cargo_name}}
+                                            {{$item->load_refitem_name}}, {{$item->load_refitem_unit}}
                                         </td>
                                         <td class="text-right">
                                             {{$item->load_qty}}
-                                        </td>
-                                        <td class="text-center">
-                                            {{$item->qty_unit}}
                                         </td>
                                         <td class="text-right">
                                             {{number_format($item->load_price,2)}}
@@ -322,11 +335,14 @@
                                         <td class="text-center">
                                             {{$data->paytypes[$item->paytypeid]??'?'}}
                                         </td>
+                                        <td class="text-center small">
+                                            {{$item->unload_refitem_name}}, {{$item->unload_refitem_unit}}
+                                        </td>
                                         <td class="text-right">
                                             {{$item->unload_qty}}
                                         </td>
                                         <td class="text-right">
-                                            {{number_format($item->unload_qty*$item->load_price,2)}}
+                                            {{number_format($item->unload_qty*$item->unload_price,2)}}
                                         </td>
 
                                         <td class="text-right">

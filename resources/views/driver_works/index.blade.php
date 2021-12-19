@@ -112,18 +112,6 @@
 
                                     </div>
                                 </td>
-                                <td>
-                                    <div class="input-group ">
-                                        {!! Form::select('s_machineid', $data->machines
-                                        , $search_params['s_machineid'],
-                                             [
-                                             'class' => 'form-control',
-                                             'placeholder' => '-все-',
-                                             'onchange' => 'form.submit()',
-                                             ]) !!}
-
-                                    </div>
-                                </td>
                                 <td>{!! Form::select('s_staffid', $data->staffs
                                         , $search_params['s_staffid'],
                                              [
@@ -131,6 +119,15 @@
                                              'placeholder' => '-все-',
                                              'onchange' => 'form.submit()',
                                              ]) !!}
+                                </td>
+                                <td>
+                                    {!! Form::select('s_machineid', $data->machines
+                                    , $search_params['s_machineid'],
+                                         [
+                                         'class' => 'form-control',
+                                         'placeholder' => '-все-',
+                                         'onchange' => 'form.submit()',
+                                         ]) !!}
                                 </td>
                                 <td></td>
                                 <td></td>

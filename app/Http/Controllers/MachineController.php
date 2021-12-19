@@ -17,7 +17,7 @@ use App\Traits\snsTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-
+use App\Traits\Result;
 
 class MachineController extends Controller
 {
@@ -43,6 +43,7 @@ class MachineController extends Controller
         $usrrights = array();
         $usrrights['read'] = usrsysright::isUserHasRightByCode_cached($userid, $this->objcode . '.read');
         $usrrights['create'] = usrsysright::isUserHasRightByCode_cached($userid, $this->objcode . '.create');
+        $usrrights['load'] = usrsysright::isUserHasRightByCode_cached($userid, 'admin-global');
         $usrrights['save'] = false;
         $usrrights['delete'] = false;
         $usrrights['admindelete'] = false;
@@ -69,12 +70,7 @@ class MachineController extends Controller
     {
         $userid = \Auth::user()->id;
 
-        //$usrrights = $this->setInterfaceRight(-1);
-        $usrrights = array(
-            'read' => usrsysright::isUserHasRightByCode_cached($userid, $this->objcode . '.read'),
-            'create' => usrsysright::isUserHasRightByCode_cached($userid, $this->objcode . '.create'),
-            'save' => usrsysright::isUserHasRightByCode_cached($userid, $this->objcode . '.save'),
-        );
+        $usrrights = $this->setInterfaceRight(-1);
         if (!$usrrights['read']) {
             return view('home');
         }
@@ -421,6 +417,7 @@ class MachineController extends Controller
                 's_name' => $request->s_name,
                 's_regnum' => $request->s_regnum,
                 'mchntypeid' => $request->mchntypeid,
+                'opertypeid' => $request->opertypeid,
                 'orgid' => $request->orgid,
                 'active' => $request->active ?? 1,
             ],
@@ -434,5 +431,67 @@ class MachineController extends Controller
         return response()->json($result);
     }
 
+
+    public function load()
+    {
+        $userid = \Auth::user()->id;
+        $usrrights = $this->setInterfaceRight(-1);
+
+        $rec = new \stdClass();
+
+        return view($this->sysobjcode . '.load', compact('rec', "usrrights"));
+    }
+
+
+    public function import(Request $request)
+    {
+        //Импорт без сохранения файла на диск. Только обработка
+
+        $messages = [
+            'doc.required' => 'Не указан файл с данными',
+        ];
+
+        $rules = [
+            "doc" => "required",
+        ];
+
+        $request->validate($rules, $messages);
+
+        $userid = \Auth::user()->id;
+        //$returl = $request->get('retroute');
+
+        $usrrights = $this->setInterfaceRight(-1);
+        $result = new Result();
+        $rec = new \stdClass();
+
+        $rec->extsysid = 9;   // ? М.б. использовать для связывания по кодам во внешней системе
+        //dd($rec);
+
+        if ($request->hasfile('doc')) {
+
+            $file = $request->doc;
+
+            $filesize = $file->getSize();
+            $name = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $extension = $file->getClientOriginalExtension();
+            //dd($name, $extension, $filesize);
+
+            if (1 == 1)
+                $rec = machine::import_001($file, $rec);
+            else {
+                $result->err = 1;
+                $result->msg = 'Не определена процедура импорта!';
+            }
+            //--------------------------------------------------------------------------------
+            //dd($result->msg);
+
+
+        } else {
+            $result->err = 1;
+            $result->msg = 'Файл с данными не загружен!';
+        }
+
+        return view($this->sysobjcode . '.load', compact('rec', "usrrights"));
+    }
 
 }

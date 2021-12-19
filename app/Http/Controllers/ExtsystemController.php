@@ -13,7 +13,7 @@ class ExtsystemController extends Controller
     {
         $this->middleware('auth');
 
-        $this->sysobjid = 41;
+        $this->sysobjid = 31;
         $this->objcode = 'extsystems';
     }
 
@@ -51,7 +51,7 @@ class ExtsystemController extends Controller
     {
         $userid = \Auth::user()->id;
 
-        $usrrights = Array(
+        $usrrights = array(
             'read' => usrsysright::isUserHasRightByCode($userid, $this->objcode . '.read'),
             'create' => usrsysright::isUserHasRightByCode($userid, $this->objcode . '.create'),
             'save' => usrsysright::isUserHasRightByCode($userid, $this->objcode . '.save'),
@@ -131,7 +131,11 @@ class ExtsystemController extends Controller
             ->orderBy($sort_by, $sort_dir)
             ->paginate(10);
 
-        return view($this->objcode . '.index', compact('recs', 'usrrights', 'search_params'));
+        $data = new \stdClass();
+        $data->sysobj = $this->sysobjid;
+
+
+        return view($this->objcode . '.index', compact('recs', 'usrrights', 'search_params', 'data'));
     }
 
 
@@ -219,8 +223,8 @@ class ExtsystemController extends Controller
 
         $request->validate([
             "name" => "required",
-//        'column_to_validate' => 'unique:table_name,column_to_validate,id_to_ignore,other_column,value,other_column_2,value_2,other_column_N,value_N',
-            "code" => "required|unique:extsystems,code,' . $id",
+//        'column_to_validate' => 'unique:table_name,column_to_validate,id_to_ignore, other_column,value,other_column_2,value_2,other_column_N,value_N',
+            "code" => "required|unique:extsystems,code,{$id}",
         ], $messages);
 
 
@@ -242,6 +246,7 @@ class ExtsystemController extends Controller
 
         $rec->code = $request->get('code');
         $rec->name = $request->get('name');
+        $rec->descript = $request->get('descript');
         $rec->updated_by = $userid;
         $rec->save();
 
@@ -262,7 +267,7 @@ class ExtsystemController extends Controller
      */
     public function destroy($id)
     {
-        $res = extsystem::delete_by_id($id,$this->sysobjid);
+        $res = extsystem::delete_by_id($id, $this->sysobjid);
         $route = "";
         $sd = array();
         if ($res->err == 1) {

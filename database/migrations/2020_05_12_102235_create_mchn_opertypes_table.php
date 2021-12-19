@@ -19,6 +19,9 @@ class CreateMchnOpertypesTable extends Migration
             $table->bigInteger('machineid')->unsigned()->index('machineid');
 		$table->foreign('machineid')->references('id')->on('machines');
 
+            $table->bigInteger('opertypeid')->unsigned()->index('opertypeid');
+		$table->foreign('opertypeid')->references('id')->on('opertypes');
+
             $table->string('name',60);
             $table->string('descript',160)->nullable();
 

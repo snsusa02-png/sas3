@@ -156,4 +156,44 @@ class paydoc extends Model
             return null;
     }
 
+    static public function rfr_finopers($rec)
+    {
+        if (!isset($rec))
+            return;
+
+        $userid = \Auth::user()->id;
+
+        //сформируем фин. операции --------------------------------------------------------------
+        obj_finoper::where(['sysobjid' => self::$sysobjid, 'objid' => $rec->id])->update(['updated_by' => 0]);
+
+        //Оплата:
+        if ($rec->paydir == -1) {
+            $srcorgid = $rec->ownorgid;
+            $tgtorgid = $rec->orgid;
+
+        } elseif ($rec->paydir == 1) {
+            $srcorgid = $rec->orgid;
+            $tgtorgid = $rec->ownorgid;
+        }
+        if (isset($srcorgid) and isset($tgtorgid)) {
+            obj_finoper::addOrUpdate(
+                ['sysobjid' => self::$sysobjid, 'objid' => $rec->id, 'mark' => 1],
+                ['sysobjid' => self::$sysobjid, 'objid' => $rec->id, 'mark' => 1
+                    , 'operdate' => $rec->paydate
+                    , 'opersum' => $rec->paysum
+                    , 'qty' => null
+                    , 'price' => null
+                    , 'descript' => 'платеж - ' . $rec->reason
+                    , 'sumtypeid' => 1  //1-деньги, 2-товар
+                    , 'srcorgid' => $srcorgid
+                    , 'tgtorgid' => $tgtorgid
+                    , 'updated_by' => $userid
+                    , 'updated_at' => now()
+                ]);
+        }
+        //удалим лишние записи
+        obj_finoper::where(['sysobjid' => self::$sysobjid, 'objid' => $rec->id, 'updated_by' => 0])->delete();
+        //---------------------------------------------------------------------------------------
+    }
+
 }

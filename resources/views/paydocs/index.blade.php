@@ -29,7 +29,7 @@
             $thisTitle => null,
         ];
         //dd($breadcrumbs);
-        ?>we
+        ?>
         @includeIf('layouts.breadcrumbs')
 
         <div class="row">
@@ -43,13 +43,13 @@
                         <li><a href="{{route('reports.rep47')}}"
                                title="Должники">Должники</a>
                         </li>
-                        @if(\App\usrsysright::isUserHasRightByCode_cached($userid,'orgs.read'))
-                            <li><a href="{{route('orgs.index')}}"
-                                   title="Заказчики">Клиенты</a></li>
-                        @endif
                         @if(\App\usrsysright::isUserHasRightByCode_cached($userid,'mchn_raids.read'))
                             <li><a href="{{route('mchn_raids.index')}}"
                                    title="Перевозки">Перевозки</a></li>
+                        @endif
+                        @if(\App\usrsysright::isUserHasRightByCode_cached($userid,'orgs.read'))
+                            <li><a href="{{route('orgs.index')}}"
+                                   title="Контрагенты">Клиенты</a></li>
                         @endif
                     </ul>
                 </div>
@@ -79,12 +79,29 @@
                                 <td>Расход</td>
                                 <td style="text-align: center;">
                                     @if ($usrrights['create'])
-                                        <a href="{{ route($thisSysObjCode.'.create')}}"
-                                           class="btn btn-warning btn-sm d-print-none"
-                                           title="Добавить запись">
-                                            <i class="fa fa-plus"></i>
-                                        </a>
+                                        @if (isset($data->template_id))
+                                            <a href="{{ route($thisSysObjCode.'.create')}}"
+                                               class="btn btn-warning btn-sm d-print-none"
+                                               title="Добавить запись с данными из шаблона"
+                                               onclick="return confirm('Добавить новую запись с данными из шаблона?')">
+                                                <i class="fa fa-plus"></i>
+                                            </a>
+                                            <a href="{{ route('user_templates.delete', $data->template_id)}}?returl={{Request::url()}}"
+                                               class="btn btn-danger btn-sm"
+                                               onclick="return confirm('Удалить текущий шаблон?')"
+                                               title="Удалить текущий шаблон"
+                                            >
+                                                <i class="fa fa-minus-circle" aria-hidden="true"></i>
+                                            </a>
+                                        @else
+                                            <a href="{{ route($thisSysObjCode.'.create')}}"
+                                               class="btn btn-warning btn-sm d-print-none"
+                                               title="Добавить запись">
+                                                <i class="fa fa-plus"></i>
+                                            </a>
+                                        @endif
                                     @endif
+
                                 </td>
                             </tr>
 

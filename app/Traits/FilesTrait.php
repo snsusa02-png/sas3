@@ -2,9 +2,11 @@
 
 namespace App\Traits;
 
+use App\obj_contact;
 use App\obj_link;
 use App\objextid;
 use App\objfile;
+use App\objflag;
 use DB;
 use App\Traits\Result;
 
@@ -39,6 +41,28 @@ trait FilesTrait
             ->whereRaw("exists (select 1 from doctypes as dt
                 join user_acs as uac on uac.acsid=dt.acsid and uac.userid={$userid}
                 where dt.id=objfiles.doctypeid)");
+    }
+
+    public function flags()
+    {
+        //возращает список флагов, связанных с объектом
+        $userid = \Auth::user()->id;
+        return $this->hasMany(objflag::class, 'objid', 'id')
+            ->join('flagtypes as ft', 'ft.id', 'objflags.flagtypeid')
+            ->select('objflags.*', 'ft.name as flagtype_name')
+            ->where('sysobjid', self::$sysobjid)
+            ->orderBy('flagtype_name');
+    }
+
+    public function contacts()
+    {
+        //возращает список контактной информации (телефоны, адреса ЭП, ...)
+        $userid = \Auth::user()->id;
+        return $this->hasMany(obj_contact::class, 'objid', 'id')
+            ->join('contacttypes as ct', 'ct.id', 'obj_contacts.contacttypeid')
+            ->select('obj_contacts.*', 'ct.name as contacttype_name')
+            ->where('sysobjid', self::$sysobjid)
+            ->orderBy('contacttype_name');
     }
 
 }

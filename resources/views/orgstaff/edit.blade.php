@@ -501,7 +501,7 @@
                                             <div class="row">
                                                 @if(isset($rec->users))
                                                     <div class="form-group col-md-8">
-                                                        <label for="contractid">Связан с пользователем ИС:</label>
+                                                        <label for="userid">Связан с пользователем ИС:</label>
                                                         {!! Form::select('userid', $rec->users, $rec->userid,
                                                              [
                                                              'id' => 'userid',
@@ -574,9 +574,8 @@
 
                             @include('stforders._orders')
                             @include('staff_posts._posts')
-
                             @include('objfiles.obj_files')
-                            {{--                            @include('obj_msgs._msgs')--}}
+                            @include('objflags._flags')
 
                             @if (count($rec->userrights)>0)
                                 <div class="card ">

@@ -6,7 +6,9 @@ use App\Traits\DeleteTrait;
 use App\Traits\FilesTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
-
+use App\Imports\invoiceImport;
+use App\Traits\Result;
+use Maatwebsite\Excel\Facades\Excel;
 use Log;
 use DateTime;
 use App\mchncontrorg;
@@ -424,6 +426,9 @@ class machine extends Model
                     } elseif ($key == 'in_mchn_raids') {
                         $sc .= " and " . (($val == 1) ? '' : 'not') . " exists(select 1 from mchn_raids as mr where mr.machineid=m.id)";
 
+                    } elseif ($key == 'opertypeid') {
+                        $sc .= " and exists(select 1 from mchn_opertypes as mot where mot.machineid=m.id and mot.opertypeid={$val})";
+
                     }
                 }
 
@@ -494,6 +499,94 @@ class machine extends Model
             return $recs;
         } else
             return null;
+    }
+
+
+    public static function import_001($file, $rec)
+    {
+        //Импорт счета на оплату из xlsx-файла в формате ___
+
+        $userid = \Auth::user()->id;
+        $result = new Result();
+
+        //$fileuri = "/home/vagrant/code/basco/storage/app/public/files/879/1/Ведомость ресурсов материалы Отопление ИТП.xlsx";
+        //Excel::import(new invoiceImport(), $fileuri, null, \Maatwebsite\Excel\Excel::XLSX);
+
+        //Excel::import(new invoiceImport(), request()->file('doc'));
+//            $collection = Excel::toCollection(new invoiceImport, request()->file('doc'));
+//            dd($collection);
+
+        //$array = Excel::toArray(new invoiceImport, request()->file('doc'));
+        $array = Excel::toArray(new invoiceImport, $file);
+        $array = $array[0];
+        //dd($array);
+
+        //Названия полей ожидаем в первой строке
+        $fields = $array[0];
+        if (!(
+            in_array('regnum', $fields)
+            and in_array('name', $fields)
+            and in_array('orgname', $fields)
+        )) {
+            $result->err = 1;
+            $result->msg = 'Файл должен содержать колонки "regnum", "name", "orgname"!';
+            $rec->result = $result;
+            return $rec;
+        }
+
+        //dd($fields,count($array));
+        $fld_idx = array_flip($fields);
+        //dd($fld_idx);
+
+        $items_add_cnt = 0; //кол-во новых записей
+        $items_upd_cnt = 0; //кол-во обновленных записей
+
+        for ($i = 1; $i < count($array); $i++) {
+            $regnum = $array[$i][$fld_idx['regnum']];
+            $name = $array[$i][$fld_idx['name']];
+            $typename = $array[$i][$fld_idx['typename'] ?? ''] ?? '';
+            $orgname = $array[$i][$fld_idx['orgname'] ?? ''] ?? '';
+            $other = $array[$i][$fld_idx['other'] ?? ''] ?? '';
+
+            //dd($regnum, $name, $typename, $orgname, $other);
+
+
+            if (isset($regnum)) {
+
+                //определим id тип техники
+                $mchntypeid = objextid::objid_by_extsysid_extid(9, 481, $typename) ?? 13;
+                //dd($typename, $mchntypeid);
+
+                //определим id владельца техники
+                $orgid = objextid::objid_by_extsysid_extid(9, 111, $orgname) ?? 21;
+                //dd($ownorgname, $ownorgid);
+
+                $machine = self::where('regnum', $regnum)->first();
+                if (!isset($machine)) {
+                    $machine = new self([
+                        'regnum' => $regnum
+                    ]);
+                    ++$items_add_cnt;
+                } else
+                    ++$items_upd_cnt;
+
+                $machine->name = $name;
+                $machine->mchntypeid = $mchntypeid;
+                $machine->orgid = $orgid;
+                //dd($machine);
+                $machine->save();
+
+                //continue;
+            }
+        }
+
+        $result->msg .= "- добавлено записей: {$items_add_cnt}" . PHP_EOL;
+        $result->msg .= "- изменено записей: {$items_upd_cnt}" . PHP_EOL;
+
+        $rec->result = $result;
+        //--------------------------------------------------------------------------
+
+        return $rec;
     }
 
 

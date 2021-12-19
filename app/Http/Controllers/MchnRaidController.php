@@ -9,9 +9,12 @@ use App\driver_work;
 use App\mchn_raid;
 use App\machine;
 use App\mchn_opertype;
+use App\obj_finoper;
 use App\objlog;
 use App\objtag;
+use App\opertype;
 use App\org;
+use App\org_place;
 use App\orgstaff;
 use App\refitem;
 use App\sysobj;
@@ -98,7 +101,7 @@ class MchnRaidController extends Controller
             , 's_load_placeid' => ''
             , 's_unload_placeid' => ''
             , 's_orgid' => ''
-            , 's_disp_userid' => ''
+            , 's_disp_staffid' => ''
         ];
 
         $search_params = $this->search_params($request, $param_names);
@@ -141,8 +144,8 @@ class MchnRaidController extends Controller
                 } elseif ($item == 's_paytypeid') {
                     $sc = $sc . " and mr.paytypeid = {$val}";
 
-                } elseif ($item == 's_disp_userid') {
-                    $sc = $sc . " and mr.disp_userid = {$val}";
+                } elseif ($item == 's_disp_staffid') {
+                    $sc = $sc . " and mr.disp_staffid = {$val}";
 
                 } elseif ($item == 's_statusid') {
                     $sc = $sc . " and mr.statusid = {$val}";
@@ -163,23 +166,41 @@ class MchnRaidController extends Controller
 
 
         $recs = mchn_raid::from('mchn_raids as mr')
+            ->join('opertypes as ot', function ($join) {
+                $join->on('ot.id', '=', 'mr.opertypeid');
+            })
             ->join('orgstaff as os', function ($join) {
                 $join->on('os.id', '=', 'mr.driverid');
             })
             ->join('machines as m', function ($join) {
                 $join->on('m.id', '=', 'mr.machineid');
             })
-            ->leftjoin('users as du', function ($join) {
-                $join->on('du.id', '=', 'mr.disp_userid');
+            ->leftjoin('refitems as l_ri', function ($join) {
+                $join->on('l_ri.id', '=', 'mr.load_refitmid');
+            })
+            ->leftjoin('refitems as u_ri', function ($join) {
+                $join->on('u_ri.id', '=', 'mr.unload_refitmid');
+            })
+            ->leftjoin('org_places as l_op', function ($join) {
+                $join->on('l_op.id', '=', 'mr.load_placeid');
+            })
+            ->leftjoin('orgstaff as ds', function ($join) {
+                $join->on('ds.id', '=', 'mr.disp_staffid');
             })
             ->whereraw($sc)
             ->select('mr.*'
                 , db::raw("TIME_FORMAT(mr.wrkbegdt, '%H:%i') as beg_hm")
                 , db::raw("TIME_FORMAT(mr.wrkenddt, '%H:%i') as end_hm")
                 , 'os.lname as staff_name'
-                , 'du.lname as disp_name'
-                , 'm.regnum as machine_name'
-
+                , 'ds.lname as disp_name'
+                , db::raw("concat(m.regnum,' ',m.name) as machine_name")
+                , 'mr.opertypeid'
+                , 'ot.name as opertype_name'
+                , 'l_op.name as load_place_name'
+                , 'l_ri.name as load_refitem_name'
+                , 'l_ri.unit as load_refitem_unit'
+                , 'u_ri.name as unload_refitem_name'
+                , 'u_ri.unit as unload_refitem_unit'
             );
 
 
@@ -192,6 +213,7 @@ class MchnRaidController extends Controller
 //        } else {
         $recs = $recs
             ->orderBy('mr.wrkdate', 'desc')
+            ->orderBy('ot.name', 'asc')
             ->orderby('mr.id');
 //        }
         //----------------------------------------------------------------
@@ -218,7 +240,7 @@ class MchnRaidController extends Controller
             'in_mchn_raids' => 1,
         ], 5);
 
-        $data->load_places = place::lstFor_cached([
+        $data->load_places = org_place::lstFor_cached([
             'loadplace_in_mchn_raids' => 1,
         ], 5);
 
@@ -230,8 +252,8 @@ class MchnRaidController extends Controller
             'in_mchn_raids_orgid' => 1,
         ], 5);
 
-        $data->dispatchers = User::lstFor_cached([
-            'in_mchn_raids_dispuserid' => 1,
+        $data->dispatchers = orgstaff::lstFor_cached([
+            'dispatcher_in_mchn_raids' => 1,
         ], 5);
 
         $data->paytypes = mchn_raid::paytypes();
@@ -315,7 +337,7 @@ class MchnRaidController extends Controller
                 $newData['id'] = -1;
                 $newData['dw_id'] = $dw_id;
                 $newData['wrkdate'] = $newData['wrkdate'] ?? $wrkdate;
-                $newData['disp_userid'] = $userid;
+                //$newData['disp_staffid'] = '';
                 $newData['statusid'] = 0;
                 $newData['active'] = 1;
                 $newData['created_by'] = $userid;
@@ -354,6 +376,8 @@ class MchnRaidController extends Controller
 
         //доступные режимы эксплуатации техники
         $rec->mots = mchn_opertype::lstFor(['machineid' => $rec->machineid]);
+
+        $rec->ownorgs = org::lstFor(['flagtypeid' => 12, 'active_or_current' => 1]);
 
         //Единицы измерения кол-ва груза
         $rec->unittypes = [8 => 'м3', 10 => 'т'];
@@ -420,6 +444,11 @@ class MchnRaidController extends Controller
         $rec->statuses = $statuses;
         //dd($rec->statuses);
 
+        $rec->opertypes = opertype::lstFor(['in_machines' => 1]);
+        $rec->load_places = org_place::lstFor(['orgid' => $rec->suporgid]);
+        $rec->unload_places = org_place::lstFor(['orgid' => $rec->orgid]);
+        //dd($rec->load_places);
+
         //$usrrights['edit'] = ($rec->created_by == $userid and $rec->statusid == 0);
         $usrrights['delete'] = ($usrrights['delete'] and ($rec->created_by == $userid or $usrrights['manager']) and $rec->statusid == 0);
         $usrrights['save'] = ($usrrights['save'] and ($rec->created_by == $userid or $usrrights['manager']) and $rec->statusid == 0);
@@ -458,6 +487,7 @@ class MchnRaidController extends Controller
         if ($statusid == 0) {
             //черновик
             $messages = [
+                'opertypeid.required' => 'Укажите тип работ',
                 'machineid.required' => 'Не указан автомобиль',
                 'driverid.required' => 'Не указан водитель',
                 'wrkdate.required' => 'Укажите дату проведения работ',
@@ -465,6 +495,7 @@ class MchnRaidController extends Controller
             ];
 
             $rules = [
+                'opertypeid' => 'required',
                 'machineid' => 'required',
                 'driverid' => 'required',
                 'wrkdate' => 'required',
@@ -590,9 +621,11 @@ class MchnRaidController extends Controller
 
         if ($statusid == 0) {
 
+            $rec->opertypeid = $request->get('opertypeid');
             $rec->wrkdate = $request->get('wrkdate');
             $rec->driverid = $request->get('driverid');
-            $rec->drivername = $request->get('drivername');
+            //$rec->drivername = $request->get('drivername');
+            $rec->drivername = $rec->driver->name;
             $rec->machineid = $request->get('machineid');
             $rec->mot_id = $request->get('mot_id');
 
@@ -633,12 +666,15 @@ class MchnRaidController extends Controller
 
             $rec->stfwrkhrs = $request->get('stfwrkhrs');
 
-            $rec->refitmid = $request->get('refitmid');
-            $rec->cargo_name = mb_substr($request->get('cargo_name'), 0, 60);
+            $rec->load_refitmid = $request->get('load_refitmid');
+            $rec->unload_refitmid = $request->get('unload_refitmid');
+            //$rec->cargo_name = mb_substr($request->get('cargo_name'), 0, 60);
 
             $rec->suporgid = $request->get('suporgid');
+            $rec->load_ownorgid = $request->get('load_ownorgid');
             $rec->load_placeid = $request->get('load_placeid');
-            $rec->load_placename = $request->get('load_placename');
+            //$rec->load_placename = $request->get('load_placename');
+            //$rec->load_placename = $rec->load_place->name;
 
             $rec->load_qty = $request->get('load_qty');
             $rec->qty_unittypeid = $request->get('qty_unittypeid');
@@ -646,12 +682,15 @@ class MchnRaidController extends Controller
             $rec->load_price = $request->get('load_price');
             $rec->load_sum = $rec->load_qty * $rec->load_price;
 
+            $rec->unload_ownorgid = $request->get('unload_ownorgid');
             $rec->unload_placeid = $request->get('unload_placeid');
             $rec->unload_placename = $request->get('unload_placename');
 
             $rec->unload_qty = $request->get('unload_qty');
             $rec->unload_price = $request->get('unload_price');
             $rec->unload_sum = $rec->unload_qty * $rec->unload_price;
+
+            $rec->ownorg_sum = $request->get('ownorg_sum');
 
             $rec->raid_qty = $request->get('raid_qty');
             $rec->raid_salary = $request->get('raid_salary');
@@ -660,7 +699,8 @@ class MchnRaidController extends Controller
             $rec->org_name = $request->get('org_name');
             $rec->paytypeid = $request->get('paytypeid');
 
-            $rec->disp_userid = $request->get('disp_userid');
+            $rec->disp_staffid = $request->get('disp_staffid');
+            //$rec->reg_userid = $userid;
 
 //            $rec->meter_begqty = $request->get('meter_begqty');
 //            $rec->meter_endqty = $request->get('meter_endqty');
@@ -740,6 +780,9 @@ class MchnRaidController extends Controller
 
         objlog::log_info($this->sysobjid, $rec->id, $mess, 5);
 
+        //сформируем/обновим фин. операции ------------------------------------------------------
+        mchn_raid::rfr_finopers($rec);
+        //---------------------------------------------------------------------------------------
 
         if ($id == -1 or $rec->statusid <> $statusid)
             return redirect(route('mchn_raids.edit', $rec->id) . '?returl=' . $request->get('returl'));

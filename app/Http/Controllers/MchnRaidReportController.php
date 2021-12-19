@@ -172,7 +172,7 @@ class MchnRaidReportController extends Controller
 
 
                 if ($item == 's_ownorgid') {
-                    $sc = $sc . " and mr.ownorgid = '{$val}'";
+                    $sc = $sc . " and mr.load_ownorgid = '{$val}'";
 
                 } elseif ($item == 's_begdate') {
                     $sc = $sc . " and mr.wrkdate >= '{$val}'";
@@ -201,10 +201,11 @@ class MchnRaidReportController extends Controller
             //1-й набор - сырые данные по перевозкам за период
             $recs = mchn_raid::
             from('mchn_raids as mr')
-                ->leftjoin('orgs as oo', 'oo.id', 'mr.ownorgid')
+                ->leftjoin('orgs as oo', 'oo.id', 'mr.unload_ownorgid')
                 ->leftjoin('orgs as o', 'o.id', 'mr.orgid')
-                ->leftjoin('refitems as ri', 'ri.id', 'mr.refitmid')
-                ->leftjoin('users as u_d', 'u_d.id', 'mr.disp_userid')
+                ->leftjoin('refitems as ri', 'ri.id', 'mr.unload_refitmid')
+                //->leftjoin('users as u_d', 'u_d.id', 'mr.disp_userid')
+                ->leftjoin('orgstaff as u_d', 'u_d.id', 'mr.disp_staffid')
                 ->whereRaw($sc);
 
             $recs = $recs->select(
@@ -215,30 +216,33 @@ class MchnRaidReportController extends Controller
                 , 'o.name as orgname'
                 , db::raw("concat(ifnull(u_d.fname,''),' ',u_d.lname) as dispuser_name")
                 , 'ri.name as refitm_name'
-                , db::raw("orgSaldo_onDate(mr.orgid, mr.ownorgid, mr.wrkdate) as org_saldo")
+                , db::raw("orgSaldo_onDate(mr.orgid, mr.unload_ownorgid, mr.wrkdate) as org_saldo")
             )
                 ->orderby('mr.wrkdate', 'asc')
                 ->orderby('mr.org_name', 'asc')
                 ->get();
 
-            //2-й набор - нпуппировка по местам погрузки
+            //2-й набор - группировка по местам погрузки
             $recs2 = mchn_raid::
             from('mchn_raids as mr')
-                ->leftjoin('places as p', 'p.id', 'mr.load_placeid')
-                ->leftjoin('refitems as ri', 'ri.id', 'mr.refitmid')
+                ->leftjoin('orgs as o', 'o.id', 'mr.suporgid')
+                ->leftjoin('org_places as p', 'p.id', 'mr.load_placeid')
+                ->leftjoin('refitems as ri', 'ri.id', 'mr.load_refitmid')
                 ->whereRaw($sc);
 
             $recs2 = $recs2->select(
-                'mr.load_placeid', 'p.name as load_placename'
+                'mr.suporgid', 'o.name as suporg_name'
+                , 'mr.load_placeid', 'p.name as load_placename', 'p.address as load_place_address'
                 , 'mr.load_price'
-                , 'mr.refitmid'
+                , 'mr.load_refitmid'
                 , db::raw("sum(mr.load_qty) as load_qty")
                 , db::raw("sum(mr.load_sum) as load_sum")
                 , 'ri.name as refitm_name'
             )
+                ->groupBy('mr.suporgid')
                 ->groupBy('mr.load_placeid')
                 ->groupBy('mr.load_price')
-                ->groupBy('mr.refitmid')
+                ->groupBy('mr.load_refitmid')
                 ->orderby('p.name', 'asc')
                 ->orderby('ri.name', 'asc')
                 ->get();

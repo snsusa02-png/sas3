@@ -16,6 +16,7 @@ use App\orgpost;
 use App\org_saldo;
 use App\orgitmdiscount;
 use App\sysobj;
+use App\Traits\Result;
 use App\Traits\SearchDataTrait;
 use App\Traits\snsTrait;
 use App\userorg;
@@ -29,6 +30,7 @@ use App\group;
 use App\grpitem;
 use App\eritm_offer;
 use App\ri_org_price;
+use App\paydoc;
 use Auth;
 use Cache;
 use DB;
@@ -77,6 +79,7 @@ class orgController extends Controller
         $usrrights = array();
         $usrrights['read'] = usrsysright::isUserHasRightByCode_cached($userid, $this->objcode . '.read');
         $usrrights['create'] = usrsysright::isUserHasRightByCode_cached($userid, $this->objcode . '.create');
+        $usrrights['load'] = usrsysright::isUserHasRightByCode_cached($userid, 'admin-global');
         $usrrights['save'] = false;
         $usrrights['delete'] = false;
         $usrrights['admindelete'] = false;
@@ -114,12 +117,7 @@ class orgController extends Controller
     {
         $userid = \Auth::user()->id;
 
-        //$usrrights = $this->setInterfaceRight(-1);
-        $usrrights = array(
-            'read' => usrsysright::isUserHasRightByCode_cached($userid, $this->objcode . '.read'),
-            'create' => usrsysright::isUserHasRightByCode_cached($userid, $this->objcode . '.create'),
-            'save' => usrsysright::isUserHasRightByCode_cached($userid, $this->objcode . '.save'),
-        );
+        $usrrights = $this->setInterfaceRight(-1);
         //Проверка прав пользователя.
         if (!$usrrights['read']) {
             return view('home');
@@ -560,6 +558,11 @@ class orgController extends Controller
             ->orderBy('oo.name')
             ->get();
 
+//        $rec->paydocs = paydoc::where(['orgid' => $rec->id])
+//            ->orderby('paydate', 'desc')
+//            ->get();
+        //dd($rec->paydocs);
+
         return view($this->sysobjcode . '.edit', compact('rec', 'auxinfo', "ObjFlags", "usrrights"));
     }
 
@@ -889,8 +892,20 @@ class orgController extends Controller
         $recs = ri_org_price::getFor(['orgid' => $org->id
                 //, 'on_date' => today()->format('Y-m-d')
             ]
-            , ['rop.id', 'ri.name', 'rop.price', 'ri.unit', 'rop.active', 'rop.begdate', 'rop.enddate']
-            , [['ri.name', 'asc'], ['rop.refitmid', 'asc'], ['rop.begdate', 'asc']]
+            , ['rop.id', 'ri.name', 'rop.price', 'ri.unit', 'rop.active', 'rop.begdate', 'rop.enddate',
+                'ri.itmtypeid', 'it.name as itmtypename',
+                'op.name as place_name', 'rop.placeid'
+            ]
+            , [
+                ['op.name', 'asc'],
+                ['rop.placeid', 'asc'],
+                ['it.ordr', 'asc'],
+                ['it.name', 'asc'],
+                ['ri.itmtypeid', 'asc'],
+                ['ri.name', 'asc'],
+                ['rop.refitmid', 'asc'],
+                ['rop.begdate', 'asc']
+            ]
         );
 
         //код системы по которой определяются права
@@ -1254,6 +1269,7 @@ class orgController extends Controller
                 'name' => $request->name,
                 'flagtypeid' => $request->flagtypeid,
                 'active' => $request->active ?? 1,
+                'in_ri_org_prices' => $request->in_ri_org_prices,
             ],
                 ['o.id', 'o.name', 'o.inn', 'o.kpp']);
 
@@ -1264,5 +1280,67 @@ class orgController extends Controller
         }
         return response()->json($result);
     }
+
+    public function load()
+    {
+        $userid = \Auth::user()->id;
+        $usrrights = $this->setInterfaceRight(-1);
+        $rec = new \stdClass();
+        $rec->title = 'Импорт записей о контрагентах';
+
+        return view($this->sysobjcode . '.load', compact('rec', "usrrights"));
+    }
+
+    public function import(Request $request)
+    {
+        //Импорт без сохранения файла на диск. Только обработка
+
+        $messages = [
+            'doc.required' => 'Не указан файл с данными',
+        ];
+
+        $rules = [
+            "doc" => "required",
+        ];
+
+        $request->validate($rules, $messages);
+
+        $userid = \Auth::user()->id;
+        //$returl = $request->get('retroute');
+
+        $usrrights = $this->setInterfaceRight(-1);
+        $result = new Result();
+        $rec = new \stdClass();
+
+        $rec->extsysid = 9;   // ? М.б. использовать для связывания по кодам во внешней системе
+        //dd($rec);
+
+        if ($request->hasfile('doc')) {
+
+            $file = $request->doc;
+
+            $filesize = $file->getSize();
+            $name = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $extension = $file->getClientOriginalExtension();
+            //dd($name, $extension, $filesize);
+
+            if (1 == 1)
+                $rec = org::import_001($file, $rec);
+            else {
+                $result->err = 1;
+                $result->msg = 'Не определена процедура импорта!';
+            }
+            //--------------------------------------------------------------------------------
+            //dd($result->msg);
+
+
+        } else {
+            $result->err = 1;
+            $result->msg = 'Файл с данными не загружен!';
+        }
+
+        return view($this->sysobjcode . '.load', compact('rec', "usrrights"));
+    }
+
 
 }

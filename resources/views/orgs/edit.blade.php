@@ -431,6 +431,7 @@
 
                         @include('orgs.org_acnts')
                         @include('orgs.org_places')
+                        @include('obj_contacts._contacts')
                         {{--                        @includeif('orgs.org_deps')--}}
                         @include('orgs._orgposts')
                         @include('objfiles.obj_files')

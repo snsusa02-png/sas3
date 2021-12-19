@@ -72,7 +72,7 @@
 
                                     @include('layouts.edit_msgs')
 
-                                    <table class="table table-striped">
+                                    <table class="table table-striped table-sm">
                                         <thead>
                                         <tr>
                                             <td>#</td>
@@ -93,8 +93,37 @@
                                         <tbody>
                                         <?php
                                         //var_dump(today());
+                                        $cur_placeid = -1;
+                                        $cur_itmtypeid = -1;
                                         ?>
                                         @foreach($recs as $itm)
+                                            @if($itm->placeid<>$cur_placeid)
+                                                <tr>
+                                                    <td colspan="5" class="font-weight-bold font-italic bg-warning">
+                                                        {{$itm->place_name??'-не указано-'}}
+                                                        @if($usrrights['ri_org_prices.create'])
+                                                            <a href="{{ route('ri_org_prices.create',$org->id)}}?placeid={{$itm->placeid}}&returl={{$retURL}}"
+                                                               class="btn btn-warning btn-sm float-right"
+                                                               title="Добавить запись">
+                                                                <i class="fa fa-plus"></i>
+                                                            </a>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                                <?php
+                                                $cur_placeid = $itm->placeid;
+                                                ?>
+                                            @endif
+                                            @if($itm->itmtypeid<>$cur_itmtypeid)
+                                                <tr>
+                                                    <td colspan="5" class="font-weight-bold font-italic">
+                                                        {{$itm->itmtypename}}
+                                                    </td>
+                                                </tr>
+                                                <?php
+                                                $cur_itmtypeid = $itm->itmtypeid;
+                                                ?>
+                                            @endif
                                             <?php
                                             $tr_itm_class = "itm_not_active";
                                             if ($itm->active == 1
@@ -107,6 +136,7 @@
                                             <tr class="{{$tr_itm_class}}">
                                                 <td class="small" style="text-align: right'">
                                                     {{--$local->count--}}
+                                                    <a name="{{$itm->id}}"></a>
                                                 </td>
                                                 <td>
                                                     <a href="{{route('ri_org_prices.edit',$itm->id)}}?returl={{$retURL}}">

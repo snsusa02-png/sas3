@@ -19,7 +19,7 @@
         $thisSysObjId = 520;
         $sysobjcode = 'paydocs';
         $objcode = $sysobjcode;
-        $thisTitle = "Регистрация платежв";
+        $thisTitle = "Регистрация платежа";
 
         $route_index = route($sysobjcode . '.index') . "?page=" . session($sysobjcode . '_pageno') . '#' . $rec->id;
 
@@ -64,6 +64,33 @@
 
 
                                 <div class="row">
+                                    <div class="form-group col-md-12">
+                                        <label for="ownorgid" class="required">
+                                            <span id="lbl_ownorg">Со стороны ГК </span><span id="ownorg_aux_lbl"></span>:
+                                            @if(isset($rec->ownorgid))
+                                                <a href="{{route("orgs.edit",$rec->ownorgid)}}"
+                                                   target="_blank"><i class="fa fa-external-link-square text-info"
+                                                                      aria-hidden="true"></i></a>
+                                            @endif
+                                        </label>
+                                        @if($usrrights['save']??false)
+                                            {!! Form::select('ownorgid', $rec->ownorgs, $rec->ownorgid,
+                                             [
+                                             'id' => 'ownorgid',
+                                             'class' => 'form-control',
+                                             'placeholder' => '-выбор-',
+                                             ]) !!}
+                                        @else
+                                            <input type="text" name="ownorgname"
+                                                   class="form-control" readonly
+                                                   value="{{$rec->ownorg->name}}"
+                                            />
+                                        @endif
+                                    </div>
+
+                                </div>
+
+                                <div class="row">
                                     <div class="form-group col-md-3">
                                         <label for="categoryid" class="required">Тип:</label>
                                         @if($usrrights['save']??false)
@@ -85,7 +112,7 @@
                                     <div class="form-group offset-md-0 col-md-5">
                                         <label for="paysum" class="required">Сумма, руб:</label>
                                         <input type="number" class="form-control text-right font-weight-bold"
-                                               name="paysum" {{$ro_mode}}
+                                               name="paysum" {{$ro_mode}} required
                                                min="0" step="0.01"
                                                value="{{old('paysum',$rec->paysum)}}"/>
                                     </div>
@@ -110,7 +137,7 @@
 
                                 <div class="row">
                                     <div class="form-group col-md-12">
-                                        <label for="orgname" class="required"><span id="lbl_org">Контрагент</span>:
+                                        <label for="orgname" class="required"><span id="lbl_org">Контрагент</span> <span id="org_aux_lbl"></span>:
                                             @if(isset($rec->orgid))
                                                 <a href="{{route("orgs.edit",$rec->orgid)}}"
                                                    target="_blank"><i class="fa fa-external-link-square text-info"
@@ -151,33 +178,6 @@
                                 </div>
 
                                 <div class="row">
-                                    <div class="form-group col-md-12">
-                                        <label for="ownorgid" class="required">
-                                            <span id="lbl_ownorg">Со стороны ГК</span>:
-                                            @if(isset($rec->ownorgid))
-                                                <a href="{{route("orgs.edit",$rec->ownorgid)}}"
-                                                   target="_blank"><i class="fa fa-external-link-square text-info"
-                                                                      aria-hidden="true"></i></a>
-                                            @endif
-                                        </label>
-                                        @if($usrrights['save']??false)
-                                            {!! Form::select('ownorgid', $rec->ownorgs, $rec->ownorgid,
-                                             [
-                                             'id' => 'ownorgid',
-                                             'class' => 'form-control',
-                                             'placeholder' => '-выбор-',
-                                             ]) !!}
-                                        @else
-                                            <input type="text" name="ownorgname"
-                                                   class="form-control" readonly
-                                                   value="{{$rec->ownorg->name}}"
-                                            />
-                                        @endif
-                                    </div>
-
-                                </div>
-
-                                <div class="row">
                                     <div class="form-group offset-md-0 col-md-3 col-sm-6 ">
                                         <label for="docnum" class="required">№ док-та:</label>
                                         <input type="text" class="form-control text-center font-weight-bold"
@@ -186,13 +186,13 @@
                                     </div>
                                     <div class="form-group col-md-4 col-sm-6">
                                         <label for="docnum" class="required">Дата док-та:</label>
-                                        <input type="date" class="form-control" name="docdate" {{$ro_mode}}
+                                        <input type="date" class="form-control" name="docdate" id="docdate" {{$ro_mode}}
                                         value="{{old('docdate',$rec->docdate)}}"/>
                                     </div>
 
                                     <div class="form-group col-md-5 col-sm-6">
                                         <label for="paydate" class="required" id="lbl_paydate">Дата прихода/расхода:</label>
-                                        <input type="date" class="form-control" name="paydate" {{$ro_mode}}
+                                        <input type="date" class="form-control" name="paydate" id="paydate" {{$ro_mode}}
                                         max="{{$rec->maxdate}}" value="{{old('paydate',$rec->paydate)}}"/>
                                     </div>
                                 </div>
@@ -243,7 +243,7 @@
                                             onclick="return confirm('Создать шаблон для новых записей на основе данных текущей записи?')"
                                             title="Создать шаблон на основе данных записи"
                                     >
-                                        <i class="fa fa-arrow-circle-o-down" aria-hidden="true"></i>
+                                        <i class="fa fa-clone" aria-hidden="true"></i>
                                     </button>
 
                                     @if(isset($rec->template_id))

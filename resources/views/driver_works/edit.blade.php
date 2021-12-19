@@ -463,7 +463,7 @@
                                             onclick="return confirm('Создать шаблон для новых записей на основе данных текущей записи?')"
                                             title="Создать шаблон на основе данных записи"
                                     >
-                                        <i class="fa fa-arrow-circle-o-down" aria-hidden="true"></i>
+                                        <i class="fa fa-clone" aria-hidden="true"></i>
                                     </button>
 
                                     @if(isset($rec->template_id))

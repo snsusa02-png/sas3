@@ -23,6 +23,9 @@ class CreateRiOrgPricesTable extends Migration
             $table->biginteger('orgid')->unsigned()->index()->comment('Чья цена');
 	            $table->foreign('orgid')->references('id')->on('orgs');
 
+            $table->biginteger('placeid')->unsigned()->index()->comment('В каком месте');
+	            $table->foreign('placeid')->references('id')->on('orgplaces');
+
             $table->date('begdate')->useCurrent=true;
             $table->date('enddate')->nullable();
 

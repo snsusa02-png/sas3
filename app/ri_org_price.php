@@ -178,6 +178,8 @@ class ri_org_price extends Model
 
             $recs = self::from('ri_org_prices as rop')
                 ->join('refitems as ri', 'ri.id', 'rop.refitmid')
+                ->join('itmtypes as it', 'it.id', 'ri.itmtypeid')
+                ->leftjoin('org_places as op', 'op.id', 'rop.placeid')
                 ->whereRaw($sc)
                 ->select($fields);
 

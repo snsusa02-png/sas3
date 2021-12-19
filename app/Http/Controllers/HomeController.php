@@ -14,6 +14,7 @@ use App\obj_approval;
 use App\obj_msg;
 use App\obj_reader;
 use App\objfile;
+use App\opertype;
 use App\org_extservice;
 use App\org_saldo;
 use App\orgacnt_sum;
@@ -80,6 +81,11 @@ class HomeController extends Controller
         //детализация балансов контрагентов в разрезе организаций холдинга//-------------------
         $data->ownorg_saldo_details = org_saldo::informer_ownorg_saldo_details();
         //-------------------------------------------------------------------------------------
+
+        //Сводка по видам деятельности//-------------------------------------------------------
+        $data->opertypes_sums = opertype::informer_opertypes_sums();
+        //-------------------------------------------------------------------------------------
+
 
         //непрочитанные сообщения//-------------------------------------------------------------
         //$data->newmsgs = obj_msg::unread_msgs($userid);

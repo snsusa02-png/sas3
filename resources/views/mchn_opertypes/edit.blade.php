@@ -92,14 +92,16 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group">
-                                            <label for="" class="required">Название режима:</label>
+                                            <label for="" class="required">Режим эксплуатации:</label>
                                             @if ($usrrights['save'])
-                                                <input type="text" class="form-control font-weight-bold"
-                                                       name="name" maxlength="60" required
-                                                       value="{{$rec->name}}"
-                                                />
+                                                {!! Form::select('opertypeid', $rec->opertypes??[], old('opertypeid',$rec->opertypeid),
+                                                 [
+                                                     'id' => 'opertypeid',
+                                                 'class' => 'form-control',
+                                                 'placeholder' => '-выбор-',
+                                                 ]) !!}
                                             @else
-                                                <div class="font-weight-bold">{{$rec->name}}</div>
+                                                <div class="font-weight-bold">{{$rec->opertype->name}}</div>
                                             @endif
                                         </div>
                                     </div>

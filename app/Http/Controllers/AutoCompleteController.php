@@ -154,25 +154,6 @@ class AutoCompleteController extends Controller
             $search_str = $request->q;
             $flagtypeid = $request->get("flagid");
 
-//            $search_str = strtolower(preg_replace('[!|-|/| +]', ' ', $search_str));
-//            $search_str = preg_replace('| +|', ' ', $search_str);
-//            $find = explode(" ", $search_str);
-//
-//            $search = " 1=1";
-//            if (count($find) > 0) {
-//                $search .= ' and ((1=1';
-//                foreach ($find as $f) {
-//                    $search .= " and LCASE( CONCAT(' ', u.lname, ' ', ifnull(u.fname,' '), ' ', ifnull(u.mname,' ')))";
-//                    $search .= " like '% " . $f . "%'";
-//                }
-//                $search .= ')';
-//                $search .= ')';
-//            }
-//
-//            $search_str = strtolower(preg_replace('[!|-|/| +]', ' ', $search_str));
-//            $search_str = preg_replace('| +|', ' ', $search_str);
-
-
             $sc = "1=1";
             $words = explode(" ", $search_str);
 

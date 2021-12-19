@@ -10,6 +10,9 @@ class org_place extends Model
 {
     use \App\Traits\DeleteTrait;
 
+    static public $prefix = 'org_places';
+    static public $sysobjid = 116;
+
     //'это обратное к $fillable. то есть все поля становятся заполняемыми
     protected $guarded = [];
 
@@ -49,7 +52,7 @@ class org_place extends Model
                     if ($key == 'active') {
                         $sc .= " and p.active={$val}";
 
-                    } elseif ($key == 'orgid') {
+                    } elseif ($key == 'orgid' or $key == 's_orgid') {
                         $sc .= " and p.orgid={$val}";
 
                     } elseif ($key == 'placetypeid') {
@@ -60,6 +63,10 @@ class org_place extends Model
 
                     } elseif ($key == 'name_address') {
                         $sc .= " and concat(ifnull(p.address,' '),' ',p.name) like '%{$val}%'";
+
+                    } elseif ($key == 'loadplace_in_mchn_raids') {
+                        $sc .= " and " . (($val == 1) ? '' : 'not') .
+                            " exists (select 1 from mchn_raids as mr where mr.load_placeid=p.id)";
 
                     }
                 }

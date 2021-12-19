@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\doctype;
 use App\org;
+use App\org_place;
 use App\orgstaff;
 use App\ri_org_price;
 use App\sysobj;
@@ -207,10 +208,13 @@ class RiOrgPriceController extends Controller
 
         if ($id == -1) {
             $orgid = ($orgid == 0) ? null : $orgid;
+
+
             $rec = new ri_org_price([
                 'id' => -1,
                 'orgid' => $orgid,
                 'begdate' => today()->format('Y-m-d'),
+                'placeid' => $request->get('placeid'),
                 'active' => 1,
                 'created_by' => $userid,
             ]);
@@ -224,10 +228,9 @@ class RiOrgPriceController extends Controller
 
         //$data = new \stdClass();
 
-//        $rec->orgs = org::lstFor([
-//            'flagtypeid_or_id' => [12, $rec->orgid],
-//        ]);
-
+        $rec->places = org_place::lstFor([
+            'orgid' => $rec->orgid,
+        ]);
 
         $rec->userrights = [];
         $usrrights = $this->setInterfaceRight($id);
@@ -278,6 +281,7 @@ class RiOrgPriceController extends Controller
             $mess = "Изменена запись о цене на товар";
         }
         $rec->orgid = $request->get('orgid');
+        $rec->placeid = $request->get('placeid');
         $rec->refitmid = $request->get('refitmid');
         $rec->price = $request->get('price');
         $rec->begdate = $request->get('begdate');

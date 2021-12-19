@@ -3,10 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\brand;
+use App\estdocItem;
+use App\estdocitm_resource;
 use App\extsystem;
 use App\group;
-use App\Org;
-use App\RefItem;
+use App\objlog;
+use App\org;
+use App\refitem;
+use App\sysobj;
 use App\User;
 use App\usrsysright;
 use App\objextid;
@@ -14,6 +18,7 @@ use App\objextid;
 use Illuminate\Http\Request;
 
 use App\Traits\DeleteFileTrait;
+use Illuminate\Support\Facades\DB;
 
 class ObjextidController extends Controller
 {
@@ -24,7 +29,10 @@ class ObjextidController extends Controller
         $this->middleware('auth');
 
         $this->sysobjid = 32;
-        $this->objcode = 'objextids';
+        $this->sysobjcode = 'objextids';
+        $this->objcode = $this->sysobjcode;
+        $this->acl_sysobjcode = sysobj::acl_sysobjcode($this->sysobjcode);
+
     }
 
     protected function setInterfaceRight($id)
@@ -35,17 +43,17 @@ class ObjextidController extends Controller
         $userid = \Auth::user()->id;
 
         $usrrights = array();
-        $usrrights['read'] = usrsysright::isUserHasRightByCode($userid, $this->objcode . '.read');
+        $usrrights['read'] = usrsysright::isUserHasRightByCode($userid, $this->acl_sysobjcode . '.read');
         $usrrights['save'] = false;
         $usrrights['delete'] = false;
         $usrrights['admindelete'] = false;
 
         if ($id == -1) {
-            $usrrights['save'] = usrsysright::isUserHasRightByCode($userid, $this->objcode . '.create');
+            $usrrights['save'] = usrsysright::isUserHasRightByCode($userid, $this->acl_sysobjcode . '.create');
             $usrrights['delete'] = false;
         } else {
-            $usrrights['save'] = usrsysright::isUserHasRightByCode($userid, $this->objcode . '.update');
-            $usrrights['delete'] = usrsysright::isUserHasRightByCode($userid, $this->objcode . '.delete');
+            $usrrights['save'] = usrsysright::isUserHasRightByCode($userid, $this->acl_sysobjcode . '.update');
+            $usrrights['delete'] = usrsysright::isUserHasRightByCode($userid, $this->acl_sysobjcode . '.delete');
         }
 
         return $usrrights;
@@ -69,28 +77,6 @@ class ObjextidController extends Controller
     public function create($sysobjid = null, $objid = null)
     {
         return $this->edit(-1, $sysobjid, $objid);
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param \App\objextid $objextid
-     * @return \Illuminate\Http\Response
-     */
-    public function show(objextid $objextid)
-    {
-        //
     }
 
     /**
@@ -143,13 +129,13 @@ class ObjextidController extends Controller
 
                 } elseif ($rec->sysobjid == 105) {
                     //RefItems
-                    $obj = RefItem::select('name')->find($rec->objid);
+                    $obj = refitem::select('name')->find($rec->objid);
                     $rec->objname = $obj->name ?? '-?-';
                     $rec->retRoute = route('refitems.edit', $rec->objid);
 
                 } elseif ($rec->sysobjid == 111) {
                     //Orgs
-                    $obj = Org::select('name')->find($rec->objid);
+                    $obj = org::select('name')->find($rec->objid);
                     $rec->objname = $obj->name ?? '-?-';
                     $rec->retRoute = route('orgs.edit', $rec->objid);
 
@@ -233,6 +219,27 @@ class ObjextidController extends Controller
 
         $retURL = $request->get('retURL') ?? '/';
 
+        //2021-11-24 SNS попробуем идентифицировать записи по указанному коду во внешней системе
+        if ($rec->sysobjid == 105) {
+            //Refitems - Номенклатура
+
+            if ($rec->extsysid == 6) {
+                //Гранд-смета
+                // => попробуем идентифицировать ресурсы позиций смет
+                //dd(estdocitm_resource::where('code', $rec->extid)->whereNull('refitmid')->count('*'));
+                $rslt = estdocitm_resource::where('code', $rec->extid)
+                    ->whereNull('refitmid')
+                    ->update([
+                        'refitmid' => $rec->objid,
+                        'updated_at' => DB::raw("updated_at")
+                    ]);
+                if ($rslt > 0)
+                    objlog::log_info($this->sysobjid, $rec->id, "По коду '{$rec->extid}' идентифицировано {$rslt} записей в спр-ке Номенклатуры", 5);
+
+            }
+
+        }
+
         return redirect($retURL)->with('success', $mess);
     }
 
@@ -248,7 +255,7 @@ class ObjextidController extends Controller
         $retURL = $request->get('retURL') ?? '/';
         $usrrights = $this->setInterfaceRight($id);
         if ($usrrights['delete']) {
-            $res = objextid::delete_by_id($id,$this->sysobjid);
+            $res = objextid::delete_by_id($id, $this->sysobjid);
 
             $route = "";
             $sd = array();

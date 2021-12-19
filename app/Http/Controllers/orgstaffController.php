@@ -8,6 +8,7 @@ use App\orgdep;
 use App\staff_post;
 use App\stforder;
 use App\sysobj;
+use App\Traits\Result;
 use App\Traits\SearchDataTrait;
 use App\Traits\snsTrait;
 use App\usrsysright;
@@ -44,10 +45,11 @@ class orgstaffController extends Controller
         */
         $userid = \Auth::user()->id;
 
-
         $usrrights = array();
         $usrrights['read'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.read');
         $usrrights['create'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.create');
+        $usrrights['load'] = usrsysright::isUserHasRightByCode_cached($userid, 'admin-global');
+
         $usrrights['save'] = false;
         $usrrights['delete'] = false;
         $usrrights['admindelete'] = ($recid <> -1 and usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.admindelete'));
@@ -80,11 +82,7 @@ class orgstaffController extends Controller
 
         $userid = \Auth::user()->id;
 
-        $usrrights = array(
-            'read' => usrsysright::isUserHasRightByCode_cached($userid, $this->sysobjcode . '.read'),
-            'create' => usrsysright::isUserHasRightByCode_cached($userid, $this->sysobjcode . '.create'),
-            'save' => usrsysright::isUserHasRightByCode_cached($userid, $this->sysobjcode . '.save'),
-        );
+        $usrrights = $this->setInterfaceRight(-1);
         if (!$usrrights['read']) {
             return view('home');
         }
@@ -706,5 +704,66 @@ class orgstaffController extends Controller
         return response()->json($result);
     }
 
+
+    public function load()
+    {
+        $userid = \Auth::user()->id;
+        $usrrights = $this->setInterfaceRight(-1);
+        $rec = new \stdClass();
+
+        return view($this->sysobjcode.'.load', compact('rec', "usrrights"));
+    }
+
+
+    public function import(Request $request)
+    {
+        //Импорт без сохранения файла на диск. Только обработка
+
+        $messages = [
+            'doc.required' => 'Не указан файл с данными',
+        ];
+
+        $rules = [
+            "doc" => "required",
+        ];
+
+        $request->validate($rules, $messages);
+
+        $userid = \Auth::user()->id;
+        //$returl = $request->get('retroute');
+
+        $usrrights = $this->setInterfaceRight(-1);
+        $result = new Result();
+        $rec = new \stdClass();
+
+        $rec->extsysid = 9;   // ? М.б. использовать для связывания по кодам во внешней системе
+        //dd($rec);
+
+        if ($request->hasfile('doc')) {
+
+            $file = $request->doc;
+
+            $filesize = $file->getSize();
+            $name = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $extension = $file->getClientOriginalExtension();
+            //dd($name, $extension, $filesize);
+
+            if (1 == 1)
+                $rec = orgstaff::import_001($file, $rec);
+            else {
+                $result->err = 1;
+                $result->msg = 'Не определена процедура импорта!';
+            }
+            //--------------------------------------------------------------------------------
+            //dd($result->msg);
+
+
+        } else {
+            $result->err = 1;
+            $result->msg = 'Файл с данными не загружен!';
+        }
+
+        return view($this->sysobjcode . '.load', compact('rec', "usrrights"));
+    }
 
 }

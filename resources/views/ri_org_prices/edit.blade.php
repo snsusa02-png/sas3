@@ -16,7 +16,7 @@
 
 
     $retURL = ($rec->retURL)
-        ? ($rec->retURL . '#ri_org_prices')
+        ? ($rec->retURL . '#' . $rec->id)
         : (($rec->orgid) ? route('orgs.edit', $rec->orgid) : route('refitems.index') . "?page=" . session($sysobjcode . '_pageno'));
 
     if ($usrrights['save'] ?? false) {
@@ -71,7 +71,7 @@
                                         <div class="input-group">
                                             <input type="text" class="form-control font-weight-bold ac_name ri_name"
                                                    name="ri_name" required maxlength="60"
-                                                   value="{{$rec->refitem->name}}"
+                                                   value="{{$rec->refitem->name}} {{$rec->refitem->itmtype->name}}"
                                                    autocomplete="off"
                                             />
                                             <input type="text" class="form-control text-center small ac_status"
@@ -135,6 +135,23 @@
                                 </div>
 
                             </div>
+
+                            <div class="row">
+                                <div class="form-group offset-md-0 col-md-8">
+                                    <label for="address">Местонахождение:</label>
+                                    @if ($usrrights['save'])
+                                        {!! Form::select('placeid', $rec->places??[], $rec->placeid,
+                                         [
+                                         'class' => 'form-control',
+                                         'placeholder' => '-',
+                                         ]) !!}
+                                    @else
+                                        <div
+                                            class="font-weight-bold">{{$rec->places[$rec->placeid]??'-?-'}}</div>
+                                    @endif
+                                </div>
+                            </div>
+
 
                             <div class="row">
                                 <div class="form-group col-md-4 col-sm-6">

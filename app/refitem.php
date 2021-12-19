@@ -1329,10 +1329,12 @@ class refitem extends Model
                     if ($key == 'active') {
                         $sc .= " and ri.active={$val}";
 
-                    } elseif ($key == 's_name' or $key == 'name') {
+                    } elseif ($key == 's_name' or $key == 'name' or $key == 'name_type') {
                         //$sc .= " and concat(ifnull(ri.code,' '),' ',ri.name) like '%{$val}%'";
 
                         $search_flds = "ri.name";
+                        if ($key == 'name_type')
+                            $search_flds = "concat(ri.name,' ',it.name)";
 
                         $words = explode(" ", $val);
                         if (count($words) > 0) {
@@ -1359,12 +1361,20 @@ class refitem extends Model
 
                     } elseif ($key == 'in_mchn_raids') {
                         $sc .= " and " . (($val == 1) ? '' : 'not') .
-                            " exists (select 1 from mchn_raids as mr where mr.refitmid=ri.id)";
+                            " exists (select 1 from mchn_raids as mr where ri.id in (mr.load_refitmid, mr.unload_refitmid))";
 
                     } elseif ($key == 'suporgid') {
-                        $sc .= " and exists (select 1 from ri_org_prices as rop where rop.refitmid=ri.id
-                        and rop.orgid={$val}
-                        and rop.active=1 and curdate() between rop.begdate and ifnull(rop.enddate,curdate()) )";
+
+                        //цена должна быть актуальна на дату
+                        if (isset($params['price_on_date']))
+                            $on_date = "'{$params['price_on_date']}'";
+                        else
+                            $on_date = 'curdate()';
+
+                        $sc .= " and exists (select 1 from ri_org_prices as rop2 where rop2.refitmid=ri.id
+                        and rop2.orgid={$val}
+                        and rop2.active=1
+                        and {$on_date} between rop2.begdate and ifnull(rop2.enddate,{$on_date}) )";
 
                     }
                 }
@@ -1431,15 +1441,32 @@ class refitem extends Model
 
             $sorts = $sorts ?? [['ri.name', 'asc']];
 
-            $recs = self::from('refitems as ri');
+            $recs = self::from('refitems as ri')
+                ->leftJoin('itmtypes as it', 'it.id', 'ri.itmtypeid');
+            //->leftJoin('ri_org_prices as rop', 'rop.refitmid', 'ri.id');
 
             //if (strpos($fields, 'rop.price') > 0) {
-            if (is_array($fields) and in_array('rop.price', $fields) and isset($s_params['suporgid'])) {
+            if (is_array($fields)
+                and in_array('rop.price', $fields)
+                and isset($s_params['suporgid'])
+            ) {
                 $suporgid = $s_params['suporgid'];
-                $recs = $recs->join(DB::raw("(select refitmid, price
-                    from ri_org_prices
-                    where orgid = {$suporgid} and active = 1
-                        and CURDATE() BETWEEN begdate and ifnull(enddate, CURDATE()) ) as rop"),
+                $load_placeid = $s_params['load_placeid'];
+
+                //цена должна быть актуальна на дату
+                if (isset($s_params['price_on_date']))
+                    $on_date = "'{$s_params['price_on_date']}'";
+                else
+                    $on_date = 'curdate()';
+
+                $sc2 = " orgid = {$suporgid}
+                        and active = 1
+                        and {$on_date} BETWEEN begdate and ifnull(enddate, {$on_date})";
+                if (isset($load_placeid))
+                    $sc2 .= " and placeid={$load_placeid}";
+                //Log::info('****** ' . $sc2);
+
+                $recs = $recs->join(DB::raw("(select refitmid, price  from ri_org_prices  where {$sc2} ) as rop"),
                     function ($join) {
                         $join->on('rop.refitmid', '=', 'ri.id');
                     });

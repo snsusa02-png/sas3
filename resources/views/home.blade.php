@@ -166,6 +166,7 @@
                 @include("informers._users_today")
                 @includeif("informers._ownorg_saldos")
                 @includeif("informers._ownorg_saldo_details")
+                @include("informers._opertypes_sums")
 
             @endif
 

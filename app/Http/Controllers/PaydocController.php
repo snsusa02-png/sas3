@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\mchn_opertype;
+use App\mchn_raid;
 use App\paydoc;
 use App\objlog;
 use App\objtag;
@@ -271,7 +272,7 @@ class PaydocController extends Controller
         $rec->paytypes = paytype::lstFor_cached(['active' => 1]);
         $rec->paydirs = [1 => 'приход', -1 => 'расход'];
 
-        $rec->ownorgs = org::lstFor_cached(['active' => $rec->ownorgid, 'flagtypeid' => 12]);
+        $rec->ownorgs = org::lstFor_cached(['active_or_current' => $rec->ownorgid, 'flagtypeid' => 12]);
 
         $rec->status_name = 'черновик';
         $rec->status_style = 'background-color:silver';
@@ -364,6 +365,10 @@ class PaydocController extends Controller
         $rec->save();
 
         objlog::log_info($this->sysobjid, $rec->id, $mess, 5);
+
+        //сформируем/обновим фин. операции ------------------------------------------------------
+        paydoc::rfr_finopers($rec);
+        //---------------------------------------------------------------------------------------
 
         if (1 == 0 and $id == -1)
             return redirect(route('paydocs.edit', $rec->id));

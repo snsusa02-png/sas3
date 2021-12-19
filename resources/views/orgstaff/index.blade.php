@@ -11,7 +11,10 @@
         die();
         ?>
     @else
+        <?php
+        $thisSysObjCode = 'orgstaff';
 
+        ?>
         <link rel="stylesheet" href="/css/subnav.css">
 
         <form name="forIndex" id="forIndex" method="post" action="{{ route('orgstaff.index') }}">
@@ -75,10 +78,19 @@
                                 <td style="text-align: center;">
                                     @if($usrrights['create']??false)
 
-                                        <a href="{{ route('orgstaff.create',0)}}" class="btn btn-warning btn-sm">
+                                        <a href="{{ route($thisSysObjCode.'.create',0)}}"
+                                           class="btn btn-warning btn-sm">
                                             <i class="fa fa-plus"></i>
                                         </a>
                                     @endif
+                                    @if ($usrrights['load']??false)
+                                        <a href="{{ route($thisSysObjCode.'.load')}}"
+                                           class="btn btn-success btn-sm"
+                                           title="Загрузить записи о технике в формате файла XLS">
+                                            <i class="fa fa-upload" aria-hidden="true"></i>
+                                        </a>
+                                    @endif
+
                                 </td>
                             </tr>
                             <tr style="text-align: center;">

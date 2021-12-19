@@ -9,6 +9,7 @@ use App\eritm_supply;
 use App\Exports\InvoicesExport;
 use App\Exports\PayPlanExport;
 use App\mchn_raid;
+use App\obj_finoper;
 use App\org_saldo;
 use App\orgplnpay;
 use App\orgplnpay_item;
@@ -192,11 +193,12 @@ class PayDocReportController extends Controller
         $data = new \stdClass();
 
         $data->ownorgs = org::lstFor_cached([
-            'in_paydocs_ownorgid' => 1,
+            //'in_paydocs_ownorgid' => 1,
+            'flagtypeid' => 12,
         ]);
 
         //$data->showmodes = [1 => 'Должники', 2 => 'должники и с переплатой', 4 => 'все'];
-        $data->showmodes = [1 => 'Должники', 3 => 'Переплата', 4 => 'Все'];
+        $data->showmodes = [1 => 'Должники', 3 => 'Переплата', 2 => 'Должники и Переплата', 4 => 'Все'];
 
         $data->curators = User::lstFor_cached([
             'in_org_curators_now' => 1,
@@ -208,8 +210,10 @@ class PayDocReportController extends Controller
     public
     function rep48(Request $request, $ownorgid, $orgid)
     {
+        //Детализация баланса контрагента
 
         $report_id = 48;
+
 
         $returl = $request->get('returl') ?? route('home');
         $userid = Auth::user()->id;
@@ -233,31 +237,48 @@ class PayDocReportController extends Controller
             $sc2 .= " and pd.paydate>='{$mindate}'";
         }
 
-        $wrks = mchn_raid::from('mchn_raids as mr')
-            ->where(['mr.ownorgid' => $ownorgid, 'mr.orgid' => $orgid, 'mr.active' => 1])
-            ->whereRaw($sc1)
-            ->select('mr.wrkdate as operdate'
-                , db::raw("1106 as sysobjid")
-                , 'mr.id as objid'
-                , db::raw("concat(mr.cargo_name,', ',mr.qty_unit) as itmname")
-                , 'mr.unload_price as itmprice'
-                , 'mr.unload_qty as itmqty'
-                , db::raw("-unload_sum as itmsum")
-            );
-        $recs = paydoc::from('paydocs as pd')
-            ->where(['pd.ownorgid' => $ownorgid, 'pd.orgid' => $orgid, 'pd.active' => 1])
-            ->whereRaw($sc2)
-            ->select('pd.paydate as operdate'
-                , db::raw("520 as sysobjid")
-                , 'pd.id as objid'
-                , db::raw("concat('оплата (',ifnull(pd.reason,''),')') as itmname")
-                , db::raw("null as itmprice")
-                , db::raw("null as itmqty")
-                , db::raw("pd.paydir*pd.paysum as itmsum")
-            )
-            ->union($wrks)
+        if (1 == 0) {
+            $wrks = mchn_raid::from('mchn_raids as mr')
+                ->join('refitems as l_ri', 'l_ri.id', 'mr.load_refitmid')
+                ->where(['mr.load_ownorgid' => $ownorgid, 'mr.orgid' => $orgid, 'mr.active' => 1])
+                ->whereRaw($sc1)
+                ->select('mr.wrkdate as operdate'
+                    , db::raw("1106 as sysobjid")
+                    , 'mr.id as objid'
+                    , db::raw("concat(l_ri.name,', ',l_ri.unit) as itmname")
+                    , 'mr.unload_price as itmprice'
+                    , 'mr.unload_qty as itmqty'
+                    , db::raw("-unload_sum as itmsum")
+                );
+            $recs = paydoc::from('paydocs as pd')
+                ->where(['pd.ownorgid' => $ownorgid, 'pd.orgid' => $orgid, 'pd.active' => 1])
+                ->whereRaw($sc2)
+                ->select('pd.paydate as operdate'
+                    , db::raw("520 as sysobjid")
+                    , 'pd.id as objid'
+                    , db::raw("concat('оплата (',ifnull(pd.reason,''),')') as itmname")
+                    , db::raw("null as itmprice")
+                    , db::raw("null as itmqty")
+                    , db::raw("pd.paydir*pd.paysum as itmsum")
+                )
+                ->union($wrks)
+                ->orderBy('operdate')
+                ->get();
+        }
+
+
+        $sc = "{$ownorgid} in (fo.srcorgid, fo.tgtorgid) and {$orgid} in (fo.srcorgid, fo.tgtorgid)";
+        if (isset($mindate))
+            $sc .= " and fo.operdate>='{$mindate}'";
+
+        $recs = obj_finoper::from('obj_finopers as fo')
+            ->whereRaw($sc)
             ->orderBy('operdate')
+            ->select('fo.*'
+                , db::raw("if(srcorgid = {$ownorgid}, - 1, + 1) * opersum as opersum")
+            )
             ->get();
+        //dd($recs);
 
         $data = new \stdClass();
         $data->returl = $returl;
@@ -276,7 +297,8 @@ class PayDocReportController extends Controller
     }
 
 
-    public function informer49(Request $request)
+    public
+    function informer49(Request $request)
     {
         //Сводка контрашентов с ненулевым балансом по всем организациям ГК
 

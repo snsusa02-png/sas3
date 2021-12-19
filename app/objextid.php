@@ -65,6 +65,7 @@ class objextid extends Model
 
                 $ext = objextid::where([['extsysid', $extsysid], ['sysobjid', $sysobjid], ['extid', $extid]])
                     ->select('objid')
+                    ->orderby('updated_at', 'desc')
                     ->first();
                 return (isset($ext)) ? $ext->objid : null;
             });

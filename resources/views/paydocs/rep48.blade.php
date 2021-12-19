@@ -75,8 +75,8 @@ $thisTitle = $report->title ?? $report->name;
                     <div class="mt-2" align="center"
                          style="font-size: 18px;">
                         <h4>{{$thisTitle}}</h4>
-                        между <b>{{$data->org->name??'-'}}</b>
-                        и <b>{{$data->ownorg->name??'-'}}</b>
+                        между <a href="{{route('orgs.edit',$data->org->id)}}" target="_blank"><b>{{$data->org->name??'-'}}</b></a>
+                        и <a href="{{route('orgs.edit',$data->ownorg->id)}}" target="_blank"><b>{{$data->ownorg->name??'-'}}</b></a>
                         <span class="small ml-3 d-print-none"><br>по состоянию на {{now()}}</span>
 
                         @if(1==0)
@@ -132,13 +132,13 @@ $thisTitle = $report->title ?? $report->name;
 
                         @foreach($recs as $rec)
                             <?php
-                            $curSum += $rec->itmsum;
+                            $curSum += $rec->opersum;
 
                             $td_class = ($rec->itmsum < 0) ? 'text-danger' : (($rec->itmsum > 0) ? 'text-success' : '');
                             $tdс_class = ($curSum < 0) ? 'text-danger' : (($totSum > 0) ? 'text-success' : '');
 
-                            $sh_qty = (isset($rec->itmqty)) ? number_format($rec->itmqty, 2) : '';
-                            $sh_price = (isset($rec->itmprice)) ? number_format($rec->itmprice, 2) : '';
+                            $sh_qty = (isset($rec->qty)) ? number_format($rec->qty, 2) : '';
+                            $sh_price = (isset($rec->price)) ? number_format($rec->price, 2) : '';
 
                             if ($rec->sysobjid == 520)
                                 $ref_url = route('paydocs.edit', $rec->objid);
@@ -154,18 +154,18 @@ $thisTitle = $report->title ?? $report->name;
                                 </td>
                                 <td class="text-left small">
                                     @if(isset($ref_url))
-                                        <a href="{{$ref_url}}" target="_blank">{{$rec->itmname}}</a>
+                                        <a href="{{$ref_url}}" target="_blank">{{$rec->descript}}</a>
                                     @else
-                                        {{$rec->itmname}}
+                                        {{$rec->descript}}
                                     @endif
                                 </td>
                                 <td class="text-right small">{{$sh_qty}}</td>
                                 <td class="text-right small">{{$sh_price}}</td>
-                                <td class="text-right {{$td_class}}">{{number_format($rec->itmsum,2)}}</td>
+                                <td class="text-right {{$td_class}}">{{number_format($rec->opersum,2)}}</td>
                                 <td class="text-right small {{$tdс_class}}">{{number_format($curSum,2)}}</td>
                             </tr>
                             <?php
-                            $totSum += $rec->itmsum;
+                            $totSum += $rec->opersum;
                             ?>
                         @endforeach
 

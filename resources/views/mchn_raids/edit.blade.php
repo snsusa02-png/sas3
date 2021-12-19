@@ -58,9 +58,23 @@
 
 
                                 <div class="row">
-                                    <div class="form-group offset-md-0 col-md-6">
+                                    <div class="form-group offset-md-0 col-md-4">
+                                        <label for="name" class="required">Вид работ:</label>
+                                        @if ($usrrights['save'])
+                                            {!! Form::select('opertypeid', $rec->opertypes??[], old('opertypeid',$rec->opertypeid),
+                                             [
+                                                 'id' => 'opertypeid',
+                                             'class' => 'form-control',
+                                             'placeholder' => '-выбор-',
+                                             'required' => 'required',
+                                             ]) !!}
+                                        @else
+                                            <div class="font-weight-bold">{{$rec->opertype->name}}</div>
+                                        @endif
+                                    </div>
+                                    <div class="form-group offset-md-0 col-md-4">
                                         <label for="name" class="required">Техника:</label>
-                                        @if ($usrrights['edit_dmd'])
+                                        @if ($usrrights['edit'])
                                             <div class="input-group mb-3 ">
                                                 <input type="text" name="machine_name" id="machine_name"
                                                        class="ac_name machine_name form-control font-weight-bold"
@@ -115,13 +129,13 @@
                                         <label for="name" class="required">Дата:</label>
                                         @if ($usrrights['edit_dmd'])
                                             <input type="date" class="form-control text-center font-weight-bold"
-                                                   name="wrkdate" required
+                                                   name="wrkdate" id="wrkdate" required
                                                    max="{{today()->format('Y-m-d')}}"
                                                    value="{{old('wrkdate',$rec->wrkdate)}}"/>
                                         @else
                                             <div
                                                 class="font-weight-bold text-center">{{date_create($rec->wrkdate)->format('d.m.Y')}}
-                                                {{ Form::hidden('wrkdate', $rec->wrkdate) }}
+                                                {{ Form::hidden('wrkdate', $rec->wrkdate,['id'=>'wrkdate']) }}
                                             </div>
                                         @endif
                                     </div>
@@ -185,73 +199,65 @@
                                     </div>
 
                                     <div class="form-group offset-md-0 col-md-6">
-                                        <label for="name" class="required">Товар:</label>
-                                        @if ($usrrights['edit'])
-                                            <div class="input-group">
-                                                <input type="text" class="form-control font-weight-bold ac_name "
-                                                       name="cargo_name" id="cargo_name" required maxlength="60"
-                                                       value="{{$rec->cargo_name}}"
-                                                       autocomplete="off"
-                                                />
-                                                <input type="text" class="form-control text-center small ac_status"
-                                                       style="display: none; border: #d7f3e3;" readonly>
-                                                <input type="hidden" name="refitmid" id="refitmid" class="ac_id"
-                                                       value="{{$rec->refitmid}}">
-                                                <a class="btn btn-light id_lnk" id="refitmid_lnk" data-id="refitmid"
-                                                   data-obj="refitems" target="_blank">
-                                                    <i class="fa fa-info text-info" aria-hidden="true"></i>
-                                                </a>
-                                            </div>
-                                        @else
-                                            <div class="font-weight-bold">{{$rec->cargo_name}}</div>
-                                        @endif
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="form-group offset-md-0 col-md-4">
                                         <label for="name" class="required">Место загрузки:</label>
                                         @if ($usrrights['edit'])
-                                            <div class="input-group mb-3 ">
-                                                <input type="text" name="load_placename" id="load_placename" required
-                                                       class="ac_name load_placename form-control font-weight-bold"
-                                                       value="{{old('load_placename',$rec->load_placename)}}">
-                                                <input type="text" class="form-control text-center small ac_status"
-                                                       style="display: none; border: #d7f3e3; max-width: 30px" readonly>
-                                                <input type="hidden" name="load_placeid" class="load_placeid ac_id"
-                                                       id="load_placeid"
-                                                       value="{{old('load_placeid',$rec->load_placeid)}}">
-                                                <a class="btn btn-light id_lnk" data-id="load_placeid" data-obj="places"
-                                                   target="_blank">
-                                                    <i class="fa fa-info text-info" aria-hidden="true"></i>
-                                                </a>
+                                            {{--                                            <div class="input-group mb-3 ">--}}
+                                            {{--                                                <input type="text" name="load_placename" id="load_placename" required--}}
+                                            {{--                                                       class="ac_name load_placename form-control font-weight-bold"--}}
+                                            {{--                                                       value="{{old('load_placename',$rec->load_placename)}}">--}}
+                                            {{--                                                <input type="text" class="form-control text-center small ac_status"--}}
+                                            {{--                                                       style="display: none; border: #d7f3e3; max-width: 30px" readonly>--}}
+                                            {{--                                                <input type="hidden" name="load_placeid" class="load_placeid ac_id"--}}
+                                            {{--                                                       id="load_placeid"--}}
+                                            {{--                                                       value="{{old('load_placeid',$rec->load_placeid)}}">--}}
+                                            {{--                                                <a class="btn btn-light id_lnk" data-id="load_placeid" data-obj="places"--}}
+                                            {{--                                                   target="_blank">--}}
+                                            {{--                                                    <i class="fa fa-info text-info" aria-hidden="true"></i>--}}
+                                            {{--                                                </a>--}}
+                                            {{--                                            </div>--}}
+                                            <div class="input-group">
+                                                {!! Form::select('load_placeid', $rec->load_places??[],
+                                                    old('load_placeid',$rec->load_placeid),
+                                                    [
+                                                    'id' => 'load_placeid',
+                                                    'class' => 'form-control small',
+                                                    'placeholder' => '',
+                                                    'required' => 'required',
+                                                    ]) !!}
                                             </div>
+
                                         @else
                                             <div class="font-weight-bold">{{$rec->load_placename}}</div>
                                         @endif
                                     </div>
 
-                                    <div class="form-group offset-md-0 col-md-3">
-                                        <label for="name" class="required">Объем загрузки, ЕИ:</label>
-                                        @if ($usrrights['edit'])
-                                            <div class="input-group mb-3 ">
-                                                <input type="number" name="load_qty" id="load_qty"
-                                                       class="form-control text-right font-weight-bold" required
-                                                       min="0" step="0.01" max="999"
-                                                       value="{{old('load_qty',$rec->load_qty)}}">
+                                </div>
 
-                                                {!! Form::select('qty_unittypeid', $rec->unittypes??[],
-                                                    old('qty_unittypeid',$rec->qty_unittypeid),
-                                                 [
-                                                     'id' => 'qty_unittypeid',
-                                                 'class' => 'form-control small',
-                                                 'placeholder' => '',
-                                                 'required' => 'required',
-                                                 'style' => 'max-width:36%',
-                                                 ]) !!}
+                                <div class="row">
+
+                                    <div class="form-group offset-md-0 col-md-6">
+                                        <label for="name" class="required">Покупаемый товар:</label>
+                                        @if ($usrrights['edit'])
+                                            <div class="input-group">
+                                                <input type="text" class="form-control font-weight-bold ac_name "
+                                                       name="load_cargo_name" id="load_cargo_name" required
+                                                       maxlength="60"
+                                                       value="{{$rec->load_refitem->name}}"
+                                                       autocomplete="off"
+                                                />
+                                                <input type="text" class="form-control text-center small ac_status"
+                                                       style="display: none; border: #d7f3e3;" readonly>
+                                                <input type="hidden" name="load_refitmid" id="load_refitmid"
+                                                       class="ac_id"
+                                                       value="{{$rec->load_refitmid}}">
+                                                <a class="btn btn-light id_lnk" id="refitmid_lnk"
+                                                   data-id="load_refitmid"
+                                                   data-obj="refitems" target="_blank">
+                                                    <i class="fa fa-info text-info" aria-hidden="true"></i>
+                                                </a>
                                             </div>
                                         @else
-                                            <div class="font-weight-bold">{{$rec->load_qty}} {{$rec->qty_unit}}</div>
+                                            <div class="font-weight-bold">{{$rec->load_refitem->name}}</div>
                                         @endif
                                     </div>
 
@@ -261,13 +267,62 @@
                                             <div class="input-group mb-3 ">
                                                 <input type="number" name="load_price" id="load_price"
                                                        class="form-control text-right font-weight-bold" required
-                                                       min="0" step="0.01"
+                                                       min="0" step="0.01" readonly
                                                        value="{{old('load_price',$rec->load_price)}}">
                                             </div>
                                         @else
                                             <div class="font-weight-bold">{{number_format($rec->load_price,2)}}</div>
                                         @endif
                                     </div>
+
+                                    <div class="form-group offset-md-0 col-md-4">
+                                        <label for="name" class="required">Покупает:</label>
+                                        @if ($usrrights['edit'])
+                                            {!! Form::select('load_ownorgid', $rec->ownorgs??[],
+                                                old('load_ownorgid',$rec->load_ownorgid),
+                                             [
+                                                 'id' => 'load_ownorgid',
+                                             'class' => 'form-control small font-weight-bold',
+                                             'placeholder' => '',
+                                             'required' => 'required',
+                                             ]) !!}
+                                    </div>
+                                    @else
+                                        <div class="font-weight-bold">{{$rec->load_ownorg->name}}</div>
+                                    @endif
+
+
+                                </div>
+
+                                <div class="row">
+
+                                    <div class="form-group offset-md-6 col-md-3">
+                                        <label for="name" class="required">Объем загрузки,
+                                            <span class="font-weight-bold"
+                                                  id="load_qty_unit">{{$rec->load_refitem->unittype->name??'ЕИ'}}</span>:
+                                        </label>
+                                        @if ($usrrights['edit'])
+                                            <div class="input-group mb-3 ">
+                                                <input type="number" name="load_qty" id="load_qty"
+                                                       class="form-control text-right font-weight-bold" required
+                                                       min="0" step="0.01" max="999"
+                                                       value="{{old('load_qty',$rec->load_qty)}}">
+
+                                                {{--                                                {!! Form::select('qty_unittypeid', $rec->unittypes??[],--}}
+                                                {{--                                                    old('qty_unittypeid',$rec->qty_unittypeid),--}}
+                                                {{--                                                 [--}}
+                                                {{--                                                     'id' => 'qty_unittypeid',--}}
+                                                {{--                                                 'class' => 'form-control small',--}}
+                                                {{--                                                 'placeholder' => '',--}}
+                                                {{--                                                 'required' => 'required',--}}
+                                                {{--                                                 'style' => 'max-width:36%',--}}
+                                                {{--                                                 ]) !!}--}}
+                                            </div>
+                                        @else
+                                            <div class="font-weight-bold">{{$rec->load_qty}} {{$rec->qty_unit}}</div>
+                                        @endif
+                                    </div>
+
 
                                     <div class="form-group col-md-3">
                                         <label>Стоимость загрузки</label>
@@ -282,34 +337,72 @@
                                     </div>
                                 </div>
 
+
                                 <div class="row">
-                                    <div class="form-group offset-md-0 col-md-4">
-                                        <label for="name" class="required">Место выгрузки:</label>
+
+                                    <div class="form-group offset-md-0 col-md-6">
+                                        <label for="name" class="required">Продаваемый товар:</label>
                                         @if ($usrrights['edit'])
-                                            <div class="input-group mb-3 ">
-                                                <input type="text" name="unload_placename" id="unload_placename"
-                                                       required
-                                                       class="ac_name unload_placename form-control font-weight-bold"
-                                                       value="{{old('unload_placename',$rec->unload_placename)}}">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control font-weight-bold ac_name "
+                                                       name="unload_cargo_name" id="unload_cargo_name" required
+                                                       maxlength="60"
+                                                       value="{{$rec->unload_refitem->name}}"
+                                                       autocomplete="off"
+                                                />
                                                 <input type="text" class="form-control text-center small ac_status"
-                                                       style="display: none; border: #d7f3e3; max-width: 30px" readonly>
-                                                <input type="hidden" name="unload_placeid" class="ac_id"
-                                                       id="unload_placeid"
-                                                       value="{{old('unload_placeid',$rec->unload_placeid)}}">
-                                                <a class="btn btn-light id_lnk" data-id="unload_placeid"
-                                                   data-obj="places"
-                                                   target="_blank">
+                                                       style="display: none; border: #d7f3e3;" readonly>
+                                                <input type="hidden" name="unload_refitmid" id="unload_refitmid"
+                                                       class="ac_id"
+                                                       value="{{$rec->unload_refitmid}}">
+                                                <a class="btn btn-light id_lnk" id="refitmid2_lnk"
+                                                   data-id="unload_refitmid"
+                                                   data-obj="refitems" target="_blank">
                                                     <i class="fa fa-info text-info" aria-hidden="true"></i>
                                                 </a>
                                             </div>
                                         @else
-                                            <div class="font-weight-bold">{{$rec->unload_placename}}</div>
+                                            <div class="font-weight-bold">{{$rec->unload_refitem->name}}</div>
                                         @endif
                                     </div>
 
-                                    <div class="form-group offset-md-0 col-md-3">
+                                    <div class="form-group offset-md-0 col-md-2">
+                                        <label for="name" class="required">Цена продажи:</label>
+                                        @if ($usrrights['edit'])
+                                            <div class="input-group mb-3 ">
+                                                <input type="number" name="unload_price" id="unload_price"
+                                                       class="form-control text-right font-weight-bold" required
+                                                       min="0" step="0.01"
+                                                       value="{{old('unload_price',$rec->unload_price)}}">
+                                            </div>
+                                        @else
+                                            <div class="font-weight-bold">{{number_format($rec->unload_price,2)}}</div>
+                                        @endif
+                                    </div>
+
+                                    <div class="form-group offset-md-0 col-md-4">
+                                        <label for="name" class="required">Продает:</label>
+                                        @if ($usrrights['edit'])
+                                            {!! Form::select('unload_ownorgid', $rec->ownorgs??[],
+                                                old('unload_ownorgid',$rec->unload_ownorgid),
+                                             [
+                                                 'id' => 'unload_ownorgid',
+                                             'class' => 'form-control small font-weight-bold',
+                                             'placeholder' => '',
+                                             'required' => 'required',
+                                             ]) !!}
+                                        @else
+                                            <div class="font-weight-bold">{{$rec->unload_ownorg->name}}</div>
+                                        @endif
+                                    </div>
+
+                                </div>
+
+                                <div class="row">
+                                    <div class="form-group offset-md-6 col-md-3">
                                         <label for="name" class="required">Подписанный объем, <span
-                                                id="unload_qty_unit">{{$rec->qty_unit}}</span>:</label>
+                                                class="font-weight-bold"
+                                                id="unload_qty_unit">{{$rec->unload_refitem->unittype->name??'ЕИ'}}</span>:</label>
                                         @if ($usrrights['edit'])
                                             <div class="input-group mb-3 ">
                                                 <input type="number" name="unload_qty" id="unload_qty"
@@ -322,19 +415,19 @@
                                         @endif
                                     </div>
 
-                                    <div class="form-group offset-md-0 col-md-2">
-                                        <label for="name" class="required">Цена отпуска:</label>
-                                        @if ($usrrights['edit'])
-                                            <div class="input-group mb-3 ">
-                                                <input type="number" name="unload_price" id="unload_price"
-                                                       class="form-control text-right font-weight-bold"
-                                                       min="0" step="0.01" required
-                                                       value="{{old('unload_price',$rec->unload_price)}}">
-                                            </div>
-                                        @else
-                                            <div class="font-weight-bold">{{number_format($rec->unload_price,2)}}</div>
-                                        @endif
-                                    </div>
+                                    {{--                                    <div class="form-group offset-md-0 col-md-2">--}}
+                                    {{--                                        <label for="name" class="required">Цена отпуска:</label>--}}
+                                    {{--                                        @if ($usrrights['edit'])--}}
+                                    {{--                                            <div class="input-group mb-3 ">--}}
+                                    {{--                                                <input type="number" name="unload_price" id="unload_price"--}}
+                                    {{--                                                       class="form-control text-right font-weight-bold"--}}
+                                    {{--                                                       min="0" step="0.01" required--}}
+                                    {{--                                                       value="{{old('unload_price',$rec->unload_price)}}">--}}
+                                    {{--                                            </div>--}}
+                                    {{--                                        @else--}}
+                                    {{--                                            <div class="font-weight-bold">{{number_format($rec->unload_price,2)}}</div>--}}
+                                    {{--                                        @endif--}}
+                                    {{--                                    </div>--}}
 
                                     <div class="form-group offset-md-0 col-md-3">
                                         <label>Стоимость</label>
@@ -349,8 +442,23 @@
                                     </div>
                                 </div>
 
+                                <div class="row ownorg_transfer">
+                                    <div class="form-group offset-md-9 col-md-3">
+                                        <label>Сумма передачи между ГК</label>
+                                        @if ($usrrights['edit'])
+                                            <input type="number" name="ownorg_sum" id="ownorg_sum"
+                                                   class="form-control text-center font-weight-bold" step="0.01"
+                                                   min="{{$rec->load_sum??0}}" max="{{$rec->unload_sum??0}}"
+                                                   value="{{$rec->ownorg_sum}}">
+                                        @else
+                                            <div
+                                                class="font-weight-bold text-center">{{number_format($rec->ownorg_sum,2)}}</div>
+                                        @endif
+                                    </div>
+                                </div>
+
                                 <div class="row">
-                                    <div class="form-group offset-md-0 col-md-4">
+                                    <div class="form-group offset-md-0 col-md-6">
                                         <label for="name" class="required">Заказчик:</label>
                                         @if ($usrrights['edit'])
                                             <div class="input-group mb-3 ">
@@ -371,20 +479,46 @@
                                         @endif
                                     </div>
 
-                                    <div class="form-group offset-md-0 col-md-2">
-                                        <label for="name" class="">Число рейсов:</label>
+                                    <div class="form-group offset-md-0 col-md-6">
+                                        <label for="name" class="required">Место выгрузки:</label>
                                         @if ($usrrights['edit'])
                                             <div class="input-group mb-3 ">
-                                                <input type="number" name="raid_qty" required
-                                                       class="form-control text-right font-weight-bold"
-                                                       min="0" step="1" max="99"
-                                                       value="{{old('raid_qty',$rec->raid_qty)}}">
+                                                <input type="text" name="unload_placename" id="unload_placename"
+                                                       required
+                                                       class="ac_name unload_placename form-control font-weight-bold"
+                                                       value="{{old('unload_placename',$rec->unload_placename)}}">
+                                                <input type="text" class="form-control text-center small ac_status"
+                                                       style="display: none; border: #d7f3e3; max-width: 30px" readonly>
+                                                <input type="hidden" name="unload_placeid" class="ac_id"
+                                                       id="unload_placeid"
+                                                       value="{{old('unload_placeid',$rec->unload_placeid)}}">
+                                                <a class="btn btn-light id_lnk" data-id="unload_placeid"
+                                                   data-obj="places"
+                                                   target="_blank">
+                                                    <i class="fa fa-info text-info" aria-hidden="true"></i>
+                                                </a>
                                             </div>
+                                            {{--                                            <div class="input-group">--}}
+                                            {{--                                                {!! Form::select('unload_placeid', $rec->unload_places??[],--}}
+                                            {{--                                                    old('unload_placeid',$rec->unload_placeid),--}}
+                                            {{--                                                    [--}}
+                                            {{--                                                    'id' => 'unload_placeid',--}}
+                                            {{--                                                    'class' => 'form-control small',--}}
+                                            {{--                                                    'placeholder' => '',--}}
+                                            {{--                                                    'required' => 'required',--}}
+                                            {{--                                                    ]) !!}--}}
+                                            {{--                                            </div>--}}
+
                                         @else
-                                            <div class="font-weight-bold">{{$rec->raid_qty}}</div>
+                                            <div class="font-weight-bold">{{$rec->unload_placename}}</div>
                                         @endif
                                     </div>
-                                    <div class="form-group offset-md-0 col-md-2">
+
+                                </div>
+
+                                <div class="row">
+
+                                    <div class="form-group offset-md-4 col-md-2">
                                         <label for="mot_id" class="required">Оплата:</label>
                                         @if ($usrrights['edit'] )
                                             {!! Form::select('paytypeid', $rec->paytypes??[], old('paytypeid',$rec->paytypeid),
@@ -398,33 +532,20 @@
                                             <div class="font-weight-bold">{{$rec->paytypes[$rec->paytypeid]??'?'}}</div>
                                         @endif
                                     </div>
-
-                                    <div class="form-group offset-md-0 col-md-4">
-                                        <label for="name" class="required">Диспетчер:</label>
+                                    <div class="form-group offset-md-1 col-md-2">
+                                        <label for="name" class="">Число рейсов:</label>
                                         @if ($usrrights['edit'])
-                                            <div class="input-group mb-3">
-                                                <input type="text" name="disp_username" id="disp_username" required
-                                                       class="ac_name disp_username form-control font-weight-bold"
-                                                       value="{{$rec->dispatcher->name}}">
-                                                <input type="text"
-                                                       class="form-control text-center small ac_status"
-                                                       style="display: none; border: #d7f3e3; " readonly>
-                                                <input type="hidden" name="disp_userid" id="disp_userid"
-                                                       class="ac_id userid"
-                                                       value="{{$rec->disp_userid}}">
-                                                <a class="btn btn-light id_lnk" data-id="disp_userid" data-obj=""
-                                                   target="_blank">
-                                                    <i class="fa fa-info text-info" aria-hidden="true"></i>
-                                                </a>
+                                            <div class="input-group mb-3 ">
+                                                <input type="number" name="raid_qty" required
+                                                       class="form-control text-right font-weight-bold"
+                                                       min="0" step="1" max="99"
+                                                       value="{{old('raid_qty',$rec->raid_qty)}}">
                                             </div>
                                         @else
-                                            <div class="font-weight-bold">{{$rec->dispatcher->name}}</div>
+                                            <div class="font-weight-bold">{{$rec->raid_qty}}</div>
                                         @endif
                                     </div>
 
-                                </div>
-
-                                <div class="row">
                                     <div class="form-group offset-md-0 col-md-3">
                                         <label for="name" class="">ЗП водителя за 1 рейс:</label>
                                         @if ($usrrights['edit'])
@@ -438,7 +559,36 @@
                                             <div class="font-weight-bold">{{$rec->raid_salary}}</div>
                                         @endif
                                     </div>
-                                    <div class="offset-md-1 col-md-8">
+
+
+                                </div>
+
+                                <div class="row">
+                                    <div class="form-group offset-md-0 col-md-4">
+                                        <label for="name" class="required">Диспетчер:</label>
+                                        @if ($usrrights['edit'])
+                                            <div class="input-group mb-3">
+                                                <input type="text" name="disp_name" id="disp_name" required
+                                                       class="ac_name disp_name form-control font-weight-bold"
+                                                       value="{{$rec->dispatcher->name}}">
+                                                <input type="text"
+                                                       class="form-control text-center small ac_status"
+                                                       style="display: none; border: #d7f3e3; " readonly>
+                                                <input type="hidden" name="disp_staffid" id="disp_staffid"
+                                                       class="ac_id staffid"
+                                                       value="{{$rec->disp_staffid}}">
+                                                <a class="btn btn-light id_lnk" data-id="disp_staffid"
+                                                   data-obj="orgstaff"
+                                                   target="_blank">
+                                                    <i class="fa fa-info text-info" aria-hidden="true"></i>
+                                                </a>
+                                            </div>
+                                        @else
+                                            <div class="font-weight-bold">{{$rec->dispatcher->name}}</div>
+                                        @endif
+                                    </div>
+
+                                    <div class="offset-md-0 col-md-8">
                                         <div class="form-group">
                                             <label for="decision">Примечание:</label>
                                             @if ($usrrights['edit'] or $usrrights['change_status'])
@@ -742,7 +892,7 @@
                                         <i class="fa fa-trash-o" aria-hidden="true"></i>
                                     </button>
                                 @endif
-                                @if (1==0 and $rec->id != -1 and $usrrights['make_template']??true)
+                                @if (1==1 and $rec->id != -1 and $usrrights['make_template']??true)
                                     <button type="submit"
                                             class="btn btn-info btn-sm"
                                             style="margin-left:24px"
@@ -751,7 +901,7 @@
                                             onclick="return confirm('Создать шаблон для новых записей на основе данных текущей записи?')"
                                             title="Создать шаблон на основе данных записи"
                                     >
-                                        <i class="fa fa-arrow-circle-o-down" aria-hidden="true"></i>
+                                        <i class="fa fa-clone" aria-hidden="true"></i>
                                     </button>
 
                                     @if(isset($rec->template_id))

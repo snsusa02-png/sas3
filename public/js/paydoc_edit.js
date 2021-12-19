@@ -1,5 +1,35 @@
 $(document).ready(function () {
 
+
+    var pre_docdate = $("#docdate").val();
+    console.log('------------------', pre_docdate)
+
+    $("#paydir").change(function () {
+        //Меняем подписи к контрагентам в зависимости от направления платежа
+        if ($(this).val() == -1) {
+            //Расход
+            $("#ownorg_aux_lbl").html('(Плательщик)')
+            $("#org_aux_lbl").html('(Получатель)')
+        } else if ($(this).val() == +1) {
+            $("#ownorg_aux_lbl").html('(Получатель)')
+            $("#org_aux_lbl").html('(Плательщик)')
+        } else {
+            $("#ownorg_aux_lbl").html('')
+            $("#org_aux_lbl").html('')
+        }
+    });
+
+    $("#docdate").change(function () {
+        const docdate = $("#docdate").val()
+        const paydate = $("#paydate").val()
+        //console.log(paydate, pre_docdate, paydate == pre_docdate)
+        if (!paydate || paydate == pre_docdate) {
+            $("#paydate").val(docdate);
+        }
+        pre_docdate = $("#docdate").val();
+    })
+
+
     $("#orgname").autocomplete({
         source: function (request, response) {
             $.ajax({
