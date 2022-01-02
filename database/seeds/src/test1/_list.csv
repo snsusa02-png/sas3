@@ -12,6 +12,8 @@ opertypes,U,id
 mchntypes,U,id
 machines,U,id
 mchn_opertypes,U,id
+driver_works,U,id
+dw_breaks,U,id
 mchn_raids,U,id
 paytypes,U,id
 paydocs,U,id
