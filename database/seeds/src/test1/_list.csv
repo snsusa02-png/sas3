@@ -13,4 +13,5 @@ mchntypes,U,id
 machines,U,id
 mchn_opertypes,U,id
 mchn_raids,U,id
+paytypes,U,id
 paydocs,U,id
