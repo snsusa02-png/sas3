@@ -11,7 +11,6 @@ obj_stages,U,id
 obj_statuses,U,id
 taxsystems,U,id
 contacttypes,U,id
-contracttypes,U,id
 milestone_statuses,U,id
 proj_statuses,U,id
 bdgtacnttypes,U,id
