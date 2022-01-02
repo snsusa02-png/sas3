@@ -454,8 +454,8 @@ class ReportController extends Controller
         // -----------------------------------------------------------------------------------------------------
 
         //Если отчет не публичный, то пользователь должен быть включен в список читателей (obj_readers) -----------
-        $sc .= " and ( r.public=1 or exists (select 1 from obj_readers r where r.sysobjid={$this->sysobjid}
-                and objid=r.id and userid={$userid}) )";
+        $sc .= " and ( r.public=1 or exists (select 1 from obj_readers rdr where rdr.sysobjid={$this->sysobjid}
+                and rdr.objid=r.id and rdr.userid={$userid}) )";
         //---------------------------------------------------------------------------------------------------------
 
         // Учтем требования отчета к наличию у пользователя определенного права -----------------------------------

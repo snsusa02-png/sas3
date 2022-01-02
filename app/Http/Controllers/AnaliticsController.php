@@ -1050,8 +1050,13 @@ class AnaliticsController extends Controller
                 if (isTblInGrps('p_u', $grps))
                     $recs2 = $recs2->leftjoin('org_places as p_u', 'p_u.id', 'fd.unload_placeid');
 
-                if (isTblInGrps('mt', $grps))
+                if (isTblInGrps('mt', $grps)) {
+                    // так как типы техники связаны через спр-к Техники, то подключим Технику
+                    if (!isTblInGrps('m', $grps))
+                        $recs2 = $recs2->leftjoin('machines as m', 'm.id', 'fd.machineid');
+
                     $recs2 = $recs2->leftjoin('mchntypes as mt', 'mt.id', 'm.mchntypeid');
+                }
 
                 if (isTblInGrps('c', $grps))
                     $recs2 = $recs2->leftjoin('contracts as c', 'c.id', 'fd.contractid');
@@ -1131,8 +1136,13 @@ class AnaliticsController extends Controller
             if (isTblInGrps('c', $grps))
                 $recs = $recs->leftjoin('contracts as c', 'c.id', 'fd.contractid');
 
-            if (isTblInGrps('mt', $grps))
+            if (isTblInGrps('mt', $grps)) {
+                if (!isTblInGrps('m', $grps))
+                    $recs = $recs->leftjoin('machines as m', 'm.id', 'fd.machineid');
+
                 $recs = $recs->leftjoin('mchntypes as mt', 'mt.id', 'm.mchntypeid');
+            }
+
 
             if (isTblInGrps('ri', $grps))
                 $recs = $recs->leftjoin('refitems as ri', 'ri.id', 'fd.unload_refitmid');
