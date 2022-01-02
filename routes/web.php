@@ -37,6 +37,8 @@ Route::get('/tstd4', function () {
 
 });
 
+Route::get('/test1/', 'testController@test1')->name('test.1');
+
 Route::get('/tst5/', 'orgController@tst_panther')->name('orgs.tst_panther');
 
 
@@ -48,41 +50,6 @@ Route::get('/tst_ftp', function () {
     dd($fileuri, file_exists($fileuri));
 
     dd($url);
-
-});
-
-Route::get('/test1', function () {
-    //$categories = \App\itmtype::getCategories();
-    //dd($categories);
-
-    $data = new stdClass();
-    $data->buildobj = \App\buildobj::find(34);
-    $data->buildobj_name = "Комплекс многоквартирных жилых домов в районе ул.Снеговая, 9 г.Владивосток";
-    $data->contract_num = "СКБ/2021-4";
-    $data->place_info = "Встроенная подземная автостоянка №4. Секция в осях 12-15. Альбом 970-3/21(1)-13-КЖ1, лист 10.";
-    $data->plndt = date_create('2021-11-10 10:00')->format('d.m.Y H:i');
-    $data->fctdt = date_create('2021-11-10 10:15')->format('d.m.Y H:i');
-    $data->chk_descript = "Армирование в осях 12-15 на с отм.-10.500 до отм. -7.300";
-    $data->aux_docs = "Акты скрытых работ";
-    $data->results = "";
-    $data->orgs = [1 => '', 2 => '', 3 => 'X', 4 => 'X'];
-    $data->other_orgs = 'никого';
-
-    $data->works = [1 => '', 2 => '', 3 => 'X', 4 => 'X', 5 => '', 6 => '', 7 => '', 8 => '', 9 => '', 10 => ''
-        , 11 => '', 12 => '', 13 => 'X', 14 => 'X', 15 => 'X', 16 => 'X'];
-    $data->auxwork1_name = '';
-    $data->auxwork2_name = '';
-
-    $data->stf1_reason = 'Приказ №33';
-    $data->stf1_post = 'Главный инженер';
-    $data->stf1_fio = 'Коршиков И.В.';
-
-    $data->stf2_reason = 'Приказ №13';
-    $data->stf2_post = 'Прораб';
-    $data->stf2_fio = 'Айрапетян А.С.';
-
-    return view('test.rqst_sk', compact('data'));
-//        ->withCategories($categories);
 
 });
 
