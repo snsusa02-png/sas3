@@ -8,6 +8,7 @@ doctypes,U,id
 bdgtacnttypes,U,id
 refitems,U,id
 places,U,id
+opertypes,U,id
 mchntypes,U,id
 machines,U,id
 mchn_opertypes,U,id
