@@ -1,6 +1,7 @@
 users,U,id
 user_acs,U,id
 usrsysrights,U,id
+flagtypes,U,id
 reports,U,id
 orgs,U,id
 orgstaff,U,id
@@ -19,3 +20,4 @@ dw_breaks,U,id
 mchn_raids,U,id
 paytypes,U,id
 paydocs,U,id
+objflags,U,id
