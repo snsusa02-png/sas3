@@ -21,3 +21,4 @@ mchn_raids,U,id
 paytypes,U,id
 paydocs,U,id
 objflags,U,id
+obj_finopers,U,id
