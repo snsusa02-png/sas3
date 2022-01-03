@@ -921,7 +921,7 @@ Route::put('doctypes/{id}/admindelete', "DoctypeController@admindelete")->name("
 
 
 //Телефонный и почтовый справочник
-//Route::match(array('GET', 'POST'), 'contacts', 'orgContactController@index')->name('orgcontacts.index');
+Route::match(array('GET', 'POST'), 'contacts', 'orgContactController@index')->name('orgcontacts.index');
 
 Route::get('pref_catqtyfmt', "ObjprefController@editGlblPref25")->name('pref_catqtyfmt');
 Route::put('pref_catqtyfmt/set', "ObjprefController@setGlblPref25")->name('pref_catqtyfmt.set');

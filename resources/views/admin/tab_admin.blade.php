@@ -23,15 +23,15 @@
 				</div>
 			</a>
 		@endif
-		@if (\App\usrsysright::isUserHasRightByCode(\Auth::user()->id,'loadExtData'))
-			<a href="{{route('importfiles.index')}}"
-			   class="list-group-item list-group-item-action">Загрузка
-				внешних данных
-				<div class="description small font-italic" style="margin-left:2em;">Цены -
-					Характеристики - Документы отгрузки - Остатки товаров
-				</div>
-			</a>
-		@endif
+{{--		@if (\App\usrsysright::isUserHasRightByCode(\Auth::user()->id,'loadExtData'))--}}
+{{--			<a href="{{route('importfiles.index')}}"--}}
+{{--			   class="list-group-item list-group-item-action">Загрузка--}}
+{{--				внешних данных--}}
+{{--				<div class="description small font-italic" style="margin-left:2em;">Цены ---}}
+{{--					Характеристики - Документы отгрузки - Остатки товаров--}}
+{{--				</div>--}}
+{{--			</a>--}}
+{{--		@endif--}}
 		@if(1==0)
 			<a href="#" class="list-group-item list-group-item-action">
 				Журнал
