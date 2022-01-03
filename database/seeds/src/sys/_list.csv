@@ -20,5 +20,6 @@ objlinktypes,U,id
 roletypes,U,id
 sysobj_roletypes,U,id
 orgnametypes,U,id
+addresstypes,U,id
 bdgtacnttypes,U,id
 informers,U,id

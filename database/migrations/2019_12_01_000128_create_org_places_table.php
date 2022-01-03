@@ -18,20 +18,20 @@ class CreateOrgPlacesTable extends Migration
             $table->biginteger('orgid')->unsigned()->index('orgid');
 		$table->foreign('orgid')->references('id')->on('orgs');
 
-            $table->string('name',160)->nullable()->comment('Название места');
+            $table->string('name',160)->nullable()->comment('РќР°Р·РІР°РЅРёРµ РјРµСЃС‚Р°');
 
-            $table->biginteger('placetypeid')->unsigned()->comment('id типа места: 1-офис, 2-склад');
+            $table->biginteger('placetypeid')->unsigned()->comment('id С‚РёРїР° РјРµСЃС‚Р°: 1-РѕС„РёСЃ, 2-СЃРєР»Р°Рґ');
 
-            $table->string('address',160)->nullable()->comment('сводный адрес: индекс, город, улица, дом, корпус, офис');
+            $table->string('address',160)->nullable()->comment('СЃРІРѕРґРЅС‹Р№ Р°РґСЂРµСЃ: РёРЅРґРµРєСЃ, РіРѕСЂРѕРґ, СѓР»РёС†Р°, РґРѕРј, РєРѕСЂРїСѓСЃ, РѕС„РёСЃ');
 
             $table->boolean('active')->nullable()->default(1);
 
             $table->timestamp('created_at')->nullable()->useCurrent=true;
             $table->bigInteger('created_by')->nullable()->unsigned()->default(1)
-                ->comment('UserID, создавшего запись');
+                ->comment('UserID, СЃРѕР·РґР°РІС€РµРіРѕ Р·Р°РїРёСЃСЊ');
             $table->timestamp('updated_at')->nullable()->useCurrent=true;
             $table->bigInteger('updated_by')->nullable()->unsigned()->default(1)
-                ->comment('UserID, изменившего запись');
+                ->comment('UserID, РёР·РјРµРЅРёРІС€РµРіРѕ Р·Р°РїРёСЃСЊ');
 
         });
     }

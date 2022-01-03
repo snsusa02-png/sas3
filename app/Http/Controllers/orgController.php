@@ -526,8 +526,6 @@ class orgController extends Controller
                 $usrrights['delete'] = false;
         }
 
-        //$rec->places = org_place::lstSaldos_cached($rec->id);
-
         $rec->ratings = [
             -1 => 'негативный',
             0 => 'нейтральный',

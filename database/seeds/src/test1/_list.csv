@@ -6,6 +6,7 @@ orgs,U,id
 orgstaff,U,id
 org_places,U,id
 doctypes,U,id
+itmtypes,U,id
 refitems,U,id
 ri_org_prices,U,id
 places,U,id
