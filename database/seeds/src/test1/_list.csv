@@ -6,7 +6,6 @@ orgs,U,id
 orgstaff,U,id
 org_places,U,id
 doctypes,U,id
-bdgtacnttypes,U,id
 refitems,U,id
 places,U,id
 opertypes,U,id

@@ -11,16 +11,12 @@ obj_stages,U,id
 obj_statuses,U,id
 taxsystems,U,id
 contacttypes,U,id
-milestone_statuses,U,id
-proj_statuses,U,id
-bdgtacnttypes,U,id
 roletypes,U,id
 sysobj_roletypes,U,id
 proj_categories,U,id
 contract_categories,U,id
 unittypes,U,id
 pay_categories,U,id
-proj_mailboxes,U,id
 objlinktypes,U,id
 roletypes,U,id
 sysobj_roletypes,U,id
