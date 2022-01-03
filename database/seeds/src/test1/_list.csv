@@ -7,6 +7,7 @@ orgstaff,U,id
 org_places,U,id
 doctypes,U,id
 refitems,U,id
+ri_org_prices,U,id
 places,U,id
 opertypes,U,id
 mchntypes,U,id
