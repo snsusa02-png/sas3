@@ -48,6 +48,12 @@
             </a>
         @endif
 
+        @if (\App\usrsysright::isUserHasRightByCode(\Auth::user()->id,'refitems.read'))
+            <a href="{{route('ri_org_prices.index')}}"
+               class="list-group-item list-group-item-action">Прайслист
+            </a>
+        @endif
+
         @if (\App\usrsysright::isUserHasRightByCode(\Auth::user()->id,'reports.read'))
             <a href="{{route('reports.index').'#reports'}}"
                class="list-group-item list-group-item-action">Отчеты

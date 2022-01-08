@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\doctype;
+use App\itmtype;
 use App\org;
 use App\org_place;
 use App\orgstaff;
@@ -66,9 +67,9 @@ class RiOrgPriceController extends Controller
         $userid = \Auth::user()->id;
 
         $usrrights = array(
-            'read' => usrsysright::isUserHasRightByCode_cached($userid, $this->sysobjcode . '.read'),
-            'create' => usrsysright::isUserHasRightByCode_cached($userid, $this->sysobjcode . '.create'),
-            'save' => usrsysright::isUserHasRightByCode_cached($userid, $this->sysobjcode . '.save'),
+            'read' => usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.read'),
+            'create' => usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.create'),
+            'save' => usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.save'),
         );
         if (!$usrrights['read']) {
             return view('home');
@@ -79,84 +80,60 @@ class RiOrgPriceController extends Controller
 
         // - параметры поиска: массив из имени и значения по-умолчанию -----------------------------------------------
         $param_names = [
-            's_pageitmcnt' => 10
-            , 's_active' => '1'
-            , 's_orgflagid' => 12
+            's_pageitmcnt' => 20
             , 's_orgid' => ''
-            , 's_name' => ''
-            , 's_postname' => ''
-            , 's_file_doctypeid' => ''
+            , 's_org_name' => ''
+            , 's_place_name' => ''
+            , 's_itmtypeid' => ''
+            , 's_itmtype_name' => ''
+            , 's_refitm_name' => ''
+            , 's_place_name' => ''
         ];
 
         $search_params = $this->search_params($request, $param_names);
 
         //сформируем условие запроса в БД -----
-        $sc = "1=1";
-        //$sc .= " and exists(select 1 from objflags f where f.sysobjid=111 and f.objid=os.orgid and f.flagtypeid=12)";
-        foreach ($search_params as $item => $val) {
-            if (isset($val) and strlen($val) > 0) {
-
-                if ($item == 's_name') {
-                    $sc = $sc . " and concat(os.lname,' ',os.fname,' ',os.mname) like '%" . mb_strtoupper($val) . "%'";
-
-                } elseif ($item == 's_orgflagid') {
-                    $sc .= " and exists(select 1 from objflags f where f.sysobjid=111 and f.objid=os.orgid and f.flagtypeid={$val})";
-
-                } elseif ($item == 's_orgid') {
-                    $sc = $sc . " and os.orgid = '{$val}'";
-
-                } elseif ($item == 's_active') {
-                    $sc = $sc . " and ifnull(os.active,0) = '{$val}'";
-
-                } elseif ($item == 's_postname') {
-                    $sc = $sc . " and ( os.postname like '%{$val}%'
-                    or exists (select 1 from orgposts as op where op.id=os.postid and op.name like '%{$val}%')
-                    ) ";
-
-                } elseif ($item == 's_file_doctypeid') {
-                    $sc = $sc . " and exists (select 1 from objfiles as f where f.sysobjid={$this->sysobjid} and f.objid=os.id and f.doctypeid={$val})";
-
-                }
-            }
-        }
+        $sc = ri_org_price::search_cond($search_params);
         //-------------------------------------------------------------------------------------------------------------
 
-
-        $recs = orgstaff::from('orgstaff as os')
-            ->join('orgs as o', 'o.id', 'os.orgid')
-            ->leftJoin('orgposts as op', function ($j) {
-                $j->on('op.id', 'os.postid');
-            })
-            ->leftJoin('orgdeps as od', function ($j) {
-                $j->on('od.id', 'op.depid');
+        $recs = ri_org_price::from('ri_org_prices as rop')
+            ->join('refitems as ri', 'ri.id', 'rop.refitmid')
+            ->join('itmtypes as it', 'it.id', 'ri.itmtypeid')
+            ->join('orgs as o', 'o.id', 'rop.orgid')
+            ->leftJoin('org_places as op', function ($j) {
+                $j->on('op.id', 'rop.placeid');
             })
             ->whereraw($sc)
-            ->select('os.id', 'os.lname', 'os.fname', 'os.mname'
-                , db::raw("ifnull(op.name, os.postname) as post_name")
-                , db::raw("ifnull(od.ordr, 9999) as dep_ordr")
-                , db::raw("ifnull(op.ordr, 9999) as post_ordr")
-                , 'os.orgid', 'o.name as org_name'
-                , 'os.active'
+            ->select('rop.id', 'rop.price', 'rop.begdate', 'rop.enddate'
+                , 'o.name as org_name', 'rop.orgid'
+                , 'op.name as place_name', 'rop.placeid'
+                , 'it.name as itmtype_name', 'ri.itmtypeid'
+                , 'ri.name as refitm_name', 'ri.code'
+                , 'ri.active'
+                , 'ri.unit as unittypename'
+                , db::raw("concat(date_format(rop.begdate,'%d.%m.%Y'),' ... ', ifnull(date_format(rop.enddate,'%d.%m.%Y'),'')) as active_period")
+                , db::raw("case when rop.active and ifnull(rop.enddate, curdate())>=curdate() then 1 else 0 end as active")
             );
 
         //Сортировка пользователя ----------------------------------------
         $sort_params = session('sort_params_' . $this->sysobjcode . '.index');
 
-        $recs = $recs->orderBy('org_name', 'asc');
-        $recs = $recs->orderBy('os.orgid', 'asc');
-        $recs = $recs->orderBy('dep_ordr', 'asc');
-        $recs = $recs->orderBy('post_ordr', 'asc');
+        $recs = $recs->orderBy('o.name', 'asc');
+        $recs = $recs->orderBy('rop.orgid', 'asc');
+        $recs = $recs->orderBy('op.name', 'asc');
+        $recs = $recs->orderBy('op.id', 'asc');
+        $recs = $recs->orderBy('it.name', 'asc');
+        $recs = $recs->orderBy('it.id', 'asc');
         if (isset($sort_params)) {
             foreach ($sort_params as $prm)
                 $recs = $recs->orderBy($prm['field'], $prm['dir']);
         } else {
-            $recs = $recs->orderBy('os.lname', 'asc');
+            $recs = $recs->orderBy('ri.name', 'asc');
         }
         //----------------------------------------------------------------
 
         $recs = $recs->paginate($search_params['s_pageitmcnt'] ?? 20);
         //--------------------------------------------------------------
-
 
         $data = new \stdClass();
 
@@ -170,9 +147,11 @@ class RiOrgPriceController extends Controller
 
         $data->search_params = $search_params;
 
-        $data->ownorgs = org::lstFor([
-            'in_orgstaff' => 1,
-            'flagtypeid' => $search_params['s_orgflagid'] ?? '',
+        $data->used_orgs = org::lstFor([
+            'in_ri_org_prices' => 1,
+        ]);
+        $data->itmtypes = itmtype::lstFor([
+            'in_ri_org_prices' => 1,
         ]);
 
         $data->statuses = [1 => 'актив', 0 => 'архив'];
@@ -180,7 +159,7 @@ class RiOrgPriceController extends Controller
         $data->file_doctypes = doctype::lstUsedForSysObj($this->sysobjid);
 
 
-        return view('orgstaff.index', compact(['recs', 'data', 'usrrights']));
+        return view('ri_org_prices.index', compact(['recs', 'data', 'usrrights']));
     }
 
     /**

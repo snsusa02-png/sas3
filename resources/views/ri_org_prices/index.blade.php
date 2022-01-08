@@ -2,7 +2,8 @@
 
 @section('content')
     <?php
-    $thisTitle = "Номенклатура";
+    $thisTitle = "Сводный прайслист по поставщикам";
+    $retURL = Request::url();
     ?>
     <link rel="stylesheet" href="/css/subnav.css">
     <style>
@@ -28,7 +29,7 @@
 
         @includeIf('layouts.edit_msgs')
 
-        <form name="forIndex" id="forIndex" method="post" action="{{ route('refitems.index') }}">
+        <form name="forIndex" id="forIndex" method="post" action="{{ route('ri_org_prices.index') }}">
             @csrf
 
             <div class="row justify-content-center">
@@ -39,8 +40,9 @@
                         <div class="col-md-8 ">
                             <div class="subnav shift">
                                 <ul>
-                                    <li><a href="{{route('itmtypes.index')}}" title="Категории номенклатуры">Категории</a></li>
-                                    <li><a href="{{route('ri_org_prices.index')}}" title="Сводный прайслист от поставщиков">Прайслист</a></li>
+                                    <li><a href="{{route('itmtypes.index')}}"
+                                           title="Категории номенклатуры">Категории</a></li>
+                                    <li><a href="{{route('refitems.index')}}" title="Номенклатура">Номенклатура</a></li>
                                     <li><a href="{{route('orgs.index')}}" title="Контрагенты">Контрагенты</a></li>
                                 </ul>
                             </div>
@@ -61,15 +63,15 @@
                         <caption>{{$thisTitle}}</caption>
                         <thead>
                         <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Название</th>
+                            <th scope="col">Поставщик</th>
+                            <th scope="col">Категория</th>
+                            <th scope="col">Название товара</th>
                             <th scope="col">ЕИ</th>
                             <th scope="col" class="text-center">Цена, &#8381;</th>
-                            <th scope="col">фото</th>
-                            <th scope="col">Категория</th>
+                            <th scope="col">Место поставки/Период действия</th>
                             <td>
                                 @if ($usrrights['create'])
-                                    <a href="{{ route('refitems.create')}}"
+                                    <a href="{{ route('ri_org_prices.create',0)}}?returl={{$retURL}}"
                                        class="btn btn-sm btn-warning"
                                        title="Добавить запись">
                                         <i class="fa fa-plus"></i>
@@ -78,31 +80,27 @@
                             </td>
                         </tr>
                         <tr style="text-align: center;">
-                            <td/>
                             <td>
-                                <div class="input-group">
-                                    <input type="text" class="form-control c" name="s_name"
-                                           value="{{$search_params['s_name'] ?? ''}}"/>
-                                </div>
+                                {!! Form::select('s_orgid', $data->used_orgs??[], $data->search_params['s_orgid'] ?? ''
+                                        , ['class' => 'form-control', 'placeholder'=>'-','style'=>'width:120px;']) !!}
+                            </td>
+                            <td>
+                                {!! Form::select('s_itmtypeid', $data->itmtypes??[], $data->search_params['s_itmtypeid'] ?? ''
+                                        , ['class' => 'form-control', 'placeholder'=>'-','style'=>'width:120px;']) !!}
+                            </td>
+                            <td>
+                                <input type="text" class="form-control text-center" name="s_refitm_name"
+                                       value="{{$data->search_params['s_refitm_name'] ?? ''}}"/>
                             </td>
                             <td></td>
                             <td></td>
                             <td>
-                                <div class="input-group">
-                                    {!! Form::select('s_photostatus', $s_photostatuses, $search_params['s_photostatus'] ?? '', ['class' => 'form-control']) !!}
-                                </div>
-
-                            </td>
-                            <td>
-                                <div class="input-group">
-                                    {!! Form::select('s_itmtypeid', $itmtypes, $search_params['s_itmtypeid'] ?? ''
-                                        , ['class' => 'form-control', 'placeholder'=>'-']) !!}
-                                </div>
+                                <input type="text" class="form-control text-center" name="s_place_name"
+                                       value="{{$data->search_params['s_place_name'] ?? ''}}"/>
                             </td>
                             <td>
                                 <div class="input-group-btn">
                                     <button type="submit" class="btn btn-sm btn-outline-secondary"
-                                            {{--											formaction="{{ route('refitems.index') }}"--}}
                                             formmethod="post" title="Поиск">
                                         <i class="fa fa-search" aria-hidden="true"></i>
                                     </button>
@@ -114,32 +112,48 @@
                         <?php
                         $bgcols = array('#FeFeFe', '#EfEfEf', '#FFBFBF', '#FFcccc', '#F9F5BD', '#FCFADC', '#BFF9B9', '#ccffcc', '#79D3FF', '#CCECF9', '#CC9999', '#E2C7C7');
                         //$rec0 = 0;
-
                         $bShowDescript = true;                        //todo - сделать преференцию
-
                         $rec0 = $recs->currentPage() * $recs->perPage() - $recs->perPage() + 1;
 
                         ?>
-                        <style>
-                            .photo {
-                                /*display: block;*/
-                                max-width: 80px;
-                                max-height: 40px;
-                                /*width: auto;*/
-                                /*height: auto;*/
-                            }
-                        </style>
-
                         @if (count($recs)>0)
                             @php
+                                $cur_orgid = -1;
                                 $cur_itmtypeid = -1;
                             @endphp
                             @foreach($recs as $item)
 
+                                @if($item->orgid<>$cur_orgid)
+                                    <tr style="background-color: #fafcb4">
+                                        <td colspan="6">
+                                            <h4>{{$item->org_name}}</h4>
+                                        </td>
+                                        <td>
+                                            <a href="{{ route('ri_org_prices.create',$item->orgid)}}?returl={{$retURL}}"
+                                               class="btn btn-sm btn-warning"
+                                               title="Добавить запись">
+                                                <i class="fa fa-plus"></i>
+                                            </a></td>
+                                    </tr>
+
+                                    @php
+                                        $cur_orgid = $item->orgid;
+                                        $cur_itmtypeid=-1;
+                                    @endphp
+                                @endif
+
                                 @if($item->itmtypeid<>$cur_itmtypeid)
-                                    <tr>
-                                        <td colspan="7" style="background-color: #d1fff1">
-                                            <h4>{{$item->it_name_path??'/- без категории -'}}</h4>
+                                    <tr style="background-color: #d1fff1">
+                                        <td></td>
+                                        <td colspan="5">
+                                            <h5>{{$item->itmtype_name??'/- без категории -'}}</h5>
+                                        </td>
+                                        <td>
+                                            {{--                                            <a href="{{ route('ri_org_prices.create',$item->orgid)}}"--}}
+                                            {{--                                               class="btn btn-sm btn-warning"--}}
+                                            {{--                                               title="Добавить запись">--}}
+                                            {{--                                                <i class="fa fa-plus"></i>--}}
+                                            {{--                                            </a>--}}
                                         </td>
                                     </tr>
 
@@ -151,13 +165,13 @@
                                 $tr_bg_col = $bgcols[$colshift + ($loop->index + $rec0) % 2];
                                 ?>
                                 <tr style="background-color: {{$tr_bg_col}}">
-                                    <td scope="row" class="small text-right">
+                                    <td scope="row" class="small text-right" colspan="2">
                                         {{$loop->index + $rec0}}
                                     </td>
                                     <td>
                                         <a name="{{$item->id}}"></a>
 
-                                        <a href="{{route('refitems.edit',$item->id)}}" target="_self">{{$item->name}}</a>
+                                        <a href="/refitems/{{$item->id}}" target="_self">{{$item->refitm_name}}</a>
                                         <div class="small ml-3">{{$item->code}}</div>
                                         @if($bShowDescript)
                                             <div class="small">
@@ -172,19 +186,12 @@
                                     <td class="text-right" nowrap="">
                                         {{($item->price)?number_format($item->price,2,'.',' '):'-'}}
                                     </td>
-                                    <td class="text-center">
-                                        <?php
-                                        $photo = "";
-                                        if ($item->photourl !== null) {
-                                            $photo = '<img src="/' . $item->photourl . '" class="photo" style="max-width: 80px; max-height: 50px;">';
-                                            echo $photo;
-                                        }
-                                        ?>
+                                    <td class="text-center small">
+                                        {{$item->place_name}}
+                                        <div>{{$item->active_period}}</div>
                                     </td>
-
-                                    <td class="c">{{$item->itmtypename}}</td>
                                     <td style="text-align: center;">
-                                        <a href="{{ route('refitems.edit',$item->id)}}"
+                                        <a href="{{ route('ri_org_prices.edit',$item->id)}}?returl={{$retURL}}"
                                            class="btn btn-sm btn-primary"
                                            title="Просмотреть/Изменить запись">
                                             <i class="fa fa-pencil"></i>
@@ -194,11 +201,7 @@
                             @endforeach
                         @else
                             <?php
-                            if (Route::currentRouteName() == "refitems.search") {
-                                $msg = "Данные не найдены. \nПопробуйте изменить критерий поиска и повторить.";
-                            } else {
-                                $msg = "Нет записей.";
-                            }
+                            $msg = "Данные не найдены. \nПопробуйте изменить критерий поиска и повторить.";
                             ?>
                             <tr>
                                 <td colspan="6" class="c">{{$msg}}</td>

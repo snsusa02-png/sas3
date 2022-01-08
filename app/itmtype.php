@@ -3,6 +3,7 @@
 namespace App;
 
 use App\Traits\FilesTrait;
+use App\Traits\StringUtil;
 use Illuminate\Database\Eloquent\Model;
 
 use DB;
@@ -205,4 +206,122 @@ class itmtype extends Model
         return $itmid;
     }
 
+    static public function search_cond($params)
+    {
+
+        $userid = \Auth::user()->id;
+
+        $sc = "1=1";
+
+        //для оптимизации запроса некоторые параметры обрабатываются группой.
+        // Чтобы избежать повторного применения, используем добавление отработанных параметров
+        // в массив $used_params
+        $used_params = [];
+        foreach ($params as $key => $val) {
+
+            if (isset($val) and $val !== '') {
+
+                if (array_search($key, $used_params) == 0) {
+                    $used_params[] = $key;
+
+                    if ($key == 'active') {
+                        $sc .= " and it.active={$val}";
+
+                    } elseif ($key == 'active_or_current') {
+                        $sc .= " and (it.active=1 or it.id={$val})";
+
+                    } elseif ($key == 'name') {
+                        $search_flds = "it.name";
+
+                        $words = explode(" ", $val);
+                        if (count($words) > 0) {
+                            $sc .= ' and (';
+
+                            //ищем "как ввел"
+                            $sc .= ' (1=1';
+                            foreach ($words as $word) {
+                                $sc .= " and {$search_flds} like '%" . $word . "%'";
+                            }
+                            $sc .= ')';
+
+                            //попробуем вариант с перекодировкой - если пользователь забыл переключить клавиатуру на русский язык
+                            $words = explode(" ", StringUtil::switcher_ru($val));
+                            $sc .= ' or (1=1';
+                            foreach ($words as $word) {
+                                $sc .= " and {$search_flds} like '%" . $word . "%'";
+                            }
+                            $sc .= ')';
+
+                            $sc .= ')';
+                        }
+                    } elseif ($key == 'in_refitems') {
+                        //использована с спр-ке номенклатуры
+                        $sc .= " and " . (($val == 0) ? "not" : "")
+                            . " exists (select 1 from refitems as ri where ri.itmtypeid=it.id)";
+
+                    } elseif ($key == 'in_ri_org_prices') {
+                        // товар с данной категорией есть в прайслисте поставщиков
+                        $sc .= " and " . (($val == 0) ? "not" : "")
+                            . " exists (select 1 from ri_org_prices as rop join refitems as ri2 on ri2.id=rop.refitmid
+                             where ri2.itmtypeid=it.id)";
+
+                    }
+                }
+
+            }
+        }
+        //dd($sc);
+        //Log::info($sc);
+
+        return $sc;
+
+    }
+
+
+    static public function lstFor($params)
+    {
+        //2022-01-08 SNS. универсальный конструктор массива с id, name категорий товарной номенклатуры
+        // params - массив, содержащий пару "имя параметра"=>"значение параметра"
+
+        if (isset($params) and is_countable($params) and count($params) > 0) {
+
+            $userid = \Auth::user()->id;
+
+            //для оптимизации запроса некоторые параметры обрабатываются группой.
+            // Чтобы избежать повторного применения, используем добавление отработанных параметров
+            // в массив $used_params
+            $used_params = [];
+
+            $sc = self::search_cond($params);
+            //Log::info($sc);
+
+            $lst = self::from('itmtypes as it')
+                ->whereRaw($sc)
+                ->select('id', 'name')
+                ->orderBy('it.name', 'desc')
+                ->get()->pluck('name', 'id')->toArray();
+            asort($lst);
+            //dd($sc,$lst);
+            return $lst;
+        } else
+            return null;
+    }
+
+
+    static public function lstFor_cached($params, $cache_minutes = null)
+    {
+        //2022-01-08 SNS. кэшируемый результат списка
+
+        if (isset($params) and is_countable($params) and count($params) > 0) {
+
+            $hash = md5(serialize($params));
+
+            //Cache::forget('lstFor_' . $hash);
+            return Cache::remember('lstFor_' . $hash, now()->addMinutes($cache_minutes ?? 5)
+                , function () use ($params) {
+                    return self::lstFor($params);
+                });
+        } else
+            return null;
+    }
 }

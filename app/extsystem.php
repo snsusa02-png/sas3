@@ -29,8 +29,9 @@ class extsystem extends Model
 
     public static function listAll_cache($sysobjid = null)
     {
-//        Cache::forget('extsystems.list.' . ($sysobjid ?? '_'));
-        return Cache::remember('extsystems.list.' . ($sysobjid ?? '_'), now()->addMinutes(10)
+        $label = 'extsystems.list.' . ($sysobjid ?? '_');
+        //Cache::forget($label);
+        return Cache::remember($label, now()->addMinutes(10)
             , function () use ($sysobjid) {
 
                 $rslt = extsystem::from('extsystems as es')

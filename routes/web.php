@@ -826,9 +826,9 @@ Route::match(array('POST', 'GET'), '/mchnrqsts/rep/26', "MchnReportController@re
 
 
 //Фото для продуктов
-//Route::get('ri_img/{refitmid}', 'RiImageController@create')->name('ri_images.load');
-//Route::post('ri_img', 'RiImageController@store')->name('ri_image.upload');
-//Route::get('ri_img/delete/{id}', 'RiImageController@destroy')->name('ri_img.destroy');
+Route::get('ri_img/{refitmid}', 'RiImageController@create')->name('ri_images.load');
+Route::post('ri_img', 'RiImageController@store')->name('ri_image.upload');
+Route::get('ri_img/delete/{id}', 'RiImageController@destroy')->name('ri_img.destroy');
 
 //Файлы для объектов
 Route::get('objfiles/{sysobjid}/{objid}/load', 'ObjfileController@load')->name('objfiles.load');
@@ -889,6 +889,7 @@ Route::get('refitems/fill_ordr', 'refItemController@fillOrdr')->name('refitems.f
 Route::get('refitems/{srcid}/{tgtid}/join', 'refItemController@join')->name('refitems.join');
 
 //Цены поставщиков товаров (идем от поставщика)
+Route::match(array('GET', 'POST'), '/ri_org_prices', "RiOrgPriceController@index")->name("ri_org_prices.index");
 Route::get('ri_org_prices/{id}/edit', "RiOrgPriceController@edit")->name('ri_org_prices.edit');
 Route::get('ri_org_prices/{orgid}/create', "RiOrgPriceController@create")->name('ri_org_prices.create');
 Route::match(array('POST', 'PUT'), 'ri_org_prices/{id}', "RiOrgPriceController@update")->name('ri_org_prices.update');

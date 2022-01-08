@@ -202,15 +202,17 @@
                                         </div>
 
                                     </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="itmtypeid">Статья бюджета:</label>
-                                            {!! Form::select('bdgtacnttypeid', [21=>'материалы',25=>'накладные'],
-                                            $rec->bdgtacnttypeid,
-                                            ['class' => 'form-control',
-                                            'placeholder'=>'-']) !!}
+                                    @if(1==0)
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label for="itmtypeid">Статья бюджета:</label>
+                                                {!! Form::select('bdgtacnttypeid', [21=>'материалы',25=>'накладные'],
+                                                $rec->bdgtacnttypeid,
+                                                ['class' => 'form-control',
+                                                'placeholder'=>'-']) !!}
+                                            </div>
                                         </div>
-                                    </div>
+                                    @endif
                                 </div>
 
                                 <div class="row">
@@ -498,15 +500,15 @@
                     @include('refitems/ri_images')
                     @include('refitems/ri_auxinfo')
 
-                    @include('refitems/obj_files')
-                    {{--					@includeif('objfiles.obj_files')--}}
+                    {{--                    @include('refitems/obj_files')--}}
+                    @includeif('objfiles.obj_files')
 
                     @includeif('obj_names/_names')
                     @includeif('refitems/_units')
-                    @include('refitems/_estprices')
+                    {{--                    @include('refitems/_estprices')--}}
                     @include('refitems/_offers')
-                    @includeif('refitems/_last_equiprqsts')
-                    @includeif('refitems/_last_bot_ri_lims')
+                    {{--                    @includeif('refitems/_last_equiprqsts')--}}
+                    {{--                    @includeif('refitems/_last_bot_ri_lims')--}}
 
                     {{--					@include('refitems/ri_saleactions')--}}
 

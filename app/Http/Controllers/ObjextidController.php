@@ -112,7 +112,7 @@ class ObjextidController extends Controller
 //                ->orderby('s.name')
 //                ->get()->pluck('name', 'id')->toArray();
             $rec->extsystems = extsystem::listAll_cache($sysobjid);
-
+//dd($sysobjid,$rec->extsystems);
             $rec->objname = null;
             if (isset($rec->objid)) {
                 if ($rec->sysobjid == 3) {

@@ -19,6 +19,7 @@
         ? ($rec->retURL . '#' . $rec->id)
         : (($rec->orgid) ? route('orgs.edit', $rec->orgid) : route('refitems.index') . "?page=" . session($sysobjcode . '_pageno'));
 
+
     if ($usrrights['save'] ?? false) {
         $readonly = '';
     } else {
@@ -62,7 +63,7 @@
                             @method('PUT')
                             @csrf
                             {{ Form::hidden('ttt', 1) }}
-                            {{ Form::hidden('retURL', $retURL) }}
+                            {{ Form::hidden('returl', $retURL) }}
 
                             <div class="row">
                                 <div class="form-group offset-md-0 col-md-12">

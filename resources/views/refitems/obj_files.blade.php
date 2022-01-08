@@ -1,4 +1,4 @@
-@if( 1==1 and isset($refitem) and ($refitem->id!=-1) and isset($refitem->files))
+@if( 1==1 and isset($rec) and ($rec->id!=-1) and isset($rec->files))
 	<div class="card mt-3 d-none d-sm-block">
 		<div class="card-header">
 			<i class="fa fa-files-o" aria-hidden="true"></i> Документы (файлы)
@@ -8,7 +8,7 @@
 					class="btn btn-light btn-sm "><i class="fa fa-eye-slash" aria-hidden="true"></i></button>
 
 			@if( $usrrights['save'])
-				<a href="{{ route('objfiles.load',['sysobjid'=>105, 'objid'=>$refitem->id])}}"
+				<a href="{{ route('objfiles.load',['sysobjid'=>105, 'objid'=>$rec->id])}}"
 				   class="btn btn-warning btn-sm ">
 					<i class="fa fa-plus"></i>
 				</a>
@@ -16,7 +16,7 @@
 			</div>
 		</div>
 
-		@if (count($refitem->files)>0)
+		@if (count($rec->files)>0)
 			<div class="card-body collapse" id="obj_files">
 				<table class="table-condensed small" style="width: 100%;">
 					<thead>
@@ -28,7 +28,7 @@
 					</tr>
 					</thead>
 					<tbody>
-					@foreach($refitem->files as $itm)
+					@foreach($rec->files as $itm)
                         <?php
                         //                    $url = Storage::disk('local')->url($itm->filename);
                         //$url = url($itm->filename);

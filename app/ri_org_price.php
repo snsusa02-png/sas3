@@ -71,15 +71,15 @@ class ri_org_price extends Model
                     } elseif ($key == 'on_date') {
                         $sc .= " and '{$val}' between rop.begdate and ifnull(rop.enddate,'{$val}')";
 
-                    } elseif ($key == 'orgid') {
+                    } elseif ($key == 'orgid' or $key == 's_orgid') {
                         $sc .= " and rop.orgid={$val}";
 
-                    } elseif ($key == 'name') {
-                        $search_flds = "ri.name";
+                    } elseif ($key == 's_org_name') {
+                        $search_flds = "o.name";
 
                         $words = explode(" ", $val);
                         if (count($words) > 0) {
-                            $sc .= ' and exists (select 1 from refitems as ri where ri.id=rop.refitmid ';
+                            //$sc .= ' and exists (select 1 from orgs as o_1 where o_1.id=rop.orgid ';
 
                             //ищем "как ввел"
                             $sc .= ' and (1=1';
@@ -99,7 +99,58 @@ class ri_org_price extends Model
                             $sc .= ') )';
                         }
 
+                    } elseif ($key == 'name' or $key == 's_refitm_name') {
+                        $search_flds = "ri_1.name";
 
+                        $words = explode(" ", $val);
+                        if (count($words) > 0) {
+                            $sc .= ' and exists (select 1 from refitems as ri_1 where ri_1.id=rop.refitmid ';
+
+                            //ищем "как ввел"
+                            $sc .= ' and (( 1=1';
+                            foreach ($words as $word) {
+                                $sc .= " and {$search_flds} like '%" . $word . "%'";
+                            }
+                            $sc .= ')';
+
+                            //попробуем вариант с перекодировкой - если пользователь забыл переключить клавиатуру на русский язык
+                            $words = explode(" ", StringUtil::switcher_ru($val));
+                            $sc .= ' or (1=1';
+                            foreach ($words as $word) {
+                                $sc .= " and {$search_flds} like '%" . $word . "%'";
+                            }
+                            $sc .= ')';
+
+                            $sc .= ') )';
+                        }
+
+                    } elseif ($key == 's_place_name' or $key == 's_placename') {
+                        $search_flds = "s_op.name";
+
+                        $words = explode(" ", $val);
+                        if (count($words) > 0) {
+                            $sc .= ' and exists (select 1 from org_places as s_op where s_op.id=rop.placeid ';
+
+                            //ищем "как ввел"
+                            $sc .= ' and (( 1=1';
+                            foreach ($words as $word) {
+                                $sc .= " and {$search_flds} like '%" . $word . "%'";
+                            }
+                            $sc .= ')';
+
+                            //попробуем вариант с перекодировкой - если пользователь забыл переключить клавиатуру на русский язык
+                            $words = explode(" ", StringUtil::switcher_ru($val));
+                            $sc .= ' or (1=1';
+                            foreach ($words as $word) {
+                                $sc .= " and {$search_flds} like '%" . $word . "%'";
+                            }
+                            $sc .= ')';
+
+                            $sc .= ') )';
+                        }
+
+                    } elseif ($key == 's_itmtypeid') {
+                        $sc .= " and exists (select 1 from refitems as ri2 join itmtypes as it2 on it2.id=ri2.itmtypeid and it2.id={$val} where rop.refitmid=ri2.id)";
                     }
                 }
 
