@@ -13,13 +13,14 @@
         "fideloper/proxy": "^4.4",
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^6.3.1|^7.0.1",
+        "laravel-validation-rules/phone": "^1.6",
         "laravel/framework": "^7.29",
         "laravel/tinker": "^2.5",
         "laravel/ui": "^2.4",
-        "nwidart/laravel-modules": "^7.1",
+        "laravelcollective/html": "^6.1",
         "maatwebsite/excel": "^3.1",
         "mckenziearts/laravel-notify": "^1.1",
-        "laravelcollective/html": "^6.1",
+        "nwidart/laravel-modules": "^7.1",
         "webklex/laravel-imap": "^2.4"
     },
     "require-dev": {
