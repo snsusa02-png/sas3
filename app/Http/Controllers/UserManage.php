@@ -366,7 +366,7 @@ class UserManage extends Controller
                 'userid' => $rec->id,
             ],
             [
-                'uin' => $request->get('mychat_uin'),
+                'uin' => $request->get('mychat_uin')??0,
                 'active' => 1,
                 'updated_by' => $userid,
                 'updated_at' => now(),
