@@ -9,61 +9,71 @@ $userid = \Auth::user()->id;
             [
                 'right' => 'mchn_raids.read',
                 'route' => 'mchn_raids.index',
-                'title' => 'Самосвальные перевозки'
+                'title' => 'Самосвальные перевозки',
+                'sysobjid' => '1106',
             ],
             [
                 'right' => 'mchn_raids.read',
                 'route' => 'mchn_raids.index',
-                'title' => 'Тральные перевозки'
+                'title' => 'Тральные перевозки',
+                'sysobjid' => '1106',
             ],
             [
                 'right' => 'mchn_raids.read',
                 'route' => 'mchn_raids.index',
-                'title' => 'Манипуляторы'
+                'title' => 'Манипуляторы',
+                'sysobjid' => '1106',
             ],
             [
                 'right' => 'mchn_raids.read',
                 'route' => 'mchn_raids.index',
-                'title' => 'Экскаваторы и бульдозеры'
+                'title' => 'Экскаваторы и бульдозеры',
+                'sysobjid' => '1106',
             ],
             [
                 'right' => 'mchn_raids.read',
                 'route' => 'mchn_raids.index',
-                'title' => 'Земляные работы'
+                'title' => 'Земляные работы',
+                'sysobjid' => '1106',
             ],
             [
                 'right' => 'mchn_raids.read',
                 'route' => 'mchn_raids.index',
-                'title' => 'Топливозаправщики'
+                'title' => 'Топливозаправщики',
+                'sysobjid' => '1106',
             ],
             [
                 'right' => 'mchn_raids.read',
                 'route' => 'mchn_raids.index',
-                'title' => 'Бетон'
+                'title' => 'Бетон',
+                'sysobjid' => '1106',
             ],
             [
                 'right' => 'mchn_raids.read',
                 'route' => 'mchn_raids.index',
-                'title' => 'Швинги'
+                'title' => 'Швинги',
+                'sysobjid' => '1106',
             ],
             [
                 'right' => 'driver_works.read',
                 'route' => 'driver_works.index',
-                'title' => 'Рабочее время водителей'
+                'title' => 'Рабочее время водителей',
+                'sysobjid' => '1107',
             ],
         ];
         ?>
         @foreach($menu_itms as $mnu)
 
-            @if (1==1 and \App\usrsysright::isUserHasRightByCode($userid, $mnu['right']))
+            @if (1==1 and \App\usrsysright::isUserHasRightByCode_cached($userid, $mnu['right']))
                 <a href="{{route($mnu['route'])}}"
                    class="list-group-item list-group-item-action font-weight-bold">{{$mnu['title']}}
                 </a>
-            @else
+            @elseif(isset($mnu['sysobjid']))
+
                 <span class="list-group-item disable" style="color: silver">{{$mnu['title']}}
                     @if(1==0 or \App\usrsysright::isUserHasRightByCode($userid,'admin-global'))
                         <span class="small float-right">
-                        <a href="{{route('acslst.index',520)}}" class="float-right" target="_blank">ACL</a>
+                        <a href="{{route('acslst.index',$mnu['sysobjid'])}}" class="float-right" target="_blank">ACL</a>
                         </span>
                     @endif
                 </span>
