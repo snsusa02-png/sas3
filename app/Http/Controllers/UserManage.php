@@ -361,16 +361,16 @@ class UserManage extends Controller
         objlog::log_info($this->sysobjid, $rec->id, $mess, 5);
 
         //Обновим связанные данные -----------------------------------------------------------
-        mychat_user::addOrUpdate(
-            [
-                'userid' => $rec->id,
-            ],
-            [
-                'uin' => $request->get('mychat_uin')??0,
-                'active' => 1,
-                'updated_by' => $userid,
-                'updated_at' => now(),
-            ]);
+//        mychat_user::addOrUpdate(
+//            [
+//                'userid' => $rec->id,
+//            ],
+//            [
+//                'uin' => $request->get('mychat_uin')??0,
+//                'active' => 1,
+//                'updated_by' => $userid,
+//                'updated_at' => now(),
+//            ]);
 
 
         //Зачистим кэш прав ------------------------------------------------------------------

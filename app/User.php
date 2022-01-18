@@ -62,10 +62,10 @@ class User extends Authenticatable
         return $this->hasOne(org::class, 'id', 'curorgid')->withDefault();
     }
 
-    public function mychat_user()
-    {
-        return $this->hasOne(mychat_user::class, 'userid', 'id')->withDefault();
-    }
+//    public function mychat_user()
+//    {
+//        return $this->hasOne(mychat_user::class, 'userid', 'id')->withDefault();
+//    }
 
     public function short_fio()
     {

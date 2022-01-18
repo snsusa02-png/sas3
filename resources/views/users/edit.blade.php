@@ -83,7 +83,7 @@
                                 </div>
 
                                 <div class="row">
-                                    <div class="col-md-5">
+                                    <div class="offset-md-3 col-md-5">
                                         <div class="form-group">
                                             <label for="email">Email:</label>
                                             <div class="mt-1"><b>{{$rec->email}}</b></div>
@@ -98,16 +98,18 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="email">MyChat UIN:</label>
-                                            <input type="number" class="form-control text-center"
-                                                   title="Идентификатор пользователя в системе обмена сообщениями MyChat"
-                                                   name="mychat_uin"
-                                                   min="1"
-                                                   value="{{ $rec->mychat_user->uin }}"/>
+                                    @if(1==0)
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label for="email">MyChat UIN:</label>
+                                                <input type="number" class="form-control text-center"
+                                                       title="Идентификатор пользователя в системе обмена сообщениями MyChat"
+                                                       name="mychat_uin"
+                                                       min="1"
+                                                       value="{{ $rec->mychat_user->uin }}"/>
+                                            </div>
                                         </div>
-                                    </div>
+                                    @endif
                                 </div>
 
                                 <div class="row">
@@ -185,14 +187,7 @@
                                         </button>
                                     @endif
                                 @endif
-                                @if ($rec->id != -1)
-                                    <div class="small" style="margin-top: 8px; color: gray;">{{$rec->id}}///
-                                        создан: {{$rec->created_at}} / {{$rec->whocrt->name}} &nbsp;
-                                        изменен: {{$rec->updated_at}} / {{$rec->whoupd->name}} &nbsp;
-                                        <a href="{{route('objevntlog',['sysobjid'=>$sysobjid, 'objid'=>$rec->id,'route'=>Route::current()->getName()])}}">журнал</a>
-
-                                    </div>
-                                @endif
+                                @include('layouts._who_when')
                             </form>
                         </div>
                     </div>
