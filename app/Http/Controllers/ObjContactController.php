@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\contacttype;
 use App\obj_contact;
 use App\objlog;
+use App\org;
 use App\sysobj;
 use App\usrsysright;
 use Illuminate\Http\Request;
@@ -40,22 +41,8 @@ class ObjContactController extends Controller
         $sysobj = sysobj::find($sysobjid);
         if (isset($sysobj)) {
 
-            $sysobjcode = $sysobj->code;
-
             //замена на родительскую модель/таблицу
-            //Заляпуха - todo: ввести в sysobjs поле src_acl
-            if ($sysobjcode == 'jts_items')
-                $sysobjcode = 'jobtimesheets';
-            if ($sysobjcode == 'jts_machines')
-                $sysobjcode = 'jobtimesheets';
-            if ($sysobjcode == 'jts_violations')
-                $sysobjcode = 'jobtimesheets';
-            elseif ($sysobjcode == 'jts_mchn_visits')
-                $sysobjcode = 'jobtimesheets';
-            elseif ($sysobjcode == 'orgdeps')
-                $sysobjcode = 'org_acnts';
-            elseif ($sysobjcode == 'orgposts')
-                $sysobjcode = 'org_acnts';
+            $sysobjcode = sysobj::acl_sysobjcode($sysobj->code);
 
             $usrrights['read'] = usrsysright::isUserHasRightByCode_cached($userid, $sysobjcode . '.read');
             $usrrights['create'] = usrsysright::isUserHasRightByCode_cached($userid, $sysobjcode . '.create');
@@ -108,8 +95,11 @@ class ObjContactController extends Controller
                     'active' => 1,
                     'created_by' => $userid,
                 ]);
-            } else
-                return redirect(route('orgs.edit', $objid));
+            } else {
+                $obj_sysobj = sysobj::find($sysobjid);
+                return redirect(route("{$obj_sysobj->code}.edit", $objid));
+            }
+
         } else {
             $rec = obj_contact::find($id);
         }
@@ -119,11 +109,11 @@ class ObjContactController extends Controller
 
         $usrrights = $this->setInterfaceRight($id, $rec->sysobjid);
 
-        $sysobj = sysobj::find($rec->sysobjid);
-        $rec->_sysobj_name = $sysobj->name;
+        $obj_sysobj = sysobj::find($rec->sysobjid);
+        $rec->_sysobj_name = $obj_sysobj->name;
 
-        if (isset($sysobj->model_class)) {
-            $model = "App\\{$sysobj->model_class}";
+        if (isset($obj_sysobj->model_class)) {
+            $model = "App\\{$obj_sysobj->model_class}";
             $obj = $model::find($rec->objid);
             //dd($model, $rec->objid, $obj);
             if (isset($obj))
@@ -139,8 +129,8 @@ class ObjContactController extends Controller
         $retroute = $request->get('returl');
         if (!isset($retroute)) {
 
-            if (isset($sysobj->code)) {
-                $retroute = route(strtolower($sysobj->code) . '.edit', $rec->objid);
+            if (isset($obj_sysobj->code)) {
+                $retroute = route(strtolower($obj_sysobj->code) . '.edit', $rec->objid). '?#obj_contacts';
 
             } else {
 
@@ -154,7 +144,7 @@ class ObjContactController extends Controller
             }
         }
         $rec->retURL = $retroute;
-        //dd($rec);
+        //dd($rec->retURL);
 
         return view($this->sysobjcode . '.edit', compact('rec', "usrrights"));
     }
@@ -217,7 +207,12 @@ class ObjContactController extends Controller
 
         objlog::log_info($this->sysobjid, $rec->id, $mess, 5);
 
-        $retURL = $request->get('retURL') ?? route('orgs.edit', $rec->objid) . '?#obj_contacts';
+        //Специфика - обновим поле orgs.contact_phone
+        if ($rec->sysobjid == 111 and $rec->contacttypeid == 1)
+            org::where('id', $rec->objid)->update(['contact_phone' => $rec->contact]);
+
+
+        $retURL = $request->get('retURL') ?? route($rec->sysobj->code . '.edit', $rec->objid) . '?#obj_contacts';
 
         return redirect($retURL)->with('success', $mess);
 
@@ -239,8 +234,8 @@ class ObjContactController extends Controller
             $route = route('obj_contacts.edit', $id);
             $sd["error"] = $res->msg;
         } else {
-            $parobjid = $res->obj['orgid'];
-            objlog::log_info($this->parsysobjid, $parobjid, 'Удалена запись о названии организации (' . $parobjid . ')', 5);
+            $parobjid = $res->obj['objid'];
+            objlog::log_info($this->parsysobjid, $parobjid, 'Удалена запись о контакте (' . $parobjid . ')', 5);
             objlog::log_info($this->sysobjid, $id, 'Запись удалена', 5);
 
             //забудем кэшированные данные про ...:

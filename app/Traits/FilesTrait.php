@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\obj_address;
 use App\obj_contact;
 use App\obj_link;
 use App\objextid;
@@ -9,6 +10,7 @@ use App\objfile;
 use App\objflag;
 use DB;
 use App\Traits\Result;
+use App\task;
 
 //Трайт для
 trait FilesTrait
@@ -64,5 +66,25 @@ trait FilesTrait
             ->where('sysobjid', self::$sysobjid)
             ->orderBy('contacttype_name');
     }
+
+    public function linked_tasks()
+    {
+        return $this->hasMany(task::class, 'srcobjid', 'id')
+            ->where([
+                'srcsysobjid' => self::$sysobjid,
+            ]);
+    }
+
+    public function addresses()
+    {
+        //возращает список адресов субъекта ИС
+        $userid = \Auth::user()->id;
+        return $this->hasMany(obj_address::class, 'objid', 'id')
+            ->join('addresstypes as at', 'at.id', 'obj_addresses.addresstypeid')
+            ->select('obj_addresses.*', 'at.name as addresstype_name')
+            ->where('sysobjid', self::$sysobjid)
+            ->orderBy('addresstype_name');
+    }
+
 
 }

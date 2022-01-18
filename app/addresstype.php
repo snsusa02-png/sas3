@@ -75,6 +75,18 @@ class addresstype extends Model
                     } elseif ($key == 'in_orgs') {
                         $sc .= " and " . (($val == 1) ? '' : 'not') . " exists(select 1 from obj_addresses as c where c.sysobjid=111 and c.addresstypeid=at.id)";
 
+                    } elseif ($key == 'lim_sysobjid') {
+                        $sc .= " and exists(select 1 from sysobj_addresstypes as so_at where so_at.sysobjid={$val}
+                         and so_at.addresstypeid=at.id)";
+
+                    } elseif ($key == 'new_for_obj') {
+                        $t_sysobjid = $val[0];
+                        $t_objid = $val[1];
+                        $t_id = $val[2];
+                        //dd($t_sysobjid,$t_objid);
+                        $sc .= " and not exists(select 1 from obj_addresses as a 
+                            where a.sysobjid={$t_sysobjid} and a.objid={$t_objid} and a.id<>{$t_id}
+                            and a.addresstypeid=at.id)";
                     }
                 }
 

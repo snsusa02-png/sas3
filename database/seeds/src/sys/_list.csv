@@ -20,5 +20,6 @@ roletypes,U,id
 sysobj_roletypes,U,id
 orgnametypes,U,id
 addresstypes,U,id
+sysobj_addresstypes,U,id
 bdgtacnttypes,U,id
 informers,U,id

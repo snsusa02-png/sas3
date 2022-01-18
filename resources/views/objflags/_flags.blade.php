@@ -38,7 +38,7 @@
                                             <i class="fa fa-pencil">
                                             </i>
                                         </a>
-                                    <td>
+                                    </td>
                                 </tr>
                             @endforeach
                             </tbody>

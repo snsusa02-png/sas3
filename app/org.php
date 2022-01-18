@@ -64,6 +64,39 @@ class org extends Model
         return $this->hasOne(orgstaff::class, 'id', 'ca_staffid')->withDefault();
     }
 
+    public function short_name()
+    { // Короткое название организации
+        return $this->hasOne(org_name::class, 'orgid', 'id')
+            ->where('nametypeid', 2);
+    }
+
+    public function post_address()
+    { // Почтовый адрес
+        return $this->hasOne(obj_address::class, 'objid', 'id')
+            ->where('obj_addresses.sysobjid', self::$sysobjid)
+            ->where('obj_addresses.addresstypeid', 3)
+            ->withDefault();
+    }
+
+    public function contact_phone_()
+    { // Контактный телефон
+        return $this->hasOne(obj_contact::class, 'objid', 'id')
+            ->where('obj_contacts.sysobjid', self::$sysobjid)
+            ->where('contacttypeid', 1)
+            ->where('active', 1)
+            ->withDefault();
+    }
+
+    public function contact_email_()
+    { // Контактная электронная почта
+        return $this->hasOne(obj_contact::class, 'objid', 'id')
+            ->where('obj_contacts.sysobjid', self::$sysobjid)
+            ->where('obj_contacts.contacttypeid', 2)
+            ->where('active', 1)
+            ->withDefault();
+    }
+
+
     //связь с пользователями-кураторами
     public function CuratorUsers()
     {
@@ -79,6 +112,12 @@ class org extends Model
     {
         return $this->hasMany(org_place::class, 'orgid', 'id');
     }
+
+    public function assoc_members()
+    {//Участник ассоциаций
+        return $this->hasMany(assoc_member::class, 'orgid', 'id');
+    }
+
 
     public function scopeActive($query)
     {
@@ -1014,7 +1053,7 @@ class org extends Model
                     } elseif ($key == 'active_or_current') {
                         $sc .= " and (o.active=1 or o.id={$val})";
 
-                    } elseif ($key == 'name') {
+                    } elseif ($key == 'name' or $key == 's_name') {
                         $search_flds = "o.name";
 
                         $words = explode(" ", $val);
@@ -1298,9 +1337,9 @@ class org extends Model
                                     where ws.ownorgid=o.id and ws.qty>0)";
 
                     } elseif ($key == 'in_mchn_raids_ownorgid') {
-                        //организация указана в  mchn_raids.unload_ownorgid
+                        //организация указана в  mchn_raids.ownorgid
                         $sc .= " and " . (($val == 0) ? "not" : "")
-                            . " exists (select 1 from mchn_raids as mr where mr.unload_ownorgid=o.id)";
+                            . " exists (select 1 from mchn_raids as mr where mr.ownorgid=o.id)";
 
                     } elseif ($key == 'in_mchn_raids_orgid') {
                         //организация указана в  mchn_raids.ownorgid
@@ -1340,10 +1379,16 @@ class org extends Model
                         $sc .= " and " . (($val == 0) ? "not" : "")
                             . " exists (select 1 from paydocs as pd where pd.orgid=o.id)";
 
-                    } elseif ($key == 'in_ri_org_prices') {
-                        // организация имеет "прайслист" на товары
-                        $sc .= " and " . (($val == 0) ? "not" : "")
-                            . " exists (select 1 from ri_org_prices as rop where rop.orgid=o.id)";
+                    } elseif ($key == 's_in_contract_type') {
+                        // использовалась в платежных документах в контрагенте
+                        $sc .= " and exists (select 1 from contract_orgs as co
+                            join contracts as c on c.id=co.contractid and c.contracttypeid={$val}
+                        where co.orgid=o.id)";
+
+                    } elseif ($key == 's_addresstypeid') {
+                        // Контрагент имеет адрес указанного типа
+                        $sc .= " and exists (select 1 from obj_addresses as oa
+                            where oa.sysobjid=111 and oa.objid=o.id and  oa.addresstypeid={$val})";
 
                     }
                 }

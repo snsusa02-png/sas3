@@ -16,7 +16,7 @@ class ObjAddressController extends Controller
     {
         $this->middleware('auth');
 
-        $this->sysobjid = 1922;
+        $this->sysobjid = 1923;
         $this->sysobj = sysobj::find($this->sysobjid);
         $this->sysobjcode = $this->sysobj->code;
         $this->acl_sysobjcode = sysobj::acl_sysobjcode($this->sysobjcode);
@@ -117,8 +117,11 @@ class ObjAddressController extends Controller
         }
 
         $rec->addresstypes = addresstype::lstFor(
-            ['active_or_current' => $rec->addresstypeid]
-        );
+            [
+                'active_or_current' => $rec->addresstypeid,
+                'lim_sysobjid' => $rec->sysobjid,   //ограничим Ареалом использования типов
+                'new_for_obj' => [$rec->sysobjid, $rec->objid, $rec->id],   //ограничим новыми типами для данного объекта (или текущим)
+            ]);
         //dd(($rec));
 
 
@@ -195,8 +198,9 @@ class ObjAddressController extends Controller
 
         $rec->zip = mb_substr($request->get('zip'), 0, 6);
         $rec->country = mb_substr($request->get('country'), 0, 30);
-        $rec->region = mb_substr($request->get('region'), 0, 30);
-        $rec->city = mb_substr($request->get('city'), 0, 30);
+        $rec->region = mb_substr($request->get('region'), 0, 60);
+        $rec->district = mb_substr($request->get('district'), 0, 60);
+        $rec->city = mb_substr($request->get('city'), 0, 60);
         $rec->street_adr = mb_substr($request->get('street_adr'), 0, 60);
 //        $rec->streettype = mb_substr($request->get('streettype'), 0, 16);
 //        $rec->street = mb_substr($request->get('street'), 0, 60);
@@ -208,7 +212,21 @@ class ObjAddressController extends Controller
         //$rec->private = 0;
         $rec->active = $request->get('active', 0);
 
-        $rec->address=' ';
+        $adr = ' ';
+        if (!empty($rec->zip))
+            $adr .= 'индекс ' . $rec->zip . ', ';
+        if (!empty($rec->country))
+            $adr .= $rec->country . ', ';
+        if (!empty($rec->region))
+            $adr .= $rec->region . ', ';
+        if (!empty($rec->district))
+            $adr .= $rec->district . ', ';
+        if (!empty($rec->city))
+            $adr .= $rec->city . ', ';
+        if (!empty($rec->street_adr))
+            $adr .= $rec->street_adr;
+
+        $rec->address = trim($adr);
 
         $rec->updated_by = $userid;
         $rec->updated_at = now();
@@ -280,7 +298,7 @@ class ObjAddressController extends Controller
         $userid = \Auth::user()->id;
 
 
-            $rec = obj_address::find($id);
+        $rec = obj_address::find($id);
 
         if (!isset($rec))
             return redirect(route('orgs.edit', $objid));

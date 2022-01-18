@@ -55,7 +55,7 @@ $(document).ready(function () {
             type: "PARTY",
             /* Вызывается, когда пользователь выбирает одну из подсказок */
             onSelect: function (suggestion) {
-                console.log(suggestion);
+                //console.log(suggestion);
 
                 $(this).val(suggestion.data.name.full)
                 $("input[name=inn]").val(suggestion.data.inn)

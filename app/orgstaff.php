@@ -63,6 +63,12 @@ class orgstaff extends Model
             ->withDefault();
     }
 
+    public function features()
+    {
+        return $this->hasMany(obj_feature::class, 'objid', 'id')
+            ->where('obj_features.sysobjid', self::$sysobjid);
+    }
+
     public function getNamePostAttribute()
     {
         if (isset($this->id)) {
@@ -111,6 +117,15 @@ class orgstaff extends Model
                     $rslt = $rslt . ' ' . $this->lname;
                 }
             }
+        }
+        return $rslt;
+    }
+
+    public function getInfoAttribute()
+    {
+        $rslt = null;
+        if (isset($this->id)) {
+            $rslt = $this->name . ', ' . $this->postname;
         }
         return $rslt;
     }
@@ -318,7 +333,25 @@ class orgstaff extends Model
                 if (array_search($key, $used_params) == 0) {
                     $used_params[] = $key;
 
-                    if ($key == 'orgid') {
+
+                    if ($key == 's_name' or $key == 'name') {
+                        $sc = $sc . " and concat(os.lname,' ',os.fname,' ',os.mname) like '%" . mb_strtoupper($val) . "%'";
+
+                    } elseif ($key == 's_orgflagid') {
+                        $sc .= " and exists(select 1 from objflags f where f.sysobjid=111 and f.objid=os.orgid and f.flagtypeid={$val})";
+
+
+                    } elseif ($key == 's_postname') {
+                        $sc = $sc . " and ( os.postname like '%{$val}%'
+                    or exists (select 1 from orgposts as op where op.id=os.postid and op.name like '%{$val}%')
+                    ) ";
+
+                    } elseif ($key == 's_file_doctypeid') {
+                        $tsysobjid = self::sysobjid;
+                        $sc = $sc . " and exists (select 1 from objfiles as f where f.sysobjid={$tsysobjid} 
+                                        and f.objid=os.id and f.doctypeid={$val})";
+
+                    } elseif ($key == 's_orgid') {
                         $sc .= " and os.orgid={$val}";
 
                     } elseif ($key == 'depid') {
@@ -327,11 +360,8 @@ class orgstaff extends Model
                     } elseif ($key == 'postid') {
                         $sc .= " and os.postid={$val}";
 
-                    } elseif ($key == 'active') {
-                        $sc .= " and os.active={$val}";
-
-                    } elseif ($key == 'name') {
-                        $sc .= " and os.name like '%{$val}%'";
+                    } elseif ($key == 'active' or $key == 's_active') {
+                        $sc .= " and ifnull(os.active,0) = '{$val}'";
 
                     } elseif ($key == 'in_cursias') {
                         $sc .= " and " . (($val == 1) ? '' : 'not') . " exists(select 1 from cursias as crs where crs.staffid=os.id)";
@@ -342,9 +372,9 @@ class orgstaff extends Model
                     } elseif ($key == 'driver_in_mchn_raids') {
                         $sc .= " and " . (($val == 1) ? '' : 'not') . " exists(select 1 from mchn_raids as mr where mr.driverid=os.id)";
 
-                    } elseif ($key == 'dispatcher_in_mchn_raids') {
-                        $sc .= " and " . (($val == 1) ? '' : 'not') . " exists(select 1 from mchn_raids as mr where mr.disp_staffid=os.id)";
-
+                    } elseif ($key == 'no_signature_for_sysobj') {
+                        //нет требующейся подписи на хранимом образе документа
+                        $sc .= " and exists( select 1 from obj_staffs as ojs where ojs.sysobjid={$val} and ojs.staffid=os.id and ojs.signed=0 )";
                     }
                 }
 

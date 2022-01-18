@@ -10,7 +10,7 @@ class obj_address extends Model
     use DeleteTrait;
 
     static public $prefix = 'obj_addresses';
-    static public $sysobjid = 1922;
+    static public $sysobjid = 1923;
 
     protected $guarded = [];
 

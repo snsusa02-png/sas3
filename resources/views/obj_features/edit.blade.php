@@ -23,10 +23,10 @@
             ?>
         @else
             <?php
-            $thisSysObjId = 1902;
+            $thisSysObjId = 1793;
             $sysobjid = $thisSysObjId;
-            $sysobjcode = 'obj_contacts';
-            $thisTitle = "Контактные данные";
+            $sysobjcode = 'obj_features';
+            $thisTitle = "Характеристика / Особенность";
 
             $retRoute = $rec->retURL;
 
@@ -41,7 +41,7 @@
 
                 <div class="row ">
 
-                    <div class="col-md-7">
+                    <div class="col-md-8">
                         <div class="card mt-3">
                             <div class="card-header">
                                 {{$thisTitle}}
@@ -75,17 +75,11 @@
                                     </div>
 
                                     <div class="row">
-                                        <div class="form-group offset-md-0 col-md-8">
-                                            <label for="name" class="required">Контакт:</label>
-                                            <input type="text" class="form-control" name="contact" maxlength="60"
-                                                   required
-                                                   value="{{ old('contact',$rec->contact) }}"/>
-                                        </div>
-                                        <div class="form-group offset-md-0 col-md-4">
-                                            <label for="contacttypeid" class="required">Тип:</label>
-                                            {!! Form::select('contacttypeid',  $rec->contacttypes??[], $rec->contacttypeid??null,
+                                        <div class="form-group offset-md-0 col-md-12">
+                                            <label for="featuretypeid" class="required">Тип характеристики:</label>
+                                            {!! Form::select('featuretypeid',  $rec->featuretypes??[], $rec->featuretypeid??null,
                                              [
-                                             'id' => 'contacttypeid',
+                                             'id' => 'featuretypeid',
                                              'class' => 'form-control',
                                              'placeholder' => '',
                                              'required' => 'required',
@@ -93,10 +87,12 @@
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="form-group offset-md-0 col-md-12">
-                                            <label for="name" class="">Примечание:</label>
-                                            <input type="text" class="form-control" name="notes" maxlength="160"
-                                                   value="{{ old('notes',$rec->notes) }}"/>
+                                        <div class="form-group offset-md-2 col-md-8">
+                                            <label for="name" class="required">Значение характеристики:</label>
+                                            <input type="text" class="form-control text-center font-weight-bold"
+                                                   name="val" maxlength="60"
+                                                   required
+                                                   value="{{ old('val',$rec->val) }}"/>
                                         </div>
                                     </div>
 

@@ -449,7 +449,7 @@ class orgstaffController extends Controller
             $os->birthdate = $request->get('birthdate');
             $os->birthplace = $request->get('birthplace');
             $os->sex = $request->get('sex');
-            $os->reg_address = mb_substr($request->get('reg_address'), 0, 160);
+            //$os->reg_address = mb_substr($request->get('reg_address'), 0, 160);
 
             $os->marriage = $request->get('marriage');
 

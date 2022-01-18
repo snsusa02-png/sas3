@@ -500,6 +500,18 @@ Route::get('/obj_contacts/edit/{id}', 'ObjContactController@edit')->name('obj_co
 Route::match(array('POST', 'PUT'), '/obj_contacts/update/{id}', "ObjContactController@update")->name('obj_contacts.update');
 Route::put('/obj_contacts/delete/{id}', "ObjContactController@destroy")->name("obj_contacts.delete");
 
+//адреса объектов ИС
+Route::get('/obj_addresses/create/{sysobjid}/{objid}', "ObjAddressController@create")->name('obj_addresses.create');
+Route::get('/obj_addresses/edit/{id}', 'ObjAddressController@edit')->name('obj_addresses.edit');
+Route::match(array('POST', 'PUT'), '/obj_addresses/update/{id}', "ObjAddressController@update")->name('obj_addresses.update');
+Route::put('/obj_addresses/delete/{id}', "ObjAddressController@destroy")->name("obj_addresses.delete");
+Route::get('/obj_addresses/print_envelope/{id}', 'ObjAddressController@print_envelope')->name('obj_addresses.print_envelope');
+
+Route::match(array('GET', 'POST'), '/envelopes/prep', "EnvelopeController@prep")->name("envelopes.prep");
+Route::match(array('POST', 'PUT'), 'envelopes/prep_save', "EnvelopeController@prep_save")->name('envelopes.prep_save');
+Route::get('/envelopes/edit/{id}', 'EnvelopeController@edit')->name('envelopes.edit');
+Route::get('/envelopes/print_envelopes', 'EnvelopeController@print_envelopes')->name('envelopes.print_envelopes');
+
 
 //Список для выбора через отдельное окно
 Route::match(array('GET', 'POST'), '/orgs/list', "orgController@list")->name("orgs.list");

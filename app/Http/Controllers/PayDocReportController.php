@@ -209,14 +209,17 @@ class PayDocReportController extends Controller
 
     public
     function rep48(Request $request, $ownorgid, $orgid)
+//    function rep48(Request $request)
     {
         //Детализация баланса контрагента
 
         $report_id = 48;
 
-
         $returl = $request->get('returl') ?? route('home');
         $userid = Auth::user()->id;
+
+//        $ownorgid = $request->get('ownorgid');
+//        $orgid = $request->get('orgid');
 
         if (!(isset($ownorgid) and isset($orgid)))
             return redirect($returl)

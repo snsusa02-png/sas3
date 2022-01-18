@@ -25,6 +25,7 @@ class CreateObjAddressesTable extends Migration
             $table->string('zip', 6)->nullable()->comment('Индекс');
             $table->string('country', 30)->nullable()->comment('Страна');
             $table->string('region', 60)->nullable()->comment('Край/Область');
+            $table->string('district', 60)->nullable()->comment('Район');
             $table->string('city', 30)->nullable()->comment('Город');
             $table->string('street_adr', 60)->nullable()->comment('улица, копус/дом, офис/квартира');
 
