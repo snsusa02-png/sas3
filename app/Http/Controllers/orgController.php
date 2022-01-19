@@ -1265,6 +1265,7 @@ class orgController extends Controller
 
             $list = org::getFor([
                 'name' => $request->name,
+                'name_inn' => $request->name_inn,
                 'flagtypeid' => $request->flagtypeid,
                 'active' => $request->active ?? 1,
                 'in_ri_org_prices' => $request->in_ri_org_prices,
