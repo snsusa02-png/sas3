@@ -898,7 +898,7 @@ class refItemController extends Controller
             Cache::forget('lst_ri_brands'); //Бренды, использованные в прайслисте
 
             //Свяжем вакантные позиции заявок на материалы - по идентичному названию и ЕИ
-            equiprqst_item::setRefItmIDByNameAndUnit($refitem->id, $refitem->name, $refitem->unittypeid);
+            //equiprqst_item::setRefItmIDByNameAndUnit($refitem->id, $refitem->name, $refitem->unittypeid);
 
             objlog::log_info($this->sysobjid, $refitem->id, $mess, 5);
 
