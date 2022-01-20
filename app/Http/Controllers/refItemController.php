@@ -602,14 +602,14 @@ class refItemController extends Controller
                 //запретим изменять ЕИ если товар уже где-то использован
 
                 $cnt = ri_unit::where('refitmid', $rec->id)->count();
-                if ($cnt == 0)
-                    $cnt = bot_ri_lim::where('refitmid', $rec->id)->count();
-                if ($cnt == 0)
-                    $cnt = equiprqst_item::where('refitmid', $rec->id)->count();
-                if ($cnt == 0)
-                    $cnt = eritm_offer::where('refitmid', $rec->id)->count();
-                if ($cnt == 0)
-                    $cnt = cwp_work_equip::where('refitmid', $rec->id)->count();
+//                if ($cnt == 0)
+//                    $cnt = bot_ri_lim::where('refitmid', $rec->id)->count();
+//                if ($cnt == 0)
+//                    $cnt = equiprqst_item::where('refitmid', $rec->id)->count();
+//                if ($cnt == 0)
+//                    $cnt = eritm_offer::where('refitmid', $rec->id)->count();
+//                if ($cnt == 0)
+//                    $cnt = cwp_work_equip::where('refitmid', $rec->id)->count();
 
                 if ($cnt == 0)
                     $unittypes = unittype::unittypes_cache();
@@ -730,37 +730,39 @@ class refItemController extends Controller
                 ->orderBy('price')
                 ->with('suporg')->get();
 
-            $rec->offers = equiprqst_item::from('equiprqst_items as eri')
-                ->join('eritm_offers as ofr', 'ofr.eritmid', 'eri.id')
-                ->join('orgs as o', 'o.id', 'ofr.suporgid')
-                ->leftjoin('invoices as inv', 'inv.id', 'ofr.invoiceid')
-                ->where('eri.refitmid', $rec->id)
-                ->select('ofr.id', 'ofr.plngetdate', 'ofr.ord_qty', 'ofr.ord_sum'
-                    , 'ofr.suporgid', 'o.name as suporgname'
-                    , 'ofr.invoiceid', db::raw("concat('№', inv.docnum,' от ', inv.docdate) as invoice_info"))
-                ->orderBy('inv.docdate', 'desc')
-                ->get();
-            //dd($rec->offers);
+            if (1 == 0) {
+                $rec->offers = equiprqst_item::from('equiprqst_items as eri')
+                    ->join('eritm_offers as ofr', 'ofr.eritmid', 'eri.id')
+                    ->join('orgs as o', 'o.id', 'ofr.suporgid')
+                    ->leftjoin('invoices as inv', 'inv.id', 'ofr.invoiceid')
+                    ->where('eri.refitmid', $rec->id)
+                    ->select('ofr.id', 'ofr.plngetdate', 'ofr.ord_qty', 'ofr.ord_sum'
+                        , 'ofr.suporgid', 'o.name as suporgname'
+                        , 'ofr.invoiceid', db::raw("concat('№', inv.docnum,' от ', inv.docdate) as invoice_info"))
+                    ->orderBy('inv.docdate', 'desc')
+                    ->get();
+                //dd($rec->offers);
 
-            //Последние 10 зявок с этим материалом
-            $rec->last_equiprqsts = equiprqst_item::from('equiprqst_items as eri')
-                ->where('refitmid', $rec->id)
-                ->select('eri.rqstid', 'eri.rqst_qty', 'eri.maxreqdate')
-                ->orderby('eri.maxreqdate', 'desc')
-                ->orderby('eri.rqstid', 'desc')
-                ->limit(10)
-                ->get();
-            //dd($rec->last_equiprqsts);
+                //Последние 10 зявок с этим материалом
+                $rec->last_equiprqsts = equiprqst_item::from('equiprqst_items as eri')
+                    ->where('refitmid', $rec->id)
+                    ->select('eri.rqstid', 'eri.rqst_qty', 'eri.maxreqdate')
+                    ->orderby('eri.maxreqdate', 'desc')
+                    ->orderby('eri.rqstid', 'desc')
+                    ->limit(10)
+                    ->get();
+                //dd($rec->last_equiprqsts);
 
-            //Последние 10 РВ с этим материалом
-            $rec->last_bot_ri_lims = bot_ri_lim::from('bot_ri_lims as brl')
-                ->join('buildopertypes as bot', 'bot.id', 'brl.buildopertypeid')
-                ->where('brl.refitmid', $rec->id)
-                ->select('brl.id', 'brl.buildopertypeid', 'bot.name as buildopertypename', 'brl.lim_qty', 'brl.smet_sum', 'brl.smet_price')
-                ->orderby('brl.created_at', 'desc')
-                ->limit(10)
-                ->get();
-            //dd($rec->last_bot_ri_lims);
+                //Последние 10 РВ с этим материалом
+                $rec->last_bot_ri_lims = bot_ri_lim::from('bot_ri_lims as brl')
+                    ->join('buildopertypes as bot', 'bot.id', 'brl.buildopertypeid')
+                    ->where('brl.refitmid', $rec->id)
+                    ->select('brl.id', 'brl.buildopertypeid', 'bot.name as buildopertypename', 'brl.lim_qty', 'brl.smet_sum', 'brl.smet_price')
+                    ->orderby('brl.created_at', 'desc')
+                    ->limit(10)
+                    ->get();
+                //dd($rec->last_bot_ri_lims);
+            }
 
 
             return view('refitems.edit',
