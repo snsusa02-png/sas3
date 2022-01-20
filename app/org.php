@@ -1339,7 +1339,7 @@ class org extends Model
                     } elseif ($key == 'in_mchn_raids_ownorgid') {
                         //организация указана в  mchn_raids.ownorgid
                         $sc .= " and " . (($val == 0) ? "not" : "")
-                            . " exists (select 1 from mchn_raids as mr where mr.ownorgid=o.id)";
+                            . " exists (select 1 from mchn_raids as mr where mr.load_ownorgid=o.id)";
 
                     } elseif ($key == 'in_mchn_raids_orgid') {
                         //организация указана в  mchn_raids.ownorgid
