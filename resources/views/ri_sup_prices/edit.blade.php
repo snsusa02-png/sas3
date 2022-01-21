@@ -4,7 +4,7 @@
     <?php
     $sysobjid = 146;
     $thisSysObjId = 146;
-    $sysobjcode = 'ri_org_prices';
+    $sysobjcode = 'ri_sup_prices';
     $thisTitle = "Предложение поставщика";
     $userid = \Auth::user()->id;
 
@@ -264,7 +264,7 @@
     <script src="{{ asset('js/jquery-ui.js') }}" defer></script>
 
     <script src="{{ asset('js/callListOrgs.js') }}" defer></script>
-    <script src="{{ asset('js/ri_org_price_edit.js') }}" defer></script>
+    <script src="{{ asset('js/ri_sup_price_edit.js') }}" defer></script>
 @endsection
 
 @section('title')

@@ -49,7 +49,7 @@
         @endif
 
         @if (\App\usrsysright::isUserHasRightByCode(\Auth::user()->id,'refitems.read'))
-            <a href="{{route('ri_org_prices.index')}}"
+            <a href="{{route('ri_sup_prices.index')}}"
                class="list-group-item list-group-item-action">Прайслист
             </a>
         @endif

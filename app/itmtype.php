@@ -259,10 +259,10 @@ class itmtype extends Model
                         $sc .= " and " . (($val == 0) ? "not" : "")
                             . " exists (select 1 from refitems as ri where ri.itmtypeid=it.id)";
 
-                    } elseif ($key == 'in_ri_org_prices') {
+                    } elseif ($key == 'in_ri_sup_prices') {
                         // товар с данной категорией есть в прайслисте поставщиков
                         $sc .= " and " . (($val == 0) ? "not" : "")
-                            . " exists (select 1 from ri_org_prices as rop join refitems as ri2 on ri2.id=rop.refitmid
+                            . " exists (select 1 from ri_sup_prices as rop join refitems as ri2 on ri2.id=rop.refitmid
                              where ri2.itmtypeid=it.id)";
 
                     }

@@ -13,7 +13,7 @@ class CreateRiOrgPricesTable extends Migration
      */
     public function up()
     {
-        Schema::create('ri_org_prices', function (Blueprint $table) {
+        Schema::create('ri_sup_prices', function (Blueprint $table) {
             $table->id();
 
 
@@ -52,6 +52,6 @@ class CreateRiOrgPricesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ri_org_prices');
+        Schema::dropIfExists('ri_sup_prices');
     }
 }

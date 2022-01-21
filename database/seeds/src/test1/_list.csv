@@ -9,7 +9,7 @@ org_places,U,id
 doctypes,U,id
 itmtypes,U,id
 refitems,U,id
-ri_org_prices,U,id
+ri_sup_prices,U,id
 places,U,id
 opertypes,U,id
 mchntypes,U,id

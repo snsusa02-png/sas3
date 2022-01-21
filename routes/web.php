@@ -901,11 +901,11 @@ Route::get('refitems/fill_ordr', 'refItemController@fillOrdr')->name('refitems.f
 Route::get('refitems/{srcid}/{tgtid}/join', 'refItemController@join')->name('refitems.join');
 
 //Цены поставщиков товаров (идем от поставщика)
-Route::match(array('GET', 'POST'), '/ri_org_prices', "RiOrgPriceController@index")->name("ri_org_prices.index");
-Route::get('ri_org_prices/{id}/edit', "RiOrgPriceController@edit")->name('ri_org_prices.edit');
-Route::get('ri_org_prices/{orgid}/create', "RiOrgPriceController@create")->name('ri_org_prices.create');
-Route::match(array('POST', 'PUT'), 'ri_org_prices/{id}', "RiOrgPriceController@update")->name('ri_org_prices.update');
-Route::get('ri_org_prices/{id}/delete', "RiOrgPriceController@destroy")->name("ri_org_prices.delete");
+Route::match(array('GET', 'POST'), '/ri_sup_prices', "RiSupPriceController@index")->name("ri_sup_prices.index");
+Route::get('ri_sup_prices/{id}/edit', "RiSupPriceController@edit")->name('ri_sup_prices.edit');
+Route::get('ri_sup_prices/{orgid}/create', "RiSupPriceController@create")->name('ri_sup_prices.create');
+Route::match(array('POST', 'PUT'), 'ri_sup_prices/{id}', "RiSupPriceController@update")->name('ri_sup_prices.update');
+Route::get('ri_sup_prices/{id}/delete', "RiSupPriceController@destroy")->name("ri_sup_prices.delete");
 
 
 //Единицы измерения для позиции справочника номенклатуры

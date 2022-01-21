@@ -114,7 +114,7 @@ class refitem extends Model
 
 //    public function orgprices()
 //    {
-//        return $this->hasMany(ri_org_price::class, 'refitmid', 'id');
+//        return $this->hasMany(ri_sup_price::class, 'refitmid', 'id');
 //    }
 
     public function RI_specinfo($div = ';')
@@ -178,14 +178,14 @@ class refitem extends Model
 
     public static function getrefitemsByType($itID)
     {
-        //20190508 SNS. Цену по скидке не вычисляем, а берем из ri_org_prices
+        //20190508 SNS. Цену по скидке не вычисляем, а берем из ri_sup_prices
         $orgid = User::getOrgID(Auth::id());
 //        session_start();
         if (isset($_SESSION['userorgid']))
             $orgid = $_SESSION['userorgid'];
 
         $lst = static::from('refitems as ri')
-            ->leftJoin('ri_org_prices as op', function ($j) use ($orgid) {
+            ->leftJoin('ri_sup_prices as op', function ($j) use ($orgid) {
                 $j->on('op.refitmid', '=', 'ri.id')
                     ->where('op.orgid', '=', $orgid);
             })
@@ -819,7 +819,7 @@ class refitem extends Model
             ->leftJoin('brands as b', function ($j) {
                 $j->on('b.code', '=', 'r.brand');
             })
-            ->leftJoin('ri_org_prices as op', function ($j) use ($orgid) {
+            ->leftJoin('ri_sup_prices as op', function ($j) use ($orgid) {
                 $j->on('op.refitmid', '=', 'r.id')
                     ->where('op.orgid', '=', $orgid);
             })
@@ -1371,7 +1371,7 @@ class refitem extends Model
                         else
                             $on_date = 'curdate()';
 
-                        $sc .= " and exists (select 1 from ri_org_prices as rop2 where rop2.refitmid=ri.id
+                        $sc .= " and exists (select 1 from ri_sup_prices as rop2 where rop2.refitmid=ri.id
                         and rop2.orgid={$val}
                         and rop2.active=1
                         and {$on_date} between rop2.begdate and ifnull(rop2.enddate,{$on_date}) )";
@@ -1443,7 +1443,6 @@ class refitem extends Model
 
             $recs = self::from('refitems as ri')
                 ->leftJoin('itmtypes as it', 'it.id', 'ri.itmtypeid');
-            //->leftJoin('ri_org_prices as rop', 'rop.refitmid', 'ri.id');
 
             //if (strpos($fields, 'rop.price') > 0) {
             if (is_array($fields)
@@ -1466,7 +1465,7 @@ class refitem extends Model
                     $sc2 .= " and placeid={$load_placeid}";
                 //Log::info('****** ' . $sc2);
 
-                $recs = $recs->join(DB::raw("(select refitmid, price  from ri_org_prices  where {$sc2} ) as rop"),
+                $recs = $recs->join(DB::raw("(select refitmid, price  from ri_sup_prices  where {$sc2} ) as rop"),
                     function ($join) {
                         $join->on('rop.refitmid', '=', 'ri.id');
                     });

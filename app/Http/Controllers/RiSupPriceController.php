@@ -7,7 +7,7 @@ use App\itmtype;
 use App\org;
 use App\org_place;
 use App\orgstaff;
-use App\ri_org_price;
+use App\ri_sup_price;
 use App\sysobj;
 use App\Traits\SearchDataTrait;
 use App\Traits\snsTrait;
@@ -16,7 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
-class RiOrgPriceController extends Controller
+class RiSupPriceController extends Controller
 {
     use SearchDataTrait;
     use snsTrait;
@@ -26,7 +26,7 @@ class RiOrgPriceController extends Controller
         $this->middleware('auth');
 
         $this->sysobjid = 146;
-        $this->sysobjcode = 'ri_org_prices';
+        $this->sysobjcode = 'ri_sup_prices';
         $this->acl_sysobjcode = sysobj::acl_sysobjcode($this->sysobjcode);
 
     }
@@ -93,10 +93,10 @@ class RiOrgPriceController extends Controller
         $search_params = $this->search_params($request, $param_names);
 
         //сформируем условие запроса в БД -----
-        $sc = ri_org_price::search_cond($search_params);
+        $sc = ri_sup_price::search_cond($search_params);
         //-------------------------------------------------------------------------------------------------------------
 
-        $recs = ri_org_price::from('ri_org_prices as rop')
+        $recs = ri_sup_price::from('ri_sup_prices as rop')
             ->join('refitems as ri', 'ri.id', 'rop.refitmid')
             ->join('itmtypes as it', 'it.id', 'ri.itmtypeid')
             ->join('orgs as o', 'o.id', 'rop.orgid')
@@ -148,10 +148,10 @@ class RiOrgPriceController extends Controller
         $data->search_params = $search_params;
 
         $data->used_orgs = org::lstFor([
-            'in_ri_org_prices' => 1,
+            'in_ri_sup_prices' => 1,
         ]);
         $data->itmtypes = itmtype::lstFor([
-            'in_ri_org_prices' => 1,
+            'in_ri_sup_prices' => 1,
         ]);
 
         $data->statuses = [1 => 'актив', 0 => 'архив'];
@@ -159,7 +159,7 @@ class RiOrgPriceController extends Controller
         $data->file_doctypes = doctype::lstUsedForSysObj($this->sysobjid);
 
 
-        return view('ri_org_prices.index', compact(['recs', 'data', 'usrrights']));
+        return view('ri_sup_prices.index', compact(['recs', 'data', 'usrrights']));
     }
 
     /**
@@ -189,7 +189,7 @@ class RiOrgPriceController extends Controller
             $orgid = ($orgid == 0) ? null : $orgid;
 
 
-            $rec = new ri_org_price([
+            $rec = new ri_sup_price([
                 'id' => -1,
                 'orgid' => $orgid,
                 'begdate' => today()->format('Y-m-d'),
@@ -198,7 +198,7 @@ class RiOrgPriceController extends Controller
                 'created_by' => $userid,
             ]);
         } else
-            $rec = ri_org_price::find($id);
+            $rec = ri_sup_price::find($id);
 
         if (!isset($rec))
             return redirect(route('orgs.index'))->with(['error' => 'Запись не найдена!']);
@@ -214,7 +214,7 @@ class RiOrgPriceController extends Controller
         $rec->userrights = [];
         $usrrights = $this->setInterfaceRight($id);
 
-        return view('ri_org_prices.edit', compact(['rec', 'usrrights']));
+        return view('ri_sup_prices.edit', compact(['rec', 'usrrights']));
     }
 
     /**
@@ -251,12 +251,12 @@ class RiOrgPriceController extends Controller
 
         $mess = "";
         if ($id == -1) {
-            $rec = new ri_org_price();
+            $rec = new ri_sup_price();
             $rec->created_by = $userid;
             $rec->created_at = now();
             $mess = "Создана запись о цене на товар";
         } else {
-            $rec = ri_org_price::find($id);
+            $rec = ri_sup_price::find($id);
             $mess = "Изменена запись о цене на товар";
         }
         $rec->orgid = $request->get('orgid');
@@ -281,7 +281,7 @@ class RiOrgPriceController extends Controller
         $enddate = $rec->enddate ?? today()->format('Y-m-d');
 
         //1-й вариант
-        ri_org_price::where(['refitmid' => $rec->refitmid, 'orgid' => $rec->orgid, 'active' => 1])
+        ri_sup_price::where(['refitmid' => $rec->refitmid, 'orgid' => $rec->orgid, 'active' => 1])
             ->where('id', '<>', $rec->id)
             ->whereRaw("begdate >= '{$begdate}' and enddate <= '{$enddate}'")
             ->update(['active' => 0]);
@@ -291,13 +291,13 @@ class RiOrgPriceController extends Controller
         //dd($begdate, $enddate, $set_begdate, $set_enddate);
 
         //2-й вариант
-        ri_org_price::where(['refitmid' => $rec->refitmid, 'orgid' => $rec->orgid, 'active' => 1])
+        ri_sup_price::where(['refitmid' => $rec->refitmid, 'orgid' => $rec->orgid, 'active' => 1])
             ->where('id', '<>', $rec->id)
             ->whereRaw("begdate < '{$begdate}' and ifnull(enddate,'{$begdate}') >= '{$begdate}'")
             ->update(['enddate' => $set_enddate]);
 
         //3-й вариант
-        ri_org_price::where(['refitmid' => $rec->refitmid, 'orgid' => $rec->orgid, 'active' => 1])
+        ri_sup_price::where(['refitmid' => $rec->refitmid, 'orgid' => $rec->orgid, 'active' => 1])
             ->where('id', '<>', $rec->id)
             ->whereRaw("begdate > '{$begdate}' and ifnull(enddate,'{$begdate}') >= '{$begdate}'")
             ->update(['begdate' => $set_begdate]);
@@ -330,7 +330,7 @@ class RiOrgPriceController extends Controller
 
         if (usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.delete')) {
 
-            $res = ri_org_price::delete_by_id($id);
+            $res = ri_sup_price::delete_by_id($id);
             $route = "";
             $sd = array();
             if ($res->err == 1) {
@@ -349,12 +349,12 @@ class RiOrgPriceController extends Controller
 
     static public function get_for(Request $request)
     {
-        //2021-11-08 SNS. Обертка для вызова ri_org_price::getFor
+        //2021-11-08 SNS. Обертка для вызова ri_sup_price::getFor
 
         $result = "";
         try {
 
-            $list = ri_org_price::getFor([
+            $list = ri_sup_price::getFor([
                 'active' => $request->active,
                 'active_or_current' => $request->active_or_current,
                 'orgid' => $request->orgid,
@@ -368,7 +368,7 @@ class RiOrgPriceController extends Controller
             $result = $list;
 
         } catch (\Exception $e) {
-            Log::error('ri_org_price::get_for:' . $e->getMessage());
+            Log::error('ri_sup_price::get_for:' . $e->getMessage());
         }
         return response()->json($result);
     }

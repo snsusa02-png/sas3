@@ -626,7 +626,7 @@ $(document).ready(function () {
                         name_inn: request.term,
                         //flagtypeid: 13, //13 - признак поставщика
                         active: 1,
-                        in_ri_org_prices: 1,    //есть записи о товарах/ценах
+                        in_ri_sup_prices: 1,    //есть записи о товарах/ценах
                     },
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')

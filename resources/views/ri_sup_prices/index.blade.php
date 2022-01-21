@@ -29,7 +29,7 @@
 
         @includeIf('layouts.edit_msgs')
 
-        <form name="forIndex" id="forIndex" method="post" action="{{ route('ri_org_prices.index') }}">
+        <form name="forIndex" id="forIndex" method="post" action="{{ route('ri_sup_prices.index') }}">
             @csrf
 
             <div class="row justify-content-center">
@@ -71,7 +71,7 @@
                             <th scope="col">Место поставки/Период действия</th>
                             <td>
                                 @if ($usrrights['create'])
-                                    <a href="{{ route('ri_org_prices.create',0)}}?returl={{$retURL}}"
+                                    <a href="{{ route('ri_sup_prices.create',0)}}?returl={{$retURL}}"
                                        class="btn btn-sm btn-warning"
                                        title="Добавить запись">
                                         <i class="fa fa-plus"></i>
@@ -129,7 +129,7 @@
                                             <h4>{{$item->org_name}}</h4>
                                         </td>
                                         <td>
-                                            <a href="{{ route('ri_org_prices.create',$item->orgid)}}?returl={{$retURL}}"
+                                            <a href="{{ route('ri_sup_prices.create',$item->orgid)}}?returl={{$retURL}}"
                                                class="btn btn-sm btn-warning"
                                                title="Добавить запись">
                                                 <i class="fa fa-plus"></i>
@@ -149,7 +149,7 @@
                                             <h5>{{$item->itmtype_name??'/- без категории -'}}</h5>
                                         </td>
                                         <td>
-                                            {{--                                            <a href="{{ route('ri_org_prices.create',$item->orgid)}}"--}}
+                                            {{--                                            <a href="{{ route('ri_sup_prices.create',$item->orgid)}}"--}}
                                             {{--                                               class="btn btn-sm btn-warning"--}}
                                             {{--                                               title="Добавить запись">--}}
                                             {{--                                                <i class="fa fa-plus"></i>--}}
@@ -171,7 +171,8 @@
                                     <td>
                                         <a name="{{$item->id}}"></a>
 
-                                        <a href="/refitems/{{$item->id}}" target="_self">{{$item->refitm_name}}</a>
+                                        <a href="{{route('refitems.edit',$item->id)}}"
+                                           target="_self">{{$item->refitm_name}}</a>
                                         <div class="small ml-3">{{$item->code}}</div>
                                         @if($bShowDescript)
                                             <div class="small">
@@ -191,7 +192,7 @@
                                         <div>{{$item->active_period}}</div>
                                     </td>
                                     <td style="text-align: center;">
-                                        <a href="{{ route('ri_org_prices.edit',$item->id)}}?returl={{$retURL}}"
+                                        <a href="{{ route('ri_sup_prices.edit',$item->id)}}?returl={{$retURL}}"
                                            class="btn btn-sm btn-primary"
                                            title="Просмотреть/Изменить запись">
                                             <i class="fa fa-pencil"></i>

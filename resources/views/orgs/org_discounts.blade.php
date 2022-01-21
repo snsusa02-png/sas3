@@ -69,7 +69,7 @@
 									>
 										<i class="fa fa-times" aria-hidden="true"></i>
 									</a>
-									@if(!\App\ri_org_price::isValidOrgPrices($org->id))
+									@if(1==0 and !\App\ri_org_price::isValidOrgPrices($org->id))
 										<a href="{{ route('orgdiscount.recalc',$org->id)}}"
 										   class="btn btn-warning btn-sm"
 										   style="float:right; margin-right:6px;"

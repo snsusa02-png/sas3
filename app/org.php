@@ -309,7 +309,7 @@ class org extends Model
                 $data = Cache::remember('org_ri_prices_.' . $orgid, now()->addMinutes(5)
                     , function () use ($orgid) {
 
-                        $recs = ri_org_price::from('ri_org_prices as rop')
+                        $recs = ri_sup_price::from('ri_sup_prices as rop')
                             ->join('refitems as ri', 'ri.id', 'rop.refitmid')
                             //->join('itmtypes as it', 'it.id', '=', 'ri.itmtypeid')
                             ->where('rop.orgid', $orgid)
@@ -333,7 +333,7 @@ class org extends Model
                             }
                             $tstr = $tstr . $rec->name;
                         }
-                        $cnt = ri_org_price::where('orgid', $orgid)
+                        $cnt = ri_sup_price::where('orgid', $orgid)
                             ->where('active', 1)->count();
 
                         return ['sample' => $tstr, 'reccount' => $cnt ?? 0];
@@ -1390,6 +1390,10 @@ class org extends Model
                         $sc .= " and exists (select 1 from obj_addresses as oa
                             where oa.sysobjid=111 and oa.objid=o.id and  oa.addresstypeid={$val})";
 
+                    } elseif ($key == 'in_ri_sup_prices') {
+                        //организация указана в ri_sup_prices.orgid
+                        $sc .= " and " . (($val == 0) ? "not" : "")
+                            . " exists (select 1 from ri_sup_prices as rsp where rsp.orgid=o.id)";
                     }
                 }
 

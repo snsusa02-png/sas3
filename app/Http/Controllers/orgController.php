@@ -29,7 +29,7 @@ use App\grptype;
 use App\group;
 use App\grpitem;
 use App\eritm_offer;
-use App\ri_org_price;
+use App\ri_sup_price;
 use App\paydoc;
 use Auth;
 use Cache;
@@ -887,7 +887,7 @@ class orgController extends Controller
     {
         $userid = \Auth::user()->id;
         $org = org::find($orgid);
-        $recs = ri_org_price::getFor(['orgid' => $org->id
+        $recs = ri_sup_price::getFor(['orgid' => $org->id
                 //, 'on_date' => today()->format('Y-m-d')
             ]
             , ['rop.id', 'ri.name', 'rop.price', 'ri.unit', 'rop.active', 'rop.begdate', 'rop.enddate',
@@ -907,10 +907,10 @@ class orgController extends Controller
         );
 
         //код системы по которой определяются права
-        $acl_sysobjcode = sysobj::acl_sysobjcode('ri_org_prices');
+        $acl_sysobjcode = sysobj::acl_sysobjcode('ri_sup_prices');
 
         $usrrights = [];
-        $usrrights['ri_org_prices.create'] = usrsysright::isUserHasRightByCode_cached($userid, $acl_sysobjcode . '.create');
+        $usrrights['ri_sup_prices.create'] = usrsysright::isUserHasRightByCode_cached($userid, $acl_sysobjcode . '.create');
 
         return view($this->sysobjcode . '.org_ri_prices', compact('org', 'recs', 'usrrights'));
     }
@@ -1268,7 +1268,7 @@ class orgController extends Controller
                 'name_inn' => $request->name_inn,
                 'flagtypeid' => $request->flagtypeid,
                 'active' => $request->active ?? 1,
-                'in_ri_org_prices' => $request->in_ri_org_prices,
+                'in_ri_sup_prices' => $request->in_ri_sup_prices,
             ],
                 ['o.id', 'o.name', 'o.inn', 'o.kpp']);
 

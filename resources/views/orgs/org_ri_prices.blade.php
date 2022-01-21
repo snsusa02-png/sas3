@@ -80,8 +80,8 @@
                                             <td class="text-right">Цена за ЕИ</td>
                                             <td class="text-center">Актуально в период</td>
                                             <td style="text-align: center;">
-                                                @if($usrrights['ri_org_prices.create'])
-                                                    <a href="{{ route('ri_org_prices.create',$org->id)}}?returl={{$retURL}}"
+                                                @if($usrrights['ri_sup_prices.create'])
+                                                    <a href="{{ route('ri_sup_prices.create',$org->id)}}?returl={{$retURL}}"
                                                        class="btn btn-warning btn-sm"
                                                        title="Добавить запись">
                                                         <i class="fa fa-plus"></i>
@@ -101,8 +101,8 @@
                                                 <tr>
                                                     <td colspan="5" class="font-weight-bold font-italic bg-warning">
                                                         {{$itm->place_name??'-не указано-'}}
-                                                        @if($usrrights['ri_org_prices.create'])
-                                                            <a href="{{ route('ri_org_prices.create',$org->id)}}?placeid={{$itm->placeid}}&returl={{$retURL}}"
+                                                        @if($usrrights['ri_sup_prices.create'])
+                                                            <a href="{{ route('ri_sup_prices.create',$org->id)}}?placeid={{$itm->placeid}}&returl={{$retURL}}"
                                                                class="btn btn-warning btn-sm float-right"
                                                                title="Добавить запись">
                                                                 <i class="fa fa-plus"></i>
@@ -139,7 +139,7 @@
                                                     <a name="{{$itm->id}}"></a>
                                                 </td>
                                                 <td>
-                                                    <a href="{{route('ri_org_prices.edit',$itm->id)}}?returl={{$retURL}}">
+                                                    <a href="{{route('ri_sup_prices.edit',$itm->id)}}?returl={{$retURL}}">
                                                         <b>{{$itm->name}}</b>
                                                     </a>
                                                 </td>
@@ -151,7 +151,7 @@
                                                     - {{($itm->enddate)?date_create($itm->enddate)->format('d.m.Y'):'...'}}
                                                 </td>
                                                 <td style="text-align: center;">
-                                                    <a href="{{ route('ri_org_prices.edit',$itm->id)}}?returl={{$retURL}}"
+                                                    <a href="{{ route('ri_sup_prices.edit',$itm->id)}}?returl={{$retURL}}"
                                                        class="btn btn-sm btn-primary"
                                                        title="Просмотреть/Изменить запись">
                                                         <i class="fa fa-pencil"></i>

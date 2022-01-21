@@ -40,7 +40,7 @@
                             <div class="subnav shift">
                                 <ul>
                                     <li><a href="{{route('itmtypes.index')}}" title="Категории номенклатуры">Категории</a></li>
-                                    <li><a href="{{route('ri_org_prices.index')}}" title="Сводный прайслист от поставщиков">Прайслист</a></li>
+                                    <li><a href="{{route('ri_sup_prices.index')}}" title="Сводный прайслист от поставщиков">Прайслист</a></li>
                                     <li><a href="{{route('orgs.index')}}" title="Контрагенты">Контрагенты</a></li>
                                 </ul>
                             </div>

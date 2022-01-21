@@ -8,13 +8,13 @@ use App\Traits\snsTrait;
 use App\Traits\StringUtil;
 use Illuminate\Database\Eloquent\Model;
 
-class ri_org_price extends Model
+class ri_sup_price extends Model
 {
     use DeleteTrait;
     use FilesTrait;
     use snsTrait;
 
-    static public $prefix = 'ri_org_prices';
+    static public $prefix = 'ri_sup_prices';
     static public $sysobjid = 146;
 
     //protected $fillable = ["name", "active", "created_by", "updated_by"];
@@ -181,7 +181,7 @@ class ri_org_price extends Model
             $sc = self::search_cond($params);
             //Log::info($sc);
 
-            $lst = self::from('ri_org_prices as rop')
+            $lst = self::from('ri_sup_prices as rop')
                 ->join('refitems as ri', 'ri.id', 'rop.refitmid')
                 ->whereRaw($sc)
                 ->select('id', 'ri.name')
@@ -214,7 +214,7 @@ class ri_org_price extends Model
 
     static public function getFor($s_params, $fields = null, $sorts = null)
     {
-        //2021-11-08 SNS. универсальный конструктор коллекции из записей ri_org_prices
+        //2021-11-08 SNS. универсальный конструктор коллекции из записей ri_sup_prices
         // params - массив, содержащий пару "имя параметра"=>"значение параметра"
         // fields - массив со списком возвращаемых полей таблицы
 
@@ -227,7 +227,7 @@ class ri_org_price extends Model
 
             $sorts = $sorts ?? [['ri.name', 'asc']];
 
-            $recs = self::from('ri_org_prices as rop')
+            $recs = self::from('ri_sup_prices as rop')
                 ->join('refitems as ri', 'ri.id', 'rop.refitmid')
                 ->join('itmtypes as it', 'it.id', 'ri.itmtypeid')
                 ->leftjoin('org_places as op', 'op.id', 'rop.placeid')
