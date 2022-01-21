@@ -1289,7 +1289,7 @@ class refitem extends Model
     {
         $result = '';
         if (isset($refitmid) and $refitmid <> -1) {
-            $rels = systblrel::where(['srctbl' => 'refitems'])->get();
+            $rels = systblrel::where(['srctbl' => 'refitems', 'active' => 1])->get();
             foreach ($rels as $rel) {
 
                 $sc = $rel->tgtfld . ' = ' . $refitmid;

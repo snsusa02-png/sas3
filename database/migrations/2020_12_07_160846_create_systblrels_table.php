@@ -23,6 +23,7 @@ class CreateSystblrelsTable extends Migration
             $table->string('tgtfld',16)->comment('ключ поле связи в дочерней таблице');
             $table->string('fltcond',60)->nullable()->comment('доп. условие связи');
 
+	    $table->boolean('active')->default(1);
 
             $table->timestamp('created_at')->nullable()->useCurrent=true;
             $table->bigInteger('created_by')->nullable()->unsigned()->default(1)
