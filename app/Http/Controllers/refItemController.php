@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\bot_ri_lim;
+//use App\bot_ri_lim;
 use App\cwp_work_equip;
 use App\equiprqst_item;
 use App\eritm_offer;
@@ -754,13 +754,13 @@ class refItemController extends Controller
                 //dd($rec->last_equiprqsts);
 
                 //Последние 10 РВ с этим материалом
-                $rec->last_bot_ri_lims = bot_ri_lim::from('bot_ri_lims as brl')
-                    ->join('buildopertypes as bot', 'bot.id', 'brl.buildopertypeid')
-                    ->where('brl.refitmid', $rec->id)
-                    ->select('brl.id', 'brl.buildopertypeid', 'bot.name as buildopertypename', 'brl.lim_qty', 'brl.smet_sum', 'brl.smet_price')
-                    ->orderby('brl.created_at', 'desc')
-                    ->limit(10)
-                    ->get();
+//                $rec->last_bot_ri_lims = bot_ri_lim::from('bot_ri_lims as brl')
+//                    ->join('buildopertypes as bot', 'bot.id', 'brl.buildopertypeid')
+//                    ->where('brl.refitmid', $rec->id)
+//                    ->select('brl.id', 'brl.buildopertypeid', 'bot.name as buildopertypename', 'brl.lim_qty', 'brl.smet_sum', 'brl.smet_price')
+//                    ->orderby('brl.created_at', 'desc')
+//                    ->limit(10)
+//                    ->get();
                 //dd($rec->last_bot_ri_lims);
             }
 
