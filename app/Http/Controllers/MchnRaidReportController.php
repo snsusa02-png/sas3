@@ -208,19 +208,38 @@ class MchnRaidReportController extends Controller
                 ->leftjoin('orgstaff as u_d', 'u_d.id', 'mr.disp_staffid')
                 ->whereRaw($sc);
 
-            $recs = $recs->select(
-                'mr.*', 'o.name'
-                , 'mr.unload_qty'
-                , db::raw("mr.unload_qty*mr.unload_price as unload_sum")
-                , 'oo.name as ownorgname'
-                , 'o.name as orgname'
-                , db::raw("concat(ifnull(u_d.fname,''),' ',u_d.lname) as dispuser_name")
-                , 'ri.name as refitm_name'
-                , db::raw("orgSaldo_onDate(mr.orgid, mr.unload_ownorgid, mr.wrkdate) as org_saldo")
-            )
-                ->orderby('mr.wrkdate', 'asc')
-                ->orderby('mr.org_name', 'asc')
-                ->get();
+            if (1 == 0) {
+                $recs = $recs->select(
+                    'mr.*', 'o.name'
+                    , 'mr.unload_qty'
+                    , db::raw("mr.unload_qty*mr.unload_price as unload_sum")
+                    , 'oo.name as ownorgname'
+                    , 'o.name as orgname'
+                    , db::raw("concat(ifnull(u_d.fname,''),' ',u_d.lname) as dispuser_name")
+                    , 'ri.name as refitm_name'
+                    , db::raw("orgSaldo_onDate(mr.orgid, mr.unload_ownorgid, mr.wrkdate) as org_saldo")
+                )
+                    ->orderby('mr.wrkdate', 'asc')
+                    ->orderby('mr.org_name', 'asc')
+                    ->get();
+            } else {
+                $recs = $recs->select(
+                    'mr.wrkdate'
+                    , 'mr.unload_ownorgid', 'oo.name as ownorgname'
+                    , 'mr.orgid', db::raw("max(org_name) as orgname")
+                    , 'unload_placeid', db::raw("MAX(mr.unload_placename) as unload_placename")
+                    , 'disp_staffid', db::raw("max(concat(ifnull(u_d.fname,''),' ',u_d.lname)) as dispuser_name")
+                    , 'mr.unload_refitmid', 'ri.name as refitm_name'
+                    , db::raw("sum(mr.raid_qty) as raid_qty")
+                    , db::raw("sum(mr.unload_qty) as unload_qty")
+                    , db::raw("sum(mr.unload_qty*mr.unload_price) as unload_sum")
+                    , db::raw("orgSaldo_onDate(mr.orgid, mr.unload_ownorgid, mr.wrkdate) as org_saldo")
+                )
+                    ->groupBy(['mr.wrkdate', 'mr.unload_ownorgid', 'mr.orgid', 'disp_staffid', 'unload_placeid', 'mr.unload_refitmid'])
+                    ->orderby('mr.wrkdate', 'asc')
+                    ->orderby('orgname', 'asc')
+                    ->get();
+            }
 
             //2-й набор - группировка по местам погрузки
             $recs2 = mchn_raid::
