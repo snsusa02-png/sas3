@@ -117,7 +117,7 @@
                                     </div>
                                     @if(isset($rec->dw_id))
                                         <div class="form-group col-md-2">
-                                            <label for="name" class="">Очет:</label>
+                                            <label for="name" class="">Отчет:</label>
                                             <div class="font-weight-bold"><a
                                                     href="{{route('driver_works.edit',$rec->dw_id)}}">>>></a></div>
                                         </div>

@@ -392,7 +392,7 @@ $action_url = route('reports.rep' . $thisObjId);
 
                             <tr class="text-left">
                                 <td class="text-left small">{{$rec->load_placename}}
-                                    <span class="small ml-2">{{$rec->load_place_address}}</span>
+                                    <span class="small ml-2">{{$rec->load_place_address??''}}</span>
                                     <div>{{$rec->suporg_name}}</div>
                                 </td>
                                 <td class="text-left small">{{$rec->refitm_name}}</td>

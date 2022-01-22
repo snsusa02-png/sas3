@@ -1241,7 +1241,12 @@ $(document).ready(function () {
                             if (index > 16) return null;
 
                             //var lbl = item.name + " (" + item.code + ")";
-                            var lbl = item.name + " (" + (item.address ?? '-') + ")";
+
+                            //var lbl = item.name + " (" + (item.address ?? '-') + ")";
+                            var lbl = item.name;
+                            if (item.address)
+                                lbl += " (" + item.address + ")";
+
                             return {
                                 label: lbl,
                                 value: item.name,
@@ -1380,7 +1385,10 @@ $(document).ready(function () {
 
                         if (index > 16) return null;
 
-                        var lbl = item.name + " (" + item.address + ")";
+                        var lbl = item.name;
+                        if (item.address)
+                            lbl += " (" + item.address + ")";
+
                         //var lbl = item.name;
                         return {
                             label: lbl,
@@ -1558,7 +1566,7 @@ $(document).ready(function () {
     }
 
     $("#orgid").change(function () {
-        uload_places_rfr();
+        unload_places_rfr();
     });
 
 
