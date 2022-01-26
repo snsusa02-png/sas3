@@ -83,7 +83,7 @@ class MchnRaidReportController extends Controller
     }
 
 
-    public function rep46(Request $request)
+    public function rep46_0(Request $request)
     {
         //
 
@@ -240,6 +240,204 @@ class MchnRaidReportController extends Controller
                     ->orderby('orgname', 'asc')
                     ->get();
             }
+
+            //2-й набор - группировка по местам погрузки
+            $recs2 = mchn_raid::
+            from('mchn_raids as mr')
+                ->leftjoin('orgs as o', 'o.id', 'mr.suporgid')
+                ->leftjoin('org_places as p', 'p.id', 'mr.load_placeid')
+                ->leftjoin('refitems as ri', 'ri.id', 'mr.load_refitmid')
+                ->whereRaw($sc);
+
+            $recs2 = $recs2->select(
+                'mr.suporgid', 'o.name as suporg_name'
+                , 'mr.load_placeid', 'p.name as load_placename', 'p.address as load_place_address'
+                , 'mr.load_price'
+                , 'mr.load_refitmid'
+                , db::raw("sum(mr.load_qty) as load_qty")
+                , db::raw("sum(mr.load_sum) as load_sum")
+                , 'ri.name as refitm_name'
+            )
+                ->groupBy('mr.suporgid')
+                ->groupBy('mr.load_placeid')
+                ->groupBy('mr.load_price')
+                ->groupBy('mr.load_refitmid')
+                ->orderby('p.name', 'asc')
+                ->orderby('ri.name', 'asc')
+                ->get();
+
+
+            //обновим счетчик использования отчета
+            report::updUseCnt($report_id, $userid, \Auth::user()->name);
+
+            //занесем в журнал
+            objlog::log_info(855, $report_id, 'запрошен отчет; ' . $sc);
+        } else {
+            $recs = null;
+        }
+
+        $data = new \stdClass();
+
+        $data->period_types = [1 => 'месяц', 2 => 'квартал', 3 => 'год', 9 => 'календарь'];
+
+        $data->monthes = Config::get('constants.monthes');
+        $data->quarters = [1 => 1, 2 => 2, 3 => 3, 4 => 4];
+
+        $data->years = Cache::remember('orgplnpays_years', now()->addMinutes(55)
+            , function () {
+                return mchn_raid::selectRaw("year(wrkdate) as year")->distinct()->orderby('year')
+                    ->get()->pluck('year', 'year')->toArray();
+            });
+
+
+        $data->ownorgs = org::lstFor_cached([
+            'in_mchn_raids_ownorgid' => 1,
+        ]);
+
+        return view('mchn_raids.rep' . $report_id, compact('recs', 'recs2', 'search_params', 'data'));
+    }
+
+    public function rep46(Request $request)
+    {
+        //
+
+        $report_id = 46;
+
+        $userid = \Auth::user()->id;
+
+        if (!usrsysright::isUserHasRightByCode_cached($userid, $this->objcode . '.read'))
+            return redirect(route('home'))
+                ->with(['error' => 'У вас нет полномочий для работы с платежами для этой организации!']);
+
+        // - параметры поиска: массив из имени и значения по-умолчанию -----------------------------------------------
+        $fdom = new DateTime('first day of this month');
+        $fdomc = $fdom->format('Y-m-d');
+        $year = $fdom->format('Y');
+        $ldom = new DateTime('last day of this month');
+        $ldomc = $ldom->format('Y-m-d');
+        $curdate = new DateTime();
+        $cd = $curdate->format('Y-m-d');
+
+        $month = date("n");
+        $yearQuarter = ceil($month / 3);
+
+        $param_names = [
+            's_pageitmcnt' => 20
+            , 's_ownorgid' => '' //Auth::user()->curorgid
+            , 's_period_type' => 9
+            , 's_begdate' => $cd //$fdomc
+            , 's_enddate' => $cd //$ldomc
+            , 's_month' => $month
+            , 's_quarter' => $yearQuarter
+            , 's_year' => $year
+        ];
+
+        $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);
+
+
+        //зачистим ненужные параметры поиска
+        switch ($search_params['s_period_type'] ?? 0) {
+            case 1: //месяц/год
+                $year = $search_params['s_year'];
+                $month = $search_params['s_month'];
+                $begdate = new DateTime($year . '-' . $month . '-1 00:00:00');
+
+                $search_params['s_begdate'] = $begdate->format('Y-m-d');
+                $search_params['s_enddate'] = $begdate->format('Y-m-t');
+                break;
+            case 2: //квартал/год
+
+                $year = $search_params['s_year'];
+                $quarter = $search_params['s_quarter'];
+                $begdate = new DateTime($year . '-' . (3 * $quarter - 2) . '-1 00:00:00');
+                $enddate = new DateTime($year . '-' . (3 * $quarter) . '-' . ($quarter == 1 || $quarter == 4 ? 31 : 30) . ' 23:59:59');
+                $search_params['s_begdate'] = $begdate->format('Y-m-d');
+                $search_params['s_enddate'] = $enddate->format('Y-m-d');
+                break;
+
+            case 3://год
+                $year = $search_params['s_year'];
+                $begdate = new DateTime($year . '-1-1 00:00:00');
+                $enddate = new DateTime($year . '-12-31 23:59:59');
+
+                $search_params['s_begdate'] = $begdate->format('Y-m-d');
+                $search_params['s_enddate'] = $enddate->format('Y-m-d');
+                break;
+            case 9://календарь
+                $search_params['s_quarter'] = '';
+                $search_params['s_month'] = '';
+                $search_params['s_year'] = '';
+                break;
+            default:
+                $search_params['s_quarter'] = '';
+                $search_params['s_month'] = '';
+                $search_params['s_year'] = '';
+        }
+
+        $need_search = false;
+        $sc = "1=1";
+
+        foreach ($search_params as $item => $val) {
+            if (isset($val) and strlen($val) > 0) {
+
+                //служебные поля не являются побудителями поиска
+                if (!in_array($item, ['s_pageitmcnt']))
+                    $need_search = true;
+
+
+                if ($item == 's_ownorgid') {
+                    $sc = $sc . " and mr.load_ownorgid = '{$val}'";
+
+                } elseif ($item == 's_begdate') {
+                    $sc = $sc . " and mr.wrkdate >= '{$val}'";
+
+                } elseif ($item == 's_enddate') {
+                    $sc = $sc . " and mr.wrkdate <= '{$val}'";
+
+                } elseif ($item == 's_month') {
+                    //$sc = $sc . " and month(mr.docdate) = '{$val}'";
+
+                } elseif ($item == 's_quarter') {
+                    //$sc = $sc . " and quarter(mr.docdate) = '{$val}'";
+
+                } elseif ($item == 's_year') {
+                    //$sc = $sc . " and year(mr.docdate) = '{$val}'";
+
+                }
+            }
+        }
+
+        $recs = null;
+        $recs2 = null;
+
+        if ($need_search) {
+
+            //1-й набор - продажи ГК за период
+            $recs = mr_oper::from('mr_opers as mro')
+                ->join('mchn_raids as mr', 'mr.id', 'mro.mr_id')
+                ->leftjoin('orgs as oo', 'oo.id', 'mro.suporgid')
+                ->leftjoin('orgs as o', 'o.id', 'mro.orgid')
+                ->leftjoin('refitems as ri', 'ri.id', 'mro.refitmid')
+                ->leftjoin('orgstaff as u_d', 'u_d.id', 'mr.disp_staffid')
+                ->whereRaw($sc);
+
+
+            $recs = $recs->select(
+                'mr.wrkdate'
+                , 'mro.suporgid', 'oo.name as ownorgname'
+                , 'mr.orgid', db::raw("max(o.org_name) as orgname")
+                , 'mro.org_placeid as unload_placeid', db::raw("MAX(mro.unload_placename) as unload_placename")
+                , 'disp_staffid', db::raw("max(concat(ifnull(u_d.fname,''),' ',u_d.lname)) as dispuser_name")
+                , 'mr.unload_refitmid', 'ri.name as refitm_name'
+                , db::raw("sum(mr.raid_qty) as raid_qty")
+                , db::raw("sum(mr.unload_qty) as unload_qty")
+                , db::raw("sum(mr.unload_qty*mr.unload_price) as unload_sum")
+                , db::raw("orgSaldo_onDate(mr.orgid, mr.unload_ownorgid, mr.wrkdate) as org_saldo")
+            )
+                ->groupBy(['mr.wrkdate', 'mr.unload_ownorgid', 'mr.orgid', 'disp_staffid', 'unload_placeid', 'mr.unload_refitmid'])
+                ->orderby('mr.wrkdate', 'asc')
+                ->orderby('orgname', 'asc')
+                ->get();
 
             //2-й набор - группировка по местам погрузки
             $recs2 = mchn_raid::

@@ -61,7 +61,7 @@ class CreateMchnRaidsTable extends Migration
 
 
 	    // Покупка у поставщика для перепродажи клиенту	
-            $table->biginteger('suporgid')->unsigned()->index()->comment('Поставщик');
+            $table->biginteger('suporgid')->unsigned()->index()->comment('Поставщик')->nullable();
 	            $table->foreign('suporgid')->references('id')->on('orgs');
 
             $table->biginteger('load_placeid')->unsigned()->nullable()->comment('ID места погрузки по org_places');

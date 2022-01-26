@@ -29,7 +29,7 @@ class DriverWorkController extends Controller
     {
         $this->middleware('auth');
 
-        $this->sysobjid = 1107;
+        $this->sysobjid = 1141;
         $this->sysobjcode = 'driver_works';
         $this->acl_sysobjcode = sysobj::acl_sysobjcode($this->sysobjcode);
 

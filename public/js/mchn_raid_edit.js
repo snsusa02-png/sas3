@@ -1,5 +1,22 @@
 $(document).ready(function () {
 
+    $("#opertypeid").focus(function () {
+        $(this).data('val', $(this).val());
+    });
+
+    $("#opertypeid").change(function () {
+
+        const opertypeid = $(this).val();
+        const pre_opertypeid = $(this).data("val");
+
+        $(".ots_" + opertypeid).show()
+        $(".oth_" + pre_opertypeid).show()
+        $(".oth_" + opertypeid).hide()
+
+        //alert(pre_opertypeid+' '+opertypeid);
+    });
+
+
     function recalc_hrs() {
         const begtime = $("#begtime").val();
         const endtime = $("#endtime").val();

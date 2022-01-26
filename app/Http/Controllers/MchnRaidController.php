@@ -9,6 +9,7 @@ use App\driver_work;
 use App\mchn_raid;
 use App\machine;
 use App\mchn_opertype;
+use App\mr_oper;
 use App\obj_finoper;
 use App\objlog;
 use App\objtag;
@@ -445,9 +446,35 @@ class MchnRaidController extends Controller
         //dd($rec->statuses);
 
         $rec->opertypes = opertype::lstFor(['in_machines' => 1]);
+
+        if ($rec->id <> -1) {
+            //для не новых записей
+
+            $rec->opers = mr_oper::from('mr_opers as mro', 'mro.mr_id', $rec->id)
+                ->join('refitems as ri', 'ri.id', 'mro.refitmid')
+                ->leftjoin('unittypes as ut', 'ut.id', 'ri.unittypeid')
+                ->join('orgs as so', 'so.id', 'mro.suporgid')
+                ->leftjoin('org_places as sp', 'sp.id', 'mro.sup_placeid')
+                ->join('orgs as o', 'o.id', 'mro.orgid')
+                ->leftjoin('org_places as p', 'p.id', 'mro.org_placeid')
+                ->where('mr_id', $rec->id)
+                ->select('mro.*'
+                    , 'ri.name as itm_name'
+                    , 'ut.name as unittype_name'
+                    , 'so.name as sup_name'
+                    , 'sp.name as sup_place_name'
+                    , 'o.name as org_name'
+                    , 'p.name as org_place_name'
+                )
+                ->get();
+            //dd($rec->opers);
+        }
+
         $rec->load_places = org_place::lstFor(['orgid' => $rec->suporgid]);
         $rec->unload_places = org_place::lstFor(['orgid' => $rec->orgid]);
         //dd($rec->load_places);
+
+        $rec->saledirs = mr_oper::saledirs();
 
         //$usrrights['edit'] = ($rec->created_by == $userid and $rec->statusid == 0);
         $usrrights['delete'] = ($usrrights['delete'] and ($rec->created_by == $userid or $usrrights['manager']) and $rec->statusid == 0);
@@ -463,6 +490,7 @@ class MchnRaidController extends Controller
             $usrrights['create'] = $usrrights['delete'] = false;
         }
         //-------------------------------------------------------------------------------
+
 
 //        //сконструируем права для внутренних списков
 //        $usrrights['mchn_raid_items.create'] = $usrrights['create'];
@@ -781,7 +809,8 @@ class MchnRaidController extends Controller
         objlog::log_info($this->sysobjid, $rec->id, $mess, 5);
 
         //сформируем/обновим фин. операции ------------------------------------------------------
-        mchn_raid::rfr_finopers($rec);
+        //mchn_raid::rfr_finopers($rec);
+        // - перенесено в mr_opers.update
         //---------------------------------------------------------------------------------------
 
         if ($id == -1 or $rec->statusid <> $statusid)

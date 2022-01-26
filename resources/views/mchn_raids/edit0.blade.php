@@ -139,6 +139,38 @@
                                     </div>
 
                                     <div class="form-group offset-md-0 col-md-2">
+                                        <label for="name" class="">Число рейсов:</label>
+                                        @if ($usrrights['edit'])
+                                            <div class="input-group mb-3 ">
+                                                <input type="number" name="raid_qty" required
+                                                       class="form-control text-right font-weight-bold"
+                                                       min="0" step="1" max="99"
+                                                       value="{{old('raid_qty',$rec->raid_qty)}}">
+                                            </div>
+                                        @else
+                                            <div class="font-weight-bold">{{$rec->raid_qty}}</div>
+                                        @endif
+                                    </div>
+
+                                    <div class="form-group offset-md-0 col-md-3">
+                                        <label for="name" class="">ЗП водителя за 1 рейс:</label>
+                                        @if ($usrrights['edit'])
+                                            <div class="input-group mb-3 ">
+                                                <input type="number" name="raid_salary" required
+                                                       class="form-control text-right font-weight-bold"
+                                                       min="0" step="0.01"
+                                                       value="{{old('raid_salary',$rec->raid_salary)}}">
+                                            </div>
+                                        @else
+                                            <div class="font-weight-bold">{{$rec->raid_salary}}</div>
+                                        @endif
+                                    </div>
+
+                                </div>
+
+                                <div class="row">
+
+                                    <div class="form-group offset-md-1 col-md-2">
                                         <label class="required">Начало</label>
                                         @if ($usrrights['edit'])
                                             <input type="time" name="begtime" id="begtime" required
@@ -160,8 +192,8 @@
                                             <div class="font-weight-bold text-center">{{$rec->endtime}}</div>
                                         @endif
                                     </div>
-                                    <div class="form-group col-md-2">
-                                        <label>Всего, ч </label>
+                                    <div class="form-group col-md-3">
+                                        <label>Продолжительность, ч </label>
                                         @if ($usrrights['edit'])
                                             <input type="text" name="mchnwrkhrs" id="mchnwrkhrs"
                                                    class="form-control text-center"
@@ -170,55 +202,6 @@
                                             <div class="font-weight-bold text-center">{{$rec->mchnwrkhrs}}</div>
                                         @endif
                                     </div>
-
-                                </div>
-
-                                <div class="row">
-
-                                    <div class="form-group offset-md-3 col-md-2">
-                                        <label for="name" class="">Число рейсов:</label>
-                                        @if ($usrrights['edit'])
-                                            <div class="input-group mb-3 ">
-                                                <input type="number" name="raid_qty" required
-                                                       class="form-control text-right font-weight-bold"
-                                                       min="0" step="1" max="99"
-                                                       value="{{old('raid_qty',$rec->raid_qty)}}">
-                                            </div>
-                                        @else
-                                            <div class="font-weight-bold">{{$rec->raid_qty}}</div>
-                                        @endif
-                                    </div>
-
-                                    <div class="form-group offset-md-0 col-md-2">
-                                        <label for="name" class="" title="ЗП водителя за 1 рейс">ЗП за рейс, &#8381;:</label>
-                                        @if ($usrrights['edit'])
-                                            <div class="input-group mb-3 ">
-                                                <input type="number" name="raid_salary" required
-                                                       title="ЗП водителя за 1 рейс"
-                                                       class="form-control text-right font-weight-bold"
-                                                       min="0" step="0.01"
-                                                       value="{{old('raid_salary',$rec->raid_salary)}}">
-                                            </div>
-                                        @else
-                                            <div class="font-weight-bold">{{$rec->raid_salary}}</div>
-                                        @endif
-                                    </div>
-
-                                    <div class="form-group col-md-2">
-                                        <label>Всего, &#8381; </label>
-                                        @if ($usrrights['edit'])
-                                            <input type="text" name="salary" id="salary"
-                                                   class="form-control text-center"
-                                                   readonly value="{{$rec->raid_salary*$rec->raid_qty}}">
-                                        @else
-                                            <div class="font-weight-bold text-center">{{$rec->raid_salary*$rec->raid_qty}}</div>
-                                        @endif
-                                    </div>
-
-                                </div>
-
-                                <div class="row">
-
                                 </div>
 
                                 @if(1==0)

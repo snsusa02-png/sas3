@@ -57,8 +57,8 @@ class objflag extends Model
                 $j->on('f.flagtypeid', 'ft.id')
                     ->where('objid', $orgid);
             })
-            ->where('ft.forsysobjid',111)
-            ->where('ft.active',1)
+            ->where('ft.forsysobjid', 111)
+            ->where('ft.active', 1)
             ->select('ft.id', 'ft.name', 'f.id as objflagid')
             ->orderby('ft.name')
             ->get();
@@ -67,14 +67,15 @@ class objflag extends Model
     public static function IsSetObjFlag($sysobjid, $objid, $flagtypeid)
     {
 
-        $fl = static::where('sysobjid', $sysobjid)
-            ->where('objid', $objid)
-            ->where('flagtypeid', $flagtypeid)
-            ->select("id")->get();
+//        $fl = static::where('sysobjid', $sysobjid)
+//            ->where('objid', $objid)
+//            ->where('flagtypeid', $flagtypeid)
+//            ->select("id")->get();
+//
+//        $res = ($fl->count() == 0) ? 0 : 1;
+//        return $res;
 
-        $res = ($fl->count() == 0) ? 0 : 1;
-
-        return $res;
+        return !(static::where(['sysobjid' => $sysobjid, 'objid' => $objid, 'flagtypeid' => $flagtypeid])->count() == 0);
 
     }
 

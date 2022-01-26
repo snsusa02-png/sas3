@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 class driver_work extends Model
 {
     static public $prefix = 'dirver_works';
-    static public $sysobjid = 1107;
+    static public $sysobjid = 1141;
 
     use DeleteTrait;
     use FilesTrait;

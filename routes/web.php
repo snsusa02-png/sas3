@@ -561,8 +561,7 @@ Route::get('orgs/org_groups/{orgid}', "orgController@org_groups_edit")->name('or
 Route::match(array('POST', 'PUT'), 'orgs/org_groups//{orgid}', "orgController@org_groups_update")
     ->name('org_groups.update');
 
-Route::get('/org_saldos/create/{orgi
-d}/{ownorgid}', "OrgSaldoController@create")->name('org_saldos.create');
+Route::get('/org_saldos/create/{orgid}/{ownorgid}', "OrgSaldoController@create")->name('org_saldos.create');
 Route::get('/org_saldos/edit/{id}', 'OrgSaldoController@edit')->name('org_saldos.edit');
 Route::match(array('POST', 'PUT'), '/org_saldos/update/{id}', "OrgSaldoController@update")->name('org_saldos.update');
 Route::put('/org_saldos/delete/{id}', "OrgSaldoController@destroy")->name("org_saldos.delete");
@@ -752,6 +751,13 @@ Route::get('mchn_raids/{id}', 'MchnRaidController@edit')->name('mchn_raids.edit'
 Route::match(array('POST', 'PUT'), 'mchn_raids/{id}', "MchnRaidController@update")->name('mchn_raids.update');
 Route::put('mchn_raids/{id}/delete', "MchnRaidController@destroy")->name("mchn_raids.delete");
 Route::get('mchn_raids/{id}/make_template', "MchnRaidController@make_template")->name('mchn_raids.make_template');
+
+//Операции по mchn_raids
+Route::get('mr_opers/create/{mr_id}/', "MrOperController@create")->name('mr_opers.create');
+Route::get('mr_opers/{id}/', 'MrOperController@edit')->name('mr_opers.edit');
+Route::match(array('POST', 'PUT'), 'mr_opers/{id}', "MrOperController@update")->name('mr_opers.update');
+Route::get('mr_opers/{id}/delete', "MrOperController@destroy")->name("mr_opers.delete");
+
 
 // dw_breaks - Простои в работе водителя -------------------------------------------------------------------------
 Route::get('dw_breaks/create/{dw_id}', "DwBreakController@create")->name('dw_breaks.create');

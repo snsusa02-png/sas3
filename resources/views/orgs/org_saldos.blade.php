@@ -22,7 +22,7 @@
                 @endif
 
                 @if($usrrights['org_saldos.create']??false)
-                    <a href="{{ route('org_saldos.create',$rec->id)}}?returl={{$retURL}}"
+                    <a href="{{ route('org_saldos.create',['orgid'=>$rec->id,'ownorgid'=>\Auth::user()->curorgid ?? 0])}}?returl={{$retURL}}"
                        class="btn btn-sm btn-warning"
                        title="Создать запись">
                         <i class="fa fa-plus"></i>

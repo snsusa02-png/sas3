@@ -126,7 +126,7 @@ class org extends Model
 
     public function getInfoAttribute()
     {
-        return "{$this->name} ({$this->inn})";;
+        return "{$this->name}" . (($this->inn) ? " ({$this->inn})" : "");
     }
 
 

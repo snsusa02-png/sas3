@@ -1183,34 +1183,48 @@ class refItemController extends Controller
     {
         //2021-11-07 SNS. Для автокомплита
 
-        $fields = ['ri.id', 'ri.name', 'ri.code', 'ri.unittypeid', 'ri.unit'];
+        $fields = ['ri.id', 'ri.name', 'ri.code', 'ri.unittypeid', 'ri.unit', 'ut.decimal_dgts'];
+
+        $price_on_date = $request->price_on_date;
+        $load_placeid = $request->load_placeid;
+
         $suporgid = $request->get('suporgid');
         if (isset($suporgid)) {
-            $fields[] = 'rop.price';
+            //Если поставщик - "Наша" организация, то не ограничивать товарами в месте продажи
+            $flag12 = objflag::IsSetObjFlag(111, $suporgid, 12);
+            //Log::info('flag12:' . $flag12);
+            if ($flag12 == 0)
+                $fields[] = 'rop.price';
+            else {
+                $price_on_date = null;
+                $load_placeid = '';
+            }
         }
-        Log::info('refitem::list_for_ac:fields=' . implode(';', $fields));
+        //Log::info('refitem::list_for_ac:fields=' . implode(';', $fields));
 
         $result = "";
-        try {
+//        try {
 
             $list = refitem::getFor([
                 'name' => $request->name,
                 'name_type' => $request->name_type,
                 'suporgid' => $request->suporgid,
-                'load_placeid' => $request->load_placeid,
+                //'load_placeid' => $request->load_placeid,
+                'load_placeid' => $load_placeid,
                 'active' => $request->active,
                 'itmtypeid' => $request->itmtypeid,
-                'price_on_date' => $request->price_on_date,
+                //'price_on_date' => $request->price_on_date,
+                'price_on_date' => $price_on_date,
             ],
-                //['ri.id', 'ri.name', 'ri.code', 'ri.unittypeid', 'ri.unit', 'rop.price']
+                //['ri.id', 'ri.name', 'ri.code', 'ri.unittypeid', 'ri.unit', 'ut.decimal_dgts', 'rop.price']
                 $fields
             );
 
             $result = $list;
 
-        } catch (\Exception $e) {
-            Log::error('refitem::list_for_ac:' . $e->getMessage());
-        }
+//        } catch (\Exception $e) {
+//            Log::error('refitem::list_for_ac:' . $e->getMessage());
+//        }
         return response()->json($result);
     }
 

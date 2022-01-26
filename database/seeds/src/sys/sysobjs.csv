@@ -229,7 +229,7 @@ id,parid,code,name,active,ordr,model_class,acl_sysobjid,acl_sysobjcode,created_a
 1104,1101,jts_violations,"Нарушения при выполнении рабрт",1,1104,jts_violation,NULL,NULL,"2022-01-18 09:44:04",1,"2022-01-18 09:44:04",1
 1105,1101,jts_mchn_visits,jts_mchn_visits,1,1105,jts_mchn_visit,NULL,NULL,"2022-01-18 09:44:04",1,"2022-01-18 09:44:04",1
 1106,NULL,mchn_raids,"Рейсы транспорта",1,1106,mchn_raid,NULL,NULL,"2022-01-18 09:44:04",1,"2022-01-18 09:44:04",1
-1107,NULL,driver_works,"Учет работы водителей",1,1107,driver_work,NULL,driver_works,"2022-01-18 09:44:04",1,"2022-01-18 09:44:04",1
+1107,NULL,mr_opers,"Операции в заездах",1,1107,mr_oper,NULL,mchn_raids,"2022-01-22 11:20:36",1,"2022-01-22 11:20:36",1
 1108,NULL,cursias,"Карты учета работы спецтехники и механизмов",1,1108,cursia,NULL,jobtimesheets,"2022-01-18 09:44:04",1,"2022-01-18 09:44:04",1
 1109,NULL,dw_breaks,"Список простоев в работе водителя",1,1109,dw_break,NULL,driver_works,"2022-01-18 09:44:04",1,"2022-01-18 09:44:04",1
 1111,466,viewpoints,"Точки обзора строительного объекта",1,1111,viewpoint,NULL,NULL,"2022-01-18 09:44:04",1,"2022-01-18 09:44:04",1
@@ -238,6 +238,7 @@ id,parid,code,name,active,ordr,model_class,acl_sysobjid,acl_sysobjcode,created_a
 1121,467,bot_keyworks,"Ключевые виды работ (для оценки общего исполнения)",1,468,bot_keywork,NULL,NULL,"2022-01-18 09:44:04",1,"2022-01-18 09:44:04",1
 1131,NULL,wrkreps,"Отчет о работе (с линии)",1,1131,wrkrep,NULL,NULL,"2022-01-18 09:44:04",1,"2022-01-18 09:44:04",1
 1132,1131,wrkrep_machines,"Отчет о работе спецтехники",1,1132,wrkrep_machine,NULL,wrkreps,"2022-01-18 09:44:04",1,"2022-01-18 09:44:04",1
+1141,NULL,driver_works,"Учет работы водителей",1,1107,driver_work,NULL,driver_works,"2022-01-18 09:44:04",1,"2022-01-18 09:44:04",1
 1151,NULL,roletypes,"Типы ролей (пользлователей)",1,1151,roletype,NULL,NULL,"2022-01-18 09:44:04",1,"2022-01-18 09:44:04",1
 1152,NULL,sysobj_roletypes,"Типы ролей, допустимые для сист. объекта",1,1152,sysobj_roletype,NULL,roletype,"2022-01-18 09:44:04",1,"2022-01-18 09:44:04",1
 1201,NULL,stfordtypes,"Типы приказов по персоналу",1,1201,stfordtype,NULL,NULL,"2022-01-18 09:44:04",1,"2022-01-18 09:44:04",1

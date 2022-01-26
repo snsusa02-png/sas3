@@ -5,12 +5,12 @@ namespace App;
 use App\Traits\DeleteTrait;
 use App\Traits\FilesTrait;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
-class mchn_raid extends Model
+class mr_oper extends Model
 {
-    static public $prefix = 'mchn_raids';
-    static public $sysobjid = 1106;
+    static public $prefix = 'mr_opers';
+    static public $sysobjid = 1107;
 
     use DeleteTrait;
     use FilesTrait;
@@ -27,15 +27,9 @@ class mchn_raid extends Model
         return $this->hasOne(User::class, 'id', 'updated_by');
     }
 
-    public function dispatcher()
+    public function mchn_raid()
     {
-        //return $this->hasOne(User::class, 'id', 'disp_userid')->withDefault();
-        return $this->hasOne(orgstaff::class, 'id', 'disp_staffid')->withDefault();
-    }
-
-    public function machine()
-    {
-        return $this->hasOne(machine::class, 'id', 'machineid')->withDefault();
+        return $this->hasOne(mchn_raid::class, 'id', 'mr_id');
     }
 
     public function suporg()
@@ -43,49 +37,9 @@ class mchn_raid extends Model
         return $this->hasOne(org::class, 'id', 'suporgid')->withDefault();
     }
 
-    public function driver_work()
+    public function sup_place()
     {
-        return $this->hasOne(driver_work::class, 'id', 'dw_id')->withDefault();
-    }
-
-    public function mr_opers()
-    {
-        return $this->hasMany(mr_oper::class, 'id', 'mr_id');
-    }
-
-    static public function paytypes()
-    {
-        return [1 => 'нал', 2 => 'б/н'];
-    }
-
-    public function mchn_opertype()
-    {
-        return $this->hasOne(mchn_opertype::class, 'id', 'mot_id')->withDefault();
-    }
-
-    public function orgstaff()
-    {
-        return $this->hasOne(orgstaff::class, 'id', 'staffid')->withDefault();
-    }
-
-    public function driver()
-    {
-        return $this->hasOne(orgstaff::class, 'id', 'driverid')->withDefault();
-    }
-
-    public function ownorg()
-    {
-        return $this->hasOne(org::class, 'id', 'ownorgid')->withDefault();
-    }
-
-    public function load_ownorg()
-    {
-        return $this->hasOne(org::class, 'id', 'load_ownorgid')->withDefault();
-    }
-
-    public function unload_ownorg()
-    {
-        return $this->hasOne(org::class, 'id', 'unload_ownorgid')->withDefault();
+        return $this->hasOne(org_place::class, 'id', 'sup_placeid')->withDefault();
     }
 
     public function org()
@@ -93,46 +47,21 @@ class mchn_raid extends Model
         return $this->hasOne(org::class, 'id', 'orgid')->withDefault();
     }
 
-    public function load_place()
+    public function org_place()
     {
-        return $this->hasOne(org_place::class, 'id', 'load_placeid')->withDefault();
+        return $this->hasOne(org_place::class, 'id', 'org_placeid')->withDefault();
     }
 
-    public function load_refitem()
+    public function refitem()
     {
-        return $this->hasOne(refitem::class, 'id', 'load_refitmid')->withDefault();
+        return $this->hasOne(refitem::class, 'id', 'refitmid')->withDefault();
     }
 
-    public function unload_refitem()
-    {
-        return $this->hasOne(refitem::class, 'id', 'unload_refitmid')->withDefault();
-    }
 
-    public function contract()
+    static public function saledirs()
     {
-        return $this->hasOne(contract::class, 'id', 'contractid')->withDefault();
+        return [-1 => 'Покупка', +1 => 'Продажа', 0 => 'Внутрен. операция'];
     }
-
-    public function getInfoAttribute()
-    {
-        if (isset($this->id)) {
-            //$rslt = $this->orgstaff->name . ' (' . $this->rolename . ') ' . $this->orgstaff->org->name;
-            $rslt = $this->wrkdate . ' ' . $this->drivername;
-            return $rslt;
-        } else
-            return null;
-    }
-
-    public static function years()
-    {
-        return Cache::remember('mchn_raids.years', now()->addMinutes(15)
-            , function () {
-                return self::selectraw('year(wrkdate) as yr')->distinct()
-                    ->orderby('yr', 'desc')->get()
-                    ->pluck('yr', 'yr')->toArray();
-            });
-    }
-
 
     static public function search_cond($params)
     {
@@ -230,6 +159,7 @@ class mchn_raid extends Model
             return null;
     }
 
+
     static public function rfr_finopers($rec)
     {
         if (!isset($rec))
@@ -237,57 +167,61 @@ class mchn_raid extends Model
 
         $userid = \Auth::user()->id;
 
-        //сформируем фин. операции --------------------------------------------------------------
+        //сформируем фин. операцию --------------------------------------------------------------
         obj_finoper::where(['sysobjid' => self::$sysobjid, 'objid' => $rec->id])->update(['updated_by' => 0]);
         //Покупка у поставщика:
+        $opername = self::saledirs()[$rec->sale_dir] ?? ' ? ';
         obj_finoper::addOrUpdate(
             ['sysobjid' => self::$sysobjid, 'objid' => $rec->id, 'mark' => 1],
             ['sysobjid' => self::$sysobjid, 'objid' => $rec->id, 'mark' => 1
-                , 'operdate' => $rec->wrkdate
-                , 'opersum' => $rec->load_sum
-                , 'qty' => $rec->load_qty
-                , 'price' => $rec->load_price
-                , 'descript' => 'поставка: ' . $rec->load_refitem->name . ', ' . $rec->load_refitem->unittype->name
+                , 'operdate' => $rec->mchn_raid->wrkdate
+                , 'opersum' => $rec->itm_sum
+                , 'qty' => $rec->itm_qty
+                , 'price' => $rec->itm_price
+                , 'descript' => $opername . ': ' . $rec->refitem->name . ', ' . $rec->refitem->unittype->name
                 , 'sumtypeid' => 2  //1-деньги, 2-товар
                 , 'srcorgid' => $rec->suporgid
-                , 'tgtorgid' => $rec->load_ownorgid
-                , 'updated_by' => $userid
-                , 'updated_at' => now()
-            ]);
-        //если есть промежуточная перепродажа между компаниями ГК
-        if ($rec->unload_ownorgid <> $rec->load_ownorgid) {
-            obj_finoper::addOrUpdate(
-                ['sysobjid' => self::$sysobjid, 'objid' => $rec->id, 'mark' => 2],
-                ['sysobjid' => self::$sysobjid, 'objid' => $rec->id, 'mark' => 2
-                    , 'operdate' => $rec->wrkdate
-                    , 'opersum' => $rec->ownorg_sum
-                    , 'qty' => 1
-                    , 'price' => $rec->ownorg_sum
-                    , 'descript' => 'поставка: ' . $rec->unload_refitem->name . ', партия'
-                    , 'sumtypeid' => 2  //1-деньги, 2-товар
-                    , 'srcorgid' => $rec->load_ownorgid
-                    , 'tgtorgid' => $rec->unload_ownorgid
-                    , 'updated_by' => $userid
-                    , 'updated_at' => now()
-                ]);
-        }
-        //Продажа покупателю
-        obj_finoper::addOrUpdate(
-            ['sysobjid' => self::$sysobjid, 'objid' => $rec->id, 'mark' => 3],
-            ['sysobjid' => self::$sysobjid, 'objid' => $rec->id, 'mark' => 3
-                , 'operdate' => $rec->wrkdate
-                , 'opersum' => $rec->unload_sum
-                , 'qty' => $rec->unload_qty
-                , 'price' => $rec->unload_price
-                , 'descript' => 'поставка: ' . $rec->unload_refitem->name . ', ' . $rec->unload_refitem->unittype->name
-                , 'sumtypeid' => 2  //1-деньги, 2-товар
-                , 'srcorgid' => $rec->unload_ownorgid
                 , 'tgtorgid' => $rec->orgid
                 , 'updated_by' => $userid
                 , 'updated_at' => now()
             ]);
-        //удалим лишние записи
-        obj_finoper::where(['sysobjid' => self::$sysobjid, 'objid' => $rec->id, 'updated_by' => 0])->delete();
-        //---------------------------------------------------------------------------------------
+
+        if (1 == 0) {
+            //если есть промежуточная перепродажа между компаниями ГК
+            if ($rec->unload_ownorgid <> $rec->load_ownorgid) {
+                obj_finoper::addOrUpdate(
+                    ['sysobjid' => self::$sysobjid, 'objid' => $rec->id, 'mark' => 2],
+                    ['sysobjid' => self::$sysobjid, 'objid' => $rec->id, 'mark' => 2
+                        , 'operdate' => $rec->wrkdate
+                        , 'opersum' => $rec->ownorg_sum
+                        , 'qty' => 1
+                        , 'price' => $rec->ownorg_sum
+                        , 'descript' => 'поставка: ' . $rec->unload_refitem->name . ', партия'
+                        , 'sumtypeid' => 2  //1-деньги, 2-товар
+                        , 'srcorgid' => $rec->load_ownorgid
+                        , 'tgtorgid' => $rec->unload_ownorgid
+                        , 'updated_by' => $userid
+                        , 'updated_at' => now()
+                    ]);
+            }
+            //Продажа покупателю
+            obj_finoper::addOrUpdate(
+                ['sysobjid' => self::$sysobjid, 'objid' => $rec->id, 'mark' => 3],
+                ['sysobjid' => self::$sysobjid, 'objid' => $rec->id, 'mark' => 3
+                    , 'operdate' => $rec->wrkdate
+                    , 'opersum' => $rec->unload_sum
+                    , 'qty' => $rec->unload_qty
+                    , 'price' => $rec->unload_price
+                    , 'descript' => 'поставка: ' . $rec->unload_refitem->name . ', ' . $rec->unload_refitem->unittype->name
+                    , 'sumtypeid' => 2  //1-деньги, 2-товар
+                    , 'srcorgid' => $rec->unload_ownorgid
+                    , 'tgtorgid' => $rec->orgid
+                    , 'updated_by' => $userid
+                    , 'updated_at' => now()
+                ]);
+            //удалим лишние записи
+            obj_finoper::where(['sysobjid' => self::$sysobjid, 'objid' => $rec->id, 'updated_by' => 0])->delete();
+            //---------------------------------------------------------------------------------------
+        }
     }
 }

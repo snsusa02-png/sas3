@@ -1365,16 +1365,21 @@ class refitem extends Model
 
                     } elseif ($key == 'suporgid') {
 
-                        //цена должна быть актуальна на дату
-                        if (isset($params['price_on_date']))
-                            $on_date = "'{$params['price_on_date']}'";
-                        else
-                            $on_date = 'curdate()';
+                        Log::info('params: ' . $params['load_placeid']);
+                        //если задано место загрузки, то
+                        if (isset($params['load_placeid']) and $params['load_placeid'] <> '') {
 
-                        $sc .= " and exists (select 1 from ri_sup_prices as rop2 where rop2.refitmid=ri.id
+                            //цена должна быть актуальна на дату
+                            if (isset($params['price_on_date']))
+                                $on_date = "'{$params['price_on_date']}'";
+                            else
+                                $on_date = 'curdate()';
+
+                            $sc .= " and exists (select 1 from ri_sup_prices as rop2 where rop2.refitmid=ri.id
                         and rop2.orgid={$val}
                         and rop2.active=1
                         and {$on_date} between rop2.begdate and ifnull(rop2.enddate,{$on_date}) )";
+                        }
 
                     }
                 }
@@ -1435,14 +1440,15 @@ class refitem extends Model
         if (isset($s_params) and is_countable($s_params) and count($s_params) > 0) {
 
             $sc = self::search_cond($s_params);
-            //Log::info($sc);
+            Log::info($sc);
             $fields = (isset($fields) and count($fields) > 0) ? $fields : 'ri.*';
             //Log::info(json_encode($fields));
 
             $sorts = $sorts ?? [['ri.name', 'asc']];
 
             $recs = self::from('refitems as ri')
-                ->leftJoin('itmtypes as it', 'it.id', 'ri.itmtypeid');
+                ->leftJoin('itmtypes as it', 'it.id', 'ri.itmtypeid')
+                ->leftJoin('unittypes as ut', 'ut.id', 'ri.unittypeid');
 
             //if (strpos($fields, 'rop.price') > 0) {
             if (is_array($fields)
@@ -1451,24 +1457,28 @@ class refitem extends Model
             ) {
                 $suporgid = $s_params['suporgid'];
                 $load_placeid = $s_params['load_placeid'];
+                Log::info('load_placeid' . $load_placeid);
 
-                //цена должна быть актуальна на дату
-                if (isset($s_params['price_on_date']))
-                    $on_date = "'{$s_params['price_on_date']}'";
-                else
-                    $on_date = 'curdate()';
+                if (1==1 or isset($load_placeid)) {
 
-                $sc2 = " orgid = {$suporgid}
+                    //цена должна быть актуальна на дату
+                    if (isset($s_params['price_on_date']))
+                        $on_date = "'{$s_params['price_on_date']}'";
+                    else
+                        $on_date = 'curdate()';
+
+                    $sc2 = " orgid = {$suporgid}
                         and active = 1
                         and {$on_date} BETWEEN begdate and ifnull(enddate, {$on_date})";
-                if (isset($load_placeid))
-                    $sc2 .= " and placeid={$load_placeid}";
-                //Log::info('****** ' . $sc2);
+                    if (isset($load_placeid))
+                        $sc2 .= " and placeid={$load_placeid}";
+                    Log::info('****** ' . $sc2);
 
-                $recs = $recs->join(DB::raw("(select refitmid, price  from ri_sup_prices  where {$sc2} ) as rop"),
-                    function ($join) {
-                        $join->on('rop.refitmid', '=', 'ri.id');
-                    });
+                    $recs = $recs->join(DB::raw("(select refitmid, price  from ri_sup_prices  where {$sc2} ) as rop"),
+                        function ($join) {
+                            $join->on('rop.refitmid', '=', 'ri.id');
+                        });
+                }
             }
 
             $recs = $recs->whereRaw($sc)
