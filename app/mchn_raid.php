@@ -230,7 +230,15 @@ class mchn_raid extends Model
             return null;
     }
 
-    static public function rfr_finopers($rec)
+    static public function rfr_finopers($id)
+    {
+
+        foreach (mr_oper::where('mr_id', $id)->get() as $oper) {
+            mr_oper::rfr_finopers($oper);
+        }
+    }
+
+    static public function rfr_finopers0($rec)
     {
         if (!isset($rec))
             return;

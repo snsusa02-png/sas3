@@ -745,6 +745,7 @@ Route::get('driver_works/{id}/delete', "DriverWorkController@destroy")->name("dr
 Route::get('driver_works/{id}/make_template', "DriverWorkController@make_template")->name('driver_works.make_template');
 
 // mchn_raids - Учет рейсов спецтехники --------------------------------------------------------------------------
+Route::get('mchn_raids/rfr_all_finopers', "MchnRaidController@rfr_all_finopers");
 Route::match(array('GET', 'POST'), '/mchn_raids/', "MchnRaidController@index")->name('mchn_raids.index');
 Route::get('mchn_raids/create/{dw_id}', "MchnRaidController@create")->name('mchn_raids.create');
 Route::get('mchn_raids/{id}', 'MchnRaidController@edit')->name('mchn_raids.edit');

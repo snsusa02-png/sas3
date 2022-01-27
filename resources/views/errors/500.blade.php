@@ -93,7 +93,6 @@
 <body class="container-fluid d-flex flex-column h-100 align-items-center px-0">
 <div class="row grow w-100">
     <div class="col-12 bg-primary p-0">
-        @include('www._header-top-bar')
     </div>
 
     <div class="main col-12 h-100 ">
@@ -110,7 +109,6 @@
     </div>
     <div class="row w-100">
         <div class="col-12 p-0 bg-danger">
-            @include('www._footer')
         </div>
     </div>
 </body>

@@ -468,6 +468,9 @@ class MchnRaidController extends Controller
                 )
                 ->get();
             //dd($rec->opers);
+
+            //пересчет фин транзакций
+            mchn_raid::rfr_finopers($rec->id);
         }
 
         $rec->load_places = org_place::lstFor(['orgid' => $rec->suporgid]);
@@ -929,6 +932,27 @@ class MchnRaidController extends Controller
             Log::error('mchn_raid::data_for_driver_works:' . $e->getMessage());
         }
         return response()->json($result);
+    }
+
+    static public function rfr_all_finopers()
+    {
+        //2022-01-27 SNS. Пересчет фин-результата для всех записей mchn_raids
+
+        if (\Auth::user()->id <> 12)
+            return false;
+
+        try {
+
+            foreach (mchn_raid::select('id')->get() as $rec) {
+                mchn_raid::rfr_finopers($rec->id);
+            }
+
+        } catch (\Exception $e) {
+            Log::error('mchn_raid::rfr_all_finopers:' . $e->getMessage());
+            return redirect(route('mchn_raids.index'))
+                ->with(['error' => 'Ошибка пересчета финансовых операций по заездам: ' . $e->getMessage()]);
+        }
+        return redirect(route('mchn_raids.index'))->with(['success' => 'Пересчитаны финансовые операции по заездам!']);
     }
 
 }
