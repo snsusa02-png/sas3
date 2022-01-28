@@ -54,8 +54,10 @@
 
                                     <td class="small">
                                         <a name="oper_{{$itm->id}}" id="oper_{{$itm->id}}"></a>
-                                        {{$rec->saledirs[$itm->sale_dir]??'?'}}
-                                        <div>{{$itm->name}}</div>
+                                        <a href="{{ route('mr_opers.edit',$itm->id)}}">
+                                            {{$rec->saledirs[$itm->sale_dir]??'?'}}
+                                            <div>{{$itm->name}}</div>
+                                        </a>
                                     </td>
                                     <td class="text-left">
                                         <?php

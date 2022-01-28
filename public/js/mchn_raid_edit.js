@@ -902,330 +902,332 @@ $(document).ready(function () {
         };
     }
 
-
-    $("#load_cargo_name").autocomplete({
-        source: function (request, response) {
-            $.ajax({
-                //url: "/refitems/autocomplete/search",
-                url: "/api/refitems/for_ac",
-                dataType: "json",
-                data: {
-                    name: request.term,
-                    suporgid: $("#suporgid").val(),
-                    load_placeid: $("#load_placeid").val(),
-                    price_on_date: $("#wrkdate").val(),
-                },
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function (data) {
-                    //
-                    // console.log(n);
-                    response($.map(data, function (item, index) {
-                        if (index == 16) {
-                            var n = data.length - 16;
-                            return {
-                                // label: "- Показаны не все варианты (есть еще " + n + " записей), уточните критерий поиска!"
-                                label: " ... Показаны не все варианты! Уточните критерий поиска!"
+    if ($("#load_cargo_name").length > 0) {
+        $("#load_cargo_name").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    //url: "/refitems/autocomplete/search",
+                    url: "/api/refitems/for_ac",
+                    dataType: "json",
+                    data: {
+                        name: request.term,
+                        suporgid: $("#suporgid").val(),
+                        load_placeid: $("#load_placeid").val(),
+                        price_on_date: $("#wrkdate").val(),
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function (data) {
+                        //
+                        // console.log(n);
+                        response($.map(data, function (item, index) {
+                            if (index == 16) {
+                                var n = data.length - 16;
+                                return {
+                                    // label: "- Показаны не все варианты (есть еще " + n + " записей), уточните критерий поиска!"
+                                    label: " ... Показаны не все варианты! Уточните критерий поиска!"
+                                }
                             }
-                        }
 
-                        if (index > 16) return null;
+                            if (index > 16) return null;
 
-                        //var lbl = item.code + " | " + item.name;
-                        var lbl = item.name;
-                        //lbl = lbl + " (категория: " + item.itname;
-                        //if (item.specinfo) lbl = lbl + "; " + item.specinfo;
-                        lbl = lbl + "(цена: " + item.price + " &#x20bd; / " + item.unit + ")";
-                        return {
-                            label: lbl,
-                            value: item.name,
-                            price: item.price,
-                            code1s: item.code,
-                            icon: item.photourl,
-                            specinfo: item.specinfo,
-                            unit: item.unit,
-                            unittypeid: item.unittypeid,
-                            id: item.id
-                        }
-                    }));
-                }
-            });
-        },
-        delay: 300,
-        minLength: 2,
-        autoFill: true,
-        cacheLength: 1,
-        autoFocus: true,
+                            //var lbl = item.code + " | " + item.name;
+                            var lbl = item.name;
+                            //lbl = lbl + " (категория: " + item.itname;
+                            //if (item.specinfo) lbl = lbl + "; " + item.specinfo;
+                            lbl = lbl + "(цена: " + item.price + " &#x20bd; / " + item.unit + ")";
+                            return {
+                                label: lbl,
+                                value: item.name,
+                                price: item.price,
+                                code1s: item.code,
+                                icon: item.photourl,
+                                specinfo: item.specinfo,
+                                unit: item.unit,
+                                unittypeid: item.unittypeid,
+                                id: item.id
+                            }
+                        }));
+                    }
+                });
+            },
+            delay: 300,
+            minLength: 2,
+            autoFill: true,
+            cacheLength: 1,
+            autoFocus: true,
 
-        select: function (event, ui) {
-            if (ui.item.id) {
-                ac_id = $(this).parent().find('.ac_id')
-                ac_id.val(ui.item.id);
+            select: function (event, ui) {
+                if (ui.item.id) {
+                    ac_id = $(this).parent().find('.ac_id')
+                    ac_id.val(ui.item.id);
 
-                $('#load_price').val(ui.item.price).prop('readonly', true);
+                    $('#load_price').val(ui.item.price).prop('readonly', true);
 
-                //установим допустимую ЕИ ---------------------------------------------
-                //$('#qty_unittypeid').val(ui.item.unittypeid).prop('readonly', true);
-                $("#qty_unittypeid > option").remove();
-                $("#qty_unittypeid").append($("<option>").attr("value", ui.item.unittypeid).append(ui.item.unit))
-                $("#load_qty_unit").html(ui.item.unit)
-                //$("#unload_qty_unit").html(ui.item.unit)
-                //---------------------------------------------------------------------
+                    //установим допустимую ЕИ ---------------------------------------------
+                    //$('#qty_unittypeid').val(ui.item.unittypeid).prop('readonly', true);
+                    $("#qty_unittypeid > option").remove();
+                    $("#qty_unittypeid").append($("<option>").attr("value", ui.item.unittypeid).append(ui.item.unit))
+                    $("#load_qty_unit").html(ui.item.unit)
+                    //$("#unload_qty_unit").html(ui.item.unit)
+                    //---------------------------------------------------------------------
 
-                //$('#code1s').val(ui.item.code1s);
-                //$('#code').val(ui.item.id);
-                //$('#unit').html(ui.item.unit);
-                //$('#unit_html').html(ui.item.unit);
-                //$('#specinfo').html(ui.item.specinfo);
+                    //$('#code1s').val(ui.item.code1s);
+                    //$('#code').val(ui.item.id);
+                    //$('#unit').html(ui.item.unit);
+                    //$('#unit_html').html(ui.item.unit);
+                    //$('#specinfo').html(ui.item.specinfo);
 
-                $(this).val(ui.item.value);
+                    $(this).val(ui.item.value);
 
+                    ac_status = $(this).parent().find('.ac_status');
+                    ac_status.hide().val("").removeClass("ac-fail");
+
+                    ac_id.change();  //для срабатывания слушателей за изменением этого поля
+                    $('#load_price').change();
+
+                } else
+                    event.preventDefault();
+            },
+            search: function () {
+                $(this).removeClass("ac-fail").removeClass("ac-warn").addClass("ac-act");
                 ac_status = $(this).parent().find('.ac_status');
-                ac_status.hide().val("").removeClass("ac-fail");
+                ac_status.val("поиск...")
+                    .removeClass("ac-fail").removeClass("ac-warn")
+                    .addClass("ac-act").show();
+            },
+            response: function (event, ui) {
+                $(this).removeClass("ac-act");
+                ac_status = $(this).parent().find('.ac_status');
+                if (ui.content.length == 0) {
+                    ac_status.val('Варианты не найдены.').removeClass("ac-act").addClass("ac-fail");
+                    $(this).addClass("ac-fail");
+
+                    $('#load_price').prop('readonly', false);
+
+                } else if (ui.content.length > 15) {
+                    ac_status.val('Показаны не все варианты! Уточните критерий')
+                        .removeClass("ac-act").addClass("ac-fail");
+                } else {
+                    //console.log(ui.content);
+                    ac_status.hide().val("");
+                }
+            }
+        })
+            .on('focus', function (event) {
+                $(this).select();
+            })
+            .on('blur', function (event) {
+                ac_id = $(this).parent().find('.ac_id');
+                ac_status = $(this).parent().find('.ac_status');
+                console.log($(this).val().length);
+
+                if ($(this).val().length == 0) {
+                    ac_id.val('');
+                    $(this).removeClass("ac-act").addClass("ac-fail");
+
+                    ac_status.val('Укажите товар!').show()
+                        .removeClass("ac-act").addClass("ac-fail");
+
+                    //specifics -----------------
+                    $('#load_price').prop('readonly', false);
+                    $('#unittypeid').prop('readonly', false);
+
+                } else
+                    ac_status.hide().val("");
 
                 ac_id.change();  //для срабатывания слушателей за изменением этого поля
-                $('#load_price').change();
-
-            } else
-                event.preventDefault();
-        },
-        search: function () {
-            $(this).removeClass("ac-fail").removeClass("ac-warn").addClass("ac-act");
-            ac_status = $(this).parent().find('.ac_status');
-            ac_status.val("поиск...")
-                .removeClass("ac-fail").removeClass("ac-warn")
-                .addClass("ac-act").show();
-        },
-        response: function (event, ui) {
-            $(this).removeClass("ac-act");
-            ac_status = $(this).parent().find('.ac_status');
-            if (ui.content.length == 0) {
-                ac_status.val('Варианты не найдены.').removeClass("ac-act").addClass("ac-fail");
-                $(this).addClass("ac-fail");
-
-                $('#load_price').prop('readonly', false);
-
-            } else if (ui.content.length > 15) {
-                ac_status.val('Показаны не все варианты! Уточните критерий')
-                    .removeClass("ac-act").addClass("ac-fail");
+            })
+            .data('ui-autocomplete')._renderItem = function (ul, item) {
+            //thanks to Salman Arshad for icon and match highlighting code
+            //http://salman-w.blogspot.ca/2013/12/jquery-ui-autocomplete-examples.html
+            //!подсвечивает только если поиск производится по одному слову.
+            var $div = $("<div></div>");
+            if (item.icon) {
+                $("<img class='m-icon'>").attr("src", "/images/" + item.icon).appendTo($div);
             } else {
-                //console.log(ui.content);
-                ac_status.hide().val("");
+                $("<span class='x-icon'></span>").appendTo($div);
             }
-        }
-    })
-        .on('focus', function (event) {
-            $(this).select();
-        })
-        .on('blur', function (event) {
-            ac_id = $(this).parent().find('.ac_id');
-            ac_status = $(this).parent().find('.ac_status');
-            console.log($(this).val().length);
+            var mName = $("<span class='m-name'></span>").html(item.label).appendTo($div),
+                searchText = $.trim(this.term).toLowerCase(),
+                currentNode = mName.get(0).firstChild,
+                matchIndex, newTextNode, newSpanNode;
 
-            if ($(this).val().length == 0) {
-                ac_id.val('');
-                $(this).removeClass("ac-act").addClass("ac-fail");
+            while ((matchIndex = currentNode.data.toLowerCase().indexOf(searchText)) >= 0) {
+                newTextNode = currentNode.splitText(matchIndex);
+                currentNode = newTextNode.splitText(searchText.length);
+                newSpanNode = document.createElement("span");
+                newSpanNode.className = "highlight";
+                currentNode.parentNode.insertBefore(newSpanNode, currentNode);
+                newSpanNode.appendChild(newTextNode);
+            }
+            return $("<li></li>").append($div).appendTo(ul);
+        };
+    }
 
-                ac_status.val('Укажите товар!').show()
-                    .removeClass("ac-act").addClass("ac-fail");
+    if ($("#unload_cargo_name").length > 0) {
 
-                //specifics -----------------
-                $('#load_price').prop('readonly', false);
-                $('#unittypeid').prop('readonly', false);
-
-            } else
-                ac_status.hide().val("");
-
-            ac_id.change();  //для срабатывания слушателей за изменением этого поля
-        })
-        .data('ui-autocomplete')._renderItem = function (ul, item) {
-        //thanks to Salman Arshad for icon and match highlighting code
-        //http://salman-w.blogspot.ca/2013/12/jquery-ui-autocomplete-examples.html
-        //!подсвечивает только если поиск производится по одному слову.
-        var $div = $("<div></div>");
-        if (item.icon) {
-            $("<img class='m-icon'>").attr("src", "/images/" + item.icon).appendTo($div);
-        } else {
-            $("<span class='x-icon'></span>").appendTo($div);
-        }
-        var mName = $("<span class='m-name'></span>").html(item.label).appendTo($div),
-            searchText = $.trim(this.term).toLowerCase(),
-            currentNode = mName.get(0).firstChild,
-            matchIndex, newTextNode, newSpanNode;
-
-        while ((matchIndex = currentNode.data.toLowerCase().indexOf(searchText)) >= 0) {
-            newTextNode = currentNode.splitText(matchIndex);
-            currentNode = newTextNode.splitText(searchText.length);
-            newSpanNode = document.createElement("span");
-            newSpanNode.className = "highlight";
-            currentNode.parentNode.insertBefore(newSpanNode, currentNode);
-            newSpanNode.appendChild(newTextNode);
-        }
-        return $("<li></li>").append($div).appendTo(ul);
-    };
-
-
-    $("#unload_cargo_name").autocomplete({
-        source: function (request, response) {
-            $.ajax({
-                //url: "/refitems/autocomplete/search",
-                url: "/api/refitems/for_ac",
-                dataType: "json",
-                data: {
-                    name: request.term,
-                    // suporgid: $("#suporgid").val(),
-                    // load_placeid: $("#load_placeid").val(),
-                    // price_on_date: $("#wrkdate").val(),
-                },
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function (data) {
-                    //
-                    // console.log(n);
-                    response($.map(data, function (item, index) {
-                        if (index == 16) {
-                            var n = data.length - 16;
-                            return {
-                                // label: "- Показаны не все варианты (есть еще " + n + " записей), уточните критерий поиска!"
-                                label: " ... Показаны не все варианты! Уточните критерий поиска!"
+        $("#unload_cargo_name").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    //url: "/refitems/autocomplete/search",
+                    url: "/api/refitems/for_ac",
+                    dataType: "json",
+                    data: {
+                        name: request.term,
+                        // suporgid: $("#suporgid").val(),
+                        // load_placeid: $("#load_placeid").val(),
+                        // price_on_date: $("#wrkdate").val(),
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function (data) {
+                        //
+                        // console.log(n);
+                        response($.map(data, function (item, index) {
+                            if (index == 16) {
+                                var n = data.length - 16;
+                                return {
+                                    // label: "- Показаны не все варианты (есть еще " + n + " записей), уточните критерий поиска!"
+                                    label: " ... Показаны не все варианты! Уточните критерий поиска!"
+                                }
                             }
-                        }
 
-                        if (index > 16) return null;
+                            if (index > 16) return null;
 
-                        //var lbl = item.code + " | " + item.name;
-                        var lbl = item.name;
-                        //lbl = lbl + " (категория: " + item.itname;
-                        //if (item.specinfo) lbl = lbl + "; " + item.specinfo;
-                        lbl = lbl + "(цена: " + item.price + " &#x20bd; / " + item.unit + ")";
-                        return {
-                            label: lbl,
-                            value: item.name,
-                            price: item.price,
-                            code1s: item.code,
-                            icon: item.photourl,
-                            specinfo: item.specinfo,
-                            unit: item.unit,
-                            unittypeid: item.unittypeid,
-                            id: item.id
-                        }
-                    }));
-                }
-            });
-        },
-        delay: 300,
-        minLength: 2,
-        autoFill: true,
-        cacheLength: 1,
-        autoFocus: true,
+                            //var lbl = item.code + " | " + item.name;
+                            var lbl = item.name;
+                            //lbl = lbl + " (категория: " + item.itname;
+                            //if (item.specinfo) lbl = lbl + "; " + item.specinfo;
+                            lbl = lbl + "(цена: " + item.price + " &#x20bd; / " + item.unit + ")";
+                            return {
+                                label: lbl,
+                                value: item.name,
+                                price: item.price,
+                                code1s: item.code,
+                                icon: item.photourl,
+                                specinfo: item.specinfo,
+                                unit: item.unit,
+                                unittypeid: item.unittypeid,
+                                id: item.id
+                            }
+                        }));
+                    }
+                });
+            },
+            delay: 300,
+            minLength: 2,
+            autoFill: true,
+            cacheLength: 1,
+            autoFocus: true,
 
-        select: function (event, ui) {
-            if (ui.item.id) {
-                ac_id = $(this).parent().find('.ac_id')
-                ac_id.val(ui.item.id);
+            select: function (event, ui) {
+                if (ui.item.id) {
+                    ac_id = $(this).parent().find('.ac_id')
+                    ac_id.val(ui.item.id);
 
-                $('#unload_price').val(ui.item.price)   //.prop('readonly', true);
+                    $('#unload_price').val(ui.item.price)   //.prop('readonly', true);
 
-                //установим допустимую ЕИ ---------------------------------------------
-                //$("#qty_unittypeid > option").remove();
-                //$("#qty_unittypeid").append($("<option>").attr("value", ui.item.unittypeid).append(ui.item.unit))
-                $("#unload_qty_unit").html(ui.item.unit)
-                //---------------------------------------------------------------------
+                    //установим допустимую ЕИ ---------------------------------------------
+                    //$("#qty_unittypeid > option").remove();
+                    //$("#qty_unittypeid").append($("<option>").attr("value", ui.item.unittypeid).append(ui.item.unit))
+                    $("#unload_qty_unit").html(ui.item.unit)
+                    //---------------------------------------------------------------------
 
-                //$('#code1s').val(ui.item.code1s);
-                //$('#code').val(ui.item.id);
-                //$('#unit').html(ui.item.unit);
-                //$('#unit_html').html(ui.item.unit);
-                //$('#specinfo').html(ui.item.specinfo);
+                    //$('#code1s').val(ui.item.code1s);
+                    //$('#code').val(ui.item.id);
+                    //$('#unit').html(ui.item.unit);
+                    //$('#unit_html').html(ui.item.unit);
+                    //$('#specinfo').html(ui.item.specinfo);
 
-                $(this).val(ui.item.value);
+                    $(this).val(ui.item.value);
 
+                    ac_status = $(this).parent().find('.ac_status');
+                    ac_status.hide().val("").removeClass("ac-fail");
+
+                    ac_id.change();  //для срабатывания слушателей за изменением этого поля
+                    $('#unload_price').change();
+
+                } else
+                    event.preventDefault();
+            },
+            search: function () {
+                $(this).removeClass("ac-fail").removeClass("ac-warn").addClass("ac-act");
                 ac_status = $(this).parent().find('.ac_status');
-                ac_status.hide().val("").removeClass("ac-fail");
+                ac_status.val("поиск...")
+                    .removeClass("ac-fail").removeClass("ac-warn")
+                    .addClass("ac-act").show();
+            },
+            response: function (event, ui) {
+                $(this).removeClass("ac-act");
+                ac_status = $(this).parent().find('.ac_status');
+                if (ui.content.length == 0) {
+                    ac_status.val('Варианты не найдены.').removeClass("ac-act").addClass("ac-fail");
+                    $(this).addClass("ac-fail");
+
+                    $('#load_price').prop('readonly', false);
+
+                } else if (ui.content.length > 15) {
+                    ac_status.val('Показаны не все варианты! Уточните критерий')
+                        .removeClass("ac-act").addClass("ac-fail");
+                } else {
+                    //console.log(ui.content);
+                    ac_status.hide().val("");
+                }
+            }
+        })
+            .on('focus', function (event) {
+                $(this).select();
+            })
+            .on('blur', function (event) {
+                ac_id = $(this).parent().find('.ac_id');
+                ac_status = $(this).parent().find('.ac_status');
+                console.log($(this).val().length);
+
+                if ($(this).val().length == 0) {
+                    ac_id.val('');
+                    $(this).removeClass("ac-act").addClass("ac-fail");
+
+                    ac_status.val('Укажите товар!').show()
+                        .removeClass("ac-act").addClass("ac-fail");
+
+                    //specifics -----------------
+                    $('#load_price').prop('readonly', false);
+                    $('#unittypeid').prop('readonly', false);
+
+                } else
+                    ac_status.hide().val("");
 
                 ac_id.change();  //для срабатывания слушателей за изменением этого поля
-                $('#unload_price').change();
-
-            } else
-                event.preventDefault();
-        },
-        search: function () {
-            $(this).removeClass("ac-fail").removeClass("ac-warn").addClass("ac-act");
-            ac_status = $(this).parent().find('.ac_status');
-            ac_status.val("поиск...")
-                .removeClass("ac-fail").removeClass("ac-warn")
-                .addClass("ac-act").show();
-        },
-        response: function (event, ui) {
-            $(this).removeClass("ac-act");
-            ac_status = $(this).parent().find('.ac_status');
-            if (ui.content.length == 0) {
-                ac_status.val('Варианты не найдены.').removeClass("ac-act").addClass("ac-fail");
-                $(this).addClass("ac-fail");
-
-                $('#load_price').prop('readonly', false);
-
-            } else if (ui.content.length > 15) {
-                ac_status.val('Показаны не все варианты! Уточните критерий')
-                    .removeClass("ac-act").addClass("ac-fail");
+            })
+            .data('ui-autocomplete')._renderItem = function (ul, item) {
+            //thanks to Salman Arshad for icon and match highlighting code
+            //http://salman-w.blogspot.ca/2013/12/jquery-ui-autocomplete-examples.html
+            //!подсвечивает только если поиск производится по одному слову.
+            var $div = $("<div></div>");
+            if (item.icon) {
+                $("<img class='m-icon'>").attr("src", "/images/" + item.icon).appendTo($div);
             } else {
-                //console.log(ui.content);
-                ac_status.hide().val("");
+                $("<span class='x-icon'></span>").appendTo($div);
             }
-        }
-    })
-        .on('focus', function (event) {
-            $(this).select();
-        })
-        .on('blur', function (event) {
-            ac_id = $(this).parent().find('.ac_id');
-            ac_status = $(this).parent().find('.ac_status');
-            console.log($(this).val().length);
+            var mName = $("<span class='m-name'></span>").html(item.label).appendTo($div),
+                searchText = $.trim(this.term).toLowerCase(),
+                currentNode = mName.get(0).firstChild,
+                matchIndex, newTextNode, newSpanNode;
 
-            if ($(this).val().length == 0) {
-                ac_id.val('');
-                $(this).removeClass("ac-act").addClass("ac-fail");
-
-                ac_status.val('Укажите товар!').show()
-                    .removeClass("ac-act").addClass("ac-fail");
-
-                //specifics -----------------
-                $('#load_price').prop('readonly', false);
-                $('#unittypeid').prop('readonly', false);
-
-            } else
-                ac_status.hide().val("");
-
-            ac_id.change();  //для срабатывания слушателей за изменением этого поля
-        })
-        .data('ui-autocomplete')._renderItem = function (ul, item) {
-        //thanks to Salman Arshad for icon and match highlighting code
-        //http://salman-w.blogspot.ca/2013/12/jquery-ui-autocomplete-examples.html
-        //!подсвечивает только если поиск производится по одному слову.
-        var $div = $("<div></div>");
-        if (item.icon) {
-            $("<img class='m-icon'>").attr("src", "/images/" + item.icon).appendTo($div);
-        } else {
-            $("<span class='x-icon'></span>").appendTo($div);
-        }
-        var mName = $("<span class='m-name'></span>").html(item.label).appendTo($div),
-            searchText = $.trim(this.term).toLowerCase(),
-            currentNode = mName.get(0).firstChild,
-            matchIndex, newTextNode, newSpanNode;
-
-        while ((matchIndex = currentNode.data.toLowerCase().indexOf(searchText)) >= 0) {
-            newTextNode = currentNode.splitText(matchIndex);
-            currentNode = newTextNode.splitText(searchText.length);
-            newSpanNode = document.createElement("span");
-            newSpanNode.className = "highlight";
-            currentNode.parentNode.insertBefore(newSpanNode, currentNode);
-            newSpanNode.appendChild(newTextNode);
-        }
-        return $("<li></li>").append($div).appendTo(ul);
-    };
-
+            while ((matchIndex = currentNode.data.toLowerCase().indexOf(searchText)) >= 0) {
+                newTextNode = currentNode.splitText(matchIndex);
+                currentNode = newTextNode.splitText(searchText.length);
+                newSpanNode = document.createElement("span");
+                newSpanNode.className = "highlight";
+                currentNode.parentNode.insertBefore(newSpanNode, currentNode);
+                newSpanNode.appendChild(newTextNode);
+            }
+            return $("<li></li>").append($div).appendTo(ul);
+        };
+    }
 
     if ($(".load_placename").length > 0) {
         $(".load_placename").autocomplete({
@@ -1373,142 +1375,144 @@ $(document).ready(function () {
         };
     }
 
-    $(".unload_placename").autocomplete({
-        source: function (request, response) {
+    if ($("#unload_placename").length > 0) {
+        $(".unload_placename").autocomplete({
+            source: function (request, response) {
 
-            $.ajax({
-                //url: "/api/places/for_ac",
-                url: "/api/org_places/for_ac",
-                dataType: "json",
-                data: {
-                    s_name: request.term,
-                    orgid: $("#orgid").val(),
-                    s_for_unload: 1,
-                    s_active: 1,
-                },
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function (data) {
-                    //console.log(data);
-                    response($.map(data, function (item, index) {
-                        if (index == 16) {
-                            var n = data.length - 16;
-                            return {
-                                // label: "- Показаны не все варианты (есть еще " + n + " записей), уточните критерий поиска!"
-                                label: " ... Показаны не все варианты! Уточните критерий поиска!"
+                $.ajax({
+                    //url: "/api/places/for_ac",
+                    url: "/api/org_places/for_ac",
+                    dataType: "json",
+                    data: {
+                        s_name: request.term,
+                        orgid: $("#orgid").val(),
+                        s_for_unload: 1,
+                        s_active: 1,
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function (data) {
+                        //console.log(data);
+                        response($.map(data, function (item, index) {
+                            if (index == 16) {
+                                var n = data.length - 16;
+                                return {
+                                    // label: "- Показаны не все варианты (есть еще " + n + " записей), уточните критерий поиска!"
+                                    label: " ... Показаны не все варианты! Уточните критерий поиска!"
+                                }
                             }
-                        }
 
-                        if (index > 16) return null;
+                            if (index > 16) return null;
 
-                        var lbl = item.name;
-                        if (item.address)
-                            lbl += " (" + item.address + ")";
+                            var lbl = item.name;
+                            if (item.address)
+                                lbl += " (" + item.address + ")";
 
-                        //var lbl = item.name;
-                        return {
-                            label: lbl,
-                            value: item.name,
-                            id: item.id,
-                        }
-                    }));
+                            //var lbl = item.name;
+                            return {
+                                label: lbl,
+                                value: item.name,
+                                id: item.id,
+                            }
+                        }));
+                    }
+                });
+            },
+            delay: 250,
+            minLength: 1,
+            autoFill: true,
+            cacheLength: 10,
+            // autoFocus: true,
+
+            select: function (event, ui) {
+                if (ui.item.id) {
+                    $(this).val(ui.item.label);
+                    const ac_id = $(this).parent().find('.ac_id');
+                    ac_id.val(ui.item.id);
+
+                    var ac_status = $(this).parent().find('.ac_status');
+                    ac_status.hide().removeClass("ac-fail");
+                    $(this).addClass("ac-act");
+
+                    ac_id.change();  //для срабатывания слушателей за изменением этого поля
                 }
-            });
-        },
-        delay: 250,
-        minLength: 1,
-        autoFill: true,
-        cacheLength: 10,
-        // autoFocus: true,
-
-        select: function (event, ui) {
-            if (ui.item.id) {
-                $(this).val(ui.item.label);
-                const ac_id = $(this).parent().find('.ac_id');
-                ac_id.val(ui.item.id);
-
-                var ac_status = $(this).parent().find('.ac_status');
-                ac_status.hide().removeClass("ac-fail");
-                $(this).addClass("ac-act");
-
-                ac_id.change();  //для срабатывания слушателей за изменением этого поля
-            }
-            event.preventDefault();
-        },
-        search: function () {
-            $(this).parent().find('.ac_id').val('');
-
-            $(this).removeClass("ac-fail").removeClass("ac-warn").addClass("ac-act");
-
-            var ac_status = $(this).parent().find('.ac_status');
-            ac_status.val("поиск...")
-                .removeClass("ac-fail")
-                .removeClass("ac-warn")
-                .addClass("ac-act")
-                .show();
-        },
-        response: function (event, ui) {
-            var ac_status = $(this).parent().find('.ac_status');
-            $(this).removeClass("ac-act");
-            if (ui.content.length == 0) {
-                ac_status.val("Варианты не найдены.")
-                    .removeClass("ac-act")
-                    .addClass("ac-fail");
-                $(this).addClass("ac-fail");
-            } else if (ui.content.length > 15) {
-                ac_status.val('Показаны не все варианты! Уточните критерий')
-                    .removeClass("ac-act")
-                    .addClass("ac-warn");
-            } else {
-                //console.log(ui.content);
-                ac_status.hide().val("");
-            }
-        }
-    })
-        .on('focus', function (event) {
-            $(this).select();
-        })
-        .on('blur', function (event) {
-            ac_id = $(this).parent().find('.ac_id');
-            if ($(this).val().length == 0) {
+                event.preventDefault();
+            },
+            search: function () {
                 $(this).parent().find('.ac_id').val('');
 
+                $(this).removeClass("ac-fail").removeClass("ac-warn").addClass("ac-act");
+
                 var ac_status = $(this).parent().find('.ac_status');
-                ac_status.val('Укажите рег. номер техники!')
-                    .show()
-                    .removeClass("ac-act")
-                    .addClass("ac-fail");
-            } else
-                $(this).parent().find('.ac_status').hide().val("");
-
-            ac_id.change();  //для срабатывания слушателей за изменением этого поля
+                ac_status.val("поиск...")
+                    .removeClass("ac-fail")
+                    .removeClass("ac-warn")
+                    .addClass("ac-act")
+                    .show();
+            },
+            response: function (event, ui) {
+                var ac_status = $(this).parent().find('.ac_status');
+                $(this).removeClass("ac-act");
+                if (ui.content.length == 0) {
+                    ac_status.val("Варианты не найдены.")
+                        .removeClass("ac-act")
+                        .addClass("ac-fail");
+                    $(this).addClass("ac-fail");
+                } else if (ui.content.length > 15) {
+                    ac_status.val('Показаны не все варианты! Уточните критерий')
+                        .removeClass("ac-act")
+                        .addClass("ac-warn");
+                } else {
+                    //console.log(ui.content);
+                    ac_status.hide().val("");
+                }
+            }
         })
-        .data('ui-autocomplete')._renderItem = function (ul, item) {
-        //thanks to Salman Arshad for icon and match highlighting code
-        //http://salman-w.blogspot.ca/2013/12/jquery-ui-autocomplete-examples.html
-        //!подсвечивает только если поиск производится по одному слову.
-        var $div = $("<div></div>");
-        if (item.icon) {
-            $("<img class='m-icon'>").attr("src", "/images/" + item.icon).appendTo($div);
-        } else {
-            $("<span class='x-icon'></span>").appendTo($div);
-        }
-        var mName = $("<span class='m-name'></span>").html(item.label).appendTo($div),
-            searchText = $.trim(this.term).toLowerCase(),
-            currentNode = mName.get(0).firstChild,
-            matchIndex, newTextNode, newSpanNode;
+            .on('focus', function (event) {
+                $(this).select();
+            })
+            .on('blur', function (event) {
+                ac_id = $(this).parent().find('.ac_id');
+                if ($(this).val().length == 0) {
+                    $(this).parent().find('.ac_id').val('');
 
-        while ((matchIndex = currentNode.data.toLowerCase().indexOf(searchText)) >= 0) {
-            newTextNode = currentNode.splitText(matchIndex);
-            currentNode = newTextNode.splitText(searchText.length);
-            newSpanNode = document.createElement("span");
-            newSpanNode.className = "highlight";
-            currentNode.parentNode.insertBefore(newSpanNode, currentNode);
-            newSpanNode.appendChild(newTextNode);
-        }
-        return $("<li></li>").append($div).appendTo(ul);
-    };
+                    var ac_status = $(this).parent().find('.ac_status');
+                    ac_status.val('Укажите рег. номер техники!')
+                        .show()
+                        .removeClass("ac-act")
+                        .addClass("ac-fail");
+                } else
+                    $(this).parent().find('.ac_status').hide().val("");
+
+                ac_id.change();  //для срабатывания слушателей за изменением этого поля
+            })
+            .data('ui-autocomplete')._renderItem = function (ul, item) {
+            //thanks to Salman Arshad for icon and match highlighting code
+            //http://salman-w.blogspot.ca/2013/12/jquery-ui-autocomplete-examples.html
+            //!подсвечивает только если поиск производится по одному слову.
+            var $div = $("<div></div>");
+            if (item.icon) {
+                $("<img class='m-icon'>").attr("src", "/images/" + item.icon).appendTo($div);
+            } else {
+                $("<span class='x-icon'></span>").appendTo($div);
+            }
+            var mName = $("<span class='m-name'></span>").html(item.label).appendTo($div),
+                searchText = $.trim(this.term).toLowerCase(),
+                currentNode = mName.get(0).firstChild,
+                matchIndex, newTextNode, newSpanNode;
+
+            while ((matchIndex = currentNode.data.toLowerCase().indexOf(searchText)) >= 0) {
+                newTextNode = currentNode.splitText(matchIndex);
+                currentNode = newTextNode.splitText(searchText.length);
+                newSpanNode = document.createElement("span");
+                newSpanNode.className = "highlight";
+                currentNode.parentNode.insertBefore(newSpanNode, currentNode);
+                newSpanNode.appendChild(newTextNode);
+            }
+            return $("<li></li>").append($div).appendTo(ul);
+        };
+    }
 
 
     function load_places_rfr() {

@@ -231,16 +231,14 @@ class MrOperController extends Controller
         $rec->org_placeid = $request->get('org_placeid');
         $rec->org_gk = objflag::IsSetObjFlag(111, $rec->orgid, 12);
 
-        if ($rec->sup_gk and $rec->org_gk) {
-            $rec->sale_dir = 0;
-            //$rec->name = 'передача';
-        } elseif ($rec->sup_gk) {
-            $rec->sale_dir = +1;
-            //$rec->name = 'продажа клиенту';
-        } else {
-            $rec->sale_dir = -1;
-            //$rec->name = 'покупка';
-        }
+        $rec->sale_dir = $request->get('sale_dir');
+//        if ($rec->sup_gk and $rec->org_gk) {
+//            $rec->sale_dir = 0;
+//        } elseif ($rec->sup_gk) {
+//            $rec->sale_dir = +1;
+//        } else {
+//            $rec->sale_dir = -1;
+//        }
         //dd($rec->sup_gk, $rec->org_gk, $rec->sale_dir);
 
         //$rec->notes = mb_substr($request->get('notes'), 0, 300);
@@ -251,6 +249,9 @@ class MrOperController extends Controller
         $rec->itm_sum = $rec->itm_qty * $rec->itm_price;
 
         $rec->paytypeid = $request->get('paytypeid');
+
+        $rec->raid_qty = $request->get('raid_qty');
+        $rec->raid_salary = $request->get('raid_salary');
 
         //$rec->active = 1; //$request->get('active', 0);
         $rec->updated_by = $userid;
@@ -263,6 +264,15 @@ class MrOperController extends Controller
 
         //сформируем/обновим фин. операции ------------------------------------------------------
         mr_oper::rfr_finopers($rec);
+
+        //пересчитаем общее кол-во рейсов в mchn_raids ------------------------------------------
+        $stat = mr_oper::where('mr_id', $rec->mr_id)
+            ->selectRaw("sum(raid_qty) as raid_qty, sum(raid_qty*raid_salary) as driver_sum")->first();
+
+        $rec->mchn_raid->raid_qty = $stat->raid_qty;
+        $rec->mchn_raid->driver_sum = $stat->driver_sum;
+        $rec->mchn_raid->raid_salary = ($rec->mchn_raid->raid_qty > 0) ? $stat->driver_sum / $rec->mchn_raid->raid_qty : 0;
+        $rec->mchn_raid->save();
         //---------------------------------------------------------------------------------------
 
 

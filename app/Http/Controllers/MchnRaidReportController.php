@@ -4,25 +4,13 @@ namespace App\Http\Controllers;
 
 use App\buildobj;
 use App\driver_work;
-use App\equiprqst_item;
-use App\eritm_offer;
-use App\eritm_supply;
+use App\mr_oper;
 use App\Exports\InvoicesExport;
 use App\Exports\PayPlanExport;
 use App\mchn_raid;
-use App\orgplnpay;
-use App\orgplnpay_item;
-use App\pay_category;
-use App\prodplan_fact;
 use App\report;
 use App\org;
-use App\group;
 use App\machine;
-use App\mchnrqsttype;
-use App\mchnrqst;
-use App\mchntype;
-use App\contract;
-use App\objflag;
 use App\objlog;
 use App\Traits\SearchDataTrait;
 use App\usrsysright;
@@ -415,29 +403,32 @@ class MchnRaidReportController extends Controller
             //1-й набор - продажи ГК за период
             $recs = mr_oper::from('mr_opers as mro')
                 ->join('mchn_raids as mr', 'mr.id', 'mro.mr_id')
+                ->join('refitems as ri', 'ri.id', 'mro.refitmid')
                 ->leftjoin('orgs as oo', 'oo.id', 'mro.suporgid')
                 ->leftjoin('orgs as o', 'o.id', 'mro.orgid')
-                ->leftjoin('refitems as ri', 'ri.id', 'mro.refitmid')
                 ->leftjoin('orgstaff as u_d', 'u_d.id', 'mr.disp_staffid')
-                ->whereRaw($sc);
+                ->whereRaw($sc)
+                ->where('mro.sale_dir', +1);
 
 
             $recs = $recs->select(
                 'mr.wrkdate'
                 , 'mro.suporgid', 'oo.name as ownorgname'
-                , 'mr.orgid', db::raw("max(o.org_name) as orgname")
-                , 'mro.org_placeid as unload_placeid', db::raw("MAX(mro.unload_placename) as unload_placename")
-                , 'disp_staffid', db::raw("max(concat(ifnull(u_d.fname,''),' ',u_d.lname)) as dispuser_name")
-                , 'mr.unload_refitmid', 'ri.name as refitm_name'
-                , db::raw("sum(mr.raid_qty) as raid_qty")
-                , db::raw("sum(mr.unload_qty) as unload_qty")
-                , db::raw("sum(mr.unload_qty*mr.unload_price) as unload_sum")
-                , db::raw("orgSaldo_onDate(mr.orgid, mr.unload_ownorgid, mr.wrkdate) as org_saldo")
+                , 'mro.orgid', db::raw("max(o.name) as orgname")
+                , 'mro.org_placeid as unload_placeid', db::raw("MAX(mro.org_placename) as unload_placename")
+                , 'mr.disp_staffid', db::raw("max(concat(ifnull(u_d.fname,''),' ',u_d.lname)) as dispuser_name")
+                , 'mro.refitmid as unload_refitmid', 'ri.name as refitm_name'
+                , db::raw("sum(mro.raid_qty) as raid_qty")
+
+                , db::raw("sum(mro.itm_qty) as unload_qty")
+                , db::raw("sum(mro.itm_qty*mro.itm_price) as unload_sum")
+                , db::raw("orgSaldo_onDate(mro.orgid, mro.suporgid, mr.wrkdate) as org_saldo")
             )
-                ->groupBy(['mr.wrkdate', 'mr.unload_ownorgid', 'mr.orgid', 'disp_staffid', 'unload_placeid', 'mr.unload_refitmid'])
+                ->groupBy(['mr.wrkdate', 'mro.suporgid', 'mro.orgid', 'disp_staffid', 'mro.org_placeid', 'mro.refitmid'])
                 ->orderby('mr.wrkdate', 'asc')
                 ->orderby('orgname', 'asc')
                 ->get();
+            //sqdd($recs);
 
             //2-й набор - группировка по местам погрузки
             $recs2 = mchn_raid::

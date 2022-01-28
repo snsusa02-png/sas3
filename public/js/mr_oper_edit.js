@@ -1,25 +1,38 @@
 $(document).ready(function () {
 
-    $("#sale_dir").change(function () {
+    function sale_dir_change() {
 
-        const sale_dir = $(this).val();
+        const sale_dir = $("#sale_dir").val();
 
         if (sale_dir == -1) {
             //Покупка
             $("#lbl_sup").html('Поставщик')
             $("#lbl_org").html('Покупатель')
             $('#itm_price').prop('readonly', true);
+
+            $('.raid_info').hide();
+            $('#raid_qty').prop('required', false);
+
         } else if (sale_dir == 0) {
             //внутр. операция
             $("#lbl_sup").html('Отправитель')
             $("#lbl_org").html('Получатель')
             $("#paytypeid").val(2)
+
+            $('.raid_info').hide();
+            $('#raid_qty').prop('required', false);
+
         } else if (sale_dir == +1) {
             $("#lbl_sup").html('Исполнитель')
             $("#lbl_org").html('Заказчик')
             $('#itm_price').prop('readonly', false);
+            $('.raid_info').show();
+            $('#raid_qty').prop('required', true);
         }
+    }
 
+    $("#sale_dir").change(function () {
+        sale_dir_change()
     });
 
     $("#opertypeid").focus(function () {
@@ -918,8 +931,20 @@ $(document).ready(function () {
         unload_places_rfr();
     });
 
+    $("#raid_qty, #raid_salary").change(function () {
+
+        const raid_qty = parseFloat($("#raid_qty").val());
+        const raid_salary = parseFloat($("#raid_salary").val());
+        const salary = Math.round(raid_qty * raid_salary * 100) / 100;
+
+        $("#salary").val(salary)
+    });
+
 
     //при загрузке -------------------------------------------------
+
+    sale_dir_change();
+
 
     //покраска в зеленый всех автозаполняемых названий с установленными id в соответств. полях ---
     $.each($(".ac_name"), function (key, value) {
