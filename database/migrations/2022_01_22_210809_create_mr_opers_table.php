@@ -52,9 +52,6 @@ class CreateMrOpersTable extends Migration
 
             $table->tinyinteger('sale_dir')->comment('-1 - покупка, 0 - внутренняя операция, +1 - продажа на сторону');
 
-            $table->integer('raid_qty')->unsigned()->nullable()->comment('Кол-во рейсов. Заполняется для записей о продаже');
-            $table->decimal('raid_salary',12,2)->nullable()->comment('Сумма ЗП за 1 рейс. Общая сумма = raid_qty*raid_salary');
-
             $table->boolean('active')->default(1)->comment('0-черновик; 1-используется в расчетах');
 
             $table->timestamp('created_at')->nullable()->useCurrent=true;

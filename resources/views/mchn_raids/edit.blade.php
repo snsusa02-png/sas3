@@ -593,10 +593,10 @@
                                 <div class="row">
 
                                     <div class="form-group offset-md-3 col-md-2">
-                                        <label for="name" class="">Число рейсов:</label>
+                                        <label for="name" class="required">Число рейсов:</label>
                                         @if ($usrrights['edit'])
                                             <div class="input-group mb-3 ">
-                                                <input type="number" name="raid_qty" readonly
+                                                <input type="number" name="raid_qty" id="raid_qty" required
                                                        class="form-control text-right font-weight-bold"
                                                        min="0" step="1" max="99"
                                                        value="{{old('raid_qty',$rec->raid_qty)}}">
@@ -607,11 +607,11 @@
                                     </div>
 
                                     <div class="form-group offset-md-0 col-md-2">
-                                        <label for="name" class="" title="ЗП водителя за 1 рейс">ЗП за рейс,
+                                        <label for="name" class="required" title="ЗП водителя за 1 рейс">ЗП за рейс,
                                             &#8381;:</label>
                                         @if ($usrrights['edit'])
                                             <div class="input-group mb-3 ">
-                                                <input type="number" name="raid_salary" readonly
+                                                <input type="number" name="raid_salary" id="raid_salary" required
                                                        title="ЗП водителя за 1 рейс"
                                                        class="form-control text-right font-weight-bold"
                                                        min="0" step="0.01"
@@ -627,9 +627,9 @@
                                         @if ($usrrights['edit'])
                                             <input type="text" name="salary" id="salary"
                                                    class="form-control text-center"
-                                                   readonly value="{{$rec->driver_sum}}">
+                                                   readonly value="{{$rec->raid_salary*$rec->raid_qty}}">
                                         @else
-                                            <div class="font-weight-bold text-center">{{$rec->driver_sum}}</div>
+                                            <div class="font-weight-bold text-center">{{$$rec->raid_salary*$rec->raid_qty}}</div>
                                         @endif
                                     </div>
 

@@ -10,8 +10,8 @@ $(document).ready(function () {
             $("#lbl_org").html('Покупатель')
             $('#itm_price').prop('readonly', true);
 
-            $('.raid_info').hide();
-            $('#raid_qty').prop('required', false);
+            //$('.raid_info').hide();
+            //$('#raid_qty').prop('required', false);
 
         } else if (sale_dir == 0) {
             //внутр. операция
@@ -19,15 +19,16 @@ $(document).ready(function () {
             $("#lbl_org").html('Получатель')
             $("#paytypeid").val(2)
 
-            $('.raid_info').hide();
-            $('#raid_qty').prop('required', false);
+            //$('.raid_info').hide();
+            //$('#raid_qty').prop('required', false);
 
         } else if (sale_dir == +1) {
             $("#lbl_sup").html('Исполнитель')
             $("#lbl_org").html('Заказчик')
             $('#itm_price').prop('readonly', false);
-            $('.raid_info').show();
-            $('#raid_qty').prop('required', true);
+
+            //$('.raid_info').show();
+            //$('#raid_qty').prop('required', true);
         }
     }
 
@@ -931,14 +932,6 @@ $(document).ready(function () {
         unload_places_rfr();
     });
 
-    $("#raid_qty, #raid_salary").change(function () {
-
-        const raid_qty = parseFloat($("#raid_qty").val());
-        const raid_salary = parseFloat($("#raid_salary").val());
-        const salary = Math.round(raid_qty * raid_salary * 100) / 100;
-
-        $("#salary").val(salary)
-    });
 
 
     //при загрузке -------------------------------------------------

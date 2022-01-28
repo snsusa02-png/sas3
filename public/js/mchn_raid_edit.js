@@ -16,6 +16,14 @@ $(document).ready(function () {
         //alert(pre_opertypeid+' '+opertypeid);
     });
 
+    $("#raid_qty, #raid_salary").change(function () {
+
+        const raid_qty = parseFloat($("#raid_qty").val());
+        const raid_salary = parseFloat($("#raid_salary").val());
+        const salary = Math.round(raid_qty * raid_salary * 100) / 100;
+
+        $("#salary").val(salary)
+    });
 
     function recalc_hrs() {
         const begtime = $("#begtime").val();
