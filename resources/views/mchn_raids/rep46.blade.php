@@ -250,22 +250,22 @@ $action_url = route('reports.rep' . $thisObjId);
                         @endif
                     </div>
 
-                    <h5 class="text-center">Оборот по работе</h5>
+                    <br>
+                    <h4 class="text-center">Оборот по работе</h4>
                     <table class="table table-sm table-striped rep-data mt-3"
                            style="background-color: snow; font-size:16px; width:960px"
                            align=center>
                         <thead>
                         <tr class="text-left small" valign="top">
                             {{--                            <td class="text-center">Дата</td>--}}
-                            <td class="text-left">Компания(физ. лицо)</td>
-                            <td class="text-left">Место выгрузки</td>
+                            <td class="text-left">Компания/физ. лицо, Место выгрузки</td>
                             <td class="text-center">Диспетчер</td>
-                            <td class="text-center">Товар</td>
-                            <td class="text-right">Кол-во рейсов</td>
+                            <td class="text-center">Товар/Услуга</td>
+                            <td class="text-center">ЕИ</td>
                             <td class="text-right">Объем отгрузки</td>
                             <td class="text-right">Цена за ЕИ</td>
-                            <td class="text-right">Сумма, руб</td>
-                            <td class="text-right">Сальдо, руб</td>
+                            <td class="text-right">Сумма, &#8381;</td>
+                            <td class="text-right">Сальдо, &#8381;</td>
                         </tr>
 
                         </thead>
@@ -286,9 +286,7 @@ $action_url = route('reports.rep' . $thisObjId);
                             @if($wrkdate<>$curPayDate)
                                 @if($curPayDate <>-1 )
                                     <tr data-toggle="collapse" data-target=".date_{{$tr_date}}" style="cursor: pointer">
-                                        <td colspan="4" class="text-right">Итого за {{$curPayDate}}:</td>
-                                        <td class="text-right font-weight-bold h6">{{number_format($dayRaidQty,0)}}</td>
-                                        <td colspan="2" class="text-right"></td>
+                                        <td colspan="6" class="text-right small">Итого за {{$curPayDate}}:</td>
                                         <td class="text-right font-weight-bold h6">{{number_format($daySum,2)}}</td>
                                         <td></td>
                                     </tr>
@@ -322,22 +320,19 @@ $action_url = route('reports.rep' . $thisObjId);
                                 <td class="text-left small">
                                     <a href="{{route('orgs.edit',$rec->orgid)}}" target="_blank"
                                        class="text-decoration-none">{{$rec->orgname}}</a>
+                                    <div class="float-right">{{$rec->unload_placename}}</div>
                                 </td>
-                                <td class="text-left">{{$rec->unload_placename}}</td>
                                 <td class="text-left small">{{$rec->dispuser_name}}</td>
                                 <td class="text-left small">{{$rec->refitm_name}}</td>
-                                <td class="text-right">{{number_format($rec->raid_qty,0)}}
+                                <td class="text-center small"> {{$rec->unit}}</td>
                                 <td class="text-right small">{{number_format($rec->unload_qty,2)}}
-                                <td class="text-right small">{{number_format($rec->unload_price,2)}}
+                                <td class="text-right small">{{number_format($rec->unload_sum/$rec->unload_qty,2)}}
                                 <td class="text-right">{{number_format($rec->unload_sum,2)}}
                                 <td class="text-right {{$td_class}}">{{number_format($rec->org_saldo,2)}}
 
                             </tr>
                             <?php
                             $totUnloadSum += $rec->unload_sum;
-                            $totRaidQty += $rec->raid_qty;
-
-                            $dayRaidQty += $rec->raid_qty;
                             $daySum += $rec->unload_sum;
                             ?>
                         @endforeach
@@ -345,9 +340,7 @@ $action_url = route('reports.rep' . $thisObjId);
                         @if(1==1)
                             @if($curPayDate <>-1 )
                                 <tr data-toggle="collapse" data-target=".date_{{$tr_date}}" style="cursor: pointer">
-                                    <td colspan="4" class="text-right">Итого за {{$curPayDate}}:</td>
-                                    <td class="text-right font-weight-bold h6">{{number_format($dayRaidQty,0)}}</td>
-                                    <td colspan="2" class="text-right"></td>
+                                    <td colspan="6" class="text-right small">Итого за {{$curPayDate}}:</td>
                                     <td class="text-right font-weight-bold h6">{{number_format($daySum,2)}}</td>
                                     <td></td>
                                 </tr>
@@ -357,9 +350,7 @@ $action_url = route('reports.rep' . $thisObjId);
                                 <td colspan="9" class="text-left pl-2"></td>
                             </tr>
                             <tr>
-                                <td colspan="4" class="text-right">Всего:</td>
-                                <td class="text-right font-weight-bold">{{number_format($totRaidQty,0)}}</td>
-                                <td colspan="2" class="text-right"></td>
+                                <td colspan="6" class="text-right">Всего:</td>
                                 <td class="text-right font-weight-bold">{{number_format($totUnloadSum,2)}}</td>
                                 <td></td>
                             </tr>
@@ -368,18 +359,19 @@ $action_url = route('reports.rep' . $thisObjId);
                         <tfoot>
                     </table>
 
-
-                    <h5 class="text-center">Карьеры</h5>
+                    <br>
+                    <h4 class="text-center">Карьеры</h4>
                     <table class="table table-sm table-striped rep-data mt-3"
                            style="background-color: snow; font-size:16px; width:960px"
                            align=center>
                         <thead>
                         <tr class="text-left small" valign="top">
                             <td class="text-left">Название</td>
-                            <td class="text-center">Товар</td>
-                            <td class="text-right">Объем</td>
-                            <td class="text-right">Цена за ЕИ</td>
-                            <td class="text-right">Сумма, руб</td>
+                            <td class="text-center">Товар/Услуга</td>
+                            <td class="text-center">ЕИ</td>
+                            <td class="text-right">Объем, ЕИ</td>
+                            <td class="text-right">Цена за ЕИ, &#8381;</td>
+                            <td class="text-right">Сумма, &#8381;</td>
                         </tr>
 
                         </thead>
@@ -391,11 +383,12 @@ $action_url = route('reports.rep' . $thisObjId);
                         @foreach($recs2 as $rec)
 
                             <tr class="text-left">
-                                <td class="text-left small">{{$rec->load_placename}}
+                                <td class="text-left "><span class="small"> {{$rec->load_placename}}</span>
                                     <span class="small ml-2">{{$rec->load_place_address??''}}</span>
                                     <div>{{$rec->suporg_name}}</div>
                                 </td>
                                 <td class="text-left small">{{$rec->refitm_name}}</td>
+                                <td class="text-center small">{{$rec->unit}}</td>
                                 <td class="text-right small">{{number_format($rec->load_qty,2)}}
                                 <td class="text-right small">{{number_format($rec->load_price,2)}}
                                 <td class="text-right">{{number_format($rec->load_sum,2)}}
@@ -410,15 +403,112 @@ $action_url = route('reports.rep' . $thisObjId);
                                 <td colspan="7" class="text-left pl-2"></td>
                             </tr>
                             <tr>
-                                <td colspan="4" class="text-right">Всего:</td>
+                                <td colspan="5" class="text-right">Всего:</td>
                                 <td class="text-right font-weight-bold">{{number_format($totLoadSum,2)}}</td>
                             </tr>
                             <tr class="text-left" style="background-color: #b1da64">
                                 <td colspan="7" class="text-left pl-2"></td>
                             </tr>
                             <tr>
-                                <td colspan="4" class="text-right">Доход:</td>
+                                <td colspan="5" class="text-right">Баланс, &#8381;:</td>
                                 <td class="text-right font-weight-bold">{{number_format($totUnloadSum-$totLoadSum,2)}}</td>
+                            </tr>
+                        @endif
+                        </tbody>
+                        <tfoot>
+                    </table>
+
+                    <br>
+                    <h4 class="text-center">Водители</h4>
+                    <table class="table table-sm table-striped rep-data mt-3"
+                           style="background-color: snow; font-size:16px; width:960px"
+                           align=center>
+                        <thead>
+                        <tr class="text-left small" valign="top">
+                            <td rowspan="2" class="text-left">ФИО, Техника</td>
+                            <td rowspan="2" class="text-right">Кол-во рейсов</td>
+                            <td colspan="2" class="text-center">ЗП</td>
+                            <td colspan="2" class="text-center">Оплач. простой</td>
+                            <td colspan="2" class="text-center">Ремонт</td>
+                            <td rowspan="2" class="text-center">Всего</td>
+                        </tr>
+                        <tr>
+                            <td class="text-right small">За рейс, &#8381;</td>
+                            <td class="text-right small">Сумма, &#8381;</td>
+
+                            <td class="text-center small">Время, ч</td>
+                            <td class="text-center small">Сумма, &#8381;</td>
+
+                            <td class="text-center small">Время, ч</td>
+                            <td class="text-center small">Сумма, &#8381;</td>
+                        </tr>
+
+                        </thead>
+                        <tbody>
+                        <?php
+                        $npp = 0;
+                        $totRaidQty = 0;
+                        $totSalarySum = 0;
+                        $totPDTHrs = $totPDTSum = 0;
+                        $totRepairHrs = $totRepairSum = 0;
+                        $totSum = 0;
+                        ?>
+                        @foreach($recs3 as $rec)
+
+                            <tr class="text-left">
+                                <td class="text-left ">{{$rec->driver_name}}
+                                    <div class="float-right small text-secondary">{{$rec->machine_name}}</div>
+                                </td>
+
+                                <td class="text-right ">{{number_format($rec->raid_qty,0)}}
+                                <td class="text-right small">{{number_format(($rec->raid_qty>0)?$rec->salary/$rec->raid_qty:0,2)}}
+                                <td class="text-right ">{{number_format($rec->salary,2)}}
+
+                                <td class="text-right small text-secondary">{{number_format($rec->pdt_hrs,1)}}
+                                <td class="text-right ">{{number_format($rec->pdt_sum,2)}}
+
+                                <td class="text-right small text-secondary">{{number_format($rec->repair_hrs,1)}}
+                                <td class="text-right ">{{number_format($rec->repair_sum,2)}}
+
+                                <td class="text-right ">{{number_format($rec->salary+$rec->pdt_sum+$rec->repair_sum,2)}}
+                            </tr>
+                            <?php
+                            $totRaidQty += $rec->raid_qty;
+                            $totSalarySum += $rec->salary;
+
+                            $totPDTHrs += $rec->pdt_hrs;
+                            $totPDTSum += $rec->pdt_sum;
+
+                            $totRepairHrs += $rec->repair_hrs;
+                            $totRepairSum += $rec->repair_sum;
+
+                            $totSum += $rec->salary + $rec->pdt_sum + $rec->repair_sum;
+                            ?>
+                        @endforeach
+
+                        @if(1==1)
+                            <tr class="text-left" style="background-color: #dacf64">
+                                <td colspan="9" class="text-left pl-2"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="1" class="text-right">Всего:</td>
+                                <td class="text-right font-weight-bold small">{{number_format($totRaidQty,0)}}</td>
+                                <td></td>
+                                <td class="text-right font-weight-bold">{{number_format($totSalarySum,2)}}</td>
+
+                                <td class="text-right font-weight-bold small">{{number_format($totPDTHrs,1)}}</td>
+                                <td class="text-right font-weight-bold">{{number_format($totPDTSum,2)}}</td>
+
+                                <td class="text-right font-weight-bold small">{{number_format($totRepairHrs,1)}}</td>
+                                <td class="text-right font-weight-bold">{{number_format($totRepairSum,2)}}</td>
+
+                                <td class="text-right font-weight-bold">{{number_format($totSum,2)}}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="8" class="text-right">
+                                    Баланс, &#8381;:
+                                </td>
+                                <td class="text-right font-weight-bold">{{number_format($totUnloadSum-$totLoadSum-$totSum,2)}}</td>
                             </tr>
                         @endif
                         </tbody>

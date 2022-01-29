@@ -418,7 +418,7 @@ class MchnRaidReportController extends Controller
                 , 'mro.org_placeid as unload_placeid', db::raw("MAX(mro.org_placename) as unload_placename")
                 , 'mr.disp_staffid', db::raw("max(concat(ifnull(u_d.fname,''),' ',u_d.lname)) as dispuser_name")
                 , 'mro.refitmid as unload_refitmid', 'ri.name as refitm_name'
-                , db::raw("sum(mro.raid_qty) as raid_qty")
+                , db::raw("max(ri.unit) as unit")
 
                 , db::raw("sum(mro.itm_qty) as unload_qty")
                 , db::raw("sum(mro.itm_qty*mro.itm_price) as unload_sum")
@@ -431,30 +431,57 @@ class MchnRaidReportController extends Controller
             //sqdd($recs);
 
             //2-й набор - группировка по местам погрузки
-            $recs2 = mchn_raid::
-            from('mchn_raids as mr')
-                ->leftjoin('orgs as o', 'o.id', 'mr.suporgid')
-                ->leftjoin('org_places as p', 'p.id', 'mr.load_placeid')
-                ->leftjoin('refitems as ri', 'ri.id', 'mr.load_refitmid')
-                ->whereRaw($sc);
+            $recs2 = mr_oper::from('mr_opers as mro')
+                ->join('mchn_raids as mr', 'mr.id', 'mro.mr_id')
+                ->leftjoin('orgs as o', 'o.id', 'mro.suporgid')
+                ->leftjoin('org_places as p', 'p.id', 'mro.sup_placeid')
+                ->leftjoin('refitems as ri', 'ri.id', 'mro.refitmid')
 
-            $recs2 = $recs2->select(
-                'mr.suporgid', 'o.name as suporg_name'
-                , 'mr.load_placeid', 'p.name as load_placename', 'p.address as load_place_address'
-                , 'mr.load_price'
-                , 'mr.load_refitmid'
-                , db::raw("sum(mr.load_qty) as load_qty")
-                , db::raw("sum(mr.load_sum) as load_sum")
-                , 'ri.name as refitm_name'
-            )
-                ->groupBy('mr.suporgid')
-                ->groupBy('mr.load_placeid')
-                ->groupBy('mr.load_price')
-                ->groupBy('mr.load_refitmid')
+                ->whereRaw($sc)
+                ->where('mro.sale_dir', -1)
+
+                ->select(
+                    'mro.suporgid', 'o.name as suporg_name'
+                    , 'mro.sup_placeid as load_placeid', 'p.name as load_placename', 'p.address as load_place_address'
+                    , 'mro.itm_price as load_price'
+                    , 'mro.refitmid'
+                    , db::raw("max(ri.unit) as unit")
+                    , db::raw("sum(mr.load_qty) as load_qty")
+                    , db::raw("sum(mr.load_sum) as load_sum")
+                    , 'ri.name as refitm_name'
+                )
+
+                ->groupBy('mro.suporgid')
+                ->groupBy('mro.sup_placeid')
+                ->groupBy('mro.itm_price')
+                ->groupBy('mro.refitmid')
+
                 ->orderby('p.name', 'asc')
                 ->orderby('ri.name', 'asc')
+
                 ->get();
 
+
+            //3-й набор - итоги по машинам/водителям
+            $recs3 = mchn_raid::from('mchn_raids as mr')
+                ->join('machines as m', 'm.id', 'mr.machineid')
+                ->join('orgstaff as os', 'os.id', 'mr.driverid')
+                ->leftjoin('driver_works as dw', 'dw.id', 'mr.dw_id')
+                ->whereRaw($sc)
+                ->select(
+                    'mr.machineid', db::raw("concat(m.name,' ',m.regnum) as machine_name")
+                    , 'mr.driverid', 'os.name as driver_name'
+                    , db::raw("sum(mr.raid_qty) as raid_qty")
+                    , db::raw("sum(mr.raid_qty*mr.raid_salary) as salary")
+                    , db::raw("sum(dw.repair_hrs) as repair_hrs")
+                    , db::raw("sum(dw.repair_sum) as repair_sum")
+                    , db::raw("sum(dw.pdt_hrs) as pdt_hrs")
+                    , db::raw("sum(dw.pdt_sum) as pdt_sum")
+                )
+                ->groupBy('mr.machineid')
+                ->groupBy('mr.driverid')
+                ->get();
+            //dd($sc, $recs3);
 
             //обновим счетчик использования отчета
             report::updUseCnt($report_id, $userid, \Auth::user()->name);
@@ -483,7 +510,7 @@ class MchnRaidReportController extends Controller
             'in_mchn_raids_ownorgid' => 1,
         ]);
 
-        return view('mchn_raids.rep' . $report_id, compact('recs', 'recs2', 'search_params', 'data'));
+        return view('mchn_raids.rep' . $report_id, compact('recs', 'recs2', 'recs3', 'search_params', 'data'));
     }
 
 
