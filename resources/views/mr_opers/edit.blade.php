@@ -108,6 +108,7 @@
                                                        title=""
                                                        style="display: none; border: #d7f3e3; max-width: 30px" readonly>
                                                 <input type="hidden" name="suporgid" class="ac_id" id="suporgid"
+                                                       data-gk="{{$rec->sup_gk}}"
                                                        value="{{old('suporgid',$rec->suporgid)}}">
                                                 <a class="btn btn-light id_lnk" data-id="suporgid" data-obj="orgs"
                                                    target="_blank">
@@ -273,6 +274,7 @@
                                                        title=""
                                                        style="display: none; border: #d7f3e3; max-width: 30px" readonly>
                                                 <input type="hidden" name="orgid" class="ac_id" id="orgid"
+                                                       data-gk="{{$rec->org_gk}}"
                                                        value="{{old('orgid',$rec->orgid)}}">
                                                 <a class="btn btn-light id_lnk" data-id="orgid" data-obj="orgs"
                                                    target="_blank">
@@ -288,35 +290,52 @@
                                     <div class="form-group offset-md-0 col-md-5">
                                         <label for="name" class="">Место выгрузки:</label>
                                         @if ($usrrights['edit'])
-                                            {{--                                            <div class="input-group mb-3 ">--}}
-                                            {{--                                                <input type="text" name="load_placename" id="load_placename" required--}}
-                                            {{--                                                       class="ac_name load_placename form-control font-weight-bold"--}}
-                                            {{--                                                       value="{{old('load_placename',$rec->load_placename)}}">--}}
-                                            {{--                                                <input type="text" class="form-control text-center small ac_status"--}}
-                                            {{--                                                       style="display: none; border: #d7f3e3; max-width: 30px" readonly>--}}
-                                            {{--                                                <input type="hidden" name="load_placeid" class="load_placeid ac_id"--}}
-                                            {{--                                                       id="load_placeid"--}}
-                                            {{--                                                       value="{{old('load_placeid',$rec->load_placeid)}}">--}}
-                                            {{--                                                <a class="btn btn-light id_lnk" data-id="load_placeid" data-obj="places"--}}
-                                            {{--                                                   target="_blank">--}}
-                                            {{--                                                    <i class="fa fa-info text-info" aria-hidden="true"></i>--}}
-                                            {{--                                                </a>--}}
-                                            {{--                                            </div>--}}
-                                            <div class="input-group">
-                                                {!! Form::select('org_placeid', $rec->org_places??[],
-                                                    old('org_placeid',$rec->org_placeid),
-                                                    [
-                                                    'id' => 'org_placeid',
-                                                    'class' => 'form-control small',
-                                                    'placeholder' => '',
-                                                    ]) !!}
+                                            <div class="input-group mb-3 ">
+                                                <input type="text" name="org_placename" id="org_placename"
+                                                       class="ac_name org_placename form-control font-weight-bold"
+                                                       value="{{old('org_placename',$rec->org_placename)}}">
+                                                <input type="text" class="form-control text-center small ac_status"
+                                                       style="display: none; border: #d7f3e3; max-width: 30px" readonly>
+                                                <input type="hidden" name="org_placeid" class="org_placeid ac_id"
+                                                       id="org_placeid"
+                                                       value="{{old('org_placeid',$rec->org_placeid)}}">
+                                                <a class="btn btn-light id_lnk" data-id="org_placeid" data-obj="places"
+                                                   target="_blank">
+                                                    <i class="fa fa-info text-info" aria-hidden="true"></i>
+                                                </a>
                                             </div>
+                                            {{--                                            <div class="input-group">--}}
+                                            {{--                                                {!! Form::select('org_placeid', $rec->org_places??[],--}}
+                                            {{--                                                    old('org_placeid',$rec->org_placeid),--}}
+                                            {{--                                                    [--}}
+                                            {{--                                                    'id' => 'org_placeid',--}}
+                                            {{--                                                    'class' => 'form-control small',--}}
+                                            {{--                                                    'placeholder' => '',--}}
+                                            {{--                                                    ]) !!}--}}
+                                            {{--                                            </div>--}}
 
                                         @else
                                             <div class="font-weight-bold">{{$rec->org_placename}}</div>
                                         @endif
                                     </div>
 
+                                </div>
+
+                                <div class="row">
+
+                                    <div class="form-group offset-md-7 col-md-3 raid_info">
+                                        <label for="name" class="required" id="lbl_raid_qty">Кол-во рейсов:</label>
+                                        @if ($usrrights['edit'])
+                                            <div class="input-group mb-3 ">
+                                                <input type="number" name="raid_qty" id="raid_qty"
+                                                       class="form-control text-right font-weight-bold"
+                                                       min="0" step="1" max="99"
+                                                       value="{{old('raid_qty',$rec->raid_qty)}}">
+                                            </div>
+                                        @else
+                                            <div class="font-weight-bold">{{$rec->raid_qty}}</div>
+                                        @endif
+                                    </div>
                                 </div>
 
                                 @if(1==0)

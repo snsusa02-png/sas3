@@ -29,7 +29,7 @@
                             <tr>
                                 <td>#</td>
                                 <td class="small">Наименование</td>
-                                <td>Заказчик/Плательщик
+                                <td>Заказчик/Покупатель
                                     <div class="small">место</div>
                                 </td>
                                 <td>Исполнитель/Поставщик
@@ -65,9 +65,12 @@
                                         ?>
                                         <span class="{{$bold}}" title="">
                                             {{$itm->org_name}}
-                                        <div class="mr-3 small">
+                                        <div class="ml-3 small">
                                             {{$itm->org_place_name??$itm->org_placename}}
                                         </div>
+                                            @if(isset($itm->raid_qty))
+                                                <span class="ml-3 small">рейсов: {{$itm->raid_qty}}</span>
+                                            @endif
                                         </span>
                                     </td>
                                     <td class="text-left">
@@ -95,7 +98,7 @@
                                         {{$itm->itm_price}}
                                     </td>
                                     <td class="text-right">
-                                        {{$itm->itm_qty*$itm->itm_price}}
+                                        {{number_format($itm->itm_qty*$itm->itm_price,2)}}
                                     </td>
                                     <td class="text-right">
                                         <a href="{{ route('mr_opers.edit',$itm->id)}}"
@@ -111,7 +114,7 @@
                             @endforeach
                             <tr style="background-color: #fff5c6">
                                 <td class="text-right" colspan="7">Баланс по ГК:</td>
-                                <td class="text-right font-weight-bold">{{$gk_sum}}</td>
+                                <td class="text-right font-weight-bold">{{number_format($gk_sum,2)}}</td>
                                 <td></td>
                             </tr>
                             </tbody>

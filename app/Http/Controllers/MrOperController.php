@@ -229,6 +229,13 @@ class MrOperController extends Controller
 
         $rec->orgid = $request->get('orgid');
         $rec->org_placeid = $request->get('org_placeid');
+        if (isset($rec->org_placeid))
+            $rec->org_placename = $rec->org_place->name;
+        else
+            $rec->org_placename = $request->get('org_placename');
+
+        //dd($rec->org_placeid, isset($rec->org_placeid), $rec->org_placename);
+
         $rec->org_gk = objflag::IsSetObjFlag(111, $rec->orgid, 12);
 
         $rec->sale_dir = $request->get('sale_dir');
@@ -249,6 +256,7 @@ class MrOperController extends Controller
         $rec->itm_sum = $rec->itm_qty * $rec->itm_price;
 
         $rec->paytypeid = $request->get('paytypeid');
+        $rec->raid_qty = $request->get('raid_qty');
 
         //$rec->active = 1; //$request->get('active', 0);
         $rec->updated_by = $userid;

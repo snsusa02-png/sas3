@@ -593,7 +593,7 @@
                                 <div class="row">
 
                                     <div class="form-group offset-md-3 col-md-2">
-                                        <label for="name" class="required">Число рейсов:</label>
+                                        <label for="name" class="required" id="lbl_raid_qty">Число рейсов:</label>
                                         @if ($usrrights['edit'])
                                             <div class="input-group mb-3 ">
                                                 <input type="number" name="raid_qty" id="raid_qty" required

@@ -384,17 +384,17 @@ $action_url = route('reports.rep' . $thisObjId);
 
                             <tr class="text-left">
                                 <td class="text-left "><span class="small"> {{$rec->load_placename}}</span>
-                                    <span class="small ml-2">{{$rec->load_place_address??''}}</span>
+{{--                                    <span class="small ml-2">{{$rec->load_place_address??''}}</span>--}}
                                     <div>{{$rec->suporg_name}}</div>
                                 </td>
                                 <td class="text-left small">{{$rec->refitm_name}}</td>
                                 <td class="text-center small">{{$rec->unit}}</td>
                                 <td class="text-right small">{{number_format($rec->load_qty,2)}}
                                 <td class="text-right small">{{number_format($rec->load_price,2)}}
-                                <td class="text-right">{{number_format($rec->load_sum,2)}}
+                                <td class="text-right">{{number_format($rec->load_qty*$rec->load_price,2)}}
                             </tr>
                             <?php
-                            $totLoadSum += $rec->load_sum;
+                            $totLoadSum += $rec->load_qty*$rec->load_price;
                             ?>
                         @endforeach
 

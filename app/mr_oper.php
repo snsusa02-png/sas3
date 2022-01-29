@@ -170,7 +170,8 @@ class mr_oper extends Model
         //сформируем фин. операцию --------------------------------------------------------------
         obj_finoper::where(['sysobjid' => self::$sysobjid, 'objid' => $rec->id])->update(['updated_by' => 0]);
         //Покупка у поставщика:
-        $opername = self::saledirs()[$rec->sale_dir] ?? ' ? ';
+        //$opername = (self::saledirs()[$rec->sale_dir] ?? ' ? ') . ': ';
+
         obj_finoper::addOrUpdate(
             ['sysobjid' => self::$sysobjid, 'objid' => $rec->id, 'mark' => 1],
             ['sysobjid' => self::$sysobjid, 'objid' => $rec->id, 'mark' => 1
@@ -178,7 +179,8 @@ class mr_oper extends Model
                 , 'opersum' => $rec->itm_sum
                 , 'qty' => $rec->itm_qty
                 , 'price' => $rec->itm_price
-                , 'descript' => $opername . ': ' . $rec->refitem->name . ', ' . $rec->refitem->unittype->name
+                //, 'descript' => $opername . $rec->refitem->name . ', ' . $rec->refitem->unittype->name
+                , 'descript' => $rec->refitem->name . ', ' . $rec->refitem->unittype->name
                 , 'sumtypeid' => 2  //1-деньги, 2-товар
                 , 'srcorgid' => $rec->suporgid
                 , 'tgtorgid' => $rec->orgid

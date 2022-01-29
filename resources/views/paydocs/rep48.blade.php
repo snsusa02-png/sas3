@@ -75,8 +75,10 @@ $thisTitle = $report->title ?? $report->name;
                     <div class="mt-2" align="center"
                          style="font-size: 18px;">
                         <h4>{{$thisTitle}}</h4>
-                        между <a href="{{route('orgs.edit',$data->org->id)}}" target="_blank"><b>{{$data->org->name??'-'}}</b></a>
-                        и <a href="{{route('orgs.edit',$data->ownorg->id)}}" target="_blank"><b>{{$data->ownorg->name??'-'}}</b></a>
+                        между <a href="{{route('orgs.edit',$data->org->id)}}"
+                                 target="_blank"><b>{{$data->org->name??'-'}}</b></a>
+                        и <a href="{{route('orgs.edit',$data->ownorg->id)}}"
+                             target="_blank"><b>{{$data->ownorg->name??'-'}}</b></a>
                         <span class="small ml-3 d-print-none"><br>по состоянию на {{now()}}</span>
 
                         @if(1==0)
@@ -130,7 +132,21 @@ $thisTitle = $report->title ?? $report->name;
                             ?>
                         @endif
 
+                        <?php
+                        $sumtypes = [1 => 'платеж', 2 => 'поставка'];
+                        $cur_operdate = -1;
+                        ?>
                         @foreach($recs as $rec)
+                            @if($rec->operdate<>$cur_operdate)
+                                <tr class="text-left ">
+                                    <td class="text-left small font-weight-bold" colspan="6">
+                                        {{date_create($rec->operdate)->format('d.m.Y')}}
+                                    </td>
+                                </tr>
+                                <?php
+                                $cur_operdate = $rec->operdate;
+                                ?>
+                            @endif
                             <?php
                             $curSum += $rec->opersum;
 
@@ -140,19 +156,20 @@ $thisTitle = $report->title ?? $report->name;
                             $sh_qty = (isset($rec->qty)) ? number_format($rec->qty, 2) : '';
                             $sh_price = (isset($rec->price)) ? number_format($rec->price, 2) : '';
 
-                            if ($rec->sysobjid == 520)
-                                $ref_url = route('paydocs.edit', $rec->objid);
-                            elseif ($rec->sysobjid == 1106)
-                                $ref_url = route('mchn_raids.edit', $rec->objid);
-                            else
-                                $ref_url = null;
+                            //                            if ($rec->sysobjid == 520)
+                            //                                $ref_url = route('paydocs.edit', $rec->objid);
+                            //                            elseif ($rec->sysobjid == 1106)
+                            //                                $ref_url = route('mchn_raids.edit', $rec->objid);
+                            //                            else
+                            $ref_url = null;
 
                             ?>
                             <tr class="text-left ">
                                 <td class="text-center small">
-                                    {{date_create($rec->operdate)->format('d.m.Y')}}
+                                    {{--                                    {{date_create($rec->operdate)->format('d.m.Y')}}--}}
                                 </td>
                                 <td class="text-left small">
+                                    <span class="font-weight-bold small"> {{$sumtypes[$rec->sumtypeid]??'?'}}</span>:
                                     @if(isset($ref_url))
                                         <a href="{{$ref_url}}" target="_blank">{{$rec->descript}}</a>
                                     @else

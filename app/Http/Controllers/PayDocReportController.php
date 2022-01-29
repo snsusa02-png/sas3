@@ -209,7 +209,6 @@ class PayDocReportController extends Controller
 
     public
     function rep48(Request $request, $ownorgid, $orgid)
-//    function rep48(Request $request)
     {
         //Детализация баланса контрагента
 
@@ -277,9 +276,13 @@ class PayDocReportController extends Controller
         $recs = obj_finoper::from('obj_finopers as fo')
             ->whereRaw($sc)
             ->orderBy('operdate')
-            ->select('fo.*'
-                , db::raw("if(srcorgid = {$ownorgid}, - 1, + 1) * opersum as opersum")
+//            ->select('fo.*'
+//                , db::raw("if(srcorgid = {$ownorgid}, - 1, + 1) * opersum as opersum")
+            ->select('sysobjid', 'sumtypeid', 'operdate', 'price', 'descript'
+                , db::raw("sum(qty) as qty")
+                , db::raw("sum( if(srcorgid = {$ownorgid}, - 1, + 1) * opersum) as opersum")
             )
+            ->groupBy(['sysobjid', 'sumtypeid', 'operdate', 'price', 'descript'])
             ->get();
         //dd($recs);
 

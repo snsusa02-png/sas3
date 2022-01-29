@@ -420,6 +420,7 @@ class MchnRaidReportController extends Controller
                 , 'mro.refitmid as unload_refitmid', 'ri.name as refitm_name'
                 , db::raw("max(ri.unit) as unit")
 
+                , db::raw("sum(mr.raid_qty) as raid_qty")
                 , db::raw("sum(mro.itm_qty) as unload_qty")
                 , db::raw("sum(mro.itm_qty*mro.itm_price) as unload_sum")
                 , db::raw("orgSaldo_onDate(mro.orgid, mro.suporgid, mr.wrkdate) as org_saldo")
