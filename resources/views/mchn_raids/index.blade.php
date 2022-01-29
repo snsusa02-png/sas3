@@ -328,7 +328,10 @@
                                             {{$item->unload_placename}}
                                         </td>
                                         <td class="text-center">
-                                            {{$item->org_name}}
+{{--                                            {{$item->org_name}}--}}
+
+                                            {{$item->orgs}}
+
                                         </td>
                                         <td class="text-center">
                                             {{$item->disp_name}}

@@ -142,8 +142,9 @@ class MchnRaidController extends Controller
                     $sc = $sc . " and exists(select 1 from mr_opers as mro where mro.mr_id=mr.id and mro.org_placeid = {$val})";
 
                 } elseif ($item == 's_orgid') {
+                    //Заказчик в операциях продажи (от ГК)
                     //$sc = $sc . " and mr.orgid = {$val}";
-                    $sc = $sc . " and exists(select 1 from mr_opers as mro where mro.mr_id=mr.id and mro.orgid = {$val})";
+                    $sc = $sc . " and exists(select 1 from mr_opers as mro where mro.mr_id=mr.id and mro.orgid = {$val} and mro.sale_dir=1)";
 
                 } elseif ($item == 's_paytypeid') {
                     //$sc = $sc . " and mr.paytypeid = {$val}";
@@ -206,6 +207,12 @@ class MchnRaidController extends Controller
                 , 'l_ri.unit as load_refitem_unit'
                 , 'u_ri.name as unload_refitem_name'
                 , 'u_ri.unit as unload_refitem_unit'
+                ,db::raw("(select group_concat( o.name SEPARATOR '; ')
+                            from mr_opers as mro
+                            join orgs as o on o.id=mro.orgid
+                            where mro.mr_id=mr.id and mro.sale_dir=1
+                            order by mro.id
+                            ) as orgs")
             );
 
 
@@ -255,7 +262,8 @@ class MchnRaidController extends Controller
 
         $data->orgs = org::lstFor_cached([
             //'in_mchn_raids_orgid' => 1,
-            'in_mr_opers_orgid' => 1,
+            //'in_mr_opers_orgid' => 1,
+            'in_mr_opers_orgid_sale' => 1,
         ], 5);
 
         $data->dispatchers = orgstaff::lstFor_cached([
