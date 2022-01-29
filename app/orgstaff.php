@@ -348,7 +348,7 @@ class orgstaff extends Model
 
                     } elseif ($key == 's_file_doctypeid') {
                         $tsysobjid = self::sysobjid;
-                        $sc = $sc . " and exists (select 1 from objfiles as f where f.sysobjid={$tsysobjid} 
+                        $sc = $sc . " and exists (select 1 from objfiles as f where f.sysobjid={$tsysobjid}
                                         and f.objid=os.id and f.doctypeid={$val})";
 
                     } elseif ($key == 's_orgid') {
@@ -371,6 +371,9 @@ class orgstaff extends Model
 
                     } elseif ($key == 'driver_in_mchn_raids') {
                         $sc .= " and " . (($val == 1) ? '' : 'not') . " exists(select 1 from mchn_raids as mr where mr.driverid=os.id)";
+
+                    } elseif ($key == 'dispatcher_in_mchn_raids') {
+                        $sc .= " and " . (($val == 1) ? '' : 'not') . " exists(select 1 from mchn_raids as mr where mr.disp_staffid=os.id)";
 
                     } elseif ($key == 'no_signature_for_sysobj') {
                         //нет требующейся подписи на хранимом образе документа

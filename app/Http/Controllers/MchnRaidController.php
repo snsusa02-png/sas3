@@ -134,16 +134,20 @@ class MchnRaidController extends Controller
                         $sc = $sc . " and extract(year_month from mr.wrkdate) = extract(year_month from curdate())";
 
                 } elseif ($item == 's_load_placeid') {
-                    $sc = $sc . " and mr.load_placeid = {$val}";
+                    //$sc = $sc . " and mr.load_placeid = {$val}";
+                    $sc = $sc . " and exists(select 1 from mr_opers as mro where mro.mr_id=mr.id and mro.sup_placeid = {$val})";
 
                 } elseif ($item == 's_unload_placeid') {
-                    $sc = $sc . " and mr.unload_placeid = {$val}";
+//                    $sc = $sc . " and mr.unload_placeid = {$val}";
+                    $sc = $sc . " and exists(select 1 from mr_opers as mro where mro.mr_id=mr.id and mro.org_placeid = {$val})";
 
                 } elseif ($item == 's_orgid') {
-                    $sc = $sc . " and mr.orgid = {$val}";
+                    //$sc = $sc . " and mr.orgid = {$val}";
+                    $sc = $sc . " and exists(select 1 from mr_opers as mro where mro.mr_id=mr.id and mro.orgid = {$val})";
 
                 } elseif ($item == 's_paytypeid') {
-                    $sc = $sc . " and mr.paytypeid = {$val}";
+                    //$sc = $sc . " and mr.paytypeid = {$val}";
+                    $sc = $sc . " and exists(select 1 from mr_opers as mro where mro.mr_id=mr.id and mro.paytypeid = {$val})";
 
                 } elseif ($item == 's_disp_staffid') {
                     $sc = $sc . " and mr.disp_staffid = {$val}";
@@ -250,7 +254,8 @@ class MchnRaidController extends Controller
         ], 5);
 
         $data->orgs = org::lstFor_cached([
-            'in_mchn_raids_orgid' => 1,
+            //'in_mchn_raids_orgid' => 1,
+            'in_mr_opers_orgid' => 1,
         ], 5);
 
         $data->dispatchers = orgstaff::lstFor_cached([

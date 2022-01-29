@@ -1346,6 +1346,16 @@ class org extends Model
                         $sc .= " and " . (($val == 0) ? "not" : "")
                             . " exists (select 1 from mchn_raids as mr where mr.orgid=o.id)";
 
+                    } elseif ($key == 'in_mr_opers_suporgid') {
+                        //организация указана в mr_opers.suporgid (поставщик)
+                        $sc .= " and " . (($val == 0) ? "not" : "")
+                            . " exists (select 1 from mr_opers as mro where mro.suporgid=o.id)";
+
+                    } elseif ($key == 'in_mr_opers_orgid') {
+                        //организация указана в  mr_opers.orgid
+                        $sc .= " and " . (($val == 0) ? "not" : "")
+                            . " exists (select 1 from mr_opers as mro where mro.orgid=o.id)";
+
                     } elseif ($key == 'flagtypeid') {
                         //у организации должен быть нужный признак
                         $sc .= " and exists (select 1 from objflags as f
