@@ -250,9 +250,6 @@ class MrOperController extends Controller
 
         $rec->paytypeid = $request->get('paytypeid');
 
-        $rec->raid_qty = $request->get('raid_qty');
-        $rec->raid_salary = $request->get('raid_salary');
-
         //$rec->active = 1; //$request->get('active', 0);
         $rec->updated_by = $userid;
         $rec->updated_at = now();
@@ -265,18 +262,9 @@ class MrOperController extends Controller
         //сформируем/обновим фин. операции ------------------------------------------------------
         mr_oper::rfr_finopers($rec);
 
-        //пересчитаем общее кол-во рейсов в mchn_raids ------------------------------------------
-        $stat = mr_oper::where('mr_id', $rec->mr_id)
-            ->selectRaw("sum(raid_qty) as raid_qty, sum(raid_qty*raid_salary) as driver_sum")->first();
-
-        $rec->mchn_raid->raid_qty = $stat->raid_qty;
-        $rec->mchn_raid->driver_sum = $stat->driver_sum;
-        $rec->mchn_raid->raid_salary = ($rec->mchn_raid->raid_qty > 0) ? $stat->driver_sum / $rec->mchn_raid->raid_qty : 0;
-        $rec->mchn_raid->save();
         //---------------------------------------------------------------------------------------
 
-
-        //Временно(?), для совместимости - модификация mchn_raids ------------------------------
+        //Временно(? до модификации отчетов), для совместимости - модификация mchn_raids ------------------------------
         $raid = $rec->mchn_raid;
         if ($rec->sale_dir == -1) {
             //покупка
