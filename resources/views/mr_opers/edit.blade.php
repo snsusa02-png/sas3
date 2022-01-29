@@ -215,7 +215,7 @@
                                     </div>
 
                                     <div class="form-group offset-md-0 col-md-3">
-                                        <label for="name" class="required">Цена, руб:</label>
+                                        <label for="name" class="required">Цена, &#8381;:</label>
                                         @if ($usrrights['edit'])
                                             <?php
                                             $readonly = ($rec->sup_gk == 0) ? 'readonly' : '';
@@ -233,7 +233,7 @@
 
 
                                     <div class="form-group col-md-3">
-                                        <label>Стоимость, руб</label>
+                                        <label>Стоимость, &#8381;</label>
                                         @if ($usrrights['edit'])
                                             <input type="text" name="itm_sum" id="itm_sum" required
                                                    class="form-control text-center font-weight-bold"

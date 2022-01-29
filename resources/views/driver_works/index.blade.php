@@ -38,6 +38,10 @@
                                         <li><a href="{{route('reports.rep51')}}"
                                                title="Табель">Табель</a></li>
 
+                                        @if(\App\usrsysright::isUserHasRightByCode_cached($userid,'mchn_raids.read'))
+                                            <li><a href="{{route('mchn_raids.index')}}"
+                                                   title="Рейсы">Рейсы</a></li>
+                                        @endif
                                         @if(\App\usrsysright::isUserHasRightByCode_cached($userid,'machines.read'))
                                             <li><a href="{{route('machines.index')}}"
                                                    title="Спецтехника">Спецтехника</a></li>

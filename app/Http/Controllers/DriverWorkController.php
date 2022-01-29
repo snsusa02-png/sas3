@@ -418,8 +418,8 @@ class DriverWorkController extends Controller
                 'machineid' => 'required',
                 'staffid' => 'required',
                 'wrkdate' => 'required',
-                'meter_begqty' => 'required|numeric',
-                'meter_endqty' => 'required|numeric|gte:meter_begqty',
+//                'meter_begqty' => 'required|numeric',
+//                'meter_endqty' => 'required|numeric|gte:meter_begqty',
             ];
         } else {
             $messages = [
@@ -443,11 +443,11 @@ class DriverWorkController extends Controller
 
                 'begtime' => 'required',
                 'endtime' => 'required',
-                'meter_begqty' => 'required|numeric',
-                'meter_endqty' => 'required|numeric|gte:meter_begqty',
-                'fuel_begqty' => 'required|numeric',
-                'fuel_inpqty' => 'required|numeric',
-                'fuel_endqty' => 'required|numeric',
+//                'meter_begqty' => 'required|numeric',
+//                'meter_endqty' => 'required|numeric|gte:meter_begqty',
+//                'fuel_begqty' => 'required|numeric',
+//                'fuel_inpqty' => 'required|numeric',
+//                'fuel_endqty' => 'required|numeric',
             ];
             $messages = [
                 'machineid.required' => 'Не указана техника/автомобиль',

@@ -151,42 +151,42 @@
                                         <label class="">Кол-во рейсов</label>
                                         @if ($usrrights['edit'])
                                             <input type="number" name="raid_qty" id="raid_qty"
-                                                   class="form-control text-center" readonly
+                                                   class="form-control text-right" readonly
                                                    min="0" max="24"
                                                    value="{{old('raid_qty',$rec->raid_qty)}}">
                                         @else
-                                            <div class="font-weight-bold text-center">{{$rec->raid_qty}}</div>
+                                            <div class="font-weight-bold text-right">{{$rec->raid_qty}}</div>
                                         @endif
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <label>Сумма, руб</label>
+                                        <label>Сумма, &#8381;</label>
                                         @if ($usrrights['edit'])
                                             <input type="number" name="raid_sum" id="raid_sum"
-                                                   class="form-control text-center" readonly
+                                                   class="form-control text-right" readonly
                                                    value="{{$rec->raid_sum}}">
                                         @else
-                                            <div class="font-weight-bold text-center">{{$rec->raid_sum}}</div>
+                                            <div class="font-weight-bold text-right">{{$rec->raid_sum}}</div>
                                         @endif
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="form-group offset-md-3 col-md-3">
-                                        <label class="required">Время простоя, ч</label>
+                                        <label class="">Время простоя, ч</label>
                                         @if ($usrrights['edit'])
-                                            <input type="number" name="pdt_hrs" id="pdt_hrs"
-                                                   class="form-control text-center"
+                                            <input type="text" name="pdt_hrs" id="pdt_hrs"
+                                                   class="form-control text-right"
                                                    min="0" max="24" step="0.1" readonly
                                                    value="{{old('pdt_hrs',$rec->pdt_hrs)}}">
                                         @else
-                                            <div class="font-weight-bold text-center">{{$rec->pdt_hrs}}</div>
+                                            <div class="font-weight-bold text-right">{{$rec->pdt_hrs}}</div>
                                         @endif
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <label>Ставка за час, руб</label>
+                                        <label>Ставка за час, &#8381;</label>
                                         @if ($usrrights['edit'])
                                             <input type="number" name="pdt_cost" id="pdt_cost"
-                                                   class="form-control text-center"
+                                                   class="form-control text-right"
                                                    min="0"
                                                    value="{{old('pdt_cost',$rec->pdt_cost)}}">
                                         @else
@@ -194,34 +194,34 @@
                                         @endif
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <label>Сумма, руб</label>
+                                        <label>Сумма, &#8381;</label>
                                         @if ($usrrights['edit'])
-                                            <input type="number" name="pdt_sum" id="pdt_sum"
-                                                   class="form-control text-center"
+                                            <input type="text" name="pdt_sum" id="pdt_sum"
+                                                   class="form-control text-right"
                                                    readonly value="{{$rec->pdt_sum}}">
                                         @else
-                                            <div class="font-weight-bold text-center">{{$rec->pdt_sum}}</div>
+                                            <div class="font-weight-bold text-right">{{$rec->pdt_sum}}</div>
                                         @endif
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="form-group offset-md-3 col-md-3">
-                                        <label class="required">Время ремонта, ч</label>
+                                        <label class="">Время ремонта, ч</label>
                                         @if ($usrrights['edit'])
-                                            <input type="number" name="repair_hrs" id="repair_hrs"
-                                                   class="form-control text-center"
+                                            <input type="text" name="repair_hrs" id="repair_hrs"
+                                                   class="form-control text-right"
                                                    min="0" max="24" step="0.1" readonly
                                                    value="{{old('repair_hrs',$rec->repair_hrs)}}">
                                         @else
-                                            <div class="font-weight-bold text-center">{{$rec->repair_hrs}}</div>
+                                            <div class="font-weight-bold text-right">{{$rec->repair_hrs}}</div>
                                         @endif
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <label>Ставка за час, руб</label>
+                                        <label>Ставка за час, &#8381;</label>
                                         @if ($usrrights['edit'])
                                             <input type="number" name="repair_cost" id="repair_cost"
-                                                   class="form-control text-center"
+                                                   class="form-control text-right"
                                                    min="0"
                                                    value="{{old('pdt_cost',$rec->repair_cost)}}">
                                         @else
@@ -229,10 +229,10 @@
                                         @endif
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <label>Сумма, руб</label>
+                                        <label>Сумма, &#8381;</label>
                                         @if ($usrrights['edit'])
-                                            <input type="number" name="repair_sum" id="repair_sum"
-                                                   class="form-control text-center"
+                                            <input type="text" name="repair_sum" id="repair_sum"
+                                                   class="form-control text-right"
                                                    readonly value="{{$rec->repair_sum}}">
                                         @else
                                             <div class="font-weight-bold text-center">{{$rec->repair_sum}}</div>
@@ -242,10 +242,10 @@
 
                                 <div class="row">
                                     <div class="form-group offset-md-9 col-md-3">
-                                        <label>Всего, руб</label>
+                                        <label>Всего, &#8381;</label>
                                         @if ($usrrights['edit'])
-                                            <input type="number" name="salary_sum" id="salary_sum"
-                                                   class="form-control text-center font-weight-bold"
+                                            <input type="text" name="salary_sum" id="salary_sum"
+                                                   class="form-control text-right font-weight-bold"
                                                    readonly value="{{$rec->salary_sum}}">
                                         @else
                                             <div class="font-weight-bold text-center">{{$rec->salary_sum}}</div>
@@ -259,14 +259,14 @@
                                     <div class="row">
                                         <div class="offset-md-4 col-md-3">
                                             <div class="form-group">
-                                                <label for="category" class="required">на начало, км:</label>
+                                                <label for="category" class="">на начало, км:</label>
                                                 @if ($usrrights['edit'] )
                                                     <input type="number"
                                                            class="form-control rounded-0 text-right font-weight-bold"
                                                            name="meter_begqty"
                                                            id="meter_begqty"
                                                            min=0
-                                                           required
+
                                                            value="{{old('meter_begqty',$rec->meter_begqty)}}">
                                                 @else
                                                     <div class="font-weight-bold">
@@ -278,11 +278,11 @@
                                         </div>
                                         <div class="offset-md-0 col-md-3">
                                             <div class="form-group">
-                                                <label class="required">по окончанию, км:</label>
+                                                <label class="">по окончанию, км:</label>
                                                 @if ($usrrights['edit'] )
                                                     <input type="number"
                                                            class="form-control rounded-0 text-right font-weight-bold"
-                                                           name="meter_endqty" id="meter_endqty" required
+                                                           name="meter_endqty" id="meter_endqty"
                                                            min=0
                                                            value="{{old('meter_endqty',$rec->meter_endqty)}}">
                                                 @else
@@ -310,14 +310,14 @@
                                     <div class="row">
                                         <div class="offset-md-1 col-md-3">
                                             <div class="form-group">
-                                                <label for="fuel_begqty" class="required">на начало, л:</label>
+                                                <label for="fuel_begqty" class="">на начало, л:</label>
                                                 @if ($usrrights['edit'] )
                                                     <input type="number"
                                                            class="form-control rounded-0 text-right font-weight-bold"
                                                            name="fuel_begqty"
                                                            id="fuel_begqty"
                                                            min=0
-                                                           required
+
                                                            value="{{old('fuel_begqty',$rec->fuel_begqty)}}">
                                                 @else
                                                     <div class="font-weight-bold">
@@ -346,12 +346,12 @@
                                         </div>
                                         <div class="offset-md-0 col-md-3">
                                             <div class="form-group">
-                                                <label class="required">по окончанию, л:</label>
+                                                <label class="">по окончанию, л:</label>
                                                 @if ($usrrights['edit'] )
                                                     <input type="number"
                                                            class="form-control rounded-0 text-right font-weight-bold"
                                                            name="fuel_endqty"
-                                                           id="fuel_endqty" required
+                                                           id="fuel_endqty"
                                                            min=0
                                                            value="{{old('fuel_endqty',$rec->fuel_endqty)}}">
                                                 @else

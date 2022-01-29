@@ -139,12 +139,14 @@
 
                             <div class="row">
                                 <div class="form-group offset-md-0 col-md-8">
-                                    <label for="address">Местонахождение:</label>
+                                    <label for="address" class="required">Местонахождение:</label>
                                     @if ($usrrights['save'])
                                         {!! Form::select('placeid', $rec->places??[], $rec->placeid,
                                          [
+                                         'id' => 'placeid',
                                          'class' => 'form-control',
                                          'placeholder' => '-',
+                                         'required' => 'required',
                                          ]) !!}
                                     @else
                                         <div

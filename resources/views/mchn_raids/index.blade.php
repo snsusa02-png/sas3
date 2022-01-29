@@ -51,6 +51,10 @@
                                             <li><a href="{{route('paydocs.index')}}"
                                                    title="Платежи">Платежи</a></li>
                                         @endif
+                                        @if(\App\usrsysright::isUserHasRightByCode_cached($userid,'driver_works.read'))
+                                            <li><a href="{{route('driver_works.index')}}"
+                                                   title="Учет работы водителей">Учет работы</a></li>
+                                        @endif
                                         @if(\App\usrsysright::isUserHasRightByCode_cached($userid,'machines.read'))
                                             <li><a href="{{route('machines.index')}}"
                                                    title="Спецтехника">Спецтехника</a></li>

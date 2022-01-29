@@ -48,7 +48,7 @@ $(document).ready(function () {
                         //lbl = lbl + " (категория: " + item.itname;
                         //if (item.specinfo) lbl = lbl + "; " + item.specinfo;
                         //lbl = lbl + "(цена: " + item.price + " &#x20bd; / " + item.unit + ")";
-                        lbl = lbl + "(ЕИ = "+ item.unit + ")";
+                        lbl = lbl + "(ЕИ = " + item.unit + ")";
                         return {
                             label: lbl,
                             value: item.name,
@@ -173,6 +173,7 @@ $(document).ready(function () {
     if (!$('#orgname').prop('readonly')) {
         $("#orgname").autocomplete({
             source: function (request, response) {
+
                 $.ajax({
                     url: "/orgs/autocomplete/search",
                     dataType: "json",
@@ -416,6 +417,48 @@ $(document).ready(function () {
         } else {
             $(this).parent().find('.id_lnk').hide()
         }
+    });
+
+
+    function sup_places_rfr() {
+
+        //---------------------------------------
+        var selector = "#placeid";
+        var org_source = "#orgid";
+        //---------------------------------------
+
+        var save_ID = $(selector).val();
+        //console.log('save_ID='+save_ID)
+        //console.log('org_source' + $(org_source).val());
+
+        $(selector + " > option").remove();
+
+        if ($(org_source).val()) {
+
+            $.get("/api/org_places/for_", {
+                    s_orgid: $(org_source).val()
+                },
+                function (data) {
+                    //console.log(data);
+
+                    $(selector).append($("<option>"));
+                    $.each(data.org_places, function (index, value) {
+                        $(selector).append($("<option>").attr("value", index).append(value))
+                    });
+
+                    $(selector).val(save_ID);
+                    //console.log('restored save_ID=',$(selector).val())
+                    //Если вариант всего один - попробуем сразу его выбрать. 2 - потому что есть еще placeholder
+                    if ($(selector + ' option').length == 2) {
+                        $(selector).prop('selectedIndex', 1);
+                    }
+                }
+            );
+        }
+    }
+
+    $("#orgid").change(function () {
+        sup_places_rfr();
     });
 
 
