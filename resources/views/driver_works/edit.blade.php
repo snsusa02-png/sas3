@@ -63,6 +63,7 @@
                                         @if ($usrrights['edit'])
                                             <input type="date" class="form-control text-center font-weight-bold"
                                                    name="wrkdate" id="wrkdate"
+                                                   min="{{$rec->wrkdate_min}}"
                                                    max="{{today()->format('Y-m-d')}}"
                                                    value="{{old('wrkdate',$rec->wrkdate)}}"/>
                                         @else

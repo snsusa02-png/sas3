@@ -16,7 +16,7 @@ class ProcFillMrOpers extends Migration
         DB::unprepared("
         DROP PROCEDURE IF EXISTS fill_mr_opers;
         
-PROCEDURE `fill_mr_opers`()
+	CREATE PROCEDURE `fill_mr_opers`()
 BEGIN
 
 truncate table mr_opers;

@@ -165,6 +165,8 @@ class PaydocController extends Controller
 
         $data = new \stdClass();
 
+        $data->sysobj = sysobj::find($this->sysobjid);
+
         //варианты кол-ва записей на страницу
         $data->pageitmcnts = $this->pageitmcnts;
 

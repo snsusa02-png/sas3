@@ -53,6 +53,17 @@ class MrOperController extends Controller
         $usrrights['save'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.update');
         $usrrights['delete'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.delete');
 
+
+        if ($recid > 0) {
+            //для существующих записей проверим открытость периода
+            if (mr_oper::isLocked($recid)) {
+
+                $usrrights['save'] = false;
+                $usrrights['delete'] = false;
+                $usrrights['admindelete'] = false;
+            }
+        }
+
         $usrrights['edit'] = $usrrights['save'];
 
         return $usrrights;
@@ -164,6 +175,12 @@ class MrOperController extends Controller
     function update(Request $request, $id)
     {
 
+        $userid = \Auth::user()->id;
+
+        $usrrights = $this->setInterfaceRight($id);
+        if (!($usrrights['save']))
+            return redirect()->back()->with('error', 'У вас нет права на изменение этих данных!');
+
         $messages = [
             'suporgid.required' => 'Не указан Поставщик',
             'sup_placeid.required' => 'Не указан местонахождение товара/услуги поставщика',
@@ -204,7 +221,7 @@ class MrOperController extends Controller
             $request->validate($rules, $messages);
         }
 
-        $userid = \Auth::user()->id;
+
         $mess = "";
         if ($id == -1) {
             $rec = new mr_oper([
@@ -224,6 +241,7 @@ class MrOperController extends Controller
         $rec->name = $request->get('name');
         $rec->suporgid = $request->get('suporgid');
         $rec->sup_placeid = $request->get('sup_placeid');
+        $rec->sup_placename = $rec->sup_place->name;
         $rec->sup_gk = objflag::IsSetObjFlag(111, $rec->suporgid, 12);
 
 
@@ -318,6 +336,11 @@ class MrOperController extends Controller
     public
     function destroy($id)
     {
+        $usrrights = $this->setInterfaceRight($id);
+        if (!($usrrights['delete'] or $usrrights['admindelete']))
+            return redirect()->back()->with('error', 'У вас нет права на удаление этих данных!');
+
+
         $res = mr_oper::delete_by_id($id, $this->sysobjid);
         $route = "";
         $sd = array();

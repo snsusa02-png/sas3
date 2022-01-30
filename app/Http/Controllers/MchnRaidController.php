@@ -19,6 +19,7 @@ use App\org_place;
 use App\orgstaff;
 use App\refitem;
 use App\sysobj;
+use App\sysobj_lockdate;
 use App\Traits\SearchDataTrait;
 use App\Traits\snsTrait;
 use App\unittype;
@@ -61,10 +62,23 @@ class MchnRaidController extends Controller
         $usrrights['save'] = false;
         $usrrights['delete'] = false;
         $usrrights['admindelete'] = false;
+        $usrrights['set_lockdate'] = false;
 
         $usrrights['save'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.update');
         $usrrights['delete'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.delete');
         $usrrights['manager'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.manager');
+        $usrrights['set_lockdate'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.set_lockdate');;
+
+        if ($recid > 0) {
+            //для существующих записей проверим открытость периода
+            if (mchn_raid::isLocked($recid)) {
+                $usrrights['save'] = false;
+                $usrrights['delete'] = false;
+                $usrrights['admindelete'] = false;
+            }
+        }
+
+        $usrrights['edit'] = $usrrights['save'];
 
         return $usrrights;
     }
@@ -78,15 +92,10 @@ class MchnRaidController extends Controller
     {
         $userid = \Auth::user()->id;
 
-        //$usrrights = $this->setInterfaceRight(-1);
-        $usrrights = array(
-            'read' => usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.read'),
-            'create' => usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.create'),
-            'save' => usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.save'),
-            'manager' => usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.manager'),
-        );
-        if (!$usrrights['read']) {
-            return view('home');
+        $usrrights = $this->setInterfaceRight(-1);
+        if (1==0 or !$usrrights['read']) {
+            return view('home')->with(['error'=>'Нет доступа!']);
+            //return redirect(back())->with(['error'=>'Нет доступа!']);
         }
 
         session([$this->sysobjcode . '_pageno' => $request->page]);
@@ -209,7 +218,7 @@ class MchnRaidController extends Controller
                 , 'l_ri.unit as load_refitem_unit'
                 , 'u_ri.name as unload_refitem_name'
                 , 'u_ri.unit as unload_refitem_unit'
-                ,db::raw("(select group_concat( o.name SEPARATOR '; ')
+                , db::raw("(select group_concat( o.name SEPARATOR '; ')
                             from mr_opers as mro
                             join orgs as o on o.id=mro.orgid
                             where mro.mr_id=mr.id and mro.sale_dir=1
@@ -241,6 +250,8 @@ class MchnRaidController extends Controller
 
         //варианты кол-ва записей на страницу
         $data->pageitmcnts = $this->pageitmcnts;
+
+        $data->sysobj = sysobj::find($this->sysobjid);
 
         $data->machines = machine::getFor(
             ['in_mchn_raids' => 1,], ['m.id', db::raw("concat(m.regnum,' - ',m.name) as name")]
@@ -494,13 +505,12 @@ class MchnRaidController extends Controller
 
         $rec->saledirs = mr_oper::saledirs();
 
-        //$usrrights['edit'] = ($rec->created_by == $userid and $rec->statusid == 0);
         $usrrights['delete'] = ($usrrights['delete'] and ($rec->created_by == $userid or $usrrights['manager']) and $rec->statusid == 0);
         $usrrights['save'] = ($usrrights['save'] and ($rec->created_by == $userid or $usrrights['manager']) and $rec->statusid == 0);
-        $usrrights['edit'] = (($rec->created_by == $userid or $usrrights['manager']) and $rec->statusid == 0);
+        $usrrights['edit'] = ($usrrights['save'] and ($rec->created_by == $userid or $usrrights['manager']) and $rec->statusid == 0);
         //можно ли изменить wrkDate, Machineid, Driverid (DMD)
         $usrrights['edit_dmd'] = ($usrrights['edit'] and (!isset($rec->dw_id)));
-        $usrrights['change_status'] = (($rec->created_by == $userid or $usrrights['manager']));
+        $usrrights['change_status'] = ($usrrights['save'] and ($rec->created_by == $userid or $usrrights['manager']));
 
         //корректировка прав с учетом статуса -------------------------------------------
 
@@ -509,10 +519,10 @@ class MchnRaidController extends Controller
         }
         //-------------------------------------------------------------------------------
 
-
-//        //сконструируем права для внутренних списков
-//        $usrrights['mchn_raid_items.create'] = $usrrights['create'];
-//        $usrrights['mchn_raid_items.save'] = $usrrights['save'];
+        if ($usrrights['save']) {
+            //установим минимально-допустимую дату для wrkdate
+            $rec->wrkdate_min = mchn_raid::min_wrkdate();
+        }
 
         return view('mchn_raids.edit', compact('rec', "usrrights"));
     }
@@ -527,6 +537,11 @@ class MchnRaidController extends Controller
     public
     function update(Request $request, $id)
     {
+
+        $usrrights = $this->setInterfaceRight($id);
+        if (!($usrrights['save']))
+            return redirect()->back()->with('error', 'У вас нет права на изменение этих данных!');
+
         //проверим текущий статус документа
         $statusid = ($id == -1) ? 0 : mchn_raid::find($id)->statusid ?? 0;
 
@@ -850,6 +865,11 @@ class MchnRaidController extends Controller
     public
     function destroy($id)
     {
+
+        $usrrights = $this->setInterfaceRight($id);
+        if (!($usrrights['delete'] or $usrrights['admindelete']))
+            return redirect()->back()->with('error', 'У вас нет права на удаление этих данных!');
+
         $res = mchn_raid::delete_by_id($id, $this->sysobjid);
         $route = "";
         $sd = array();

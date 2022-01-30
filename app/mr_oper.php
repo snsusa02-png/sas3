@@ -57,6 +57,19 @@ class mr_oper extends Model
         return $this->hasOne(refitem::class, 'id', 'refitmid')->withDefault();
     }
 
+    static public function isLocked($id)
+    {
+        //Попадает ли нужная запись в заблокированный период?
+
+        $lockdate = sysobj_lockdate::where('sysobjid', 1106)->select('lockdate')->first()->lockdate ?? null;
+        if (isset($lockdate)) {
+            $rec = self::find($id);
+            if (isset($rec)) {
+                return ($rec->mchn_raid->wrkdate <= $lockdate);
+            }
+        }
+        return false;
+    }
 
     static public function saledirs()
     {

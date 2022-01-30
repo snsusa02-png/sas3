@@ -8,7 +8,6 @@ use App\mchn_raid;
 use App\orgstaff;
 use App\sysobj;
 use App\usrsysright;
-use App\org;
 use App\machine;
 use App\user_template;
 use App\objtag;
@@ -54,6 +53,16 @@ class DriverWorkController extends Controller
 
         $usrrights['save'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.update');
         $usrrights['delete'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.delete');
+
+        if ($recid > 0) {
+            //для существующих записей проверим открытость периода
+            if (driver_work::isLocked($recid)) {
+
+                $usrrights['save'] = false;
+                $usrrights['delete'] = false;
+                $usrrights['admindelete'] = false;
+            }
+        }
 
         return $usrrights;
     }
@@ -380,9 +389,10 @@ class DriverWorkController extends Controller
         }
         //-------------------------------------------------------------------------------
 
-//        //сконструируем права для внутренних списков
-//        $usrrights['driver_work_items.create'] = $usrrights['create'];
-//        $usrrights['driver_work_items.save'] = $usrrights['save'];
+        if ($usrrights['save']) {
+            //установим минимально-допустимую дату для wrkdate
+            $rec->wrkdate_min = driver_work::min_wrkdate();
+        }
 
 
         return view('driver_works.edit', compact('rec', "usrrights"));
@@ -398,6 +408,11 @@ class DriverWorkController extends Controller
     public
     function update(Request $request, $id)
     {
+
+        $usrrights = $this->setInterfaceRight($id);
+        if (!($usrrights['save']))
+            return redirect()->back()->with('error', 'У вас нет права на изменение этих данных!');
+
         //проверим текущий статус документа
         //$pre_statusid = ($id == -1) ? 0 : driver_work::find($id)->statusid ?? 0;
         $pre_statusid = 0;
@@ -652,6 +667,10 @@ class DriverWorkController extends Controller
     public
     function destroy($id)
     {
+        $usrrights = $this->setInterfaceRight($id);
+        if (!($usrrights['delete'] or $usrrights['admindelete']))
+            return redirect()->back()->with('error', 'У вас нет права на удаление этих данных!');
+
         $res = driver_work::delete_by_id($id, $this->sysobjid);
         $route = "";
         $sd = array();

@@ -1090,6 +1090,12 @@ Route::match(array('POST', 'PUT'), 'user_templates/{id}', "UserTemplateControlle
 Route::get('user_templates/{id}/delete', "UserTemplateController@destroy")->name("user_templates.delete");
 
 
+// Дата блокировки данных ----------------------------------------------------------------------------------------------
+Route::get('_lockdates/{sysobjid}/edit', "SysobjLockdateController@edit")->name('sysobj_lockdates.edit');
+Route::match(array('POST', 'PUT'), '_lockdates/{sysobjid}', "SysobjLockdateController@update")->name('sysobj_lockdates.update');
+//----------------------------------------------------------------------------------------------------------------------
+
+
 // Информеры -----------------------------------------------------------------------------------------------------------
 Route::match(array('GET', 'POST'), '/informers/', "InformerController@index")->name('informers.index');
 Route::get('informers/create', "InformerController@create")->name('informers.create');

@@ -10,12 +10,12 @@
                         <span class="breadcrumb-item active">{{$name}}</span>
                     @endif
                 @endforeach
-            </nav>
-            @if(isset($data->sysobj))
-                <span class="float-right">
-                        <a href="{{route('acslst.index',$data->sysobj)}}" class="float-right" target="_blank">ACL</a>
+                @if(isset($data->sysobj))
+                    <span class="ml-3">
+                        <a href="{{route('acslst.index',$data->sysobj)}}" class="" target="_blank"><i class="fa fa-key text-secondary" aria-hidden="true"></i></a>
                     </span>
-            @endif
+                @endif
+            </nav>
         </div>
     </div>
 @endif

@@ -128,6 +128,7 @@
                                         @if ($usrrights['edit_dmd'])
                                             <input type="date" class="form-control text-center font-weight-bold"
                                                    name="wrkdate" id="wrkdate" required
+                                                   min="{{$rec->wrkdate_min}}"
                                                    max="{{today()->format('Y-m-d')}}"
                                                    value="{{old('wrkdate',$rec->wrkdate)}}"/>
                                         @else
@@ -629,7 +630,8 @@
                                                    class="form-control text-center"
                                                    readonly value="{{$rec->raid_salary*$rec->raid_qty}}">
                                         @else
-                                            <div class="font-weight-bold text-center">{{$$rec->raid_salary*$rec->raid_qty}}</div>
+                                            <div
+                                                class="font-weight-bold text-center">{{$rec->raid_salary*$rec->raid_qty}}</div>
                                         @endif
                                     </div>
 

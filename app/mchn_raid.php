@@ -53,6 +53,11 @@ class mchn_raid extends Model
         return $this->hasMany(mr_oper::class, 'id', 'mr_id');
     }
 
+    public function opertype()
+    {
+        return $this->hasOne(opertype::class, 'id', 'opertypeid')->withDefault();
+    }
+
     static public function paytypes()
     {
         return [1 => 'нал', 2 => 'б/н'];
@@ -121,6 +126,32 @@ class mchn_raid extends Model
             return $rslt;
         } else
             return null;
+    }
+
+    static public function isLocked($id)
+    {
+        //Попадает ли нужная запись в заблокированный период?
+
+        $lockdate = sysobj_lockdate::where('sysobjid', self::$sysobjid)->select('lockdate')->first()->lockdate ?? null;
+        if (isset($lockdate)) {
+            $rec = self::find($id);
+            if (isset($rec)) {
+                return ($rec->wrkdate <= $lockdate);
+            }
+        }
+        return false;
+    }
+
+
+    public static function min_wrkdate()
+    {
+        //определим минимально-допустимую дату для поля wrkdate
+        $min_date = sysobj_lockdate::where('sysobjid', self::$sysobjid)->first()->lockdate ?? null;
+        if (isset($min_date)) {
+            $min_date = date_create($min_date)->modify('+1 day');
+            return $min_date->format('Y-m-d');
+        }
+        return null;
     }
 
     public static function years()

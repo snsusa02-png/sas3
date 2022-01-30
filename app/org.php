@@ -10,8 +10,8 @@ use App\Traits\Result;
 use App\Traits\snsTrait;
 use App\Traits\StringUtil;
 use App\usrsysright;
-use Cache;
-use DB;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 
 use App\Http\Middleware\IStock;

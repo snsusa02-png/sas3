@@ -33,12 +33,12 @@
 
             <div class="row justify-content-center">
                 <div class="col-md-12">
-                    <div class="container">
+                    <div class="container-fluid">
                         <div class="row">
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <h3>{{$thisTitle}}</h3>
                             </div>
-                            <div class="col-md-9">
+                            <div class="col-md-10">
                                 <div class="subnav shift">
                                     <ul>
                                         <li class=""><a href="{{route('reports.rep45')}}"
@@ -66,6 +66,10 @@
                                         @if(\App\usrsysright::isUserHasRightByCode_cached($userid,'orgstaff.read'))
                                             <li><a href="{{route('orgstaff.index')}}"
                                                    title="Персонал">Персонал</a></li>
+                                        @endif
+                                        @if($usrrights['set_lockdate']??false)
+                                            <li><a href="{{route('sysobj_lockdates.edit',1106)}}"
+                                                   title="Установка даты блокировки данных"><i class="fa fa-lock " aria-hidden="true"></i></a></li>
                                         @endif
                                     </ul>
                                 </div>
@@ -328,7 +332,7 @@
                                             {{$item->unload_placename}}
                                         </td>
                                         <td class="text-center small">
-{{--                                            {{$item->org_name}}--}}
+                                            {{--                                            {{$item->org_name}}--}}
                                             {{$item->orgs}}
                                         </td>
                                         <td class="text-center">

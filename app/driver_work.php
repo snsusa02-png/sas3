@@ -53,16 +53,30 @@ class driver_work extends Model
             ->orderBy('breakbegdt');
     }
 
-    //    public function org()
-//    {
-//        return $this->hasOne(org::class, 'id', 'orgid')->withDefault();
-//    }
-//
-//    public function contract()
-//    {
-//        return $this->hasOne(contract::class, 'id', 'contractid')->withDefault();
-//    }
+    static public function isLocked($id)
+    {
+        //Попадает ли нужная запись в заблокированный период?
 
+        $lockdate = sysobj_lockdate::where('sysobjid', self::$sysobjid)->select('lockdate')->first()->lockdate ?? null;
+        if (isset($lockdate)) {
+            $rec = self::find($id);
+            if (isset($rec)) {
+                return ($rec->wrkdate <= $lockdate);
+            }
+        }
+        return false;
+    }
+
+    public static function min_wrkdate()
+    {
+        //определим минимально-допустимую дату для поля wrkdate
+        $min_date = sysobj_lockdate::where('sysobjid', self::$sysobjid)->first()->lockdate ?? null;
+        if (isset($min_date)) {
+            $min_date = date_create($min_date)->modify('+1 day');
+            return $min_date->format('Y-m-d');
+        }
+        return null;
+    }
 
     static public function find_or_create($params)
     {
