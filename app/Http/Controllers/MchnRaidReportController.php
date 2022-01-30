@@ -447,8 +447,8 @@ class MchnRaidReportController extends Controller
                     , 'mro.itm_price as load_price'
                     , 'mro.refitmid'
                     , db::raw("max(ri.unit) as unit")
-                    , db::raw("sum(mr.load_qty) as load_qty")
-                    , db::raw("sum(mr.load_sum) as load_sum")
+                    , db::raw("sum(mro.itm_qty) as load_qty")
+                    , db::raw("sum(mro.itm_qty*mro.itm_price) as load_sum")
                     , 'ri.name as refitm_name'
                 )
 
