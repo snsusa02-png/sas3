@@ -132,9 +132,11 @@ class SysobjLockdateController extends Controller
         //dd($rec);
         $rec->save();
 
+
         objlog::log_info($rec->sysobjid, $rec->id, $mess, 5);
 
-        $retURL = $request->get('retURL') ?? route($rec->sysobj->code . '.index') . '?#lockdate';
+        //dd($request->get('retURL'),$rec->sysobj);
+        $retURL = $request->get('retURL') ?? route($rec->sysobj->code . '.index') . '#lockdate';
 
         return redirect($retURL)->with('success', $mess);
 
