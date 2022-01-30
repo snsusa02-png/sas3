@@ -453,8 +453,8 @@ $action_url = route('reports.rep' . $thisObjId);
                             <td rowspan="2" class="text-center">Всего</td>
                         </tr>
                         <tr>
-                            <td class="text-right small">За рейс, &#8381;</td>
-                            <td class="text-right small">Сумма, &#8381;</td>
+                            <td class="text-center small">За рейс, &#8381;</td>
+                            <td class="text-center small">Сумма, &#8381;</td>
 
                             <td class="text-center small">Время, ч</td>
                             <td class="text-center small">Сумма, &#8381;</td>
@@ -523,6 +523,9 @@ $action_url = route('reports.rep' . $thisObjId);
                                 <td class="text-right font-weight-bold">{{number_format($totRepairSum,2)}}</td>
 
                                 <td class="text-right font-weight-bold">{{number_format($totSum,2)}}</td>
+                            </tr>
+                            <tr class="text-left" style="background-color: #b1da64">
+                                <td colspan="9" class="text-left pl-2"></td>
                             </tr>
                             <tr>
                                 <td colspan="8" class="text-right">

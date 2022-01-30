@@ -481,6 +481,7 @@ class MchnRaidReportController extends Controller
                 )
                 ->groupBy('mr.machineid')
                 ->groupBy('mr.driverid')
+                ->orderBy('driver_name')
                 ->get();
             //dd($sc, $recs3);
 
