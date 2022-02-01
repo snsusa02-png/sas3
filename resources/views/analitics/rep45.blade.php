@@ -89,7 +89,7 @@
                                         <div class="col-md-8">
                                             <table class="">
                                                 <tr align="center">
-                                                    <td style="min-width:248px;">Основной период
+                                                    <td style="min-width:248px;" ><label class="required">Основной период</label>
                                                         <?php
                                                         $TimeSelTypes = [1 => 'год/месяц', 2 => 'дата'];
                                                         ?>
@@ -313,10 +313,21 @@
                                             </table>
                                         </div>
 
-                                        @if (1==1 and count($data->ownorgs)>1)
+                                        <div class="form-group col-md-4">
+                                            <label for="s_sale_dirs" class="required">Тип операций:</label>
+                                            {!! Form::select('s_sale_dir', $data->sale_dirs??[], $search_params['s_sale_dir']??'',
+                                                            [
+                                                            'class' => 'form-control font-weight-bold',
+                                                            'placeholder' => '-',
+                                                            'required' => 'required'
+                                                            ])
+                                                            !!}
+                                        </div>
+
+                                        @if (1==1 and count($data->suporgs)>1)
                                             <div class="form-group col-md-4">
-                                                <label for="s_ownorgid">Исполнитель:</label>
-                                                {!! Form::select('s_ownorgid', $data->ownorgs, $search_params['s_ownorgid'],
+                                                <label for="s_suporgs">Исполнитель:</label>
+                                                {!! Form::select('s_suporgid', $data->suporgs, $search_params['s_suporgid'],
                                                                 [
                                                                 'class' => 'form-control',
                                                                 'placeholder' => '-любой-',
@@ -327,7 +338,7 @@
 
                                         @if (1==1 and count($data->orgs)>1)
                                             <div class="form-group col-md-4">
-                                                <label for="s_ownorgid">Заказчик:</label>
+                                                <label for="s_orgid">Заказчик:</label>
                                                 {!! Form::select('s_orgid', $data->orgs, $search_params['s_orgid'],
                                                                 [
                                                                 'class' => 'form-control',
@@ -350,7 +361,7 @@
 
                                         @if (count($data->dispatchers)>1)
                                             <div class="form-group col-md-3">
-                                                <label for="s_ownorgid">Диспетчер:</label>
+                                                <label for="s_suporgid">Диспетчер:</label>
                                                 {!! Form::select('s_mngrid', $data->dispatchers, $search_params['s_mngrid'],
                                                                 [
                                                                 'class' => 'form-control',
@@ -378,7 +389,7 @@
                                     <div class="row">
                                         @if (1==0 and count($data->orggroups)>0)
                                             <div class="form-group offset-md-0 col-md-3">
-                                                <label for="s_ownorgid">Группа клиентов:</label>
+                                                <label for="s_orggrpid">Группа клиентов:</label>
                                                 {!! Form::select('s_orggrpid', $data->orggroups, $search_params['s_orggrpid'],
                                                                 [
                                                                 'class' => 'form-control',
@@ -876,7 +887,7 @@
                                 $lineData[$itm->dataset] = [
                                     $itm->itmqty,
                                     $itm->itmsum,
-                                    $itm->raid_qty,
+                                    $itm->Исполнитель,
                                     ($itm->raid_qty > 0) ? round($itm->itmsum / $itm->raid_qty, 2) : 0,
                                 ];
                                 //подитоги групп
