@@ -15,6 +15,7 @@ class SysobjLockdateController extends Controller
     {
         $this->middleware('auth');
 
+        $this->sysobjid = '22';
         $this->sysobjcode = 'sysobj_lockdates';
     }
 
@@ -105,12 +106,12 @@ class SysobjLockdateController extends Controller
     {
         //
         $messages = [
-            'lockdate.required' => 'Укажите дату блокировки',
+            'lock_before.required' => 'Укажите дату блокировки',
         ];
 
         $rules = [
             //"sysobjid" => "required",
-            "lockdate" => "required",
+            "lock_before" => "required",
         ];
 
         $request->validate($rules, $messages);
@@ -121,19 +122,17 @@ class SysobjLockdateController extends Controller
             $rec = new sysobj_lockdate([
                 "sysobjid" => $sysobjid,
             ]);
-            $mess = "Запись создана";
-        } else {
-            $mess = "Запись обновлена";
         }
 
-        $rec->lockdate = $request->get('lockdate');
+        $rec->lock_before = $request->get('lock_before');
         $rec->updated_by = $userid;
         $rec->updated_at = now();
         //dd($rec);
         $rec->save();
 
+        $mess = "Для подсистемы '{$rec->sysobj->name}' блокированы изменения данных до {$rec->lock_before}";
 
-        objlog::log_info($rec->sysobjid, $rec->id, $mess, 5);
+        objlog::log_info($this->sysobjid, $rec->sysobjid, $mess, 5);
 
         //dd($request->get('retURL'),$rec->sysobj);
         $retURL = $request->get('retURL') ?? route($rec->sysobj->code . '.index') . '#lockdate';

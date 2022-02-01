@@ -23,10 +23,10 @@
             ?>
         @else
             <?php
-            $thisSysObjId = 1923;
+            $thisSysObjId = 22;
             $sysobjid = $thisSysObjId;
             $sysobjcode = 'sysobj_lockdates';
-            $thisTitle = "Дата блокировки";
+            $thisTitle = "Блокировка данных от изменений";
 
             $retRoute = $rec->retURL;
 
@@ -73,16 +73,16 @@
 
                                     <div class="row">
                                         <div class="form-group offset-md-4 col-md-4">
-                                            <label for="name" class="required">Дата блокировки:</label>
+                                            <label for="name" class="required">Заблокировать до:</label>
                                             @if ($usrrights['save'])
                                                 <input type="date" class="form-control text-center font-weight-bold"
-                                                       name="lockdate" id="lockdate" required
+                                                       name="lock_before" id="lock_before" required
                                                        max="{{today()->format('Y-m-d')}}"
-                                                       value="{{old('lockdate',$rec->lockdate)}}"/>
+                                                       value="{{old('lock_before',$rec->lock_before)}}"/>
                                             @else
                                                 <div
-                                                    class="font-weight-bold text-center">{{date_create($rec->lockdate)->format('d.m.Y')}}
-                                                    {{ Form::hidden('lockdate', $rec->lockdate,['id'=>'lockdate']) }}
+                                                    class="font-weight-bold text-center">{{date_create($rec->lock_before)->format('d.m.Y')}}
+                                                    {{ Form::hidden('lock_before', $rec->lock_before,['id'=>'lock_before']) }}
                                                 </div>
                                             @endif
                                         </div>
@@ -102,6 +102,12 @@
                                 </form>
 
                                 {{--                                @include('layouts._who_when')--}}
+                                @if ($rec->id != -1)
+                                    <div class="small" style="margin-top: 8px; color:gray">
+                                        изменено: {{$rec->updated_at}} / {{$rec->whoupd->FirstLast??''}}
+                                        <a href="{{route('objevntlog',['sysobjid'=>($thisSysObjId??$sysobjid), 'objid'=>$rec->sysobjid,'route'=>Route::current()->getName()])}}" target="_blank">журнал</a>
+                                    </div>
+                                @endif
                             </div>
 
 

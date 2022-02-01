@@ -10,6 +10,7 @@ use App\grptype;
 //use function App\Http\Controllers\getStartAndEndDate;
 //use function App\Http\Controllers\isTblInGrps;
 use App\mchn_raid;
+use App\mr_oper;
 use App\order;
 use App\org;
 use App\org_curator;
@@ -904,6 +905,573 @@ class AnaliticsController extends Controller
 
             $sc = " 1=1 ";
             if (1 == 1 and isset($s_ownorgid)) {
+                $sc .= " and mro.suporgid=" . $s_ownorgid;
+                $conditions .= 'Исполнитель = "<b>' . $data->ownorgs[$s_ownorgid] . '</b>"; ';
+            }
+
+            if (1 == 1 and isset($s_contractid)) {
+                $sc .= " and di.contractid=" . $s_contractid;
+                $conditions .= 'Договор = "<b>' . $data->contracts[$s_contractid] . '</b>"; ';
+            }
+
+            if (isset($s_orggrpid)) {
+                $sc .= " and exists(select 1 from grpitems gl where gl.sysobjid=111 and gl.objid=m.orgid and gl.grpid=" . $s_orggrpid . ')';
+                $groups = group::lstAllGroups_cache();
+//                dd($groups);
+                $conditions .= 'Группа = <b>' . $groups[$s_orggrpid] . '</b>; ';
+            }
+
+            if (isset($s_orgid)) {
+                $sc .= " and m.orgid=" . $s_orgid;
+                $conditions .= 'Заказчик = "<b>' . $s_orgname . '</b>"; ';
+            }
+
+            if (isset($s_mngrid))
+                if ($s_mngrid == 0) {
+                    $sc .= " and mr.disp_staffid is null";
+                    $conditions .= 'Без диспетчера';
+                } else {
+                    $sc .= " and mr.disp_staffid=" . $s_mngrid;
+                    $conditions .= 'Диспетчер: <b>' . $data->dispatchers[$s_mngrid] . '</b>; ';
+                }
+        }
+        // --------------------------------------------------------------------
+        //var_dump($sc);
+//        var_dump($GrpLst);
+        //dd($sc);
+
+
+        $allgrps = [
+//            ['title' => 'год отгрузки', 'fld' => 'year(mr.wrkdate)', 'lbl' => 'yr'],
+            ['title' => 'квартал', 'jointbl' => '', 'fld' => 'QUARTER(mr.wrkdate)', 'lbl' => 'quart', 'timescale' => 1],
+            ['title' => 'месяц', 'jointbl' => '', 'fld' => 'month(mr.wrkdate)', 'lbl' => 'mn', 'timescale' => 1],
+            ['title' => 'неделя', 'jointbl' => '', 'fld' => 'week(mr.wrkdate)', 'lbl' => 'wk', 'timescale' => 1],
+            ['title' => 'дата работы', 'jointbl' => '', 'fld' => 'mr.wrkdate', 'lbl' => 'wrkdate', 'timescale' => 1],
+            ['title' => 'категория спецтехники', 'jointbl' => 'mt', 'fld' => 'm.mchntypeid', 'lbl' => 'mchntypeid', 'show_val' => 'ifnull(mt.name,"-нет-")'],
+            ['title' => 'техника', 'jointbl' => 'm', 'fld' => 'di.machineid', 'lbl' => 'machineid', 'show_val' => "ifnull(concat(m.regnum,', ',m.name),'-не известно-')"],
+            ['title' => 'заказчик', 'jointbl' => 'o', 'fld' => 'mro.orgid', 'lbl' => 'orgid', 'show_val' => 'ifnull(o.name,"-не определен-")'],
+            ['title' => 'диспетчер', 'jointbl' => 'ds', 'fld' => 'mr.disp_staffid', 'lbl' => 'disp_staffid', 'show_val' => 'ifnull(ds.name,"-нет-")'],
+            ['title' => 'поставщик', 'jointbl' => 'so', 'fld' => 'mro.suporgid', 'lbl' => 'suporgid', 'show_val' => 'ifnull(so.name,"-не известен-")'],
+            ['title' => 'поставленный груз', 'jointbl' => 'ri', 'fld' => 'mro.refitmid', 'lbl' => 'refitmid', 'show_val' => 'ifnull(ri.name,"-не известен-")'],
+            ['title' => 'водитель', 'jointbl' => 'os', 'fld' => 'mr.driverid', 'lbl' => 'driverid', 'show_val' => 'ifnull(os.name,"-не известен-")'],
+            ['title' => 'тип оплаты', 'jointbl' => 'pt', 'fld' => 'mro.paytypeid', 'lbl' => 'paytypeid', 'show_val' => 'ifnull(pt.name,"-не известен-")'],
+            ['title' => 'место загрузки', 'jointbl' => 'p_l', 'fld' => 'mro.sup_placeid', 'lbl' => 'load_placeid', 'show_val' => 'ifnull(p_l.name,"-не известно-")'],
+            ['title' => 'место выгрузки', 'jointbl' => 'p_u', 'fld' => 'mro.org_placeid', 'lbl' => 'unload_placeid', 'show_val' => 'ifnull(p_u.name,"-не известно-")'],
+            ['title' => 'тип операции', 'jointbl' => 'ot', 'fld' => 'mr.opertypeid', 'lbl' => 'opertypeid', 'show_val' => 'ifnull(ot.name,"-не известно-")'],
+        ];
+
+
+        //Добавим динамические группировки - от групп для организаций
+        $grptypes = grptype::where('active', 1)
+            ->where('forsysobjid', 111)
+            ->select('id', 'name')->get();
+        foreach ($grptypes as $gt) {
+            $n = $gt->id;
+            $allgrps[] = ['title' => 'группы: ' . $gt->name, 'jointbl' => 'grp' . $n, 'fld' => 'grp' . $n . '.name', 'lbl' => 'grp' . $n . 'name', 'show_val' => 'ifnull(grp' . $n . '.name,"-нет-")'];
+        }
+        //dd($allgrps);
+
+        $aCnds = [];
+        foreach ($allgrps as $grp) {
+            $aCnds += [$grp['fld'] => $grp['title']];
+        }
+
+        $grps = [];
+        $aGrps = [];   //Массив с выбором
+
+        //dd($sc);
+
+        if (isset($sc)) {
+
+            if (isset($list2)) {
+                foreach ($list2 as $itm) {
+                    foreach ($allgrps as $grp) {
+                        if ($grp['fld'] == $itm) {
+                            $grps[] = $grp;
+                            $aGrps += [$grp['fld'] => $grp['title']];
+                        }
+                    }
+                }
+                //var_dump($grps, $aGrps);
+            }
+//            dd($aCnds, $aGrps, array_diff($aCnds, $aGrps), array_diff($aGrps, $aCnds));
+            $aCnds = array_diff($aCnds, $aGrps);
+
+            function isTblInGrps($tbl, $grps)
+            {
+                $add = false;
+                foreach ($grps as $grp) {
+                    if ($grp['jointbl'] == $tbl) {
+                        $add = true;
+                        break;
+                    }
+                }
+                return $add;
+            }
+
+            $dataset = [];
+            $dataset[1] = [$begdate1, $enddate1];
+
+            $datasetCnt = 1;
+            if (isset($begdate2) and isset($enddate2)) {
+                $datasetCnt++;
+                $dataset[2] = [$begdate2, $enddate2];
+
+                $recs2 = mr_oper::from('mr_opers as mro')
+                    ->join('mchn_raids as mr', 'mr.id', 'mro.mr_id')
+                    ->wherebetween('mr.wrkdate', [$begdate2, $enddate2])
+                    ->whereIn('mr.active', [1])
+                    ->where('mro.sup_gk', 1)
+                    ->whereraw($sc);
+
+
+                if (isTblInGrps('m', $grps))
+                    $recs2 = $recs2->leftjoin('machines as m', 'm.id', 'mr.machineid');
+
+                if (isTblInGrps('o', $grps))
+                    $recs2 = $recs2
+                        ->leftjoin('orgs as o', 'o.id', 'mro.orgid');
+
+                if (isTblInGrps('oo', $grps))
+                    $recs2 = $recs2->leftjoin('orgs as oo', 'oo.id', 'mro.suporgid');
+
+                if (isTblInGrps('so', $grps))
+                    $recs2 = $recs2->leftjoin('orgs as so', 'so.id', 'mro.suporgid');
+
+                if (isTblInGrps('p_l', $grps))
+                    $recs2 = $recs2->leftjoin('org_places as p_l', 'p_l.id', 'mro.sup_placeid');
+
+                if (isTblInGrps('p_u', $grps))
+                    $recs2 = $recs2->leftjoin('org_places as p_u', 'p_u.id', 'mro.org_placeid');
+
+                if (isTblInGrps('mt', $grps)) {
+                    // так как типы техники связаны через спр-к Техники, то подключим Технику
+                    if (!isTblInGrps('m', $grps))
+                        $recs2 = $recs2->leftjoin('machines as m', 'm.id', 'mr.machineid');
+
+                    $recs2 = $recs2->leftjoin('mchntypes as mt', 'mt.id', 'm.mchntypeid');
+                }
+
+                if (isTblInGrps('c', $grps))
+                    $recs2 = $recs2->leftjoin('contracts as c', 'c.id', 'mr.contractid');
+
+                if (isTblInGrps('ds', $grps))
+                    $recs2 = $recs2->leftjoin('orgstaff as ds', 'ds.id', 'mr.disp_staffid');
+
+                if (isTblInGrps('ri', $grps))
+                    $recs2 = $recs2->leftjoin('refitems as ri', 'ri.id', 'mro.refitmid');
+
+                if (isTblInGrps('os', $grps))
+                    $recs2 = $recs2->leftjoin('orgstaff as os', 'os.id', 'mr.driverid');
+
+                if (isTblInGrps('pt', $grps))
+                    $recs2 = $recs2->leftjoin('paytypes as pt', 'pt.id', 'mro.paytypeid');
+
+                if (isTblInGrps('ot', $grps))
+                    $recs2 = $recs2->leftjoin('opertypes as ot', 'ot.id', 'mr.opertypeid');
+
+                //* Динамически подкючим группы - если нужно
+                foreach ($grptypes as $gt) {
+                    $tbl = 'grp' . $gt->id;
+                    if (isTblInGrps($tbl, $grps))
+                        $recs2 = $recs2->leftJoin(DB::raw('(select gi.objid, g.name as name
+                        from grpitems as gi
+                        join groups as g on g.id=gi.grpid and g.grptypeid=' . $gt->id
+                            . ' where gi.sysobjid=111) ' . $tbl),
+                            function ($join) use ($tbl) {
+                                $join->on($tbl . '.objid', '=', 'mro.orgid');
+                            });
+                }
+
+                $recs2 = $recs2->selectRaw('2 as dataset, sum(mr.mchnwrkhrs*1) as itmqty
+                , sum(mro.itm_sum) itmsum
+                , sum(mro.raid_qty) raid_qty
+                , count(distinct mr.id) as docqty');
+
+
+                foreach ($grps as $grp) {
+                    if (isset($grp['show_val']))
+                        $recs2 = $recs2->addSelect(DB::raw($grp['show_val'] . ' as ' . $grp['lbl']));
+                    else
+                        $recs2 = $recs2->addSelect(DB::raw($grp['fld'] . ' as ' . $grp['lbl']));
+
+                    $recs2 = $recs2->groupby($grp['lbl']);
+                }
+            }
+
+
+            $recs = mr_oper::from('mr_opers as mro')
+                ->join('mchn_raids as mr', 'mr.id', 'mro.mr_id')
+                ->wherebetween('mr.wrkdate', [$begdate1, $enddate1])
+                ->whereIn('mro.active', [1])
+                ->where('mro.sup_gk', 1)
+                ->whereraw($sc);
+
+            if (isTblInGrps('m', $grps))
+                $recs = $recs->leftjoin('machines as m', 'm.id', 'mr.machineid');
+
+            if (isTblInGrps('o', $grps))
+                $recs = $recs->leftjoin('orgs as o', 'o.id', 'mro.orgid');
+
+            if (isTblInGrps('oo', $grps))
+                $recs = $recs->leftjoin('orgs as oo', 'oo.id', 'mro.suporgid');
+
+            if (isTblInGrps('so', $grps))
+                $recs = $recs->leftjoin('orgs as so','so.id', 'mro.suporgid');
+
+            if (isTblInGrps('p_l', $grps))
+                $recs = $recs->leftjoin('org_places as p_l', 'p_l.id', 'mro.sup_placeid');
+
+            if (isTblInGrps('p_u', $grps))
+                $recs = $recs->leftjoin('org_places as p_u', 'p_u.id', 'mro.org_placeid');
+
+            if (isTblInGrps('ds', $grps))
+                $recs = $recs->leftjoin('orgstaff as ds', 'ds.id', 'mr.disp_staffid');
+
+            if (isTblInGrps('c', $grps))
+                $recs = $recs->leftjoin('contracts as c', 'c.id', 'mr.contractid');
+
+            if (isTblInGrps('mt', $grps)) {
+                if (!isTblInGrps('m', $grps))
+                    $recs = $recs->leftjoin('machines as m', 'm.id', 'mr.machineid');
+
+                $recs = $recs->leftjoin('mchntypes as mt', 'mt.id', 'm.mchntypeid');
+            }
+
+
+            if (isTblInGrps('ri', $grps))
+                $recs = $recs->leftjoin('refitems as ri', 'ri.id', 'mro.refitmid');
+
+            if (isTblInGrps('os', $grps))
+                $recs = $recs->leftjoin('orgstaff as os', 'os.id', 'mr.driverid');
+
+            if (isTblInGrps('pt', $grps))
+                $recs = $recs->leftjoin('paytypes as pt', 'pt.id', 'mro.paytypeid');
+
+            if (isTblInGrps('ot', $grps))
+                $recs = $recs->leftjoin('opertypes as ot', 'ot.id', 'mr.opertypeid');
+
+            //Динамически подкючим группы - если нужно
+            foreach ($grptypes as $gt) {
+                $tbl = 'grp' . $gt->id;
+                if (isTblInGrps($tbl, $grps))
+                    $recs = $recs->leftJoin(DB::raw('(select gi.objid, g.name as name
+                        from grpitems as gi
+                        join groups as g on g.id=gi.grpid and g.grptypeid=' . $gt->id
+                        . ' where gi.sysobjid=111) ' . $tbl),
+                        function ($join) use ($tbl) {
+                            $join->on($tbl . '.objid', '=', 'm.orgid');
+                        });
+            }
+
+//            $recs = $recs->selectRaw('1 as dataset, sum(di.qty*ft.forsale) as itmqty, sum(di.qty*di.price*ft.forsale) itmsum
+//                , count(distinct fd.id) as docqty');
+            $recs = $recs->selectRaw('1 as dataset, sum(mr.mchnwrkhrs*1) as itmqty
+                , sum(mro.itm_sum) itmsum
+                , sum(mr.raid_qty) raid_qty
+                , count(distinct mr.id) as docqty');
+
+            foreach ($grps as $grp) {
+                if (isset($grp['show_val']))
+                    $recs = $recs->addSelect(DB::raw($grp['show_val'] . ' as ' . $grp['lbl']));
+                else
+                    $recs = $recs->addSelect(DB::raw($grp['fld'] . ' as ' . $grp['lbl']));
+
+                $recs = $recs->groupby($grp['lbl']);
+            }
+
+            if (isset($begdate2) and isset($enddate2)) {
+                $recs = $recs->union($recs2);
+            }
+
+            if ($datasetCnt == 1 and count($grps) == 1 and $ordbyItmSumDesc == 1)
+                $recs = $recs->orderby('itmsum', 'desc');
+
+            if ($datasetCnt == 1 and count($grps) == 1 and $ordbyDocQtyDesc == 1)
+                $recs = $recs->orderby('raid_qty', 'desc');
+
+            foreach ($grps as $grp) {
+                $recs = $recs->orderby($grp['lbl']);
+            }
+            $recs = $recs->orderby('dataset');
+
+            $recs = $recs->get();
+//dd($recs);
+
+            if (isset($s_minitmsum)) {
+                //filter by minimal ItmSum
+                $recs = $recs->filter(function ($item) use ($s_minitmsum) {
+                    return $item->itmsum >= $s_minitmsum;
+                })->values();
+            }
+            if (isset($s_mindocsum)) {
+                //filter by minimal ItmSum
+                $recs = $recs->filter(function ($item) use ($s_mindocsum) {
+                    return $item->itmsum / $item->raid_qty >= $s_mindocsum;
+                })->values();
+            }
+            if (1 == 0) {
+                //filter by minimal Order's count
+                $recs = $recs->filter(function ($item) {
+                    return $item->raid_qty > 5;
+                })->values();
+            }
+
+//            Event::dispatch(new docs1CLoadedEvent('code'
+//                , 'user: ' . \Auth::user()->name
+//                . ', period1: ' . $begdate1 . '-' . $enddate1
+//                . ', period2: ' . $begdate2 . '-' . $enddate2));
+
+//            event(new docs1CLoadedEvent('code'
+//                , '2 user: ' . \Auth::user()->name
+//                . ', period1: ' . $begdate1 . '-' . $enddate1
+//                . ', period2: ' . $begdate2 . '-' . $enddate2));
+
+        } else {
+            //return (redirect()->back());
+            $dataset = null;
+            $datasetCnt = 0;
+            $grps = null;
+            $recs = null;
+        }
+
+        //todo: обновить счетчик использования отчета
+        //
+        report::updUseCnt($report_id, $userid);
+        //занесем в журнал
+        objlog::log_info(855, $report_id, 'запрошен: ' . $conditions);
+
+
+        return view('analitics.rep45', compact(['dataset', 'datasetCnt', 'recs', 'grps', 'data'
+            , 'year'
+            //, 'ownorgs', 'years', 'monthes', 'orggroups'
+            , 'search_params'
+            , 'aCnds', 'aGrps', 'GrpLst', 'conditions']));
+    }
+
+    public static function rep45_pre(Request $request)
+    {//Анализ данных по рейсам автомобилей/спецтехники
+
+        $report_id = 45;
+        $userid = \Auth::user()->id;
+
+        // - параметры поиска -------------------------------------------------
+        $search_setname = "reports.rep" . $report_id;
+        $s_buildobjid = null;
+        $s_ownorgid = null;
+        $s_contractid = null;
+        $vTimeSelType = 1;
+        $vYr1 = null;
+        $vYr1 = today()->format('Y');
+        $vMn1 = null;
+        $vDc1 = null;
+        $vWk1 = null;
+        $vBegDate1 = null;
+        $vEndDate1 = null;
+        $vYr2 = null;
+        $vMn2 = null;
+        $vDc2 = null;
+        $vWk2 = null;
+        $vBegDate2 = null;
+        $vEndDate2 = null;
+
+        $s_orggrpid = null;
+        $s_orgid = null;
+        $s_orgname = null;
+        $s_mngrid = null;
+        $s_minitmsum = null;
+        $s_mindocsum = null;
+        $list2 = null;
+        $GrpLst = "";
+        $showGrpSum = null;
+        $ordbyItmSumDesc = null;
+        $ordbyDocQtyDesc = null;
+
+        if ($request->isMethod('post')) {
+
+        } else {
+            if (session('search_setname') == $search_setname) {
+                if (!empty(session('search_params'))) {
+
+                    //восстановим параметры поиска из сессии
+                    $params = session('search_params');
+                    $s_ownorgid = $params['s_ownorgid'] ?? null;
+                    $s_buildobjid = $params['s_buildobjid'] ?? null;
+                    $s_contractid = $params['s_contractid'] ?? null;
+//                    dd($params);
+                    $vTimeSelType = $params['vTimeSelType'] ?? 1;
+                    $vYr1 = $params['vYr1'] ?? null;
+                    $vMn1 = $params['vMn1'] ?? null;
+                    $vDc1 = $params['vDc1'] ?? null;
+                    $vWk1 = $params['vWk1'] ?? null;
+                    $vBegDate1 = $params['vBegDate1'] ?? null;;
+                    $vEndDate1 = $params['vEndDate1'] ?? null;;
+
+                    $vYr2 = $params['vYr2'] ?? null;
+                    $vMn2 = $params['vMn2'] ?? null;
+                    $vDc2 = $params['vDc2'] ?? null;
+                    $vWk2 = $params['vWk2'] ?? null;
+                    $vBegDate2 = $params['vBegDate2'] ?? null;;
+                    $vEndDate2 = $params['vEndDate2'] ?? null;;
+
+                    $s_orggrpid = $params['s_orggrpid'] ?? null;
+                    $s_orgid = $params['s_orgid'] ?? null;
+                    $s_orgname = $params['s_orgname'] ?? null;
+                    $s_mngrid = $params['s_mngrid'] ?? null;
+                    $s_minitmsum = $params['s_minitmsum'] ?? null;
+                    $s_mindocsum = $params['s_mindocsum'] ?? null;
+                    $list2 = $params['list2'] ?? null;
+                    $GrpLst = $params['GrpLst'] ?? null;
+                    $showGrpSum = $params['showGrpSum'] ?? 0;
+                    $ordbyItmSumDesc = $params['ordbyItmSumDesc'] ?? 0;
+                    $ordbyDocQtyDesc = $params['ordbyDocQtyDesc'] ?? 0;
+                }
+            } else
+                //зачистим чужие параметры поиска
+                session(['search_params' => []]);
+        }
+
+        $search_params = [
+            "s_ownorgid" => $s_ownorgid,
+            "s_buildobjid" => $s_buildobjid,
+            "s_contractid" => $s_contractid,
+            "vTimeSelType" => $vTimeSelType,
+            "vYr1" => $vYr1,
+            "vMn1" => $vMn1,
+            "vDc1" => $vDc1,
+            "vWk1" => $vWk1,
+            "vBegDate1" => $vBegDate1,
+            "vEndDate1" => $vEndDate1,
+            "vYr2" => $vYr2,
+            "vMn2" => $vMn2,
+            "vDc2" => $vDc2,
+            "vWk2" => $vWk2,
+            "vBegDate2" => $vBegDate2,
+            "vEndDate2" => $vEndDate2,
+            "s_orggrpid" => $s_orggrpid,
+            "s_orgid" => $s_orgid,
+            "s_orgname" => $s_orgname,
+            "s_mngrid" => $s_mngrid,
+            "s_minitmsum" => $s_minitmsum,
+            "s_mindocsum" => $s_mindocsum,
+            "list2" => $list2,
+            "GrpLst" => $GrpLst,
+            "showGrpSum" => $showGrpSum,
+            "ordbyItmSumDesc" => $ordbyItmSumDesc,
+            "ordbyDocQtyDesc" => $ordbyDocQtyDesc,
+        ];
+
+        function getStartAndEndDate($week, $year)
+        {
+            $dto = new DateTime();
+            $dto->setISODate($year, $week);
+            $ret['week_start'] = $dto->format('Y-m-d');
+            $dto->modify('+6 days');
+            $ret['week_end'] = $dto->format('Y-m-d');
+            return $ret;
+        }
+
+
+        if ($vTimeSelType == 1) {
+
+            $begdate1 = null;
+            $enddate1 = null;
+            if (isset($vYr1))
+
+                if (isset($vWk1)) {
+                    $week_array = getStartAndEndDate($vWk1, $vYr1);
+                    //print_r($week_array);
+                    $begdate1 = $week_array['week_start'];
+                    $enddate1 = $week_array['week_end'];
+                } elseif (isset($vMn1)) {
+                    $begdate1 = $vYr1 . '-' . $vMn1 . '-01';
+                    $enddate1 = date('Y-m-d', strtotime($begdate1 . ' + 1 month - 1 day'));
+
+                } else {
+                    $begdate1 = $vYr1 . '-01-01';
+                    $enddate1 = $vYr1 . '-12-31';
+                }
+
+
+            $begdate2 = null;
+            $enddate2 = null;
+            if (isset($vYr2)) {
+                $vMn2 = $vMn2 ?? $vMn1;
+
+                if (isset($vWk2)) {
+                    $week_array = getStartAndEndDate($vWk2, $vYr2);
+                    $begdate2 = $week_array['week_start'];
+                    $enddate2 = $week_array['week_end'];
+                } elseif (isset($vMn2)) {
+                    $begdate2 = $vYr2 . '-' . $vMn2 . '-01';
+                    $enddate2 = date('Y-m-d', strtotime($begdate2 . ' + 1 month - 1 day'));
+
+                } else {
+                    $begdate2 = $vYr2 . '-01-01';
+                    $enddate2 = $vYr2 . '-12-31';
+                }
+            } else
+                $vMn2 = null;
+
+            $search_params['vMn2'] = $vMn2;
+
+        } else {
+            $begdate1 = $vBegDate1;
+            $enddate1 = $vEndDate1;
+            $begdate2 = $vBegDate2;
+            $enddate2 = $vEndDate2;
+        }
+
+        if (isset($begdate1) and isset($begdate2)) {
+            if ($begdate2 < $begdate1) {
+                $d = $begdate1;
+                $begdate1 = $begdate2;
+                $begdate2 = $d;
+
+                $d = $enddate1;
+                $enddate1 = $enddate2;
+                $enddate2 = $d;
+            }
+//            dd($begdate1, $enddate1, $begdate2, $enddate2);
+        }
+
+
+        if (isset($begdate1) and isset($enddate1)) {
+            //Если параметры поиска не заданы, то ...
+            $needSearch = true;
+        } else $needSearch = false;
+//dd($needSearch);
+
+
+        //$ownorgs = org::lstOwnOrgs();
+
+        $data = new \stdClass();
+
+        $data->report = report::find($report_id);
+        $data->retURL = $request->get('returl');
+        $data->ownorgs = org::lstFor(['in_mchn_raids_ownorgid' => 1]);  //Продавцы
+        $data->orgs = org::lstFor(['in_mchn_raids_orgid' => 1]);  //Продавцы
+//        $data->buildobjs = buildobj::lstFor(['in_wrkreps' => 1, 'in_buildobj_staff' => $userid]);
+//        $data->contracts = contract::lstFor(['in_wrkrep_machines' => 1]);
+        $data->orggroups = group::lstOrgGroups_cache();
+        $data->years = mchn_raid::years();
+        $data->monthes = Config::get('constants.monthes');
+
+        $year = date_create_from_format('Y-m-d', date('Y-m-d'))->format("Y");
+
+        //Диспетчеры
+        $data->dispatchers = orgstaff::lstFor_cached(['in_mchn_raids_dispuserid' => 1]);
+
+        $conditions = '';
+        $sc = null;
+        if ($needSearch) {
+
+            $conditions .= 'Период 1: "<b>' . $begdate1 . ' - ' . $enddate1 . '</b>"; ';
+            if (isset($begdate1) and isset($begdate2))
+                $conditions .= 'Период 2: "<b>' . $begdate2 . ' - ' . $enddate2 . '</b>"; ';
+
+            $sc = " 1=1 ";
+            if (1 == 1 and isset($s_ownorgid)) {
                 $sc .= " and fd.unload_ownorgid=" . $s_ownorgid;
                 $conditions .= 'Исполнитель = "<b>' . $data->ownorgs[$s_ownorgid] . '</b>"; ';
             }
@@ -946,11 +1514,11 @@ class AnaliticsController extends Controller
 
         $allgrps = [
 //            ['title' => 'год отгрузки', 'fld' => 'year(fd.wrkdate)', 'lbl' => 'yr'],
-            ['title' => 'квартал', 'jointbl' => '', 'fld' => 'QUARTER(fd.wrkdate)', 'lbl' => 'quart', 'timescale' => 1],
-            ['title' => 'месяц', 'jointbl' => '', 'fld' => 'month(fd.wrkdate)', 'lbl' => 'mn', 'timescale' => 1],
-            ['title' => 'неделя', 'jointbl' => '', 'fld' => 'week(fd.wrkdate)', 'lbl' => 'wk', 'timescale' => 1],
+            ['title' => 'квартал', 'jointbl' => '', 'fld' => 'QUARTER(mr.wrkdate)', 'lbl' => 'quart', 'timescale' => 1],
+            ['title' => 'месяц', 'jointbl' => '', 'fld' => 'month(mr.wrkdate)', 'lbl' => 'mn', 'timescale' => 1],
+            ['title' => 'неделя', 'jointbl' => '', 'fld' => 'week(mr.wrkdate)', 'lbl' => 'wk', 'timescale' => 1],
             //['title' => 'объект', 'jointbl' => 'bo', 'fld' => 'fd.buildobjid', 'lbl' => 'buildobjid', 'show_val' => 'bo.name'],
-            ['title' => 'дата работы', 'jointbl' => '', 'fld' => 'fd.wrkdate', 'lbl' => 'wrkdate', 'timescale' => 1],
+            ['title' => 'дата работы', 'jointbl' => '', 'fld' => 'mr.wrkdate', 'lbl' => 'wrkdate', 'timescale' => 1],
             //['title' => 'вид работ', 'jointbl' => 'bot', 'fld' => 'fd.buildopertypeid', 'lbl' => 'buildopertypeid', 'show_val' => 'bot.name'],
 //            ['title' => 'менеджер', 'jointbl' => 'su', 'fld' => 'fd.saleuserid', 'lbl' => 'saleuserid', 'show_val' => 'ifnull(su.name,"-нет-")'],
 //            ['title' => 'поставщик', 'jointbl' => '', 'fld' => 'm.orgid', 'lbl' => 'orgid', 'show_val' => 'o.name'],

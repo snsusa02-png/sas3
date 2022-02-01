@@ -67,9 +67,12 @@
                                             <li><a href="{{route('orgstaff.index')}}"
                                                    title="Персонал">Персонал</a></li>
                                         @endif
-                                        @if($usrrights['set_lockdate']??false)
+                                        {{--                                        @if($usrrights['set_lockdate']??false)--}}
+                                        @if(\App\usrsysright::isUserHasRightByCode_cached($userid,$thisSysObjCode.'.set_lockdate'))
                                             <li><a href="{{route('sysobj_lockdates.edit',1106)}}"
-                                                   title="Установка даты блокировки данных"><i class="fa fa-lock " aria-hidden="true"></i></a></li>
+                                                   title="Установка даты блокировки данных"><i class="fa fa-lock "
+                                                                                               aria-hidden="true"></i></a>
+                                            </li>
                                         @endif
                                     </ul>
                                 </div>

@@ -132,11 +132,11 @@ class mchn_raid extends Model
     {
         //Попадает ли нужная запись в заблокированный период?
 
-        $lockdate = sysobj_lockdate::where('sysobjid', self::$sysobjid)->select('lockdate')->first()->lockdate ?? null;
-        if (isset($lockdate)) {
+        $lock_before = sysobj_lockdate::where('sysobjid', self::$sysobjid)->select('lock_before')->first()->lock_before ?? null;
+        if (isset($lock_before)) {
             $rec = self::find($id);
             if (isset($rec)) {
-                return ($rec->wrkdate <= $lockdate);
+                return ($rec->wrkdate < $lock_before);
             }
         }
         return false;
@@ -146,10 +146,9 @@ class mchn_raid extends Model
     public static function min_wrkdate()
     {
         //определим минимально-допустимую дату для поля wrkdate
-        $min_date = sysobj_lockdate::where('sysobjid', self::$sysobjid)->first()->lockdate ?? null;
+        $min_date = sysobj_lockdate::where('sysobjid', self::$sysobjid)->first()->lock_before ?? null;
         if (isset($min_date)) {
-            $min_date = date_create($min_date)->modify('+1 day');
-            return $min_date->format('Y-m-d');
+            return $min_date;
         }
         return null;
     }

@@ -27,12 +27,12 @@
 
             <div class="row justify-content-center">
                 <div class="col-md-12">
-                    <div class="container">
+                    <div class="container-fluid">
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <h3>{{$thisTitle}}</h3>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-8">
                                 <div class="subnav shift">
                                     <ul>
                                         <li><a href="{{route('reports.rep51')}}"
@@ -53,6 +53,12 @@
                                         @if(\App\usrsysright::isUserHasRightByCode_cached($userid,'refitems.read'))
                                             <li><a href="{{route('refitems.index')}}"
                                                    title="Товарная номенклатура">Товары</a></li>
+                                        @endif
+                                        @if(\App\usrsysright::isUserHasRightByCode_cached($userid,$thisSysObjCode.'.set_lockdate'))
+                                            <li><a href="{{route('sysobj_lockdates.edit',1141)}}"
+                                                   title="Установка даты блокировки данных"><i class="fa fa-lock "
+                                                                                               aria-hidden="true"></i></a>
+                                            </li>
                                         @endif
                                     </ul>
                                 </div>

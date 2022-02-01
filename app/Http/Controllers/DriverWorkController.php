@@ -31,7 +31,6 @@ class DriverWorkController extends Controller
         $this->sysobjid = 1141;
         $this->sysobjcode = 'driver_works';
         $this->acl_sysobjcode = sysobj::acl_sysobjcode($this->sysobjcode);
-
     }
 
     /*
@@ -46,15 +45,17 @@ class DriverWorkController extends Controller
 
         $usrrights = array();
         $usrrights['read'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.read');
+        //$usrrights['create'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.create');
         $usrrights['create'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.create');
         $usrrights['save'] = false;
+        $usrrights['save'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.update');
         $usrrights['delete'] = false;
         $usrrights['admindelete'] = false;
 
-        $usrrights['save'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.update');
-        $usrrights['delete'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.delete');
-
         if ($recid > 0) {
+
+            $usrrights['delete'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.delete');
+
             //для существующих записей проверим открытость периода
             if (driver_work::isLocked($recid)) {
 
@@ -76,13 +77,13 @@ class DriverWorkController extends Controller
     {
         $userid = \Auth::user()->id;
 
-        //$usrrights = $this->setInterfaceRight(-1);
-        $usrrights = array(
-            'read' => usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.read'),
-            'create' => usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.create'),
-            'save' => usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.save'),
-            'view_all' => usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.view_all'),
-        );
+        $usrrights = $this->setInterfaceRight(-1);
+//        $usrrights = array(
+//            'read' => usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.read'),
+//            'create' => usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.create'),
+//            'save' => usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.save'),
+//            'view_all' => usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.view_all'),
+//        );
         if (!$usrrights['read']) {
             return view('home');
         }
@@ -197,6 +198,8 @@ class DriverWorkController extends Controller
 
         //варианты кол-ва записей на страницу
         $data->pageitmcnts = $this->pageitmcnts;
+
+        $data->sysobj = sysobj::find($this->sysobjid);
 
         $data->machines = machine::getFor(
             ['in_driver_works' => 1,], ['m.id', db::raw("concat(m.regnum,' - ',m.name) as name")]
@@ -393,7 +396,6 @@ class DriverWorkController extends Controller
             //установим минимально-допустимую дату для wrkdate
             $rec->wrkdate_min = driver_work::min_wrkdate();
         }
-
 
         return view('driver_works.edit', compact('rec', "usrrights"));
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\driver_work;
 use App\mchn_opertype;
 use App\mchn_raid;
 use App\paydoc;
@@ -52,8 +53,20 @@ class PaydocController extends Controller
         $usrrights['admindelete'] = false;
 
         $usrrights['save'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.update');
-        $usrrights['delete'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.delete');
         $usrrights['manager'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.manager');
+
+        if ($recid > 0) {
+
+            $usrrights['delete'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.delete');
+
+            //для существующих записей проверим открытость периода
+            if (paydoc::isLocked($recid)) {
+
+                $usrrights['save'] = false;
+                $usrrights['delete'] = false;
+                $usrrights['admindelete'] = false;
+            }
+        }
 
         return $usrrights;
     }
@@ -283,6 +296,12 @@ class PaydocController extends Controller
             $rec->status_style = 'background-color:#b7f192;';
         }
 
+        if ($usrrights['save']) {
+            //установим минимально-допустимую дату для wrkdate
+            $rec->paydate_min = paydoc::min_paydate();
+        }
+
+
         return view('paydocs.edit', compact('rec', "usrrights"));
     }
 
@@ -296,6 +315,10 @@ class PaydocController extends Controller
     public
     function update(Request $request, $id)
     {
+        $usrrights = $this->setInterfaceRight($id);
+        if (!($usrrights['save']))
+            return redirect()->back()->with('error', 'У вас нет права на изменение этих данных!');
+
         $messages = [
             'ownorgid.required' => 'Не указана компания ГК',
             'orgid.required' => 'Не указан контрагент',

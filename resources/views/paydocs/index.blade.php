@@ -51,6 +51,12 @@
                             <li><a href="{{route('orgs.index')}}"
                                    title="Контрагенты">Клиенты</a></li>
                         @endif
+                        @if(\App\usrsysright::isUserHasRightByCode_cached($userid,$thisSysObjCode.'.set_lockdate'))
+                            <li><a href="{{route('sysobj_lockdates.edit',520)}}"
+                                   title="Установка даты блокировки данных"><i class="fa fa-lock"
+                                                                               aria-hidden="true"></i></a>
+                            </li>
+                        @endif
                     </ul>
                 </div>
             </div>

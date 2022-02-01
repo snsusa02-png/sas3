@@ -41,6 +41,25 @@ class paydoc extends Model
         return $this->hasOne(paytype::class, 'id', 'paytypeid');
     }
 
+    static public function isLocked($id)
+    {
+        //Попадает ли нужная запись в заблокированный период?
+
+        $lock_before = sysobj_lockdate::where('sysobjid', self::$sysobjid)->select('lock_before')->first()->lock_before ?? null;
+        if (isset($lock_before)) {
+            $rec = self::find($id);
+            if (isset($rec)) {
+                return ($rec->wrkdate < $lock_before);
+            }
+        }
+        return false;
+    }
+    public static function min_paydate()
+    {
+        //определим минимально-допустимую дату для поля paydate
+        return sysobj_lockdate::where('sysobjid', self::$sysobjid)->first()->lock_before ?? null;
+    }
+
     static public function search_cond($params)
     {
         $sc = "1=1";

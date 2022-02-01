@@ -462,15 +462,15 @@
                                             <TD VALIGN=MIDDLE ALIGN=CENTER>
                                                 <INPUT TYPE="button" Name="right" VALUE="&gt;" id="add"
                                                        class="fnt9" style="width: 38px;"><br>
-                                                    <!--
-                                                    <INPUT TYPE="button" Name="right" VALUE="&gt;&gt;" ONCLICK="opt.transferAllRight()" class="fnt9" style="width: 38px;">
-                                                    -->
-                                                    <br><br>
-                                                    <INPUT TYPE="button" Name="left" VALUE="&lt;" id="remove"
-                                                           class="fnt9" style="width: 38px;">
-                                                        <br>
-                                                        <INPUT TYPE="button" Name="left" VALUE="&lt;&lt;" id="allremove"
-                                                               class="fnt9" style="width: 38px;">
+                                                <!--
+                                                <INPUT TYPE="button" Name="right" VALUE="&gt;&gt;" ONCLICK="opt.transferAllRight()" class="fnt9" style="width: 38px;">
+                                                -->
+                                                <br><br>
+                                                <INPUT TYPE="button" Name="left" VALUE="&lt;" id="remove"
+                                                       class="fnt9" style="width: 38px;">
+                                                <br>
+                                                <INPUT TYPE="button" Name="left" VALUE="&lt;&lt;" id="allremove"
+                                                       class="fnt9" style="width: 38px;">
                                             </TD>
                                             <TD>
                                                 {!! Form::select('list2[]', $aGrps, null
@@ -499,7 +499,8 @@
                                                     {!! Form::checkbox('ordbyItmSumDesc', 1, $ordbyItmSumDesc, ['class=""']) !!}
                                                 </label>
                                                 <br><label for="ordbyDocQtyDesc" id="bOrdbyDocQty" class="mt-1 ml-1"
-                                                           style="display:none;">Сортировать по убыванию количества рейсов:
+                                                           style="display:none;">Сортировать по убыванию количества
+                                                    рейсов:
                                                     {!! Form::checkbox('ordbyDocQtyDesc', 1, $ordbyDocQtyDesc, ['class=""']) !!}
                                                 </label>
                                             </td>
@@ -668,7 +669,7 @@
                                         $itm->itmqty,
                                         $itm->itmsum,
                                         $itm->raid_qty,
-                                        round($itm->itmsum / $itm->raid_qty, 2),
+                                        ($itm->raid_qty > 0) ? round($itm->itmsum / $itm->raid_qty, 2) : 0,
                                     ];
 
                                     $ds = $itm->dataset;
@@ -876,7 +877,7 @@
                                     $itm->itmqty,
                                     $itm->itmsum,
                                     $itm->raid_qty,
-                                    round($itm->itmsum / $itm->raid_qty, 2),
+                                    ($itm->raid_qty > 0) ? round($itm->itmsum / $itm->raid_qty, 2) : 0,
                                 ];
                                 //подитоги групп
                                 $ds = $itm->dataset;

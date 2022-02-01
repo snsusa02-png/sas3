@@ -18,7 +18,7 @@ class CreateSysobjLockdatesTable extends Migration
             $table->bigInteger('sysobjid')->unsigned()->primary();
 		$table->foreign('sysobjid')->references('id')->on('sysobjs');
 
-            $table->date('lockdate')->comment('Данные системы sysobjid заблокированы до этой даты включительно');
+            $table->date('lock_before')->comment('Данные системы sysobjid заблокированы до(!) этой даты');
 
             $table->timestamp('updated_at')->nullable()->useCurrent = true;
             $table->bigInteger('updated_by')->nullable()->unsigned()->default(1)

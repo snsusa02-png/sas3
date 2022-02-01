@@ -125,6 +125,7 @@
                                              'id' => 'paytypeid',
                                              'class' => 'form-control',
                                              'placeholder' => '-выбор-',
+                                             'required' => 'required',
                                              ]) !!}
                                         @else
                                             <input type="text"
@@ -137,7 +138,8 @@
 
                                 <div class="row">
                                     <div class="form-group col-md-12">
-                                        <label for="orgname" class="required"><span id="lbl_org">Контрагент</span> <span id="org_aux_lbl"></span>:
+                                        <label for="orgname" class="required"><span id="lbl_org">Контрагент</span> <span
+                                                id="org_aux_lbl"></span>:
                                             @if(isset($rec->orgid))
                                                 <a href="{{route("orgs.edit",$rec->orgid)}}"
                                                    target="_blank"><i class="fa fa-external-link-square text-info"
@@ -185,15 +187,17 @@
                                                value="{{old('docnum',$rec->docnum)}}"/>
                                     </div>
                                     <div class="form-group col-md-4 col-sm-6">
-                                        <label for="docnum" class="required">Дата док-та:</label>
+                                        <label for="docnum" class="">Дата док-та:</label>
                                         <input type="date" class="form-control" name="docdate" id="docdate" {{$ro_mode}}
                                         value="{{old('docdate',$rec->docdate)}}"/>
                                     </div>
 
                                     <div class="form-group col-md-5 col-sm-6">
-                                        <label for="paydate" class="required" id="lbl_paydate">Дата прихода/расхода:</label>
+                                        <label for="paydate" class="required" id="lbl_paydate">Дата
+                                            прихода/расхода:</label>
                                         <input type="date" class="form-control" name="paydate" id="paydate" {{$ro_mode}}
-                                        max="{{$rec->maxdate}}" value="{{old('paydate',$rec->paydate)}}"/>
+                                        min="{{$rec->paydate_min}}" max="{{$rec->maxdate}}" required
+                                               value="{{old('paydate',$rec->paydate)}}"/>
                                     </div>
                                 </div>
 

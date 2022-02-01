@@ -61,11 +61,11 @@ class mr_oper extends Model
     {
         //Попадает ли нужная запись в заблокированный период?
 
-        $lockdate = sysobj_lockdate::where('sysobjid', 1106)->select('lockdate')->first()->lockdate ?? null;
+        $lockdate = sysobj_lockdate::where('sysobjid', 1106)->select('lock_before')->first()->lock_before ?? null;
         if (isset($lockdate)) {
             $rec = self::find($id);
             if (isset($rec)) {
-                return ($rec->mchn_raid->wrkdate <= $lockdate);
+                return ($rec->mchn_raid->wrkdate < $lockdate);
             }
         }
         return false;

@@ -180,7 +180,7 @@ class usrsysright extends Model
         $sc .= " and ifnull(r.userid,{$userID})={$userID}";
         $sc .= " and ifnull(r.limsysobjid,{$limsysobjid})={$limsysobjid}";
         $sc .= " and ifnull(r.limobjid,{$limobjid})={$limobjid}";
-
+//dd($sc);
         $rslt = DB::table('usrsysrights as r')
             ->join('users as u', 'u.id', '=', 'r.userid')
             ->where('u.active', 1)
