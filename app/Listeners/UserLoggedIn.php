@@ -37,7 +37,7 @@ class UserLoggedIn
         //$simplenotify_to = 'sns@itqua.ru';
         if ($simplenotify_to) {
 
-            \App\Jobs\s::dispatch($simplenotify_to, $event->user);
+            \App\Jobs\LoginNotification::dispatch($simplenotify_to, $event->user);
 
             //Получим список адресов кураторов, которые не прочь получить уведомление о входе пользователя в ЛК
             $curators = userorg::from('userorgs as uo')
