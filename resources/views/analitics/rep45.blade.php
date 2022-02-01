@@ -887,7 +887,7 @@
                                 $lineData[$itm->dataset] = [
                                     $itm->itmqty,
                                     $itm->itmsum,
-                                    $itm->Исполнитель,
+                                    $itm->raid_qty,
                                     ($itm->raid_qty > 0) ? round($itm->itmsum / $itm->raid_qty, 2) : 0,
                                 ];
                                 //подитоги групп
