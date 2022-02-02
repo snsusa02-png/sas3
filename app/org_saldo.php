@@ -80,7 +80,7 @@ class org_saldo extends Model
             return null;
 
         Cache::forget('informer_ownorg_saldo_details');
-        return Cache::remember('informer_ownorg_saldo_details', now()->addMinutes(5)
+        return Cache::remember('informer_ownorg_saldo_details', now()->addMinutes(3)
             , function () {
                 //Сводка контрашентов с ненулевым балансом по всем организациям ГК
 
@@ -105,7 +105,8 @@ class org_saldo extends Model
                     $sc .= " and not exists (select 1 from objflags as f where f.flagtypeid=12 and f.sysobjid=111 and f.objid=o.id)";
 
                     //Только Не поставщики
-                    $sc .= " and not exists (select 1 from objflags as f where f.flagtypeid=13 and f.sysobjid=111 and f.objid=o.id)";
+                    //$sc .= " and not exists (select 1 from objflags as f where f.flagtypeid=13 and f.sysobjid=111 and f.objid=o.id)";
+                    $sc .= " and not exists (select 1 from mr_opers as mro where mro.suporgid=o.id)";
 
                     $recs = org::from('orgs as o')
                         ->whereRaw($sc);
@@ -141,7 +142,8 @@ class org_saldo extends Model
                     $sc .= " and orgSaldo_onDate(o.id, {$ownorgid}, null)<>0";
 
                     //Только поставщики
-                    $sc .= " and exists (select 1 from objflags as f where f.flagtypeid=13 and f.sysobjid=111 and f.objid=o.id)";
+                    //$sc .= " and exists (select 1 from objflags as f where f.flagtypeid=13 and f.sysobjid=111 and f.objid=o.id)";
+                    $sc .= " and exists (select 1 from mr_opers as mro where mro.suporgid=o.id)";
 
                     $recs = org::from('orgs as o')
                         ->whereRaw($sc);
