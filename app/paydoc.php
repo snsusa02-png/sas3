@@ -36,6 +36,16 @@ class paydoc extends Model
         return $this->hasOne(org::class, 'id', 'orgid')->withDefault();
     }
 
+    public function contract()
+    {
+        return $this->hasOne(contract::class, 'id', 'contractid')->withDefault();
+    }
+
+    public function opertype()
+    {
+        return $this->hasOne(opertype::class, 'id', 'opertypeid')->withDefault();
+    }
+
     public function paytype()
     {
         return $this->hasOne(paytype::class, 'id', 'paytypeid');
@@ -49,7 +59,7 @@ class paydoc extends Model
         if (isset($lock_before)) {
             $rec = self::find($id);
             if (isset($rec)) {
-                return ($rec->wrkdate < $lock_before);
+                return ($rec->paydate < $lock_before);
             }
         }
         return false;
