@@ -66,7 +66,6 @@ class org_saldo extends Model
                     $ownorg->saldo = org::from('orgs as o')
                         ->sum(db::raw("orgSaldo_onDate(o.id, {$ownorg->id}, null)"));
                 }
-
                 return $ownorgs;
             }
         );
@@ -80,7 +79,7 @@ class org_saldo extends Model
         if (!usrsysright::isUserHasRightByCode_cached($userid, 'paydocs.read'))
             return null;
 
-        //Cache::forget('informer_ownorg_saldo_details');
+        Cache::forget('informer_ownorg_saldo_details');
         return Cache::remember('informer_ownorg_saldo_details', now()->addMinutes(5)
             , function () {
                 //Сводка контрашентов с ненулевым балансом по всем организациям ГК
@@ -97,12 +96,16 @@ class org_saldo extends Model
 
 
                     $ownorgid = $ownorg->id;
-                    $sc = "1=1";
-                    $sc .= " and o.id <> '$ownorgid'";
+                    $sc = "o.id <> '$ownorgid'";
 
                     //только должники и клиенты с переплатой
-                    $sc = $sc . " and orgSaldo_onDate(o.id, {$ownorgid}, null)<>0";
+                    $sc .= " and orgSaldo_onDate(o.id, {$ownorgid}, null)<>0";
 
+                    //не входят в ГК
+                    $sc .= " and not exists (select 1 from objflags as f where f.flagtypeid=12 and f.sysobjid=111 and f.objid=o.id)";
+
+                    //Только Не поставщики
+                    $sc .= " and not exists (select 1 from objflags as f where f.flagtypeid=13 and f.sysobjid=111 and f.objid=o.id)";
 
                     $recs = org::from('orgs as o')
                         ->whereRaw($sc);
@@ -127,6 +130,37 @@ class org_saldo extends Model
                         $max_cnt = count($recs);
                         $max_cnt_id = $ownorg->id;
                     }
+
+                    //Для поставщиков ---------------------------------------------------------------
+                    $sc = "o.id <> '$ownorgid'";
+
+                    //не входят в ГК
+                    $sc .= " and not exists (select 1 from objflags as f where f.flagtypeid=12 and f.sysobjid=111 and f.objid=o.id)";
+
+                    //только должники и клиенты с переплатой
+                    $sc .= " and orgSaldo_onDate(o.id, {$ownorgid}, null)<>0";
+
+                    //Только поставщики
+                    $sc .= " and exists (select 1 from objflags as f where f.flagtypeid=13 and f.sysobjid=111 and f.objid=o.id)";
+
+                    $recs = org::from('orgs as o')
+                        ->whereRaw($sc);
+
+                    $recs = $recs->select(
+                        'o.id as orgid', 'o.name as orgname'
+                        , db::raw("-orgSaldo_onDate(o.id, {$ownorgid}, null) as org_saldo")
+                        , db::raw("(select group_concat( trim(concat(ifnull(u.fname,''),' ', u.lname)) SEPARATOR ',')
+                            from users as u join org_curators as oc
+                            on oc.userid=u.id and oc.active=1
+                                and now() between oc.begdt and ifnull(oc.enddt,now())
+                            where oc.orgid=o.id
+                            ) as org_curators")
+
+                    )
+                        ->orderby('org_saldo', 'asc')
+                        ->get();
+
+                    $ownorg->sup_recs = $recs;
                 }
 
                 //пометим самую "привлекательную" организацию из ГК
