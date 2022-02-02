@@ -7,11 +7,12 @@ $(document).ready(function () {
 
             if (code == 1) {
                 //day
-                $(".dpt_1").show();
                 $(".dpt_2").hide();
-                $(".dpt_3").show();
-                $(".dpt_4").show();
+                $(".dpt_3").hide();
+                $(".dpt_4").hide();
                 $(".dpt_9").hide();
+
+                $(".dpt_1").show();
 
                 $("#s_month").prop('required',false);
                 $("#s_quarter").prop('required',false);
@@ -21,12 +22,12 @@ $(document).ready(function () {
 
                 // $("label[for='s_month']").addClass('required');
                 // $("label[for='s_year']").addClass('required');
+                $("label[for='s_begdate']").html('Дата:');
 
             } else if (code == 2) {
                 //month
-                $(".dpt_1").show();
-                $(".dpt_2").hide();
-                $(".dpt_3").show();
+                $(".dpt_2").show();
+                $(".dpt_3").hide();
                 $(".dpt_4").show();
                 $(".dpt_9").hide();
 
@@ -42,8 +43,9 @@ $(document).ready(function () {
             } else if (code == 3) {
                 //quarter
                 $(".dpt_1").hide();
-                $(".dpt_2").show();
+                $(".dpt_2").hide();
                 $(".dpt_3").show();
+                $(".dpt_4").show();
                 $(".dpt_9").hide();
 
                 $("#s_month").prop('required',false);
@@ -56,7 +58,8 @@ $(document).ready(function () {
                 //year
                 $(".dpt_1").hide();
                 $(".dpt_2").hide();
-                $(".dpt_3").show();
+                $(".dpt_3").hide();
+                $(".dpt_4").show();
                 $(".dpt_9").hide();
 
                 $("#s_month").prop('required',false);
@@ -70,6 +73,7 @@ $(document).ready(function () {
                 $(".dpt_1").hide();
                 $(".dpt_2").hide();
                 $(".dpt_3").hide();
+                $(".dpt_4").hide();
                 $(".dpt_9").show();
 
                 $("#s_month").prop('required',false);
@@ -77,6 +81,8 @@ $(document).ready(function () {
                 $("#s_year").prop('required',false);
                 $("#s_begdate").prop('required',true);
                 $("#s_enddate").prop('required',false);
+
+                $("label[for='s_begdate']").html('Начало периода:');
 
             } else {
 

@@ -178,7 +178,7 @@ class OrgSaldoController extends Controller
         $rec->ownorgid = $request->get('ownorgid');
         $rec->ondate = $request->get('ondate');
         $rec->saldo = $request->get('saldo');
-        $rec->active = $request->get('active') ?? 0;
+        $rec->active = 1; //$request->get('active') ?? 0;
         $rec->updated_by = $userid;
         $rec->save();
 

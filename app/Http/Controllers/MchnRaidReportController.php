@@ -314,7 +314,7 @@ class MchnRaidReportController extends Controller
         $param_names = [
             's_pageitmcnt' => 20
             , 's_ownorgid' => '' //Auth::user()->curorgid
-            , 's_period_type' => 9
+            , 's_period_type' => 1
             , 's_begdate' => $cd //$fdomc
             , 's_enddate' => $cd //$ldomc
             , 's_month' => $month
@@ -324,10 +324,13 @@ class MchnRaidReportController extends Controller
 
         $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);
 
-
         //зачистим ненужные параметры поиска
         switch ($search_params['s_period_type'] ?? 0) {
-            case 1: //месяц/год
+            case 1: //дата - 1 день
+                $search_params['s_enddate'] = $search_params['s_begdate'];
+                break;
+
+            case 2: //месяц/год
                 $year = $search_params['s_year'];
                 $month = $search_params['s_month'];
                 $begdate = new DateTime($year . '-' . $month . '-1 00:00:00');
@@ -335,7 +338,8 @@ class MchnRaidReportController extends Controller
                 $search_params['s_begdate'] = $begdate->format('Y-m-d');
                 $search_params['s_enddate'] = $begdate->format('Y-m-t');
                 break;
-            case 2: //квартал/год
+
+            case 3: //квартал/год
 
                 $year = $search_params['s_year'];
                 $quarter = $search_params['s_quarter'];
@@ -345,7 +349,7 @@ class MchnRaidReportController extends Controller
                 $search_params['s_enddate'] = $enddate->format('Y-m-d');
                 break;
 
-            case 3://год
+            case 4://год
                 $year = $search_params['s_year'];
                 $begdate = new DateTime($year . '-1-1 00:00:00');
                 $enddate = new DateTime($year . '-12-31 23:59:59');
@@ -353,6 +357,7 @@ class MchnRaidReportController extends Controller
                 $search_params['s_begdate'] = $begdate->format('Y-m-d');
                 $search_params['s_enddate'] = $enddate->format('Y-m-d');
                 break;
+
             case 9://календарь
                 $search_params['s_quarter'] = '';
                 $search_params['s_month'] = '';
@@ -397,8 +402,7 @@ class MchnRaidReportController extends Controller
             }
         }
 
-        $recs = null;
-        $recs2 = null;
+        $recs = $recs2 = $recs3 = null;
 
         if ($need_search) {
 
@@ -439,10 +443,8 @@ class MchnRaidReportController extends Controller
                 ->leftjoin('orgs as o', 'o.id', 'mro.suporgid')
                 ->leftjoin('org_places as p', 'p.id', 'mro.sup_placeid')
                 ->leftjoin('refitems as ri', 'ri.id', 'mro.refitmid')
-
                 ->whereRaw($sc)
                 ->where('mro.sale_dir', -1)
-
                 ->select(
                     'mro.suporgid', 'o.name as suporg_name'
                     , 'mro.sup_placeid as load_placeid', 'p.name as load_placename', 'p.address as load_place_address'
@@ -453,15 +455,12 @@ class MchnRaidReportController extends Controller
                     , db::raw("sum(mro.itm_qty*mro.itm_price) as load_sum")
                     , 'ri.name as refitm_name'
                 )
-
                 ->groupBy('mro.suporgid')
                 ->groupBy('mro.sup_placeid')
                 ->groupBy('mro.itm_price')
                 ->groupBy('mro.refitmid')
-
                 ->orderby('p.name', 'asc')
                 ->orderby('ri.name', 'asc')
-
                 ->get();
 
 
@@ -485,7 +484,7 @@ class MchnRaidReportController extends Controller
                 ->groupBy('mr.driverid')
                 ->orderBy('driver_name')
                 ->get();
-            //dd($sc, $recs3);
+            dd($sc, $recs3);
 
             //обновим счетчик использования отчета
             report::updUseCnt($report_id, $userid, \Auth::user()->name);
@@ -498,7 +497,7 @@ class MchnRaidReportController extends Controller
 
         $data = new \stdClass();
 
-        $data->period_types = [1 => 'месяц', 2 => 'квартал', 3 => 'год', 9 => 'календарь'];
+        $data->period_types = [1 => 'день', 2 => 'месяц', 3 => 'квартал', 4 => 'год', 9 => 'календарь'];
 
         $data->monthes = Config::get('constants.monthes');
         $data->quarters = [1 => 1, 2 => 2, 3 => 3, 4 => 4];

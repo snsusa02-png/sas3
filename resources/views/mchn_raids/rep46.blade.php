@@ -59,7 +59,18 @@ $action_url = route('reports.rep' . $thisObjId);
 
                             @if(1==1)
                                 <div class="row">
-                                    <div class="form-group col-md-2 dpt_9 " style="display: none">
+                                    <div class="form-group col-md-2">
+                                        <label for="s_period_type" class="">Тип периода:</label>
+                                        {!! Form::select('s_period_type', $data->period_types, $search_params['s_period_type'],
+                                                        [
+                                                        'id' => 's_period_type',
+                                                        'class' => 'form-control small',
+                                                        'placeholder' => '-укажите-',
+                                                        ])
+                                                        !!}
+                                    </div>
+
+                                    <div class="form-group col-md-2 dpt_1 dpt_9 " style="display: none">
                                         <label for="s_begdate" class="required">Начало периода:</label>
                                         <input type="date" class="form-control text-center"
                                                name="s_begdate" id="s_begdate"
@@ -68,14 +79,14 @@ $action_url = route('reports.rep' . $thisObjId);
                                     </div>
 
                                     <div class="form-group col-md-2 dpt_9 " style="display: none">
-                                        <label for="s_begdate">Окончание периода:</label>
+                                        <label for="s_enddate">Окончание периода:</label>
                                         <input type="date" class="form-control text-center"
                                                name="s_enddate" id="s_enddate"
                                                value="{{$search_params['s_enddate']??''}}"
                                         />
                                     </div>
 
-                                    <div class="form-group col-md-2 dpt_1" style="display: none">
+                                    <div class="form-group col-md-2 dpt_2" style="display: none">
                                         <label for="s_month" class="required">Месяц:</label>
                                         {!! Form::select('s_month', $data->monthes??[], $search_params['s_month'],
                                                         [
@@ -86,7 +97,7 @@ $action_url = route('reports.rep' . $thisObjId);
                                                         !!}
                                     </div>
 
-                                    <div class="form-group col-md-2 dpt_2 " style="display: none">
+                                    <div class="form-group col-md-2 dpt_3 " style="display: none">
                                         <label for="s_quarter" class="required">Квартал:</label>
                                         {!! Form::select('s_quarter', $data->quarters??[], $search_params['s_quarter'],
                                                         [
@@ -97,23 +108,12 @@ $action_url = route('reports.rep' . $thisObjId);
                                                         !!}
                                     </div>
 
-                                    <div class="form-group col-md-2 dpt_3 " style="display: none">
+                                    <div class="form-group col-md-2 dpt_4 " style="display: none">
                                         <label for="s_year" class="required">Год:</label>
                                         {!! Form::select('s_year', $data->years??[], $search_params['s_year'],
                                                         [
                                                         'id' => 's_year',
                                                         'class' => 'form-control',
-                                                        'placeholder' => '-укажите-',
-                                                        ])
-                                                        !!}
-                                    </div>
-
-                                    <div class="form-group col-md-2">
-                                        <label for="s_period_type" class="">Тип периода:</label>
-                                        {!! Form::select('s_period_type', $data->period_types, $search_params['s_period_type'],
-                                                        [
-                                                        'id' => 's_period_type',
-                                                        'class' => 'form-control small',
                                                         'placeholder' => '-укажите-',
                                                         ])
                                                         !!}
@@ -544,6 +544,6 @@ $action_url = route('reports.rep' . $thisObjId);
 
     </div>
 
-    <script src="{{ asset('js/rep43.js') }}" defer></script>
+    <script src="{{ asset('js/rep46.js') }}" defer></script>
 
 @endsection
