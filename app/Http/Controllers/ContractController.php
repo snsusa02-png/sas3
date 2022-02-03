@@ -423,7 +423,8 @@ class ContractController extends Controller
                 });
 
         $usedtags = contract::usedTags();
-        $usedbuildobjs = contract::usedBuildObjs();
+        //$usedbuildobjs = contract::usedBuildObjs();
+        $usedbuildobjs = [];
 
         $data->user_all_contract_cnt = Cache::remember('user_all_contract_cnt_' . $userid, now()->addMinutes(15)
             , function () use ($usrrights, $userid) {
