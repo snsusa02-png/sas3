@@ -216,6 +216,7 @@ class paydoc extends Model
                     , 'sumtypeid' => 1  //1-деньги, 2-товар
                     , 'srcorgid' => $srcorgid
                     , 'tgtorgid' => $tgtorgid
+                    , 'contractid' => $rec->contractid
                     , 'updated_by' => $userid
                     , 'updated_at' => now()
                 ]);

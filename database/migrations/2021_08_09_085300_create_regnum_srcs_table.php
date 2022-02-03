@@ -16,7 +16,6 @@ class CreateRegnumSrcsTable extends Migration
         Schema::create('regnum_srcs', function (Blueprint $table) {
             $table->id();
 
-            $table->string('code',6)->unique('code')->nullable();
             $table->string('name',60);
             $table->string('descript',160)->nullable();
 

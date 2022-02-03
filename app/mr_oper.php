@@ -197,6 +197,7 @@ class mr_oper extends Model
                 , 'sumtypeid' => 2  //1-деньги, 2-товар
                 , 'srcorgid' => $rec->suporgid
                 , 'tgtorgid' => $rec->orgid
+                , 'contractid' => $rec->contractid
                 , 'updated_by' => $userid
                 , 'updated_at' => now()
             ]);

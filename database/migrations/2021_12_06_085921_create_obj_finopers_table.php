@@ -24,6 +24,7 @@ class CreateObjFinopersTable extends Migration
 
             $table->bigInteger('srcorgid')->unsigned()->comment('ID контрагента-источника (товара/денег)')->index();
             $table->bigInteger('tgtorgid')->unsigned()->comment('ID контрагента-получателя (товара/денег)')->index();
+            $table->bigInteger('contractid')->unsigned()->comment('ID договора')->index();
 
             $table->date('operdate')->comment('Дата операции');
             $table->decimal('qty', 8,2)->nullable()->comment('кол-во');

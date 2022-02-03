@@ -301,6 +301,12 @@
                     </div>
                 </div>
 
+                @if($rec->id<>-1)
+                    <div class="col-md-3">
+                        @include('objfiles.obj_files')
+                        {{--                        @include('obj_readers._readers')--}}
+                    </div>
+                @endif
             </div>
         </div>
         <script src="{{ asset('js/paydoc_edit.js') }}" defer></script>
