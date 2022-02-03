@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\opertype;
 use App\org_curator;
+use App\paydoc;
+use App\sysobj;
+use App\user_template;
 use App\usrsysright;
 use App\objlog;
 use App\User;
@@ -19,8 +23,9 @@ class OrgCuratorController extends Controller
         $this->middleware('auth');
 
         $this->sysobjid = 122;
-        $this->objcode = 'org_curators';
+        $this->sysobjcode = 'org_curators';
         $this->parsysobjid = 111;
+        $this->acl_sysobjcode = sysobj::acl_sysobjcode($this->sysobjcode);
 
     }
 
@@ -32,17 +37,18 @@ class OrgCuratorController extends Controller
         $userid = Auth::id();
 
         $usrrights = array();
-        $usrrights['read'] = usrsysright::isUserHasRightByCode($userid, $this->objcode . '.read');
+        $usrrights['create'] = usrsysright::isUserHasRightByCode($userid, $this->acl_sysobjcode . '.create');
+        $usrrights['read'] = usrsysright::isUserHasRightByCode($userid, $this->acl_sysobjcode . '.read');
         $usrrights['save'] = false;
         $usrrights['delete'] = false;
         $usrrights['admindelete'] = false;
 
         if ($id == -1) {
-            $usrrights['save'] = usrsysright::isUserHasRightByCode($userid, $this->objcode . '.create');
+            $usrrights['save'] = usrsysright::isUserHasRightByCode($userid, $this->acl_sysobjcode . '.create');
             $usrrights['delete'] = false;
         } else {
-            $usrrights['save'] = usrsysright::isUserHasRightByCode($userid, $this->objcode . '.update');
-            $usrrights['delete'] = usrsysright::isUserHasRightByCode($userid, $this->objcode . '.delete');
+            $usrrights['save'] = usrsysright::isUserHasRightByCode($userid, $this->acl_sysobjcode . '.update');
+            $usrrights['delete'] = usrsysright::isUserHasRightByCode($userid, $this->acl_sysobjcode . '.delete');
         }
 
         return $usrrights;
@@ -65,7 +71,7 @@ class OrgCuratorController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create($orgid)
+    public function create1($orgid)
     {
         if (isset($orgid)) {
             $usrrights = $this->setInterfaceRight(-1);
@@ -77,9 +83,15 @@ class OrgCuratorController extends Controller
             $rec->active = 1;
             $rec->curators = org_curator::AllCurators()->pluck("name", "id")->prepend("", "");
 
-            return view('org_curators.edit', compact(['rec', "usrrights"]));
+            return view('org_curators.edit', compact('rec', "usrrights"));
         } else
             return view('orgs.index');
+    }
+
+    public
+    function create(Request $request, $orgid)
+    {
+        return $this->edit($request, -1, $orgid);
     }
 
     /**
@@ -88,19 +100,50 @@ class OrgCuratorController extends Controller
      * @param \App\org_curator $org_curator
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Request $request, $id, $orgid = null)
     {
+        $userid = \Auth::user()->id;
+        $usrrights = $this->setInterfaceRight($id);
+
+        if ($id == -1) {
+            if ($usrrights['create'] ?? false) {
+
+                //Значения "по-умолчанию" для новой записи ----------------
+
+                //$paydate = $request->get('paydate');
+
+                $newData = [];
+
+                $tmplt = user_template::getTemplate($userid, $this->sysobjid);
+                //dd($tmplt);
+
+                //Добавим свои значения
+                $newData['id'] = -1;
+                $newData['orgid'] = $orgid;
+                $newData['begdt'] = date('Y-m-d', strtotime(now()));
+                $newData['active'] = 1;
+                $newData['created_by'] = $userid;
+
+                $rec = new org_curator($newData);
+                //---------------------------------------------------------
+
+            } else
+                return redirect(route('orgs.index'));
+        } else {
+
+            $sc = '1=1';
+
+            $rec = org_curator::from('paydocs as pd')->whereRaw($sc)->where('id', $id)->first();
+
+            if (!isset($rec))
+                return redirect(route('orgs.index'));
+        }
+
         //
-        if (isset($id)) {
+        $rec->curators = org_curator::AllCurators()->pluck("name", "id")->toArray();
+        $rec->opertypes = opertype::lstFor(['active_or_current' => 1]);
 
-            $usrrights = $this->setInterfaceRight($id);
-
-            $rec = org_curator::find($id);
-            $rec->curators = org_curator::AllCurators()->pluck("name", "id")->prepend("", "");
-
-            return view('org_curators.edit', compact(['rec', "usrrights"]));
-        } else
-            return view('orgs.index');
+        return view($this->sysobjcode . '.edit', compact('rec', "usrrights"));
     }
 
     /**
@@ -131,9 +174,12 @@ class OrgCuratorController extends Controller
             $mess = "Изменена запись о кураторе клиента";
         }
         $rec->userid = $request->get('userid');
-        $staffid = User::find($rec->userid)->StaffID;
-        $staffid = isset($staffid) ? $staffid : 0;
-        $rec->staffid = $staffid; //временно, так как переходим на users
+
+//        $staffid = User::find($rec->userid)->StaffID;
+//        $staffid = isset($staffid) ? $staffid : 0;
+//        $rec->staffid = $staffid; //временно, так как переходим на users
+
+        $rec->opertypeid = $request->get('opertypeid');
 
         $begdt = $request->get('begdt') ?? now();
         $rec->begdt = $begdt;

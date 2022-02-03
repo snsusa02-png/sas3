@@ -557,6 +557,14 @@ Route::get('orgs/org_supoffers/{orgid}', "orgController@org_supoffers")->name('o
 Route::get('orgs/org_extids/{orgid}', "orgController@org_extids")->name('org_extids.index');
 Route::get('orgs/org_ri_prices/{orgid}', "orgController@org_ri_prices")->name('org_ri_prices.index');
 
+//Кураторы клиента (org_curators)
+//Если нет контроллера не надо писать маршрут
+Route::get('org_curator/{orgid}/create', "OrgCuratorController@create")->name('org_curator.create');
+Route::get('org_curator/{id}/edit', "OrgCuratorController@edit")->name('org_curator.edit');
+Route::match(array('POST', 'PUT'), 'org_curator/{id}', "OrgCuratorController@update")->name('org_curator.update');
+Route::put('org_curator/{id}/delete', "OrgCuratorController@destroy")->name("org_curator.delete");
+
+
 Route::get('orgs/org_groups/{orgid}', "orgController@org_groups_edit")->name('org_groups.edit');
 Route::match(array('POST', 'PUT'), 'orgs/org_groups//{orgid}', "orgController@org_groups_update")
     ->name('org_groups.update');

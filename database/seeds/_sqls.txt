@@ -8,6 +8,9 @@ ADD COLUMN `contractid` BIGINT UNSIGNED NULL AFTER `tgtorgid`;
 ALTER TABLE `sasdv`.`obj_finopers`
 ADD COLUMN `opertypeid` BIGINT UNSIGNED NULL COMMENT 'Вид работ' AFTER `contractid`;
 
+ALTER TABLE `sasdv`.`org_curators`
+ADD COLUMN `opertypeid` BIGINT UNSIGNED NULL COMMENT 'куратор по виду работ' AFTER `roleid`;
+
 --------------------------------------------------------------------------------------------------
 2022.02.02
 --------------------------------------------------------------------------------------------------

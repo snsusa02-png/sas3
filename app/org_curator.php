@@ -9,7 +9,7 @@ use Cache;
 class org_curator extends Model
 {
 
-    protected $fillable = ["orgid", "userid", "roleid", "begdt", "enddt", "active", "created_by",
+    protected $fillable = ["id", "orgid", "userid", "roleid", "opertypeid", "begdt", "enddt", "active", "created_by",
         "created_at", "updated_by", "updated_at", "staffid"];
 
     protected $guarded = [];
@@ -24,6 +24,11 @@ class org_curator extends Model
     public function user()
     {
         return $this->hasOne(User::class, 'StaffID', 'staffid');
+    }
+
+    public function opertype()
+    {
+        return $this->hasOne(opertype::class, 'id', 'operrtypeid')->withDefault();
     }
 
     //все доступные кураторы
@@ -72,11 +77,13 @@ class org_curator extends Model
         // а не сотрудник (orgstaff)
         return static::from('org_curators as c')
             ->join('users as u', 'u.id', '=', 'c.userid')
+            ->leftjoin('opertypes as ot', 'ot.id', '=', 'c.opertypeid')
             ->leftjoin('orgs as o', 'o.id', '=', 'u.curorgid')
             ->where('c.orgid', '=', $orgid)
             ->orderBy("u.lname", 'asc')
             ->orderBy('u.fname', 'asc')
             ->select('c.id', 'c.userid', 'u.lname', 'u.fname', 'u.mname'
+                , db::raw("ifnull(ot.name, '-все-') as opertype_name")
                 , 'o.name as orgname', 'c.active' /*, 'c.staffid'*/
                 , 'c.begdt', 'c.enddt')
             ->get();

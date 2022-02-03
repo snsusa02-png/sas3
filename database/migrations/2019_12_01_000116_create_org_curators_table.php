@@ -22,6 +22,9 @@ class CreateOrgCuratorsTable extends Migration
                     ->comment('ID пользователя');
             $table->bigInteger('roleid')->unsigned()->index('roleid')->default(1);
 
+            $table->biginteger('opertypeid')->unsigned()->nullable()->comment('Вид Работ');
+//		$table->foreign('opertypeid')->references('id')->on('opertypes');
+
             $table->timestamp('begdt')->nullable()->useCurrent=true;
             $table->timestamp('enddt')->nullable();
 
