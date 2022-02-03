@@ -636,13 +636,14 @@ class ContractController extends Controller
 
         $ObjFlags = objflag::getFlags4Obj($this->sysobjid, $id);
 
-        $rec->budgets = budget::from('budgets as b')
-            ->where('par_contractid', $id)
-            ->select('b.*'
-                , db::raw("(select sum(estdocsum) from budget_items as bi where bi.budgetid=b.id) as estdocsum")
-            )
-            ->get();
-        //dd($contract->budgets);
+        if (1 == 0) {
+            $rec->budgets = budget::from('budgets as b')
+                ->where('par_contractid', $id)
+                ->select('b.*'
+                    , db::raw("(select sum(estdocsum) from budget_items as bi where bi.budgetid=b.id) as estdocsum")
+                )
+                ->get();
+        }
 
         if ($id <> -1)
             //для создаваемой записи функция затирает значение из шаблона
