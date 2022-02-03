@@ -56,8 +56,8 @@ class org_saldo extends Model
 
     public static function informer_saldos()
     {
-        Cache::forget('informer_saldos');
-        return Cache::remember('informer_saldos', now()->addMinutes(5)
+        //Cache::forget('informer_saldos');
+        return Cache::remember('informer_saldos', now()->addMinutes(3)
             , function () {
 
                 $ownorgs = org::getFor(['flagtypeid' => 12, 'active' => 1], ['o.id', 'o.name as ownorgname']);
@@ -79,7 +79,7 @@ class org_saldo extends Model
         if (!usrsysright::isUserHasRightByCode_cached($userid, 'paydocs.read'))
             return null;
 
-        Cache::forget('informer_ownorg_saldo_details');
+        //Cache::forget('informer_ownorg_saldo_details');
         return Cache::remember('informer_ownorg_saldo_details', now()->addMinutes(3)
             , function () {
                 //Сводка контрашентов с ненулевым балансом по всем организациям ГК

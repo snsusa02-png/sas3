@@ -323,7 +323,23 @@
 
                                 <div class="row">
 
-                                    <div class="form-group offset-md-7 col-md-3 raid_info">
+                                    <div class="form-group offset-md-0 col-md-6">
+                                        <label for="name" class="">Договор:</label>
+                                        @if ($usrrights['save'])
+                                            {!! Form::select('contractid', $rec->contracts??[], old('contractid',$rec->contractid),
+                                             [
+                                                 'id' => 'contractid',
+                                             'class' => 'form-control',
+                                             'placeholder' => '-выбор-',
+                                             ]) !!}
+                                        @else
+                                            <input type="text" class="form-control" readonly
+                                                   value="{{$rec->contract->info}}"
+                                            />
+                                        @endif
+                                    </div>
+
+                                    <div class="form-group offset-md-1 col-md-3 raid_info">
                                         <label for="name" class="required" id="lbl_raid_qty">Кол-во рейсов:</label>
                                         @if ($usrrights['edit'])
                                             <div class="input-group mb-3 ">

@@ -1,4 +1,52 @@
 ﻿--------------------------------------------------------------------------------------------------
+2022.02.03
+--------------------------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------------------------
+2022.02.02
+--------------------------------------------------------------------------------------------------
+
+ALTER TABLE `sasdv`.`objtags`
+CHANGE COLUMN `type` `type` VARCHAR(30) NULL COMMENT 'Тип' ;
+
+ALTER TABLE `sasdv`.`contracts`
+ADD COLUMN `outline` TEXT NULL COMMENT 'полный текст (OCR)' AFTER `notes`;
+
+ALTER TABLE `sasdv`.`mr_opers`
+ADD COLUMN `contractid` BIGINT UNSIGNED NULL COMMENT 'ID договора (contracts.id)' AFTER `org_placename`;
+
+ALTER TABLE `sasdv`.`paydocs`
+ADD COLUMN `contractid` BIGINT UNSIGNED NULL AFTER `orgid`,
+ADD COLUMN `opertypeid` BIGINT UNSIGNED NULL AFTER `contractid`,
+ADD INDEX `fk_paydocs_contractid_idx` (`contractid` ASC) VISIBLE,
+ADD INDEX `fk_paydocs_opertypeid_idx` (`opertypeid` ASC) VISIBLE;
+;
+ALTER TABLE `sasdv`.`paydocs`
+ADD CONSTRAINT `fk_paydocs_contractid`
+  FOREIGN KEY (`contractid`)
+  REFERENCES `sasdv`.`contracts` (`id`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION,
+ADD CONSTRAINT `fk_paydocs_opertypeid`
+  FOREIGN KEY (`opertypeid`)
+  REFERENCES `sasdv`.`opertypes` (`id`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+
+
+ALTER TABLE `sasdv`.`contracts`
+DROP FOREIGN KEY `contracts_regnum_srcid_foreign`;
+ALTER TABLE `sasdv`.`contracts`
+CHANGE COLUMN `regnum_srcid` `regnum_srcid` BIGINT UNSIGNED NULL ;
+ALTER TABLE `sasdv`.`contracts`
+ADD CONSTRAINT `contracts_regnum_srcid_foreign`
+  FOREIGN KEY (`regnum_srcid`)
+  REFERENCES `sasdv`.`regnum_srcs` (`id`)
+  ON DELETE CASCADE;
+
+
+--------------------------------------------------------------------------------------------------
 2022.02.01
 --------------------------------------------------------------------------------------------------
 ALTER TABLE `sysobj_lockdates`

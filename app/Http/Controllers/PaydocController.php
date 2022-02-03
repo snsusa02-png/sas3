@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\contract;
 use App\driver_work;
 use App\mchn_opertype;
 use App\mchn_raid;
+use App\opertype;
 use App\paydoc;
 use App\objlog;
 use App\objtag;
@@ -288,6 +290,8 @@ class PaydocController extends Controller
         $rec->paydirs = [1 => 'приход', -1 => 'расход'];
 
         $rec->ownorgs = org::lstFor_cached(['active_or_current' => $rec->ownorgid, 'flagtypeid' => 12]);
+        $rec->opertypes = opertype::lstFor(['active_or_current' => 1]);
+        $rec->contracts = contract::lstFor(['between_orgs' => [$rec->ownorgid, $rec->orgid]]);
 
         $rec->status_name = 'черновик';
         $rec->status_style = 'background-color:silver';
@@ -379,6 +383,8 @@ class PaydocController extends Controller
         $rec->paytypeid = $request->get('paytypeid');
         $rec->ownorgid = $request->get('ownorgid');
         $rec->orgid = $request->get('orgid');
+        $rec->contractid = $request->get('contractid');
+        $rec->opertypeid = $request->get('opertypeid');
         $rec->docnum = $request->get('docnum');
         $rec->doсdate = $request->get('doсdate');
         $rec->reason = mb_substr($request->get('reason'), 0, 160);

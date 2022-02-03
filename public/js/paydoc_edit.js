@@ -145,120 +145,52 @@ $(document).ready(function () {
     };
 
 
-    //$("#buildobjid").change();
+    function contracts_rfr() {
+        //console.log($("#ownorgid").val(), $("#orgid").val());
 
-    $("#categoryid,#ownorgid").change(function () {
-        //скрываем кнопку загрузки рег. номера при любом изменении данных. Пусть сначала сохранят изменения
-        $("#getregnum").hide();
-
-        //обновляем источники номеров регистрации
-        refresh_regnum_srcid();
-    });
-
-    $("#getregnum").click(function () {
-        if (!$("#regnum").val()) {
-
-            $.get("/contracts/fill_regnum/params", {contractid: $("#id").val()},
-            )
-                .done(function (data) {
-                    //alert("Data Loaded: " + data);
-                    //console.log(data);
-                    $("#regnum").val(data.regnum);
-                    $("#regnum").attr('readonly', 'readonly');
-                    $("#getregnum").hide();
-                });
-        }
-    });
-
-
-    $("#setregnum").click(function () {
-        //alert($(this).checked());
-        if ($('#setregnum').prop('checked')) {
-            $("#set_regnum").val(1);
-        } else {
-            $("#set_regnum").val(0);
-        }
-    });
-
-
-    $("input[name=docdate]").change(function () {
-        //Если дата начала действия еще не определена, то установим ее в соответствии с датой договора
-        if (!$("#begdate").val())
-            $("#begdate").val($(this).val());
-    });
-
-    $("#contracttypeid").change(function () {
-
-        //alert($("#contracttypeid").val());
-        var save_ID1 = $("#ownorgroletypeid").val();
-        var save_ID2 = $("#orgroletypeid").val();
-        //console.log('buildobjid=' + save_ID);
-
-        $("#ownorgroletypeid > option").remove();
-        $("#orgroletypeid > option").remove();
-
-        //получим список ролей для выбранного типа контракта
-        $.get("/api/contractroles/typeid", {
-                typeid: $("#contracttypeid").val(),
-            },
-            function (data) {
-                //console.log(data);
-
-                //var validOpers = validOpers.split(',');
-                //$("#buildobjid > option").remove()
-                $("#ownorgroletypeid").append($("<option>"))
-                $("#orgroletypeid").append($("<option>"))
-                $.each(data.roles, function (index, value) {
-                    $("#ownorgroletypeid").append($("<option>").attr("value", index).append(value))
-                    $("#orgroletypeid").append($("<option>").attr("value", index).append(value))
-                });
-            }
-        )
-        $("#ownorgroletypeid").val(save_ID1);
-        $("#orgroletypeid").val(save_ID2);
-
-    });
-
-    function refresh_regnum_srcid() {
-
-        const selector = '#regnum_srcid';
-        var save_ID1 = $(selector).val();
-        //console.log('save_ID1=' + save_ID1);
+        var selector = "#contractid";
+        var save_ID = $(selector).val();
+        //console.log('save_ID='+save_ID)
 
         $(selector + " > option").remove();
 
-        // обязательно должен быть определен ownorgid
-        //   иначе список нумераторов должен быть пуст
+        if ($("#ownorgid").val() && $("#orgid").val()) {
 
-        if ($("#ownorgid").val()) {
-            //получим список доступных нумер для выбранного типа контракта
-            //$.get("/api/contractroles/typeid", {
-            $.get("/api/regnum_srcs", {
-                    ownorgid: $("#ownorgid").val(),
-                    categoryid: $("#categoryid").val(),
-                    active_or_selected: 1,
+            $.get("/api/contracts/for_", {
+                    between_orgs: [$("#ownorgid").val(), $("#orgid").val()]
+                    //, buildobjid: $("#buildobjid").val()
                 },
                 function (data) {
                     //console.log(data);
 
-                    //var validOpers = validOpers.split(',');
-                    //$("#buildobjid > option").remove()
-                    $(selector).append($("<option>"))
-                    $.each(data.regnum_srcs, function (index, value) {
-                        $("#regnum_srcid").append($("<option>").attr("value", index).append(value))
+                    $(selector).append($("<option>"));
+                    $.each(data.contracts, function (index, value) {
+                        $(selector).append($("<option>").attr("value", index).append(value))
                     });
 
-                    $(selector).val(save_ID1);
-
-                    //Если вариант всего один - попробуем сразу его выбрать. 2 - потому что есть еще placeholder
-                    if ($(selector + ' option').length == 2) {
-                        $(selector).prop('selectedIndex', 1);
-                    }
-
+                    $(selector).val(save_ID);
+                    //console.log('restored save_ID=',$(selector).val())
                 }
             );
         }
-
     }
+
+
+    $("#ownorgid, #orgid").change(function () {
+        contracts_rfr();
+    });
+
+
+    $("input[name=docdate]").change(function () {
+        //Если дата оплаты еще не определена, то установим ее в соответствии с датой документа
+        if (!$("#paydate").val())
+            $("#paydate").val($(this).val());
+
+        if ($(this).val())
+            $("#paydate").attr('min', $(this).val());
+        else
+            $("#paydate").attr('min', '');
+
+    });
 
 });

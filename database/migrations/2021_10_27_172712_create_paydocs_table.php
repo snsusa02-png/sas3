@@ -22,6 +22,16 @@ class CreatePaydocsTable extends Migration
             $table->bigInteger('orgid')->unsigned()->index('orgid')
                 ->comment('ID организации-контрагента (по orgs.ID)');
 
+	    $table->biginteger('contractid')->unsigned()->index();
+		$table->foreign('contractid')->references('id')->on('contracts');
+
+            $table->biginteger('opertypeid')->unsigned()->nullable()->comment('Вид Работ');
+		$table->foreign('opertypeid')->references('id')->on('opertypes');
+
+	    $table->biginteger('rsn_sysobjid')->unsigned()->nullable()->comment('sysobjid записи-основания');
+		$table->foreign('rsn_sysobjid')->references('id')->on('sysobjs');
+            $table->biginteger('rsn_objid')->unsigned()->nullable()->comment('');
+
             $table->string('docnum', 16)->nullable()->comment('Номер документа');
             $table->date('doсdate')->nullable()->comment('Дата документа');
             $table->bigInteger('paytypeid')->unsigned()
@@ -41,6 +51,8 @@ class CreatePaydocsTable extends Migration
             $table->timestamp('updated_at')->nullable()->useCurrent = true;
             $table->bigInteger('updated_by')->nullable()->unsigned()->default(1)
                 ->comment('UserID, изменившего запись');
+
+ 		$table->unique(['rsn_sysobjid', 'rsn_objid'], 'paydocs_rsn_indx');
         });
     }
 

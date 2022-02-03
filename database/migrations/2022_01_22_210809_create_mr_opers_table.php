@@ -33,6 +33,9 @@ class CreateMrOpersTable extends Migration
             $table->biginteger('orgid')->unsigned()->index()->comment('Кто купил у Поставщика/Плательщик');
 	            $table->foreign('orgid')->references('id')->on('orgs');
 
+	    $table->biginteger('contractid')->unsigned()->index();
+		$table->foreign('contractid')->references('id')->on('contracts');
+
             $table->boolean('org_gk')->comment('0-покупатель внешний; 1-покупатель входит в ГК');
             $table->biginteger('org_placeid')->unsigned()->nullable()->comment('ID места выгрузки по org_places');
             $table->string('org_placename',60)->nullable()->comment('Название(адрес) места выгрузки');

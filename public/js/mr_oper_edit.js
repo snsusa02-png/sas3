@@ -1082,7 +1082,43 @@ $(document).ready(function () {
     }
 
 
-    //при загрузке -------------------------------------------------
+    function contracts_rfr() {
+        console.log($("#suporgid").val(), $("#orgid").val());
+
+        var selector = "#contractid";
+        var save_ID = $(selector).val();
+        //console.log('save_ID='+save_ID)
+
+        $(selector + " > option").remove();
+
+        if ($("#suporgid").val() && $("#orgid").val()) {
+
+            $.get("/api/contracts/for_", {
+                    between_orgs: [$("#suporgid").val(), $("#orgid").val()]
+                    //, buildobjid: $("#buildobjid").val()
+                },
+                function (data) {
+                    //console.log(data);
+
+                    $(selector).append($("<option>"));
+                    $.each(data.contracts, function (index, value) {
+                        $(selector).append($("<option>").attr("value", index).append(value))
+                    });
+
+                    $(selector).val(save_ID);
+                    //console.log('restored save_ID=',$(selector).val())
+                }
+            );
+        }
+    }
+
+
+    $("#suporgid, #orgid").change(function () {
+        contracts_rfr();
+    });
+
+
+    //при загрузке --------------------------------------------------------------------------
 
     sale_dir_change();
 

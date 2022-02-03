@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\contract;
 use App\mr_oper;
 use App\machine;
 use App\mchn_raid;
@@ -157,8 +158,9 @@ class MrOperController extends Controller
         }
 
         $rec->sale_dirs = mr_oper::saledirs();
-
         $rec->paytypes = mchn_raid::paytypes();
+        $rec->contracts = contract::lstFor(['between_orgs' => [$rec->suporgid, $rec->orgid]]);
+
 //        dd($rec);
 
         return view('mr_opers.edit', compact('rec', "usrrights"));
@@ -246,6 +248,8 @@ class MrOperController extends Controller
 
 
         $rec->orgid = $request->get('orgid');
+        $rec->contractid = $request->get('contractid'); //договор между suporgid и orgid
+
         $rec->org_placeid = $request->get('org_placeid');
         if (isset($rec->org_placeid))
             $rec->org_placename = $rec->org_place->name;
@@ -256,15 +260,8 @@ class MrOperController extends Controller
 
         $rec->org_gk = objflag::IsSetObjFlag(111, $rec->orgid, 12);
 
+        $rec->contractid = $request->get('contractid');
         $rec->sale_dir = $request->get('sale_dir');
-//        if ($rec->sup_gk and $rec->org_gk) {
-//            $rec->sale_dir = 0;
-//        } elseif ($rec->sup_gk) {
-//            $rec->sale_dir = +1;
-//        } else {
-//            $rec->sale_dir = -1;
-//        }
-        //dd($rec->sup_gk, $rec->org_gk, $rec->sale_dir);
 
         //$rec->notes = mb_substr($request->get('notes'), 0, 300);
 

@@ -49,7 +49,8 @@ class CreateContractsTable extends Migration
 
             $table->string('reason',100)->nullable()->comment('Основание');
             $table->string('descript',300)->nullable()->comment('Описание, суть договора');
-            $table->string('notes',300)->nullable()->comment('Примечание');
+            $table->text('notes')->nullable()->comment('Примечание');
+            $table->text('outline')->nullable()->comment('OCR-полный текст');
 
             $table->string('price_unit',16)->nullable()->default('час')->comment('ЕИ объемов работ для вычисления стоимости работ');
 

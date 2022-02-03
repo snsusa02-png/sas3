@@ -594,14 +594,15 @@ class ObjfileController extends Controller
                                 //$fileuri = Storage::disk('local')->getAdapter()->applyPathPrefix($filePath);
                                 $fileuri = Storage::disk($disk)->getAdapter()->applyPathPrefix($filePath);
 
-                                dd($fullname,$disk,$fileuri, Storage::disk($disk)->exists($fileuri)
-                                , Storage::disk('local')->exists($fileuri)
-                                , Storage::exists($fileuri)
-                                    ,file_exists($fileuri), //this returns true
-                                File::exists($fileuri) //this returns true
-                                );
+//                                dd($fullname,$disk,$fileuri, Storage::disk($disk)->exists($fileuri)
+//                                , Storage::disk('local')->exists($fileuri)
+//                                , Storage::exists($fileuri)
+//                                    ,file_exists($fileuri), //this returns true
+//                                File::exists($fileuri) //this returns true
+//                                );
 
-                                if (Storage::disk($disk)->exists($fileuri)) {
+                                //if (Storage::disk($disk)->exists($fileuri)) {
+                                if (file_exists($fileuri)) {
                                     // Save to table
                                     $rec->sysfiletype_id = 4;   //todo: заплатка. Нужно разобраться почему этот параметр обязателен
                                     $rec->mimetypeid = $mimetypeid;

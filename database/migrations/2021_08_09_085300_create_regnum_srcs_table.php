@@ -16,6 +16,7 @@ class CreateRegnumSrcsTable extends Migration
         Schema::create('regnum_srcs', function (Blueprint $table) {
             $table->id();
 
+            $table->string('code',6)->unique('code')->nullable();
             $table->string('name',60);
             $table->string('descript',160)->nullable();
 
@@ -32,6 +33,8 @@ class CreateRegnumSrcsTable extends Migration
             $table->string('num_suffix',8)->nullable();
 
             $table->boolean('active')->default(1)->comment('1-используется');
+
+            $table->integer('ordr')->unsigned()->nullable()->default(0)->comment('примерный порядок');
 
             $table->timestamp('created_at')->nullable()->useCurrent=true;
             $table->bigInteger('created_by')->nullable()->unsigned()->default(1)

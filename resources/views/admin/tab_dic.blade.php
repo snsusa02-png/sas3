@@ -18,6 +18,14 @@
             </a>
         @endif
 
+        @if (\App\usrsysright::isUserHasRightByCode(\Auth::user()->id,'contracts.read'))
+            <a href="{{route('contracts.index')}}"
+               class="list-group-item list-group-item-action">Договоры с контрагентами
+                <div class="description small font-italic" style="margin-left:2em;">
+                </div>
+            </a>
+        @endif
+
         @if (\App\usrsysright::isUserHasRightByCode(\Auth::user()->id,'machines.read'))
             <a href="{{route('machines.index')}}"
                class="list-group-item list-group-item-action">Спецтехника

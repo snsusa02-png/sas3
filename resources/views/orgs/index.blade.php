@@ -3,6 +3,8 @@
     <?php
     $thisSysObjCode = 'orgs';
     $thisTitle = "Контрагенты";
+
+    $userid = \Auth::user()->id;
     ?>
     <link rel="stylesheet" href="/css/subnav.css">
     <style>
@@ -34,12 +36,13 @@
                         <div class="col-md-8 ">
                             <div class="subnav shift">
                                 <ul>
-                                    @if(1==0 and \Illuminate\Support\Facades\Route::has('contracts.index'))
+                                    @if(1==1 and \Illuminate\Support\Facades\Route::has('contracts.index'))
                                         <li><a href="{{route('contracts.index')}}"
                                                title="Договоры с контрагентами">Договоры</a>
                                         </li>
                                     @endif
-                                    @if(\Illuminate\Support\Facades\Route::has('orgstaff.index'))
+                                    @if( \App\usrsysright::isUserHasRightByCode_cached($userid,'orgstaff.read')
+                                     and \Illuminate\Support\Facades\Route::has('orgstaff.index'))
                                         <li><a href="{{route('orgstaff.index')}}"
                                                title="Персонал организации">Персонал</a>
                                         </li>

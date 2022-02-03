@@ -154,7 +154,7 @@ class contract extends Model
     public function getInfoAttribute()
     {
         if (isset($this->id)) {
-            $rslt = $this->name . ' №' . $this->docnum
+            $rslt = 'договор ' . $this->name . ' №' . $this->docnum
                 . ' от ' . date_format(date_create($this->docdate), "d.m.Y");
             if (isset($this->docsum))
                 $rslt .= ' сумма: ' . number_format($this->docsum, 2);
@@ -322,6 +322,107 @@ class contract extends Model
         );
     }
 
+    static public function search_cond($params)
+    {
+        $sc = "1=1";
+
+        //для оптимизации запроса некоторые параметры обрабатываются группой.
+        // Чтобы избежать повторного применения, используем добавление отработанных параметров
+        // в массив $used_params
+        $used_params = [];
+
+        foreach ($params as $key => $val) {
+            //Log::info($key.' = '.$val);
+            if (isset($val) and $val !== '') {
+
+                if (array_search($key, $used_params) == 0) {
+                    $used_params[] = $key;
+
+                    if ($key == 'in_equiprsts') {
+                        //договор указан в заявках на материалы как договор с подрядчиком
+                        $sc .= " and " . (($val == 0) ? "not" : "")
+                            . " exists(select 1 from equiprqsts as er where er.contractid = c.id)";
+
+                    } elseif ($key == 'ownorgid') {
+                        $sc .= " and c.ownorgid={$val}";
+
+                    } elseif ($key == 'orgid') {
+                        //вторая сторона по договору
+                        $sc .= " and c.orgid={$val}";
+
+                    } elseif ($key == 'between_orgs') {
+                        if (is_array($val)) {
+
+                            $val = array_filter($val, function ($value) {
+                                return !is_null($value) && $value !== '';
+                            });
+
+                            if (count($val) < 2)
+                                $sc .= " and 1=0";
+                            else {
+                                $lst = implode(',', $val);
+                                $sc .= " and c.ownorgid in ({$lst}) and c.orgid in ({$lst})";
+                            }
+
+                        } else
+                            $sc .= " and 1=0";
+
+                    } elseif ($key == 'budget_orgid') {
+                        //договор указан в бюджете
+                        $sc .= " and exists(select 1 from budgets as b where b.par_contractid=c.id and b.orgid={$val})";
+
+                    } elseif ($key == 'categoryid') {
+                        //категория: 1-доходный, 2-расходный, 3- , 4-
+                        $sc .= " and c.categoryid={$val}";
+
+                    } elseif ($key == 'actual') {
+                        //действующий в настоящее время
+                        $sc .= " and " . (($val == 0) ? "not" : "")
+                            . "( c.active={$val}"
+                            . " and 1=1"
+                            . ")";
+
+                    } elseif ($key == 'for_userid') {
+                        if (!usrsysright::isUserHasRightByCode_cached($val, 'contracts.read')) {
+                            $sc .= " and exists (select 1 from obj_readers as r where r.sysobjid=151
+                                and r.objid = c.id
+                                and r.userid={$val})";
+                        }
+
+                    } elseif ($key == 'buildobjid') {
+                        //$sc .= " and c.buildobjid={$val}";
+                        //$sc .= " and exists (select 1 from equiprqsts as er where er.contractid = c.id and er.buildobjid={$val})";
+                        //по прямой привязке договора к объекту строительства
+                        $sc .= " and exists (select 1 from obj_links as ol where ol.sysobjid=151 and objid = c.id
+                            and ol.lnksysobjid=466 and ol.lnkobjid={$val})";
+
+                    } elseif ($key == 'budget_buildobjid') {
+                        $sc .= " and exists (select 1 from budgets as b where b.par_contractid = c.id
+                                and b.buildobjid={$val} )";
+
+                    } elseif ($key == 'buildopertypeid') {
+                        //связанные с разделами бюджета, которые, в свою очередь, связаны с заданным видом работ
+                        $sc .= " and exists (select 1 from budgets as b
+                                join budget_items as bi on bi.budgetid=b.id and bi.buildopertypeid={$val}
+                                where b.par_contractid=c.id)";
+
+                    } elseif ($key == 'in_wrkrep_machines') {
+                        $sc .= " and " . (($val == 0) ? "not" : "")
+                            . " exists (select 1 from wrkrep_machines as wrm where wrm.contractid = c.id)";
+
+                    } elseif ($key == 'org_in') {
+                        $sc .= " and exists (select 1 from contract_orgs as co where co.contractid = c.id and co.orgid={$val})";
+                    }
+                }
+
+            }
+        }
+        //Log::info($sc);
+
+        return $sc;
+
+    }
+
     static public function lstFor($params)
     {
         //2021-02-18 SNS. универсальный конструктор массива с id, name договоров
@@ -335,76 +436,78 @@ class contract extends Model
             // в массив $used_params
             $used_params = [];
 
-            $sc = "1=1";
+            $sc = self::search_cond($params);
 
-            foreach ($params as $key => $val) {
-                //Log::info($key.' = '.$val);
-                if (isset($val) and $val !== '') {
+            if (1 == 0) {
+                foreach ($params as $key => $val) {
+                    //Log::info($key.' = '.$val);
+                    if (isset($val) and $val !== '') {
 
-                    if (array_search($key, $used_params) == 0) {
-                        $used_params[] = $key;
+                        if (array_search($key, $used_params) == 0) {
+                            $used_params[] = $key;
 
-                        if ($key == 'in_equiprsts') {
-                            //договор указан в заявках на материалы как договор с подрядчиком
-                            $sc .= " and " . (($val == 0) ? "not" : "")
-                                . " exists(select 1 from equiprqsts as er where er.contractid = c.id)";
+                            if ($key == 'in_equiprsts') {
+                                //договор указан в заявках на материалы как договор с подрядчиком
+                                $sc .= " and " . (($val == 0) ? "not" : "")
+                                    . " exists(select 1 from equiprqsts as er where er.contractid = c.id)";
 
-                        } elseif ($key == 'ownorgid') {
-                            $sc .= " and c.ownorgid={$val}";
+                            } elseif ($key == 'ownorgid') {
+                                $sc .= " and c.ownorgid={$val}";
 
-                        } elseif ($key == 'orgid') {
-                            //вторая сторона по договору
-                            $sc .= " and c.orgid={$val}";
+                            } elseif ($key == 'orgid') {
+                                //вторая сторона по договору
+                                $sc .= " and c.orgid={$val}";
 
-                        } elseif ($key == 'between_orgs') {
-                            $lst = implode(',', $val);
-                            $sc .= " and c.ownorgid in ({$lst}) and c.orgid in ({$lst})";
+                            } elseif ($key == 'between_orgs') {
+                                $lst = implode(',', $val);
+                                $sc .= " and c.ownorgid in ({$lst}) and c.orgid in ({$lst})";
 
-                        } elseif ($key == 'budget_orgid') {
-                            //договор указан в бюджете
-                            $sc .= " and exists(select 1 from budgets as b where b.par_contractid=c.id and b.orgid={$val})";
+                            } elseif ($key == 'budget_orgid') {
+                                //договор указан в бюджете
+                                $sc .= " and exists(select 1 from budgets as b where b.par_contractid=c.id and b.orgid={$val})";
 
-                        } elseif ($key == 'categoryid') {
-                            //категория: 1-доходный, 2-расходный, 3- , 4-
-                            $sc .= " and c.categoryid={$val}";
+                            } elseif ($key == 'categoryid') {
+                                //категория: 1-доходный, 2-расходный, 3- , 4-
+                                $sc .= " and c.categoryid={$val}";
 
-                        } elseif ($key == 'actual') {
-                            //действующий в настоящее время
-                            $sc .= " and " . (($val == 0) ? "not" : "")
-                                . "( c.active={$val}"
-                                . " and 1=1"
-                                . ")";
+                            } elseif ($key == 'actual') {
+                                //действующий в настоящее время
+                                $sc .= " and " . (($val == 0) ? "not" : "")
+                                    . "( c.active={$val}"
+                                    . " and 1=1"
+                                    . ")";
 
-                        } elseif ($key == 'for_userid') {
-                            if (!usrsysright::isUserHasRightByCode_cached($val, 'contracts.read')) {
-                                $sc .= " and exists (select 1 from obj_readers as r where r.sysobjid=151
+                            } elseif ($key == 'for_userid') {
+                                if (!usrsysright::isUserHasRightByCode_cached($val, 'contracts.read')) {
+                                    $sc .= " and exists (select 1 from obj_readers as r where r.sysobjid=151
                                 and r.objid = c.id
                                 and r.userid={$val})";
-                            }
+                                }
 
-                        } elseif ($key == 'buildobjid') {
-                            //$sc .= " and c.buildobjid={$val}";
-                            //$sc .= " and exists (select 1 from equiprqsts as er where er.contractid = c.id and er.buildobjid={$val})";
-                            //по прямой привязке договора к объекту строительства
-                            $sc .= " and exists (select 1 from obj_links as ol where ol.sysobjid=151 and objid = c.id 
+                            } elseif ($key == 'buildobjid') {
+                                //$sc .= " and c.buildobjid={$val}";
+                                //$sc .= " and exists (select 1 from equiprqsts as er where er.contractid = c.id and er.buildobjid={$val})";
+                                //по прямой привязке договора к объекту строительства
+                                $sc .= " and exists (select 1 from obj_links as ol where ol.sysobjid=151 and objid = c.id
                             and ol.lnksysobjid=466 and ol.lnkobjid={$val})";
 
-                        } elseif ($key == 'budget_buildobjid') {
-                            $sc .= " and exists (select 1 from budgets as b where b.par_contractid = c.id
+                            } elseif ($key == 'budget_buildobjid') {
+                                $sc .= " and exists (select 1 from budgets as b where b.par_contractid = c.id
                                 and b.buildobjid={$val} )";
 
-                        } elseif ($key == 'buildopertypeid') {
-                            //связанные с разделами бюджета, которые, в свою очередь, связаны с заданным видом работ
-                            $sc .= " and exists (select 1 from budgets as b
+                            } elseif ($key == 'buildopertypeid') {
+                                //связанные с разделами бюджета, которые, в свою очередь, связаны с заданным видом работ
+                                $sc .= " and exists (select 1 from budgets as b
                                 join budget_items as bi on bi.budgetid=b.id and bi.buildopertypeid={$val}
                                 where b.par_contractid=c.id)";
 
-                        } elseif ($key == 'in_wrkrep_machines') {
-                            $sc .= " and " . (($val == 0) ? "not" : "")
-                                . " exists (select 1 from wrkrep_machines as wrm where wrm.contractid = c.id)";
+                            } elseif ($key == 'in_wrkrep_machines') {
+                                $sc .= " and " . (($val == 0) ? "not" : "")
+                                    . " exists (select 1 from wrkrep_machines as wrm where wrm.contractid = c.id)";
+                            }
                         }
-                    }
 
+                    }
                 }
             }
             //Log::info($sc);
@@ -437,6 +540,36 @@ class contract extends Model
             return null;
     }
 
+    static public function getFor($s_params, $fields = null, $sorts = null)
+    {
+        //2021-04-30 SNS. универсальный конструктор коллекции из записей contracts
+        // params - массив, содержащий пару "имя параметра"=>"значение параметра"
+        // fields - массив со списком возвращаемых полей таблицы
+
+        if (isset($s_params) and is_countable($s_params) and count($s_params) > 0) {
+
+            $sc = self::search_cond($s_params);
+            //Log::info($sc);
+            $fields = (isset($fields) and count($fields) > 0) ? $fields : 'c.*';
+            //Log::info(json_encode($fields));
+
+            $sorts = $sorts ?? [['c.docdate', 'desc']];
+
+            $recs = self::from('contracts as c')
+                ->whereRaw($sc)
+                ->select($fields);
+
+            foreach ($sorts as $sort) {
+                $recs = $recs->orderBy($sort[0], $sort[1] ?? 'asc');
+            }
+
+            $recs = $recs->get();
+            //dd($sc,$recs);
+            return $recs;
+        } else
+            return null;
+    }
+
     public static function informer_statistics()
     {
         //Cache::forget('informer_contract_stat');
@@ -448,6 +581,35 @@ class contract extends Model
                     , 'doc_file_cnt' => objfile::where(['sysobjid' => self::$sysobjid])->count()
                     , 'user_rqst_cnt' => obj_reader::where('sysobjid', self::$sysobjid)->whereNotIn('userid', [57])->sum('read_cnt')
                 ];
+            }
+        );
+    }
+
+    public static function user_in_readers($userid)
+    {
+        return Cache::remember(self::$prefix . '_user_in_readers_' . $userid, now()->addMinutes(15)
+            , function () use ($userid) {
+                return (obj_reader::where(['sysobjid' => self::$sysobjid, 'userid' => $userid])->count() > 0);
+            }
+        );
+    }
+
+    public static function user_new_cnt($userid)
+    {
+        return Cache::remember(self::$prefix . '_user_new_cnt_' . $userid, now()->addMinutes(5)
+            , function () use ($userid) {
+                return obj_reader::where(['sysobjid' => self::$sysobjid, 'userid' => $userid, 'read_cnt' => 0])->count();
+            }
+        );
+    }
+
+    public static function user_has_access($userid)
+    {
+        return Cache::remember(self::$prefix . '_user_has_access_' . $userid, now()->addMinutes(5)
+            , function () use ($userid) {
+
+                return (usrsysright::isUserHasRightByCode_cached($userid, self::$prefix . '.read')
+                    or self::user_in_readers($userid));
             }
         );
     }

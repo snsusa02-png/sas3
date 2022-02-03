@@ -477,10 +477,10 @@ Route::get('/obj_orgs/{id}/edit', "ObjOrgController@edit")->name('obj_orgs.edit'
 Route::match(array('POST', 'PUT'), 'obj_orgs/{id}', "ObjOrgController@update")->name('obj_orgs.update');
 Route::put('/obj_orgs/{id}/delete', "ObjOrgController@destroy")->name("obj_orgs.delete");
 
-//Route::get('/contract_orgs/create/{contractid}', "ContractOrgController@create")->name('contract_orgs.create');
-//Route::get('/contract_orgs/{id}/edit', "ContractOrgController@edit")->name('contract_orgs.edit');
-//Route::match(array('POST', 'PUT'), 'contract_orgs/{id}', "ContractOrgController@update")->name('contract_orgs.update');
-//Route::put('/contract_orgs/{id}/delete', "ContractOrgController@destroy")->name("contract_orgs.delete");
+Route::get('/contract_orgs/create/{contractid}', "ContractOrgController@create")->name('contract_orgs.create');
+Route::get('/contract_orgs/{id}/edit', "ContractOrgController@edit")->name('contract_orgs.edit');
+Route::match(array('POST', 'PUT'), 'contract_orgs/{id}', "ContractOrgController@update")->name('contract_orgs.update');
+Route::put('/contract_orgs/{id}/delete', "ContractOrgController@destroy")->name("contract_orgs.delete");
 
 //альтернативные названия для объекта
 Route::get('/altnames/create/{sysobjid}/{objid}', "ObjNameController@create")->name('obj_names.create');
@@ -653,17 +653,17 @@ Route::match(array('get', 'POST'), 'orgstaffs/getshortinfo', 'orgstaffController
 //Route::match(array('POST', 'GET'), '/reports/rep/44', "DocumentReportController@rep44")->name('reports.rep44');
 
 //Договоры
-//Route::match(array('GET', 'POST'), 'contracts', "ContractController@index")->name("contracts.index");
-//
-//Route::get('contracts/{id}/edit', "ContractController@edit")->name('contracts.edit');
-//Route::match(array('POST', 'PUT'), 'contracts/{id}', "ContractController@update")->name('contracts.update');
-//Route::get('contracts/create/{owngrp}', "ContractController@create")->name('contracts.create');
-//Route::put('contracts/{id}/delete', "ContractController@destroy")->name("contracts.delete");
-//
-//Route::get('/contracts/fill_regnums/{ownorgid}', "ContractController@fill_regnums")->name("contracts.fill_regnums");
-//Route::get('/contracts/fill_regnum/params/', 'ContractController@fill_regnum');
-//
-//Route::get('contracts/{id}/make_template', "ContractController@make_template")->name('contracts.make_template');
+Route::match(array('GET', 'POST'), 'contracts', "ContractController@index")->name("contracts.index");
+
+Route::get('contracts/{id}/edit', "ContractController@edit")->name('contracts.edit');
+Route::match(array('POST', 'PUT'), 'contracts/{id}', "ContractController@update")->name('contracts.update');
+Route::get('contracts/create/{owngrp}', "ContractController@create")->name('contracts.create');
+Route::put('contracts/{id}/delete', "ContractController@destroy")->name("contracts.delete");
+
+Route::get('/contracts/fill_regnums/{ownorgid}', "ContractController@fill_regnums")->name("contracts.fill_regnums");
+Route::get('/contracts/fill_regnum/params/', 'ContractController@fill_regnum');
+
+Route::get('contracts/{id}/make_template', "ContractController@make_template")->name('contracts.make_template');
 //
 ////уведомление о необходимости прочитать опубликованный документ
 //Route::get('contracts/{id}/notify/1', 'ContractController@notify_mustreaders')->name('contracts.notify_mustreaders');
@@ -673,10 +673,10 @@ Route::match(array('get', 'POST'), 'orgstaffs/getshortinfo', 'orgstaffController
 //Route::match(array('POST', 'GET'), '/contracts/rep/23', "ContractController@rep23")->name('reports.rep23');
 
 //Контрактные цены
-//Route::get('contract_prices/{id}/edit', "ContractPriceController@edit")->name('contract_prices.edit');
-//Route::match(array('POST', 'PUT'), 'contract_prices/{id}', "ContractPriceController@update")->name('contract_prices.update');
-//Route::get('contract_prices/create/{sysobjid}', "ContractPriceController@create")->name('contract_prices.create');
-//Route::put('contract_prices/{id}/delete', "ContractPriceController@destroy")->name("contract_prices.delete");
+Route::get('contract_prices/{id}/edit', "ContractPriceController@edit")->name('contract_prices.edit');
+Route::match(array('POST', 'PUT'), 'contract_prices/{id}', "ContractPriceController@update")->name('contract_prices.update');
+Route::get('contract_prices/create/{sysobjid}', "ContractPriceController@create")->name('contract_prices.create');
+Route::put('contract_prices/{id}/delete', "ContractPriceController@destroy")->name("contract_prices.delete");
 //
 ////Контракт - планы работ
 //Route::get('contract_workplans/create/{contractid}', "ContractWorkplanController@create")->name('contract_workplans.create');
@@ -695,12 +695,12 @@ Route::match(array('get', 'POST'), 'orgstaffs/getshortinfo', 'orgstaffController
 //Route::match(array('POST', 'GET'), '/contract_exes/rep/22', "ContractExeController@rep22")->name('reports.rep22');
 //Route::match(array('POST', 'GET'), '/contract_exes/rep/27', "ContractExeController@rep27")->name('reports.rep27');
 //
-////Контракт - согласование
-//Route::get('contract_reviews/create/{contractid}', "ContractReviewController@create")->name('contract_reviews.create');
-//Route::get('contract_reviews/{id}/edit', "ContractReviewController@edit")->name('contract_reviews.edit');
-//Route::match(array('POST', 'PUT'), 'contract_reviews/{id}', "ContractReviewController@update")->name('contract_reviews.update');
-//Route::put('contract_reviews/{id}/delete', "ContractReviewController@destroy")->name("contract_reviews.delete");
-//Route::get('contract_reviews/{id}/print/1', 'ContractReviewController@print_1')->name('contract_reviews.print_1');
+//Контракт - согласование
+Route::get('contract_reviews/create/{contractid}', "ContractReviewController@create")->name('contract_reviews.create');
+Route::get('contract_reviews/{id}/edit', "ContractReviewController@edit")->name('contract_reviews.edit');
+Route::match(array('POST', 'PUT'), 'contract_reviews/{id}', "ContractReviewController@update")->name('contract_reviews.update');
+Route::put('contract_reviews/{id}/delete', "ContractReviewController@destroy")->name("contract_reviews.delete");
+Route::get('contract_reviews/{id}/print/1', 'ContractReviewController@print_1')->name('contract_reviews.print_1');
 //
 ////Контракт - согласование - участник
 //Route::get('contrrev_users/create/{contrrevid}', "ContrrevUserController@create")->name('contrrev_users.create');
@@ -966,6 +966,12 @@ Route::get('/orgs/addrs/params/', 'OrgPlaceController@addrs_params');
 Route::get('/api/doctypes/ac_/', 'DoctypeController@get_for');
 Route::get('/api/doctypes/params/', 'DoctypeController@list_for');
 Route::get('/api/orgstaff/ac_/', 'orgstaffController@get_for');
+
+Route::get('/api/contracts/params/', 'ContractController@listcontracts');
+Route::get('/api/contracts/buildopertypeid/', 'ContractController@list_for_buildopertypeid');
+Route::get('/api/contracts/for_/', 'ContractController@list_for');
+Route::get('/api/contractroles/typeid/', 'ContractroleController@list_for_contracttypeid');
+Route::get('/api/regnum_srcs/', 'RegnumSrcController@list_for');
 
 
 //План платежей организации

@@ -136,7 +136,7 @@
                                     </div>
                                 </div>
 
-                                <div class="row">
+                                <div class="row mt-3">
                                     <div class="form-group col-md-12">
                                         <label for="orgname" class="required"><span id="lbl_org">Контрагент</span> <span
                                                 id="org_aux_lbl"></span>:
@@ -178,10 +178,44 @@
 
                                     </div>
                                 </div>
-
                                 <div class="row">
+                                    <div class="form-group offset-md-0 col-md-6">
+                                        <label for="name" class="">Договор:</label>
+                                        @if ($usrrights['save'])
+                                            {!! Form::select('contractid', $rec->contracts??[], old('contractid',$rec->contractid),
+                                             [
+                                                 'id' => 'contractid',
+                                             'class' => 'form-control',
+                                             'placeholder' => '-выбор-',
+                                             ]) !!}
+                                        @else
+                                            <input type="text" class="form-control" readonly
+                                                   value="{{$rec->contract->info}}"
+                                            />
+                                        @endif
+                                    </div>
+
+                                    <div class="form-group offset-md-0 col-md-6">
+                                        <label for="name" class="">Вид работ:</label>
+                                        @if ($usrrights['save'])
+                                            {!! Form::select('opertypeid', $rec->opertypes??[], old('opertypeid',$rec->opertypeid),
+                                             [
+                                                 'id' => 'opertypeid',
+                                             'class' => 'form-control',
+                                             'placeholder' => '-выбор-',
+                                             'required' => 'required',
+                                             ]) !!}
+                                        @else
+                                            <input type="text" class="form-control" readonly
+                                                   value="{{$rec->opertype->name}}"
+                                            />
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <div class="row mt-3">
                                     <div class="form-group offset-md-0 col-md-3 col-sm-6 ">
-                                        <label for="docnum" class="required">№ док-та:</label>
+                                        <label for="docnum" class="">№ док-та:</label>
                                         <input type="text" class="form-control text-center font-weight-bold"
                                                name="docnum" {{$ro_mode}}
                                                value="{{old('docnum',$rec->docnum)}}"/>

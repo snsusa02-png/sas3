@@ -12,6 +12,8 @@ taxsystems,U,id
 contacttypes,U,id
 roletypes,U,id
 sysobj_roletypes,U,id
+contracttypes,U,id
+contractroles,U,id
 contract_categories,U,id
 unittypes,U,id
 pay_categories,U,id
