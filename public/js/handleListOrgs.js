@@ -13,6 +13,8 @@ function hitOrg(id) {
 
             var elm_id = opener.document.getElementById("orgid"),
                 elm_name = opener.document.getElementById("orgname");
+                if(!elm_name)
+                    elm_name = opener.document.getElementById("org_name");
 
             if (elm_id !== undefined && elm_name !== undefined) {
                 elm_id.value = data.id;

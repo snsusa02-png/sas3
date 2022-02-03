@@ -67,25 +67,26 @@
                                     <div class="form-group col-md-12">
                                         <label for="ownorgid" class="required">
                                             <span id="lbl_ownorg">Со стороны ГК </span><span id="ownorg_aux_lbl"></span>:
-                                            @if(isset($rec->ownorgid))
-                                                <a href="{{route("orgs.edit",$rec->ownorgid)}}"
-                                                   target="_blank"><i class="fa fa-external-link-square text-info"
-                                                                      aria-hidden="true"></i></a>
-                                            @endif
                                         </label>
-                                        @if($usrrights['save']??false)
-                                            {!! Form::select('ownorgid', $rec->ownorgs, $rec->ownorgid,
-                                             [
-                                             'id' => 'ownorgid',
-                                             'class' => 'form-control',
-                                             'placeholder' => '-выбор-',
-                                             ]) !!}
-                                        @else
-                                            <input type="text" name="ownorgname"
-                                                   class="form-control" readonly
-                                                   value="{{$rec->ownorg->name}}"
-                                            />
-                                        @endif
+                                        <div class="input-group">
+                                            @if($usrrights['save']??false)
+                                                {!! Form::select('ownorgid', $rec->ownorgs, $rec->ownorgid,
+                                                 [
+                                                 'id' => 'ownorgid',
+                                                 'class' => 'form-control',
+                                                 'placeholder' => '-выбор-',
+                                                 ]) !!}
+                                            @else
+                                                <input type="hidden" id="ownorgid" value="{{$rec->ownorgid}}">
+                                                <input type="text" class="form-control font-weight-bold" readonly
+                                                       value="{{$rec->ownorg->info}}">
+
+                                            @endif
+                                                <a class="btn btn-light id_lnk" data-id="ownorgid" data-obj="orgs"
+                                                   target="_blank">
+                                                    <i class="fa fa-info text-info" aria-hidden="true"></i>
+                                                </a>
+                                        </div>
                                     </div>
 
                                 </div>
@@ -140,40 +141,39 @@
                                     <div class="form-group col-md-12">
                                         <label for="orgname" class="required"><span id="lbl_org">Контрагент</span> <span
                                                 id="org_aux_lbl"></span>:
-                                            @if(isset($rec->orgid))
-                                                <a href="{{route("orgs.edit",$rec->orgid)}}"
-                                                   target="_blank"><i class="fa fa-external-link-square text-info"
-                                                                      aria-hidden="true"></i></a>
-                                            @endif
-                                            @if(1==1)
-                                                <a href="{{route("orgs.create",0)}}"
-                                                   target="_blank"><i class="fa fa-plus-square-o badge-warning"
-                                                                      aria-hidden="true"></i></a>
-                                            @endif
                                         </label>
+
+                                        @if($usrrights['save'])
+                                            <a href="{{route("orgs.create",0)}}" title="Добавить нового контрагента"
+                                               target="_blank"><i class="fa fa-plus-square-o badge-warning"
+                                                                  aria-hidden="true"></i></a>
+                                        @endif
                                         <div class="input-group">
-                                            {{ Form::hidden('orgid', old('orgid',$rec->orgid),['id'=>'orgid']) }}
-                                            @if ($usrrights['save']??false)
-                                                <input type="text" class="form-control" name="orgname"
-                                                       id="orgname"
-                                                       value="{{old('orgname',$rec->org->name)}}"
-                                                       style="height: 34px;"
-                                                />
-                                                <input type="text" class="form-control text-center small"
-                                                       style="display: none; border: #d7f3e3;" id="ac_orgid"
+                                            @if ($usrrights['save'])
+                                                <input type="text" name="org_name" required id="org_name"
+                                                       class="ac_name ac_org_name form-control font-weight-bold"
+                                                       value="{{old('org_name',$rec->org->info)}}">
+                                                <input type="text" class="form-control text-center small ac_status"
+                                                       title=""
+                                                       style="display: none; border: #d7f3e3; max-width: 30px"
                                                        readonly>
-                                                <div class="input-group-append">
-                                                    <a onclick="callListOrgs($('#orgid').val())" title="Поиск"
-                                                       class="btn btn-sm btn-primary form-control">
-                                                        <i class="fa fa-search" aria-hidden="true"></i>
-                                                    </a>
-                                                </div>
+                                                <input type="hidden" name="orgid" class="ac_id" id="orgid"
+                                                       data-gk="{{$rec->org_gk}}"
+                                                       value="{{old('orgid',$rec->orgid)}}">
+                                                <a onclick="callListOrgs($('#orgid').val())" title="Поиск по списку"
+                                                   class="btn btn-sm btn-light">
+                                                    <i class="fa fa-search" aria-hidden="true"
+                                                       style="vertical-align: bottom"></i>
+                                                </a>
                                             @else
-                                                <input type="text" name="orgname"
-                                                       class="form-control" readonly
-                                                       value="{{$rec->org->name}} (ИНН:{{$rec->org->inn}}, КПП:{{$rec->org->kpp}})"
-                                                />
+                                                <input type="hidden" id="orgid" value="{{$rec->orgid}}">
+                                                <input type="text" class="form-control font-weight-bold" readonly
+                                                       value="{{old('org_name',$rec->org->info)}}">
                                             @endif
+                                            <a class="btn btn-light id_lnk" data-id="orgid" data-obj="orgs"
+                                               target="_blank">
+                                                <i class="fa fa-info text-info" aria-hidden="true"></i>
+                                            </a>
                                         </div>
 
                                     </div>
@@ -181,18 +181,24 @@
                                 <div class="row">
                                     <div class="form-group offset-md-0 col-md-6">
                                         <label for="name" class="">Договор:</label>
-                                        @if ($usrrights['save'])
-                                            {!! Form::select('contractid', $rec->contracts??[], old('contractid',$rec->contractid),
-                                             [
-                                                 'id' => 'contractid',
-                                             'class' => 'form-control',
-                                             'placeholder' => '-выбор-',
-                                             ]) !!}
-                                        @else
-                                            <input type="text" class="form-control" readonly
-                                                   value="{{$rec->contract->info}}"
-                                            />
-                                        @endif
+                                        <div class="input-group mb-3 ">
+                                            @if ($usrrights['save'])
+                                                {!! Form::select('contractid', $rec->contracts??[], old('contractid',$rec->contractid),
+                                                 [
+                                                     'id' => 'contractid',
+                                                 'class' => 'form-control',
+                                                 'placeholder' => '-выбор-',
+                                                 ]) !!}
+                                            @else
+                                                <input type="text" class="form-control" readonly
+                                                       value="{{$rec->contract->info}}"
+                                                />
+                                            @endif
+                                            <a class="btn btn-light id_lnk" data-id="contractid" data-obj="contracts"
+                                               target="_blank">
+                                                <i class="fa fa-info text-info" aria-hidden="true"></i>
+                                            </a>
+                                        </div>
                                     </div>
 
                                     <div class="form-group offset-md-0 col-md-6">
@@ -310,6 +316,7 @@
             </div>
         </div>
         <script src="{{ asset('js/paydoc_edit.js') }}" defer></script>
+        <script src="{{ asset('js/id_lnk.js') }}" defer></script>
     @endif
 @endsection
 @section('title')
