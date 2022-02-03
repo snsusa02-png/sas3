@@ -193,7 +193,7 @@ $(document).ready(function () {
 
         const selector = '#regnum_srcid';
         var save_ID1 = $(selector).val();
-        //console.log('save_ID1=' + save_ID1);
+        console.log('save_ID1=' + save_ID1);
 
         $(selector + " > option").remove();
 

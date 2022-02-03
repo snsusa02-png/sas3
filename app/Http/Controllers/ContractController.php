@@ -636,51 +636,52 @@ class ContractController extends Controller
 
         $ObjFlags = objflag::getFlags4Obj($this->sysobjid, $id);
 
+        if ($id <> -1)
+            //для создаваемой записи функция затирает значение из шаблона
+            $rec->tags_lst = objtag::lstTags($this->sysobjid, $id);
+
+
         if (1 == 0) {
+            $rec->doc_templates = [
+                0 => 'не типовой',
+                1 => 'типовой',
+            ];
+
+            $rec->buildobjs = buildobj::lstActive();
+
             $rec->budgets = budget::from('budgets as b')
                 ->where('par_contractid', $id)
                 ->select('b.*'
                     , db::raw("(select sum(estdocsum) from budget_items as bi where bi.budgetid=b.id) as estdocsum")
                 )
                 ->get();
+
+            //Планы работ по контракту
+            $rec->contract_workplans = contract_workplan::from('contract_workplans as wp')
+                ->join('buildopertypes as bot', 'bot.id', 'wp.buildopertypeid')
+                ->where([
+                    'wp.contractid' => $rec->id,
+                ])
+                ->select('wp.*', 'bot.name as buildopertypename'
+                    , db::raw("(select min(ifnull(fctbegdt,ifnull(estbegdt,plnbegdt))) from cwp_works as w where w.cwp_id=wp.id) as min_begdt")
+                    , db::raw("(select max(ifnull(fctenddt,ifnull(estenddt,plnenddt))) from cwp_works as w where w.cwp_id=wp.id) as max_enddt")
+                )
+                ->orderby('buildopertypename')
+                ->orderby('wp.id')
+                ->get();
+
+            //Исполнение по контракту
+            $rec->contract_exes = contract_exe::from('contract_exes as ce')
+                ->join('buildopertypes as bot', 'bot.id', 'ce.buildopertypeid')
+                ->where([
+                    'ce.contractid' => $rec->id,
+                ])
+                ->select('ce.*', 'bot.name as buildopertypename')
+                ->orderby('buildopertypename')
+                ->orderby('ce.docdate')
+                ->get();
+
         }
-
-        if ($id <> -1)
-            //для создаваемой записи функция затирает значение из шаблона
-            $rec->tags_lst = objtag::lstTags($this->sysobjid, $id);
-
-        $rec->buildobjs = buildobj::lstActive();
-
-        $rec->doc_templates = [
-            0 => 'не типовой',
-            1 => 'типовой',
-        ];
-
-        //Планы работ по контракту
-        $rec->contract_workplans = contract_workplan::from('contract_workplans as wp')
-            ->join('buildopertypes as bot', 'bot.id', 'wp.buildopertypeid')
-            ->where([
-                'wp.contractid' => $rec->id,
-            ])
-            ->select('wp.*', 'bot.name as buildopertypename'
-                , db::raw("(select min(ifnull(fctbegdt,ifnull(estbegdt,plnbegdt))) from cwp_works as w where w.cwp_id=wp.id) as min_begdt")
-                , db::raw("(select max(ifnull(fctenddt,ifnull(estenddt,plnenddt))) from cwp_works as w where w.cwp_id=wp.id) as max_enddt")
-            )
-            ->orderby('buildopertypename')
-            ->orderby('wp.id')
-            ->get();
-
-        //Исполнение по контракту
-        $rec->contract_exes = contract_exe::from('contract_exes as ce')
-            ->join('buildopertypes as bot', 'bot.id', 'ce.buildopertypeid')
-            ->where([
-                'ce.contractid' => $rec->id,
-            ])
-            ->select('ce.*', 'bot.name as buildopertypename')
-            ->orderby('buildopertypename')
-            ->orderby('ce.docdate')
-            ->get();
-
 
         //кандидаты для опозитного договора
         $rec->opposite_docs = [];
