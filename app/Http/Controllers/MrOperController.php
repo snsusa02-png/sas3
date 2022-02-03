@@ -160,7 +160,7 @@ class MrOperController extends Controller
         $rec->sale_dirs = mr_oper::saledirs();
         $rec->paytypes = mchn_raid::paytypes();
         $rec->contracts = contract::lstFor(['between_orgs' => [$rec->suporgid, $rec->orgid]]);
-
+//        $rec->finopers = $rec->finopers;
 //        dd($rec);
 
         return view('mr_opers.edit', compact('rec', "usrrights"));

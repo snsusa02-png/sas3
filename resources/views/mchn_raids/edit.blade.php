@@ -961,6 +961,15 @@
                     </div>
                 @endif
             </div>
+
+            @if($rec->id<>-1)
+                <div class="row">
+                    <div class="col-md-10">
+                        @include('obj_finopers._finopers')
+                    </div>
+
+                </div>
+            @endif
         </div>
 
         <link href="{{ asset('css/jquery-ui.css') }}" rel="stylesheet">

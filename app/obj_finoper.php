@@ -26,6 +26,10 @@ class obj_finoper extends Model
         return $this->hasOne(User::class, 'id', 'updated_by');
     }
 
+    public static function types()
+    {
+        return [1 => 'платеж', 2 => 'поставка'];
+    }
 
     static public function addOrUpdate($search_params, $set_params)
     {

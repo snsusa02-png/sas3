@@ -502,6 +502,7 @@
                         {{--                        @includeif('contracts/org_extservices')--}}
                         @include('obj_staffs/_staffs')
                         @include('obj_readers/_readers')
+                        @include('obj_finopers._finopers')
                         {{--                        @include('contracts/obj_readers')--}}
                         {{--						@include('contracts/obj_comments')--}}
                         {{--                        @include('obj_msgs._msgs')--}}
@@ -510,6 +511,14 @@
                 @endif
 
             </div>
+
+            @if($rec->id<>-1)
+                <div class="row">
+                    <div class="col-md-8">
+                        {{--                        @include('obj_finopers._finopers')--}}
+                    </div>
+                </div>
+            @endif
         </div>
         <script src="{{ asset('js/contract_edit.js') }}" defer></script>
     @endif

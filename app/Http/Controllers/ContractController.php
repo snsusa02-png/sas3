@@ -18,6 +18,7 @@ use App\doctype;
 use App\document;
 use App\eventtype;
 use App\invoice;
+use App\obj_finoper;
 use App\obj_link;
 use App\obj_org;
 use App\obj_reader;
@@ -731,6 +732,21 @@ class ContractController extends Controller
 
             //Выясним - есть ли шаблон для этого типа объектов ИС
             $rec->template_id = user_template::where(['sysobjid' => $this->sysobjid, 'userid' => $userid])->first()->id ?? null;
+
+
+            if ($userid == 121 or 1==1)
+                $rec->finopers = obj_finoper::from('obj_finopers as fo')
+                    ->join('orgs as s_o', 's_o.id', 'fo.srcorgid')
+                    ->join('orgs as t_o', 't_o.id', 'fo.tgtorgid')
+                    ->leftjoin('opertypes as ot', 'ot.id', 'fo.opertypeid')
+                    ->where('fo.contractid', $rec->id)
+                    ->select('fo.*'
+                        , 's_o.name as srcorg_name'
+                        , 't_o.name as tgtorg_name'
+                        , 'ot.name as opertype_name'
+                    )
+                    ->orderBy('fo.operdate')
+                    ->get();
 
             //-------------------------------------------------------------------------------------
         }

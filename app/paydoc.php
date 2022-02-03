@@ -4,6 +4,7 @@ namespace App;
 
 use App\Traits\DeleteTrait;
 use App\Traits\FilesTrait;
+use App\Traits\FinOpersTrait;
 use Illuminate\Database\Eloquent\Model;
 
 class paydoc extends Model
@@ -13,6 +14,8 @@ class paydoc extends Model
 
     use DeleteTrait;
     use FilesTrait;
+    use FinOpersTrait;
+
 
     protected $guarded = [];
 
@@ -212,8 +215,9 @@ class paydoc extends Model
                     , 'opersum' => $rec->paysum
                     , 'qty' => null
                     , 'price' => null
-                    , 'descript' => 'платеж - ' . $rec->reason
-                    , 'sumtypeid' => 1  //1-деньги, 2-товар
+                    //, 'descript' => 'платеж - ' . $rec->reason
+                    , 'descript' => $rec->reason
+                    , 'sumtypeid' => 1  //1-платеж, 2-поставка
                     , 'srcorgid' => $srcorgid
                     , 'tgtorgid' => $tgtorgid
                     , 'contractid' => $rec->contractid

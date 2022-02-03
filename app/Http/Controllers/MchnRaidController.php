@@ -93,8 +93,8 @@ class MchnRaidController extends Controller
         $userid = \Auth::user()->id;
 
         $usrrights = $this->setInterfaceRight(-1);
-        if (1==0 or !$usrrights['read']) {
-            return view('home')->with(['error'=>'Нет доступа!']);
+        if (1 == 0 or !$usrrights['read']) {
+            return view('home')->with(['error' => 'Нет доступа!']);
             //return redirect(back())->with(['error'=>'Нет доступа!']);
         }
 
@@ -497,6 +497,23 @@ class MchnRaidController extends Controller
 
             //пересчет фин транзакций
             mchn_raid::rfr_finopers($rec->id);
+
+            if ($userid == 12)
+                $rec->finopers = obj_finoper::from('obj_finopers as fo')
+                    ->join('orgs as s_o', 's_o.id', 'fo.srcorgid')
+                    ->join('orgs as t_o', 't_o.id', 'fo.tgtorgid')
+                    ->leftjoin('opertypes as ot', 'ot.id', 'fo.opertypeid')
+                    ->leftjoin('contracts as c', 'c.id', 'fo.contractid')
+                    ->where('sysobjid', 1107)   //по дочерним - mr_opers
+                    ->whereRaw(" exists(select 1 from mr_opers as mro where mro.mr_id={$rec->id} and mro.id=fo.objid)")
+                    ->select('fo.*'
+                        , 's_o.name as srcorg_name'
+                        , 't_o.name as tgtorg_name'
+                        , 'ot.name as opertype_name'
+                    )
+                    ->orderBy('fo.operdate')
+                    ->get();
+
         }
 
         $rec->load_places = org_place::lstFor(['orgid' => $rec->suporgid]);

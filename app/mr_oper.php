@@ -4,6 +4,7 @@ namespace App;
 
 use App\Traits\DeleteTrait;
 use App\Traits\FilesTrait;
+use App\Traits\FinOpersTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
@@ -14,6 +15,7 @@ class mr_oper extends Model
 
     use DeleteTrait;
     use FilesTrait;
+    use FinOpersTrait;
 
     protected $guarded = [];
 

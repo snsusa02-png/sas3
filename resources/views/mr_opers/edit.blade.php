@@ -33,7 +33,7 @@
             @includeIf('layouts.edit_msgs')
 
             <div class="row ">
-                <div class="col-md-9">
+                <div class="col-md-8">
                     <div class="card p-2 my-2 my-md-3" style="background-color: #f8f8f8">
                         <div class="card-header">
                             {{$ThisTitle}} "<b>{{$rec->mchn_raid->info}}</b>"
@@ -404,12 +404,21 @@
                 </div>
 
                 @if($rec->id<>-1)
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         @include('objfiles.obj_files')
                         {{--                        @include('obj_readers._readers')--}}
                     </div>
                 @endif
             </div>
+
+            @if($rec->id<>-1)
+                <div class="row">
+                    <div class="col-md-8">
+                        @include('obj_finopers._finopers')
+                    </div>
+                </div>
+            @endif
+
         </div>
 
         <link href="{{ asset('css/jquery-ui.css') }}" rel="stylesheet">

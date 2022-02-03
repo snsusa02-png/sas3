@@ -314,6 +314,15 @@
                     </div>
                 @endif
             </div>
+
+            @if($rec->id<>-1)
+                <div class="row">
+                    <div class="col-md-8">
+                        @include('obj_finopers._finopers')
+                    </div>
+                </div>
+            @endif
+
         </div>
         <script src="{{ asset('js/paydoc_edit.js') }}" defer></script>
         <script src="{{ asset('js/id_lnk.js') }}" defer></script>
