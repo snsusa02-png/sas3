@@ -681,6 +681,14 @@ class ContractController extends Controller
                 ->orderby('ce.docdate')
                 ->get();
 
+            //Сервисы по договору org_extservices ---------------
+            $rec->org_extservices = org_extservice::getFor([
+                'contractid' => $rec->id,
+            ], [
+                'id', 'name', 'rest_sum'
+            ]);
+            //---------------------------------------------------
+
         }
 
         //кандидаты для опозитного договора
@@ -699,14 +707,6 @@ class ContractController extends Controller
                 ->toArray();
             //dd($rec->opposite_contracts);
         }
-
-        //Сервисы по договору org_extservices ---------------
-        $rec->org_extservices = org_extservice::getFor([
-            'contractid' => $rec->id,
-        ], [
-            'id', 'name', 'rest_sum'
-        ]);
-        //---------------------------------------------------
 
         //Источнки № регистрации ----------------------------
         $rec->regnum_srcs = regnum_src::lstFor([
