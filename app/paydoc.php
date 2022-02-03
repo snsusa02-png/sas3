@@ -217,6 +217,7 @@ class paydoc extends Model
                     , 'srcorgid' => $srcorgid
                     , 'tgtorgid' => $tgtorgid
                     , 'contractid' => $rec->contractid
+                    , 'opertypeid' => $rec->opertypeid
                     , 'updated_by' => $userid
                     , 'updated_at' => now()
                 ]);

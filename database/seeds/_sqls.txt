@@ -5,6 +5,9 @@
 ALTER TABLE `sasdv`.`obj_finopers`
 ADD COLUMN `contractid` BIGINT UNSIGNED NULL AFTER `tgtorgid`;
 
+ALTER TABLE `sasdv`.`obj_finopers`
+ADD COLUMN `opertypeid` BIGINT UNSIGNED NULL COMMENT 'Вид работ' AFTER `contractid`;
+
 --------------------------------------------------------------------------------------------------
 2022.02.02
 --------------------------------------------------------------------------------------------------

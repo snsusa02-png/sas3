@@ -198,6 +198,7 @@ class mr_oper extends Model
                 , 'srcorgid' => $rec->suporgid
                 , 'tgtorgid' => $rec->orgid
                 , 'contractid' => $rec->contractid
+                , 'opertypeid' => $rec->mchn_raid->opertypeid
                 , 'updated_by' => $userid
                 , 'updated_at' => now()
             ]);
