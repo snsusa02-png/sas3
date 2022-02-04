@@ -13,6 +13,7 @@ use App\obj_finoper;
 use App\org_saldo;
 use App\orgplnpay;
 use App\orgplnpay_item;
+use App\orgstaff;
 use App\pay_category;
 use App\paydoc;
 use App\prodplan_fact;
@@ -153,7 +154,7 @@ class PayDocReportController extends Controller
                     }
                 } elseif ($item == 's_curatorid') {
                     $sc = $sc . " and exists (select 1 from org_curators as oc
-                        where oc.orgid=o.id and oc.userid={$val}
+                        where oc.orgid=o.id and oc.staffid={$val}
                         and oc.active=1 and now() between oc.begdt and ifnull(oc.enddt,now()) )";
                 }
             }
@@ -200,7 +201,10 @@ class PayDocReportController extends Controller
         //$data->showmodes = [1 => 'Должники', 2 => 'должники и с переплатой', 4 => 'все'];
         $data->showmodes = [1 => 'Должники', 3 => 'Переплата', 2 => 'Должники и Переплата', 4 => 'Все'];
 
-        $data->curators = User::lstFor_cached([
+//        $data->curators = User::lstFor_cached([
+//            'in_org_curators_now' => 1,
+//        ]);
+        $data->curators = orgstaff::lstFor_cached([
             'in_org_curators_now' => 1,
         ]);
 

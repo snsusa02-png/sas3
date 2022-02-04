@@ -378,6 +378,11 @@ class orgstaff extends Model
                     } elseif ($key == 'no_signature_for_sysobj') {
                         //нет требующейся подписи на хранимом образе документа
                         $sc .= " and exists( select 1 from obj_staffs as ojs where ojs.sysobjid={$val} and ojs.staffid=os.id and ojs.signed=0 )";
+
+                    } elseif ($key == 'in_org_curators_now') {
+                        //сотрудник должен быть куратором организации
+                        $sc .= " and exists( select 1 from org_curators as oc where oc.staffid=os.id
+                            and oc.active=1 and now() between oc.begdt and ifnull(oc.enddt,now()) )";
                     }
                 }
 

@@ -444,16 +444,15 @@
                                     Закрыть
                                 </a>
                                 @if ($rec->id != -1 and $usrrights['delete'])
-                                    <button type="submit"
-                                            class="btn btn-danger btn-sm"
-                                            style="margin-left:24px"
-                                            formaction="{{ route($sysobjcode.'.delete', $rec->id)}}"
-                                            formmethod="post"
-                                            onclick="return confirm('Вы действительно хотите удалить запись?')"
-                                            title="Удалить запись"
+                                    <a class="btn btn-danger btn-sm"
+                                       style="margin-left:24px"
+                                       href="{{ route($sysobjcode.'.delete', $rec->id)}}"
+
+                                       onclick="return confirm('Вы действительно хотите удалить запись?')"
+                                       title="Удалить запись"
                                     >
                                         <i class="fa fa-trash-o" aria-hidden="true"></i>
-                                    </button>
+                                    </a>
                                 @endif
                                 @if ($rec->id != -1 and $usrrights['make_template']??true)
                                     <button type="submit"

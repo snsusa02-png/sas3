@@ -484,7 +484,7 @@ class MchnRaidReportController extends Controller
                 ->groupBy('mr.driverid')
                 ->orderBy('driver_name')
                 ->get();
-            dd($sc, $recs3);
+            //dd($sc, $recs3);
 
             //обновим счетчик использования отчета
             report::updUseCnt($report_id, $userid, \Auth::user()->name);
