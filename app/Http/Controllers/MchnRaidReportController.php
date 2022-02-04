@@ -600,21 +600,40 @@ class MchnRaidReportController extends Controller
 
         if ($need_search) {
 
+//            $recs = driver_work::from('driver_works as dw')
+//                ->join('orgstaff as os', 'os.id', 'dw.staffid')
+//                ->leftJoin('machines as m', 'm.id', 'dw.machineid')
+//                ->whereRaw($sc)
+//                ->select('dw.*'
+//                    , 'os.lname as staff_lname'
+//                    , 'os.fname as staff_fname'
+//                    , 'os.mname as staff_mname'
+//                    , 'm.regnum as machine_regnum'
+//                )
+//                ->orderBy('os.name')
+//                ->orderBy('os.id')
+//                ->orderBy('dw.wrkdate')
+//                ->get();
+
             $recs = driver_work::from('driver_works as dw')
                 ->join('orgstaff as os', 'os.id', 'dw.staffid')
-                ->leftJoin('machines as m', 'm.id', 'dw.machineid')
                 ->whereRaw($sc)
-                ->select('dw.*'
+                ->select('dw.wrkdate', 'dw.staffid'
                     , 'os.lname as staff_lname'
                     , 'os.fname as staff_fname'
                     , 'os.mname as staff_mname'
-                    , 'm.regnum as machine_regnum'
+                    , db::raw("sum(dw.salary_sum) as salary_sum")
+                    , db::raw("sum(dw.raid_sum) as raid_sum")
+                    , db::raw("sum(dw.pdt_sum) as pdt_sum")
+                    , db::raw("sum(dw.repair_sum) as repair_sum")
                 )
-                ->orderBy('os.name')
-                ->orderBy('os.id')
+                ->groupBy(['dw.wrkdate', 'dw.staffid'])
+                ->orderBy('os.lname')
+                ->orderBy('os.fname')
+                ->orderBy('dw.staffid')
                 ->orderBy('dw.wrkdate')
                 ->get();
-            //dd($sc,$recs);
+            //dd($sc, $recs);
 
             //обновим счетчик использования отчета
             report::updUseCnt($report_id, $userid, \Auth::user()->name);
