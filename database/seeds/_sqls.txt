@@ -1,4 +1,21 @@
 ﻿--------------------------------------------------------------------------------------------------
+2022.02.04
+--------------------------------------------------------------------------------------------------
+
+ALTER TABLE `sasdv`.`org_curators`
+ADD COLUMN `staffid` BIGINT UNSIGNED NULL COMMENT 'ID сотрудника-куратора (orgstaff.id)' AFTER `orgid`,
+CHANGE COLUMN `userid` `userid` BIGINT UNSIGNED NULL DEFAULT NULL COMMENT 'ID пользователя-куратора' ,
+CHANGE COLUMN `opertypeid` `opertypeid` BIGINT UNSIGNED NULL DEFAULT NULL COMMENT 'Курируемый вид работ(деятельности). Null - все' ;
+
+// добавление фактических кураторов
+insert into sasdv.org_curators (orgid, staffid, roleid, opertypeid,begdt)
+select mr.orgid, mr.disp_staffid as staffid, 1 as roleid, mr.opertypeid, min(mr.wrkdate) as begdt
+from mchn_raids as mr
+join orgstaff as os on os.id=mr.disp_staffid
+where mr.orgid is not null
+group by mr.disp_staffid, mr.orgid, mr.opertypeid
+
+--------------------------------------------------------------------------------------------------
 2022.02.03
 --------------------------------------------------------------------------------------------------
 

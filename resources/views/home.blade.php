@@ -17,7 +17,7 @@
             min-height: 94vh;
             background-color: rgb(244, 243, 239);
             {{--background: url({{env("WELCOME_BG_URI","/images/bgs/sl1.jpg")}}) center;--}}
-                  background: url({{env("WELCOME_BG_URI","/images/bgs/bg1.jpg")}}) no-repeat center center fixed;
+                    background: url({{env("WELCOME_BG_URI","/images/bgs/bg1.jpg")}}) no-repeat center center fixed;
             -webkit-background-size: cover;
             -moz-background-size: cover;
             -o-background-size: cover;
@@ -33,12 +33,12 @@
             text-align: justify; /* Выравнивание по ширине */
         }
 
-        .card-category{
+        .card-category {
             font-size: 18px;
             font-weight: bold;
         }
 
-        .text-info{
+        .text-info {
             font-size: 16px;
             font-weight: bold;
         }
@@ -58,49 +58,51 @@
 
         <script defer>
 
-            document.addEventListener('DOMContentLoaded', function () {
+            if (1 == 0) {
+                document.addEventListener('DOMContentLoaded', function () {
 
-                $("#news-ticker").eocjsNewsticker({
-                    type: 'ajax',	// 'static' or 'ajax'
-                    //source: '/js/smooth-eocjs-news-ticker/data.json',
-                    source: '/news_feed',
-                    dataType: 'json',// or 'jsonp'
-                    // used for jsonp
-                    //callback: 'callback',
-                    // polling interval of the ajax source (seconds)
-                    interval: 600,
+                    $("#news-ticker").eocjsNewsticker({
+                        type: 'ajax',	// 'static' or 'ajax'
+                        //source: '/js/smooth-eocjs-news-ticker/data.json',
+                        source: '/news_feed',
+                        dataType: 'json',// or 'jsonp'
+                        // used for jsonp
+                        //callback: 'callback',
+                        // polling interval of the ajax source (seconds)
+                        interval: 600,
 
-                    // animation speed
-                    speed: 20,
+                        // animation speed
+                        speed: 20,
 
-                    // time to wait before starting
-                    timeout: 1,
+                        // time to wait before starting
+                        timeout: 1,
 
-                    // divider between news
-                    divider: '&nbsp;&nbsp;&nbsp; . . . &nbsp;&nbsp;&nbsp;',
+                        // divider between news
+                        divider: '&nbsp;&nbsp;&nbsp; . . . &nbsp;&nbsp;&nbsp;',
 
+                    });
+
+                    $("#msgs-ticker").eocjsNewsticker({
+                        type: 'ajax',	// 'static' or 'ajax'
+                        source: '/msgs_feed',
+                        dataType: 'json',// or 'jsonp'
+                        // used for jsonp
+                        //callback: 'callback',
+                        // polling interval of the ajax source (seconds)
+                        interval: 120,
+
+                        // animation speed
+                        speed: 16,
+
+                        // time to wait before starting
+                        timeout: 1,
+
+                        // divider between news
+                        divider: '&nbsp;&nbsp;&nbsp; . . . &nbsp;&nbsp;&nbsp;',
+
+                    });
                 });
-
-                $("#msgs-ticker").eocjsNewsticker({
-                    type: 'ajax',	// 'static' or 'ajax'
-                    source: '/msgs_feed',
-                    dataType: 'json',// or 'jsonp'
-                    // used for jsonp
-                    //callback: 'callback',
-                    // polling interval of the ajax source (seconds)
-                    interval: 120,
-
-                    // animation speed
-                    speed: 16,
-
-                    // time to wait before starting
-                    timeout: 1,
-
-                    // divider between news
-                    divider: '&nbsp;&nbsp;&nbsp; . . . &nbsp;&nbsp;&nbsp;',
-
-                });
-            });
+            }
         </script>
     @endif
 
@@ -123,7 +125,7 @@
         @if(1==0 and isset($userorgid))
             <div class="acme-news-ticker mb-3" style="border-color: silver">
                 <div class="acme-news-ticker-label">&nbsp;&nbsp;&nbsp;<a
-                            href="{{route('news.public_index')}}">Новости</a>&nbsp;&nbsp;&nbsp;
+                        href="{{route('news.public_index')}}">Новости</a>&nbsp;&nbsp;&nbsp;
                 </div>
                 <div class="acme-news-ticker-box">
                     <div id="news-ticker">
@@ -244,7 +246,7 @@
 
             @if(isset($userorgid))
 
-{{--                @includeif("informers._eri_ri_stat")--}}
+                {{--                @includeif("informers._eri_ri_stat")--}}
                 @includeif("informers._contract_statistics")
                 @includeif("informers._document_statistics")
 

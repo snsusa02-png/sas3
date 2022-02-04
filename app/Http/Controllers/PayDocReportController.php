@@ -169,10 +169,10 @@ class PayDocReportController extends Controller
             $recs = $recs->select(
                 'o.id as orgid', 'o.name as orgname'
                 , db::raw("orgSaldo_onDate(o.id, {$ownorgid}, null) as org_saldo")
-                , db::raw("(select group_concat( trim(concat(ifnull(u.fname,''),' ', u.lname)) SEPARATOR ',')
-                            from users as u join org_curators as oc
-                            on oc.userid=u.id and oc.active=1
-                                and now() between oc.begdt and ifnull(oc.enddt,now())
+                , db::raw("(select group_concat( trim(concat(ifnull(os.fname,''),' ', os.lname)) SEPARATOR ',')
+                            from orgstaff as os
+                            join org_curators as oc
+                            on oc.staffid=os.id and oc.active=1 and now() between oc.begdt and ifnull(oc.enddt,now())
                             where oc.orgid=o.id
                             ) as org_curators")
 
@@ -306,7 +306,7 @@ class PayDocReportController extends Controller
     public
     function informer49(Request $request)
     {
-        //Сводка контрашентов с ненулевым балансом по всем организациям ГК
+        //Сводка контрагентов с ненулевым балансом по всем организациям ГК
 
         $userid = \Auth::user()->id;
 
@@ -333,8 +333,8 @@ class PayDocReportController extends Controller
                 'o.id as orgid', 'o.name as orgname'
                 , db::raw("orgSaldo_onDate(o.id, {$ownorgid}, null) as org_saldo")
                 , db::raw("(select group_concat( trim(concat(ifnull(u.fname,''),' ', u.lname)) SEPARATOR ',')
-                            from users as u join org_curators as oc
-                            on oc.userid=u.id and oc.active=1
+                            from orgstaff as u join org_curators as oc
+                            on oc.staffid=u.id and oc.active=1
                                 and now() between oc.begdt and ifnull(oc.enddt,now())
                             where oc.orgid=o.id
                             ) as org_curators")

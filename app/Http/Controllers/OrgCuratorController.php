@@ -133,7 +133,7 @@ class OrgCuratorController extends Controller
 
             $sc = '1=1';
 
-            $rec = org_curator::from('paydocs as pd')->whereRaw($sc)->where('id', $id)->first();
+            $rec = org_curator::from('org_curators as c')->whereRaw($sc)->where('id', $id)->first();
 
             if (!isset($rec))
                 return redirect(route('orgs.index'));
@@ -156,9 +156,13 @@ class OrgCuratorController extends Controller
     //public function update(Request $request, org_curator $org_curator)
     public function update(Request $request, $id)
     {
-        $request->validate([
-            "userid" => "required",
-        ]);
+        $request->validate(
+            [
+                "staffid.required" => 'Укажите сотрудника',
+            ], [
+            //"userid" => "required",
+            "staffid" => "required",
+        ], );
 
         $userid = Auth::id();
         $mess = "";
@@ -173,7 +177,8 @@ class OrgCuratorController extends Controller
             $rec = org_curator::find($id);
             $mess = "Изменена запись о кураторе клиента";
         }
-        $rec->userid = $request->get('userid');
+        //$rec->userid = $request->get('userid');
+        $rec->staffid = $request->get('staffid');
 
 //        $staffid = User::find($rec->userid)->StaffID;
 //        $staffid = isset($staffid) ? $staffid : 0;

@@ -17,12 +17,17 @@ class CreateOrgCuratorsTable extends Migration
         Schema::create('org_curators', function (Blueprint $table) {
             $table->bigIncrements('id');
 
-            $table->bigInteger('orgid')->unsigned()->index('orgid');
+            $table->bigInteger('orgid')->unsigned()->index('orgid')
+                    ->comment('ID курируемой организации');
+
+            $table->biginteger('staffid')->nullable()->unsigned()->index('staffid')
+                    ->comment('ID сотрудника-куратора (orgstaff.id)');
             $table->biginteger('userid')->nullable()->unsigned()->index('userid')
-                    ->comment('ID пользователя');
+                    ->comment('ID пользователя-куратора');
+
             $table->bigInteger('roleid')->unsigned()->index('roleid')->default(1);
 
-            $table->biginteger('opertypeid')->unsigned()->nullable()->comment('Вид Работ');
+            $table->biginteger('opertypeid')->unsigned()->nullable()->comment('Курируемый вид работ(деятельности). Null - все');
 //		$table->foreign('opertypeid')->references('id')->on('opertypes');
 
             $table->timestamp('begdt')->nullable()->useCurrent=true;

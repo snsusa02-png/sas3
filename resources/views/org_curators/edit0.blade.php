@@ -51,47 +51,14 @@
                                 @csrf
                                 <input type="hidden" name="orgid" value="{{$rec->orgid}}">
 
-                                <div class="row">
-                                    <div class="form-group col-md-12">
-                                        <label for="name">Куратор:</label>
-                                        <div class="input-group mb-3 ">
-                                            <input type="hidden" name="staffid" id="staffid"
-                                                   class="ac_orgstaff_id ac_id"
-                                                   value="{{$rec->staffid}}">
+                                <div class="form-group">
+                                    <label for="orgid">Куратор:</label>
+                                    {!! Form::select('userid', $rec->curators,
+                                     $rec->userid,
+                                     ['class' => 'form-control']
+                                     ) !!}
 
-                                            @if ($usrrights['save'])
-                                                <input type="text" name="username"
-                                                       class="ac_orgstaff_name form-control"
-                                                       placeholder="-ФИО-"
-                                                       value="{{$rec->staff->name}}">
-                                                <input type="text"
-                                                       class="form-control text-center small ac_status"
-                                                       style="display: none; border: #d7f3e3; " readonly>
-                                            @else
-                                                <input type="text" class="form-control" readonly
-                                                       value="{{$rec->staff->name}}"
-                                                />
-                                            @endif
-                                            <a class="btn btn-light id_lnk" data-id="staffid" data-obj="orgstaff"
-                                               target="_blank">
-                                                <i class="fa fa-info text-info" aria-hidden="true"></i>
-                                            </a>
-
-                                        </div>
-                                    </div>
-
-                                    @if(1==0)
-                                        <div class="form-group">
-                                            <label for="orgid">Куратор:</label>
-                                            {!! Form::select('userid', $rec->curators,
-                                             $rec->userid,
-                                             ['class' => 'form-control']
-                                             ) !!}
-
-                                        </div>
-                                    @endif
                                 </div>
-
                                 <div class="row">
                                     <div class="form-group offset-md-0 col-md-6">
                                         <label for="name" class="">Вид работ:</label>
@@ -158,7 +125,13 @@
                                     >
                                         <i class="fa fa-trash-o" aria-hidden="true"></i>
                                     </button>
-                                    @include('layouts._who_when')
+
+                                    <div class="small" style="margin-top: 8px;">
+                                        {{--										создана: {{$rec->created_at}} / {{$rec->whocrt}}--}}
+                                        {{--										<br>&nbsp;&nbsp;--}}
+                                        {{--										изменена: {{$rec->updated_at}} / {{$rec->whoupd}}--}}
+                                        <a href="{{route('objevntlog',['sysobjid'=>$sysobjid, 'objid'=>$rec->id,'route'=>Route::current()->getName()])}}">журнал</a>
+                                    </div>
                                 @endif
                             </form>
                         </div>
@@ -166,13 +139,5 @@
                 </div>
             </div>
         </div>
-
-        <link href="{{ asset('css/jquery-ui.css') }}" rel="stylesheet">
-        <script src="{{ asset('js/jquery-ui.js') }}" defer></script>
-
-        <script src="{{ asset('js/id_lnk.js') }}" defer></script>
-        <script src="{{ asset('js/ac_staff_name.js') }}" defer></script>
-        <script src="{{ asset('js/org_curators_edit.js') }}" defer></script>
-
     @endif
 @endsection

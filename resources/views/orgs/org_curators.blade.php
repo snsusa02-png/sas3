@@ -12,28 +12,20 @@
         {{--dd(get_defined_vars())--}}
 
         <style>
-            .uper {
-                margin-top: 36px;
-            }
-
             label {
                 color: gray;
                 margin-bottom: 0px;
-            }
-
-            .org-aux {
-                width: 100%
             }
         </style>
         <div class="container">
             <div class="row ">
                 @if ($org->id != -1)
-                    <div class="col-md-12">
-                        <div class="card uper">
+                    <div class="offset-md-1 col-md-10">
+                        <div class="card mt-3">
                             <div class="card-header">
                                 Кураторы клиента "<b>{{$org->name}}</b>" ({{$org->id}})
 
-                                <a class="btn btn-close btn-info btn-sm"
+                                <a class="btn btn-close btn-light btn-sm"
                                    style="float:right"
                                    href="{{ route('orgs.edit',$org->id) }}"
                                    title="вернуться в карточку клиента"
@@ -42,22 +34,17 @@
                                 </a>
                             </div>
                             <div class="card-body">
-                                @if(session()->get('success'))
-                                    <div class="alert alert-success">
-                                        {{ session()->get('success') }}
-                                    </div><br/>
-                                @endif
+                                @include('layouts.err_msgs')
 
                                 <table class="table table-striped">
                                     <thead>
                                     <tr>
                                         <td>#</td>
                                         <td>
-                                            ФИО
+                                            ФИО, организация
                                         </td>
                                         <td class="text-center">Вид работ</td>
-                                        <td class="text-center">Период</td>
-                                        <td>Организация</td>
+                                        <td class="text-center">Период действия</td>
                                         <td style="text-align: center;">
                                             <a href="{{ route('org_curator.create',$org->id)}}"
                                                class="btn btn-warning btn-sm"
@@ -82,7 +69,10 @@
                                                 {{$loop->index + $rec0}}
                                             </td>
                                             <td>
-                                                {{$itm->lname." ".$itm->fname." ".$itm->mname}}
+                                                <a href="{{ route('org_curator.edit',$itm->id)}}">
+                                                    {{$itm->lname." ".$itm->fname." ".$itm->mname}}
+                                                </a>
+                                                <div class="mt-1 ml-3 text-secondary small">{{$itm->orgname}}</div>
                                             </td>
 
                                             <td class="text-center">
@@ -90,9 +80,6 @@
                                             </td>
                                             <td class="text-center">
                                                 <span class="small">{{$itm->begdt}} - {{$itm->enddt}}</span>
-                                            </td>
-                                            <td class="text-left">
-                                                <span class="small">{{$itm->orgname}}</span>
                                             </td>
                                             <td style="text-align: center;">
                                                 <a href="{{ route('org_curator.edit',$itm->id)}}"

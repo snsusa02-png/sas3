@@ -20,10 +20,15 @@ class org_curator extends Model
         return $this->hasOne(org::class, 'id', 'orgid')->withDefault();
     }
 
+    public function staff()
+    {
+        return $this->hasOne(orgstaff::class, 'id', 'staffid')->withDefault();
+    }
+
     //связь с пользователем
     public function user()
     {
-        return $this->hasOne(User::class, 'StaffID', 'staffid');
+        return $this->hasOne(User::class, 'id', 'userid')->withDefault();
     }
 
     public function opertype()
@@ -73,20 +78,35 @@ class org_curator extends Model
 
     static public function OrgCuratorList($orgid)
     {
-        //20190703 SNS. Изменение концепции. Куратор теперь это пользователь (user)
-        // а не сотрудник (orgstaff)
+        //20220204 SNS. Опять изменение концепции - кураторы это сотрудники
+        // (которые могут быть и пользователями, но необязательно)
         return static::from('org_curators as c')
-            ->join('users as u', 'u.id', '=', 'c.userid')
+            ->join('orgstaff as os', 'os.id', '=', 'c.staffid')
             ->leftjoin('opertypes as ot', 'ot.id', '=', 'c.opertypeid')
-            ->leftjoin('orgs as o', 'o.id', '=', 'u.curorgid')
+            ->leftjoin('orgs as o', 'o.id', '=', 'os.orgid')
             ->where('c.orgid', '=', $orgid)
-            ->orderBy("u.lname", 'asc')
-            ->orderBy('u.fname', 'asc')
-            ->select('c.id', 'c.userid', 'u.lname', 'u.fname', 'u.mname'
+            ->orderBy("os.lname", 'asc')
+            ->orderBy('os.fname', 'asc')
+            ->select('c.id', 'c.staffid', 'os.lname', 'os.fname', 'os.mname'
                 , db::raw("ifnull(ot.name, '-все-') as opertype_name")
-                , 'o.name as orgname', 'c.active' /*, 'c.staffid'*/
+                , 'o.name as orgname', 'c.active'
                 , 'c.begdt', 'c.enddt')
             ->get();
+
+//        //20190703 SNS. Изменение концепции. Куратор теперь это пользователь (user)
+//        // а не сотрудник (orgstaff)
+//        return static::from('org_curators as c')
+//            ->join('users as u', 'u.id', '=', 'c.userid')
+//            ->leftjoin('opertypes as ot', 'ot.id', '=', 'c.opertypeid')
+//            ->leftjoin('orgs as o', 'o.id', '=', 'u.curorgid')
+//            ->where('c.orgid', '=', $orgid)
+//            ->orderBy("u.lname", 'asc')
+//            ->orderBy('u.fname', 'asc')
+//            ->select('c.id', 'c.userid', 'u.lname', 'u.fname', 'u.mname'
+//                , db::raw("ifnull(ot.name, '-все-') as opertype_name")
+//                , 'o.name as orgname', 'c.active' /*, 'c.staffid'*/
+//                , 'c.begdt', 'c.enddt')
+//            ->get();
     }
 
     //действующие кураторы контрагента ($orgid)
