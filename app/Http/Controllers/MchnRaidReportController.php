@@ -600,21 +600,6 @@ class MchnRaidReportController extends Controller
 
         if ($need_search) {
 
-//            $recs = driver_work::from('driver_works as dw')
-//                ->join('orgstaff as os', 'os.id', 'dw.staffid')
-//                ->leftJoin('machines as m', 'm.id', 'dw.machineid')
-//                ->whereRaw($sc)
-//                ->select('dw.*'
-//                    , 'os.lname as staff_lname'
-//                    , 'os.fname as staff_fname'
-//                    , 'os.mname as staff_mname'
-//                    , 'm.regnum as machine_regnum'
-//                )
-//                ->orderBy('os.name')
-//                ->orderBy('os.id')
-//                ->orderBy('dw.wrkdate')
-//                ->get();
-
             $recs = driver_work::from('driver_works as dw')
                 ->join('orgstaff as os', 'os.id', 'dw.staffid')
                 ->whereRaw($sc)

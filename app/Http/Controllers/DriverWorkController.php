@@ -78,12 +78,6 @@ class DriverWorkController extends Controller
         $userid = \Auth::user()->id;
 
         $usrrights = $this->setInterfaceRight(-1);
-//        $usrrights = array(
-//            'read' => usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.read'),
-//            'create' => usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.create'),
-//            'save' => usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.save'),
-//            'view_all' => usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.view_all'),
-//        );
         if (!$usrrights['read']) {
             return view('home');
         }
