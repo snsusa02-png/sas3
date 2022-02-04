@@ -199,9 +199,9 @@ class DriverWorkController extends Controller
             ['in_driver_works' => 1,], ['m.id', db::raw("concat(m.regnum,' - ',m.name) as name")]
         )->pluck('name', 'id')->toArray();
 
-        $data->staffs = orgstaff::lstFor([
+        $data->staffs = orgstaff::lstFor_cached([
             'in_driver_works' => 1,
-        ]);
+        ], 5);
 
         $data->statuses = [0 => 'черновик', 2 => 'ожидает согласования', 4 => 'согласован'];
         $data->dates = [1 => 'сегодня', 2 => 'вчера', 3 => 'за неделю', 4 => 'за месяц'];

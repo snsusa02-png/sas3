@@ -50,6 +50,11 @@ class mr_oper extends Model
         return $this->hasOne(org::class, 'id', 'orgid')->withDefault();
     }
 
+    public function contract()
+    {
+        return $this->hasOne(contract::class, 'id', 'contractid')->withDefault();
+    }
+
     public function org_place()
     {
         return $this->hasOne(org_place::class, 'id', 'org_placeid')->withDefault();
