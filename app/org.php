@@ -191,12 +191,9 @@ class org extends Model
                             }
                             $tstr = $tstr . $rec->name;
                         }
-                        $cnt = userorg::where('active', 1)
-                            ->where('orgid', $orgid)
-                            ->selectraw('count(*) as cnt')
-                            ->first();
+                        $cnt = userorg::where(['orgid' => $orgid, 'active' => 1])->count();
 
-                        return ['sample' => $tstr, 'reccount' => $cnt ? $cnt->cnt : 0];
+                        return ['sample' => $tstr, 'reccount' => $cnt];
                     });
                 if (isset($data))
                     array_push($info,
@@ -237,12 +234,9 @@ class org extends Model
                             }
                             $tstr = $tstr . $rec->name;
                         }
-                        $cnt = orgstaff::where('active', 1)
-                            ->where('orgid', $orgid)
-                            ->selectraw('count(*) as cnt')
-                            ->first();
+                        $cnt = orgstaff::where(['orgid' => $orgid, 'active' => 1])->count();
 
-                        return ['sample' => $tstr, 'reccount' => $cnt ? $cnt->cnt : 0];
+                        return ['sample' => $tstr, 'reccount' => $cnt];
                     });
                 if (isset($data))
                     array_push($info,
@@ -284,12 +278,9 @@ class org extends Model
                             }
                             $tstr = $tstr . $rec->name;
                         }
-                        $cnt = orgItmDiscount::where('orgid', $orgid)
-                            ->where('active', 1)
-                            ->selectraw('count(*) as cnt')
-                            ->first();
+                        $cnt = orgItmDiscount::where(['orgid' => $orgid, 'active' => 1])->count();
 
-                        return ['sample' => $tstr, 'reccount' => $cnt ? $cnt->cnt : 0];
+                        return ['sample' => $tstr, 'reccount' => $cnt];
                     });
                 if (isset($data))
                     array_push($info,
@@ -333,10 +324,9 @@ class org extends Model
                             }
                             $tstr = $tstr . $rec->name;
                         }
-                        $cnt = ri_sup_price::where('orgid', $orgid)
-                            ->where('active', 1)->count();
+                        $cnt = ri_sup_price::where(['orgid' => $orgid, 'active' => 1])->count();;
 
-                        return ['sample' => $tstr, 'reccount' => $cnt ?? 0];
+                        return ['sample' => $tstr, 'reccount' => $cnt];
                     });
                 if (isset($data))
                     array_push($info,
@@ -387,10 +377,9 @@ class org extends Model
                         $cnt = grpitem::where('active', 1)
                             ->where('sysobjid', 111)
                             ->where('objid', $orgid)
-                            ->selectraw('count(*) as cnt')
-                            ->first();
+                            ->count();
 
-                        return ['sample' => $tstr, 'reccount' => $cnt ? $cnt->cnt : 0];
+                        return ['sample' => $tstr, 'reccount' => $cnt];
                     });
                 if (isset($data))
                     array_push($info,
@@ -406,14 +395,14 @@ class org extends Model
                 //То, что имеет смысл для остальных компаний
 
                 //Кураторы
-                $data = Cache::remember('org_aux_curator_' . $orgid, now()->addMinutes(25)
+                //Cache::forget('org_aux_curator_' . $orgid);
+                $data = Cache::remember('org_aux_curator_' . $orgid, now()->addMinutes(15)
                     , function () use ($orgid) {
 
                         $recs = org_curator::from('org_curators as c')
-                            ->join('users as u', 'u.id', '=', 'c.userid')
-                            ->where('c.orgid', $orgid)
-                            ->where('c.active', 1)
-                            ->whereRaw('c.begdt <= now() and ifnull(c.enddt,now())>=now()')
+                            ->join('orgstaff as u', 'u.id', '=', 'c.staffid')
+                            ->where(['c.orgid' => $orgid, 'c.active' => 1])
+                            ->whereRaw('now() between begdt and ifnull(enddt,now())')
                             ->select('u.name')
                             ->orderBy('c.created_at', 'asc')
                             ->orderBy('c.id', 'asc')
@@ -432,13 +421,10 @@ class org extends Model
                             }
                             $tstr = $tstr . $rec->name;
                         }
-                        $cnt = org_Curator::where('orgid', $orgid)
-                            ->where('active', 1)
-                            ->whereRaw('begdt <= now() and ifnull(enddt,now())>=now()')
-                            ->selectraw('count(*) as cnt')
-                            ->first();
-
-                        return ['sample' => $tstr, 'reccount' => $cnt ? $cnt->cnt : 0];
+                        $cnt = org_curator::where(['orgid' => $orgid, 'active' => 1])
+                            ->whereRaw('now() between begdt and ifnull(enddt,now())')
+                            ->count();
+                        return ['sample' => $tstr, 'reccount' => $cnt];
                     });
                 if (isset($data))
                     array_push($info,
@@ -477,12 +463,9 @@ class org extends Model
                                 }
                                 $tstr = $tstr . $rec->name;
                             }
-                            $cnt = order::where('orgid', $orgid)
-                                ->selectraw('count(*) as cnt')
-                                ->first();
+                            $cnt = order::where('orgid', $orgid)->count();
 
-
-                            return ['sample' => $tstr, 'reccount' => $cnt ? $cnt->cnt : 0];
+                            return ['sample' => $tstr, 'reccount' => $cnt];
                         });
                     if (isset($data))
                         array_push($info,
@@ -588,11 +571,9 @@ class org extends Model
                             }
                             $tstr = $tstr . $rec->name;
                         }
-                        $cnt = eritm_offer::where('suporgid', $orgid)
-                            ->selectraw('count(*) as cnt')
-                            ->first();
+                        $cnt = eritm_offer::where('suporgid', $orgid)->count();
 
-                        return ['sample' => $tstr, 'reccount' => $cnt ? $cnt->cnt : 0];
+                        return ['sample' => $tstr, 'reccount' => $cnt];
                     });
                 if (isset($data))
                     array_push($info,
@@ -664,13 +645,7 @@ class org extends Model
         //возвращает 1 если заданная организация является Собственной компанией (OwnOrg)
         return Cache::remember('isOwnOrg_' . $orgid, now()->addMinutes(25)
             , function () use ($orgid) {
-                $lst = objflag::from('objflags as f')
-                    ->select('f.id')
-                    ->where('f.flagtypeid', 12)
-                    ->where('f.sysobjid', 111)
-                    ->where('f.objid', $orgid)
-                    ->first();
-                return ($lst ? 1 : 0);
+                return objflag::IsSetObjFlag(111, $orgid, 12);
             });
     }
 

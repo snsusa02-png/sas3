@@ -37,6 +37,35 @@ class org_saldo extends Model
             ->withDefault();
     }
 
+    public static function on_update($rec)
+    {
+        // Доп. действия при изменении записи
+
+        //Забудем связанный кэш -----------------
+        self::cache_clear($rec);
+
+    }
+
+    public static function on_delete($rec = null)
+    {
+        // Доп. действия при удалении записи
+
+        //Забудем связанный кэш -----------------
+        self::cache_clear($rec);
+
+    }
+
+    public static function cache_clear($rec = null)
+    {
+        //Забудем связанный кэш -------------------------------------
+        if (isset($rec)) {
+            Cache::forget('lstSaldos_' . $rec->orgid);
+        }
+        Cache::forget('informer_saldos');
+        Cache::forget('informer_ownorg_saldo_details');
+        //-----------------------------------------------------------
+    }
+
 
     static public function lstSaldos_cached($orgid)
     {
@@ -56,8 +85,8 @@ class org_saldo extends Model
 
     public static function informer_saldos()
     {
-        Cache::forget('informer_saldos');
-        return Cache::remember('informer_saldos', now()->addMinutes(3)
+        //Cache::forget('informer_saldos');
+        return Cache::remember('informer_saldos', now()->addMinutes(15)
             , function () {
 
                 $ownorgs = org::getFor(['flagtypeid' => 12, 'active' => 1], ['o.id', 'o.name as ownorgname']);
@@ -86,8 +115,8 @@ class org_saldo extends Model
         if (!usrsysright::isUserHasRightByCode_cached($userid, 'paydocs.read'))
             return null;
 
-        Cache::forget('informer_ownorg_saldo_details');
-        return Cache::remember('informer_ownorg_saldo_details', now()->addMinutes(3)
+        //Cache::forget('informer_ownorg_saldo_details');
+        return Cache::remember('informer_ownorg_saldo_details', now()->addMinutes(15)
             , function () {
                 //Сводка контрашентов с ненулевым балансом по всем организациям ГК
 

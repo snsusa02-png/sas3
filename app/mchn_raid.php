@@ -163,6 +163,31 @@ class mchn_raid extends Model
             });
     }
 
+    public static function on_update($rec)
+    {
+        // Доп. действия при изменении записи
+
+        //Забудем связанный кэш -----------------
+        self::cache_clear();
+
+    }
+
+    public static function on_delete($rec = null)
+    {
+        // Доп. действия при удалении записи
+
+        //Забудем связанный кэш -----------------
+        self::cache_clear($rec);
+
+    }
+
+    public static function cache_clear($rec = null)
+    {
+        //для вызова при изменении / удалении записей
+        if (isset($rec)) {
+        }
+        Cache::forget('mchn_raids.years');
+    }
 
     static public function search_cond($params)
     {

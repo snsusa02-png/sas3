@@ -18,6 +18,7 @@ use App\user_template;
 use App\usrsysright;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class MrOperController extends Controller
 {
@@ -282,9 +283,8 @@ class MrOperController extends Controller
 
         objlog::log_info($this->sysobjid, $rec->id, $mess, 5);
 
-        //сформируем/обновим фин. операции ------------------------------------------------------
-        mr_oper::rfr_finopers($rec);
-
+        //Выполним действия после обновления записи ---------------------------------------------
+        mr_oper::on_update($rec);
         //---------------------------------------------------------------------------------------
 
         //Временно(? до модификации отчетов), для совместимости - модификация mchn_raids ------------------------------
@@ -353,6 +353,11 @@ class MrOperController extends Controller
 
             $route = route('mchn_raids.edit', ['id' => $res->obj['mr_id']]);
             connectify('success', ($res->obj['name'] ?? '-'), 'Запись удалена.');
+
+            //Выполним действия после удаления записи -----------------------------------------------
+            mr_oper::on_delete($res->rec);
+            //---------------------------------------------------------------------------------------
+
         }
         return redirect($route)->with($sd);
     }

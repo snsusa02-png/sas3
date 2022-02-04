@@ -31,6 +31,7 @@ trait DeleteTrait
             DB::transaction(function () use ($id, $sysobjid, &$result) {
                 $obj = static::find($id);
                 if (isset($obj)) {
+                    $result->rec = $obj;    //2022-02-04 SNS. Для привычного обращения к аттрибутам записи
                     $result->obj = $obj->toArray();
 
                     //------------------------------------------

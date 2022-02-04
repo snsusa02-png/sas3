@@ -6,6 +6,7 @@ use App\Traits\DeleteTrait;
 use App\Traits\FilesTrait;
 use App\Traits\FinOpersTrait;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 class paydoc extends Model
 {
@@ -71,6 +72,37 @@ class paydoc extends Model
     {
         //определим минимально-допустимую дату для поля paydate
         return sysobj_lockdate::where('sysobjid', self::$sysobjid)->first()->lock_before ?? null;
+    }
+
+    public static function on_update($rec)
+    {
+        // Доп. действия при изменении записи
+
+        //сформируем/обновим фин. операции ------
+        self::rfr_finopers($rec);
+
+        //Забудем связанный кэш -----------------
+        self::cache_clear();
+
+    }
+
+    public static function on_delete($rec=null)
+    {
+        // Доп. действия при удалении записи
+
+        //Забудем связанный кэш -----------------
+        self::cache_clear($rec);
+
+    }
+
+    public static function cache_clear($rec=null)
+    {
+        //Забудем связанный кэш -------------------------------------
+        if (isset($rec)) {
+        }
+        Cache::forget('informer_saldos');
+        Cache::forget('informer_ownorg_saldo_details');
+        //-----------------------------------------------------------
     }
 
     static public function search_cond($params)

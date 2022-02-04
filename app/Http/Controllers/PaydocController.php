@@ -3,9 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\contract;
-use App\driver_work;
-use App\mchn_opertype;
-use App\mchn_raid;
 use App\opertype;
 use App\paydoc;
 use App\objlog;
@@ -15,12 +12,11 @@ use App\paytype;
 use App\sysobj;
 use App\Traits\SearchDataTrait;
 use App\Traits\snsTrait;
-use App\unittype;
-use App\User;
 use App\user_template;
 use App\usrsysright;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class PaydocController extends Controller
 {
@@ -397,8 +393,8 @@ class PaydocController extends Controller
 
         objlog::log_info($this->sysobjid, $rec->id, $mess, 5);
 
-        //сформируем/обновим фин. операции ------------------------------------------------------
-        paydoc::rfr_finopers($rec);
+        //Выполним действия после обновления записи ---------------------------------------------
+        paydoc::on_update($rec);
         //---------------------------------------------------------------------------------------
 
         if (1 == 0 and $id == -1)
@@ -431,6 +427,11 @@ class PaydocController extends Controller
 
             $route = route('paydocs.index');
             connectify('success', ($res->obj['docnum'] ?? '-'), 'Запись удалена.');
+
+            //Выполним действия после удаления записи -----------------------------------------------
+            paydoc::on_delete($res->rec);
+            //---------------------------------------------------------------------------------------
+
         }
         return redirect($route)->with($sd);
     }

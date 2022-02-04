@@ -6,6 +6,7 @@ use App\Traits\DeleteTrait;
 use App\Traits\FilesTrait;
 use App\Traits\FinOpersTrait;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class mr_oper extends Model
@@ -76,6 +77,38 @@ class mr_oper extends Model
     static public function saledirs()
     {
         return [-1 => 'Покупка', +1 => 'Продажа', 0 => 'Внутрен. операция'];
+    }
+
+    public static function on_update($rec)
+    {
+        // Доп. действия при изменении записи
+
+        //сформируем/обновим фин. операции ------
+        self::rfr_finopers($rec);
+
+        //Забудем связанный кэш -----------------
+        self::cache_clear($rec);
+
+    }
+
+    public static function on_delete($rec)
+    {
+        // Доп. действия при удалении записи -------------------------
+
+        //Забудем связанный кэш -----------------
+        self::cache_clear($rec);
+
+        // -----------------------------------------------------------
+    }
+
+    public static function cache_clear($rec)
+    {
+        //Забудем связанный кэш -------------------------------------
+        if (isset($rec)) {
+        }
+        Cache::forget('informer_saldos');
+        Cache::forget('informer_ownorg_saldo_details');
+        //-----------------------------------------------------------
     }
 
     static public function search_cond($params)

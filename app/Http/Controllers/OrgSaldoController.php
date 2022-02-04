@@ -2,18 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\brand;
-use App\extsystem;
-use App\group;
-use App\objextid;
 use App\org;
 use App\org_saldo;
-use App\refitem;
 use App\Traits\DeleteFileTrait;
-use App\User;
 use App\usrsysright;
 use Illuminate\Http\Request;
-use Cache;
+use Illuminate\Support\Facades\Cache;
 
 class OrgSaldoController extends Controller
 {
@@ -182,7 +176,9 @@ class OrgSaldoController extends Controller
         $rec->updated_by = $userid;
         $rec->save();
 
-        Cache::forget('lstSaldos_' . $rec->orgid);
+        //Выполним действия после обновления записи ---------------------------------------------
+        org_saldo::on_update($rec);
+        //---------------------------------------------------------------------------------------
 
         $retURL = $request->get('retURL') ?? '/';
         //dd($rec, $retURL);
@@ -213,10 +209,15 @@ class OrgSaldoController extends Controller
                 $sd["error"] = $res->msg;
             } else {
 
-                Cache::forget('lstSaldos_' . $res->obj['orgid']);
-
                 $route = $request->get('retURL') ?? '/';
                 $sd['success'] = 'Запись удалена';
+
+                //Выполним действия после удаления записи -----------------------------------------------
+                //Cache::forget('lstSaldos_' . $res->obj['orgid']);
+
+                org_saldo::on_delete($res->rec);
+                //---------------------------------------------------------------------------------------
+
             }
         } else {
             $route = route('org_saldos.edit', $id);

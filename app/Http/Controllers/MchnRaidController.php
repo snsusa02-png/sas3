@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\buildobj;
-use App\buildopertype;
-use App\contract;
 use App\driver_work;
 use App\mchn_raid;
 use App\machine;
@@ -20,6 +17,7 @@ use App\orgstaff;
 use App\refitem;
 use App\sysobj;
 use App\sysobj_lockdate;
+use App\place;
 use App\Traits\SearchDataTrait;
 use App\Traits\snsTrait;
 use App\unittype;
@@ -28,8 +26,8 @@ use App\user_template;
 use App\usrsysright;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\place;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 
 class MchnRaidController extends Controller
 {
@@ -858,9 +856,8 @@ class MchnRaidController extends Controller
 
         objlog::log_info($this->sysobjid, $rec->id, $mess, 5);
 
-        //сформируем/обновим фин. операции ------------------------------------------------------
-        //mchn_raid::rfr_finopers($rec);
-        // - перенесено в mr_opers.update
+        //Выполним действия после обновления записи ---------------------------------------------
+        mchn_raid::on_update($rec);
         //---------------------------------------------------------------------------------------
 
         if ($id == -1 or $rec->statusid <> $statusid)
@@ -902,6 +899,11 @@ class MchnRaidController extends Controller
 
             $route = route('mchn_raids.index', ['machineid' => $res->obj['machineid'] ?? 0, 'parid' => $res->obj['planid'] ?? 0]);
             connectify('success', ($res->obj['name'] ?? '-'), 'Запись удалена.');
+
+            //Выполним действия после удаления записи -----------------------------------------------
+            mchn_raid::on_delete($res->rec);
+            //---------------------------------------------------------------------------------------
+
         }
         return redirect($route)->with($sd);
     }
