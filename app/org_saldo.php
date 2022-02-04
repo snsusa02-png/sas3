@@ -56,7 +56,7 @@ class org_saldo extends Model
 
     public static function informer_saldos()
     {
-        //Cache::forget('informer_saldos');
+        Cache::forget('informer_saldos');
         return Cache::remember('informer_saldos', now()->addMinutes(3)
             , function () {
 
@@ -64,7 +64,14 @@ class org_saldo extends Model
 
                 foreach ($ownorgs as $ownorg) {
                     $ownorg->saldo = org::from('orgs as o')
+                        ->whereRaw("not exists (select 1 from mr_opers as mro where mro.suporgid=o.id)")
+                        ->whereRaw("not exists (select 1 from objflags as f where f.flagtypeid=12 and f.sysobjid=111 and f.objid=o.id)")
                         ->sum(db::raw("orgSaldo_onDate(o.id, {$ownorg->id}, null)"));
+
+                    $ownorg->saldo_sup = org::from('orgs as o')
+                        ->whereRaw("exists (select 1 from mr_opers as mro where mro.suporgid=o.id)")
+                        ->whereRaw("not exists (select 1 from objflags as f where f.flagtypeid=12 and f.sysobjid=111 and f.objid=o.id)")
+                        ->sum(db::raw("-orgSaldo_onDate(o.id, {$ownorg->id}, null)"));
                 }
                 return $ownorgs;
             }
@@ -79,7 +86,7 @@ class org_saldo extends Model
         if (!usrsysright::isUserHasRightByCode_cached($userid, 'paydocs.read'))
             return null;
 
-        //Cache::forget('informer_ownorg_saldo_details');
+        Cache::forget('informer_ownorg_saldo_details');
         return Cache::remember('informer_ownorg_saldo_details', now()->addMinutes(3)
             , function () {
                 //Сводка контрашентов с ненулевым балансом по всем организациям ГК
@@ -114,7 +121,7 @@ class org_saldo extends Model
                     $recs = $recs->select(
                         'o.id as orgid', 'o.name as orgname'
                         , db::raw("orgSaldo_onDate(o.id, {$ownorgid}, null) as org_saldo")
-                        , db::raw("(select group_concat( trim(concat(ifnull(u.fname,''),' ', u.lname)) SEPARATOR ',')
+                        , db::raw("(select group_concat( trim(concat(ifnull(u.fname,''),' ', u.lname)) SEPARATOR ', ')
                             from orgstaff as u join org_curators as oc
                             on oc.staffid=u.id and oc.active=1
                                 and now() between oc.begdt and ifnull(oc.enddt,now())
