@@ -15,26 +15,26 @@
                     if ($itm->saldo < 0) {
                         $saldo_title = "Задолженность клиентов";
                     } elseif ($itm->saldo == 0) {
-                        $saldo_title = "Баланс";
+                        $saldo_title = "Баланс с клиентами";
                     } else {
-                        $saldo_title = "Сальдо с клиентами";
+                        $saldo_title = "Авансирование от клиентов";
                     }
                     if ($itm->saldo_sup < 0) {
                         $saldo_sup_title = "Задолженность перед поставщиками";
                     } elseif ($itm->saldo_sup == 0) {
-                        $saldo_sup_title = "Баланс";
+                        $saldo_sup_title = "Баланс с поставщиками";
                     } else {
-                        $saldo_sup_title = "Сальдо с поставщиками";
+                        $saldo_sup_title = "Авансирование поставщиков";
                     }
                     ?>
                     <div class="row mb-3">
                         <div class="col-md-12">{{$itm->ownorgname}}</div>
                         <div class="col-md-6 text-right font-weight-bold {{$td_class}}"
                              title="{{$saldo_title}}"
-                             style="font-size: 16px">{{number_format($itm->saldo,2)}}</div>
+                             style="font-size: 16px">{{number_format($itm->saldo,0)}}</div>
                         <div class="col-md-6 text-right font-weight-bold {{$td_class_sup}}"
                              title="{{$saldo_sup_title}}"
-                             style="font-size: 16px">{{number_format($itm->saldo_sup,2)}}</div>
+                             style="font-size: 16px">{{number_format($itm->saldo_sup,0)}}</div>
                     </div>
                 @endforeach
             </div>
