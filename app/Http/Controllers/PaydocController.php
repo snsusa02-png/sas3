@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\contract;
+use App\obj_link;
 use App\opertype;
 use App\paydoc;
 use App\objlog;
@@ -50,11 +51,11 @@ class PaydocController extends Controller
         $usrrights['delete'] = false;
         $usrrights['admindelete'] = false;
 
-        $usrrights['save'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.update');
         $usrrights['manager'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.manager');
 
         if ($recid > 0) {
 
+            $usrrights['save'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.update');
             $usrrights['delete'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.delete');
 
             //для существующих записей проверим открытость периода
@@ -64,6 +65,8 @@ class PaydocController extends Controller
                 $usrrights['delete'] = false;
                 $usrrights['admindelete'] = false;
             }
+        }else{
+            $usrrights['save'] = $usrrights['create'];
         }
 
         return $usrrights;
@@ -237,10 +240,72 @@ class PaydocController extends Controller
 
                 //Значения "по-умолчанию" для новой записи ----------------
 
+                $newData = [];
+
+                // Значения из записи-основания --------------------------------
+                $rsn_sysobjid = $request->get('rsn_so_id');
+                $rsn_objid = $request->get('rsn_o_id');
+                if (isset($rsn_sysobjid) and isset($rsn_objid)) {
+
+                    $newData['rsn_sysobjid'] = $rsn_sysobjid;   //для последующей генерации obj_link
+                    $newData['rsn_objid'] = $rsn_objid;
+
+//                    $rsn_sysobj = sysobj::find($rsn_sysobjid);
+//                    if (isset($rsn_sysobj)) {
+//                        $model = $rsn_sysobj->model_class;
+//                        if (isset($model)) {
+//                            $model = "\App\\" . $model;
+//                            $rsn_obj = $model::find($rsn_objid);
+//
+//                            dd($rsn_obj);
+//                        }
+//                    }
+                    if ($rsn_sysobjid == 1107) {
+                        //основание платежа - операция mr_opers из mchn_raids -----------------
+                        $rsn_obj = \App\mr_oper::find($rsn_objid);
+                        if (isset($rsn_obj)) {
+
+                            if ($rsn_obj->sale_dir <> 0) {
+
+                                if ($rsn_obj->sale_dir > 0) {
+                                    $newData['ownorgid'] = $rsn_obj->suporgid;
+                                    $newData['orgid'] = $rsn_obj->orgid;
+
+                                } elseif ($rsn_obj->sale_dir < 0) {
+                                    $newData['ownorgid'] = $rsn_obj->orgid;
+                                    $newData['orgid'] = $rsn_obj->suporgid;
+                                }
+                                $newData['paydir'] = $rsn_obj->sale_dir;
+                                $newData['paytypeid'] = $rsn_obj->paytypeid;
+                                $newData['contractid'] = $rsn_obj->mchn_raid->contractid;
+                                $newData['opertypeid'] = $rsn_obj->mchn_raid->opertypeid;
+
+                                //вычислим остаток
+                                $paySum = paydoc::from('paydocs as pd')
+                                    ->whereRaw("exists(select 1 from obj_links as l
+                                        where sysobjid=1107 and objid={$rsn_objid}
+                                        and lnksysobjid=520 and lnkobjid=pd.id)")
+                                    ->sum(db::raw("pd.paydir*pd.paysum"));
+                                $restSum = round($rsn_obj->itm_sum - $rsn_obj->sale_dir * $paySum, 2);
+                                if ($restSum < 0) {
+                                    $restSum = -$restSum;
+                                    $newData['paydir'] = -$newData['paydir'];
+                                }
+                                $newData['paysum'] = $restSum;
+
+                                //dd($restSum);
+                                //dd($newData);
+                            }
+                        }
+                    }
+
+                }
+                //dd($rsn_sysobjid, $rsn_objid);
+                // -------------------------------------------------------------
+
                 $paydate = $request->get('paydate');
                 $paydate = (isset($paydate)) ? strftime('%Y-%m-%d', strtotime($paydate)) : '';
 
-                $newData = [];
 
                 $tmplt = user_template::getTemplate($userid, $this->sysobjid);
                 //dd($tmplt);
@@ -301,6 +366,21 @@ class PaydocController extends Controller
             $rec->paydate_min = paydoc::min_paydate();
         }
 
+        if (isset($rec->rsn_sysobjid) and isset($rec->rsn_objid)) {
+            $sysobj = sysobj::find($rec->rsn_sysobjid);
+            $rec->_sysobj_name = $sysobj->name;
+
+            if (isset($sysobj->model_class)) {
+                $model = "App\\{$sysobj->model_class}";
+                $obj = $model::find($rec->rsn_objid);
+                //dd($model, $rec->rsn_objid, $obj, $obj->Info);
+                if (isset($obj))
+                    $rec->_obj_info = $obj->Info;
+            }
+        }
+
+
+        $rec->returl = $request->get('returl');
 
         return view('paydocs.edit', compact('rec', "usrrights"));
     }
@@ -393,14 +473,24 @@ class PaydocController extends Controller
 
         objlog::log_info($this->sysobjid, $rec->id, $mess, 5);
 
+        //если обозначена связь с другим объектом, то сохраним ее
+        $rsn_sysobjid = $request->get('rsn_sysobjid');
+        $rsn_objid = $request->get('rsn_objid');
+        if (isset($rsn_sysobjid) and isset($rsn_objid)) {
+            obj_link::addOrUpdate($rsn_sysobjid, $rsn_objid, 'основание', $this->sysobjid, $rec->id, 'платеж');
+        }
+
         //Выполним действия после обновления записи ---------------------------------------------
         paydoc::on_update($rec);
         //---------------------------------------------------------------------------------------
 
-        if (1 == 0 and $id == -1)
-            return redirect(route('paydocs.edit', $rec->id));
-        else
-            return redirect(route('paydocs.index'));
+
+        $retURL = $request->get('returl') ?? route($this->sysobjcode . '.index')
+            . '?page=' . session($this->sysobjcode . '_pageno') . '#' . $rec->id;
+
+        return redirect($retURL)->with('success', $mess);
+
+
     }
 
     /**
@@ -410,22 +500,31 @@ class PaydocController extends Controller
      * @return \Illuminate\Http\Response
      */
     public
-    function destroy($id)
+    function destroy(Request $request, $id)
     {
+        $usrrights = $this->setInterfaceRight($id);
+        $usrrights['delete'] = false;
+        if (!($usrrights['delete']))
+            return redirect()->back()->with('error', 'У вас нет права на удаление этих данных!');
+
         $res = paydoc::delete_by_id($id, $this->sysobjid);
         $route = "";
         $sd = array();
         if ($res->err == 1) {
+
             objlog::log_info($this->sysobjid, $id, 'Попытка удаления записи', 2);
-            $route = route('paydocs.edit', $id);
+            $retURL = route('paydocs.edit', $id);
             $sd["error"] = $res->msg;
             connectify('error', $res->obj['docnum'] ?? 'id:' . $res->obj['id'], $res->msg);
+
         } else {
             $sd['success'] = 'Запись (' . $id . ': '
                 . ($res->obj['name'] ?? '') . ') удалена';
             objlog::log_info($this->sysobjid, 0, $sd['success'], 5);
 
-            $route = route('paydocs.index');
+            $retURL = $request->get('returl')
+                ?? route($this->sysobjcode . '.index') . '?page=' . session($this->sysobjcode . '_pageno');
+
             connectify('success', ($res->obj['docnum'] ?? '-'), 'Запись удалена.');
 
             //Выполним действия после удаления записи -----------------------------------------------
@@ -433,7 +532,7 @@ class PaydocController extends Controller
             //---------------------------------------------------------------------------------------
 
         }
-        return redirect($route)->with($sd);
+        return redirect($retURL)->with($sd);
     }
 
 

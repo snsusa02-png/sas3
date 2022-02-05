@@ -192,7 +192,7 @@
 
                             $rec0 = $recs->currentPage() * $recs->perPage() - $recs->perPage() + 1;
                             $curOwnMark = "";
-                            $curbuildobjid = -1;
+                            $cur_paydate = -1;
                             ?>
                             @foreach($recs as $item)
                                 <?php
@@ -204,12 +204,23 @@
                                 $tclass = ($item->categoryid == 1) ? 'badge-success'
                                     : (($item->categoryid == 2) ? 'badge-danger' : 'badge-warning');
                                 ?>
+
+                                @if($item->paydate<>$cur_paydate)
+                                    <tr style="background-color: #e7f4f8">
+                                        <td colspan="8" class="font-weight-bold text-left">
+                                            {{date_create($item->paydate)->format('d.m.Y')}}
+                                        </td>
+                                    </tr>
+                                    <?php
+                                    $cur_paydate = $item->paydate;
+                                    ?>
+                                @endif
                                 <tr style="background-color: {{$tr_bg_col}}">
                                     <td class="small text-right" bui>
                                         {{$loop->index + $rec0}} <a name="{{$item->id}}"></a>
                                     </td>
                                     <td class="text-left" style="background-color: {{$period_bg_col}}">
-                                        {{date_create($item->paydate)->format('d.m.Y')}}
+
                                     </td>
                                     <td class="text-left">
                                         <a href="{{ route($thisSysObjCode.'.edit',$item->id)}}" style="">

@@ -36,6 +36,7 @@
                 <div class="col-md-10">
                     <div class="card p-2 my-2 my-md-3" style="background-color: #f8f8f8">
                         <div class="card-header">
+                            <i class="fa fa-truck text-info" aria-hidden="true"></i>
                             {{$ThisTitle}}
                             <a class="btn btn-close btn-light btn-sm"
                                style="float:right;"

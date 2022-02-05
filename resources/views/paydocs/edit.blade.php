@@ -8,11 +8,6 @@
         die();
         ?>
     @else
-        <script src="{{ asset('js/collapse.js') }}" defer></script>
-        <link href="{{ asset('css/jquery-ui.css') }}" rel="stylesheet">
-        <script src="{{ asset('js/jquery-ui.js') }}" defer></script>
-
-        <script src="{{ asset('js/callListOrgs.js') }}" defer></script>
 
         <?php
         $sysobjid = 520;
@@ -21,7 +16,7 @@
         $objcode = $sysobjcode;
         $thisTitle = "Регистрация платежа";
 
-        $route_index = route($sysobjcode . '.index') . "?page=" . session($sysobjcode . '_pageno') . '#' . $rec->id;
+        $returl = $rec->returl ?? route($sysobjcode . '.index') . "?page=" . session($sysobjcode . '_pageno') . '#' . $rec->id;
 
         $ro_mode = ($usrrights['save'] ?? false) ? '' : 'readonly';
         ?>
@@ -40,12 +35,13 @@
                 <div class="col-md-7">
                     <div class="card p-2 my-2 my-md-3">
                         <div class="card-header">
+                            <i class="fa fa-money text-success" aria-hidden="true"></i>
 							<span class="font-weight-bold"
                                   style="max-width: 60%; overflow:hidden;"> {{$thisTitle}}</span>
 
                             <span class="float-right">
 							<a class="btn btn-close btn-light btn-sm ml-1"
-                               href="{{ $route_index }}"
+                               href="{{ $returl }}"
                                title="Вернуться в список">
 								<i class="fa fa-times" aria-hidden="true"></i>
 							</a>
@@ -60,7 +56,20 @@
                                 @method('PUT')
                                 @csrf
                                 {{ Form::hidden('id', $rec->id,['id'=>'id']) }}
+                                {{ Form::hidden('returl', $rec->returl) }}
                                 {{ Form::hidden('ttt', 1) }}
+                                {{ Form::hidden('rsn_sysobjid', $rec->rsn_sysobjid) }}
+                                {{ Form::hidden('rsn_objid', $rec->rsn_objid) }}
+
+
+                                @if (isset($rec->_obj_info))
+                                    <div class="row">
+                                        <div class="form-group col-md-12">
+                                            <label for="notes">Основание:</label>
+                                            <div class="font-weight-bold">{{$rec->_obj_info}}</div>
+                                        </div>
+                                    </div>
+                                @endif
 
 
                                 <div class="row">
@@ -82,10 +91,10 @@
                                                        value="{{$rec->ownorg->info}}">
 
                                             @endif
-                                                <a class="btn btn-light id_lnk" data-id="ownorgid" data-obj="orgs"
-                                                   target="_blank">
-                                                    <i class="fa fa-info text-info" aria-hidden="true"></i>
-                                                </a>
+                                            <a class="btn btn-light id_lnk" data-id="ownorgid" data-obj="orgs"
+                                               target="_blank">
+                                                <i class="fa fa-info text-info" aria-hidden="true"></i>
+                                            </a>
                                         </div>
                                     </div>
 
@@ -261,7 +270,7 @@
                                     </button>
                                 @endif
                                 &nbsp;
-                                <a class="btn btn-close btn-info" href="{{ $route_index }}"
+                                <a class="btn btn-close btn-info" href="{{ $returl }}"
                                    title="Вернуться в список">
                                     <i class="fa fa-window-close-o" aria-hidden="true"></i>
                                     Закрыть
@@ -324,6 +333,12 @@
             @endif
 
         </div>
+
+        <script src="{{ asset('js/collapse.js') }}" defer></script>
+        <link href="{{ asset('css/jquery-ui.css') }}" rel="stylesheet">
+        <script src="{{ asset('js/jquery-ui.js') }}" defer></script>
+
+        <script src="{{ asset('js/callListOrgs.js') }}" defer></script>
         <script src="{{ asset('js/paydoc_edit.js') }}" defer></script>
         <script src="{{ asset('js/id_lnk.js') }}" defer></script>
     @endif

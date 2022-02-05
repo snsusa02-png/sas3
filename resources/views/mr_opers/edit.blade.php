@@ -36,6 +36,7 @@
                 <div class="col-md-8">
                     <div class="card p-2 my-2 my-md-3" style="background-color: #f8f8f8">
                         <div class="card-header">
+                            <i class="fa fa-shopping-cart text-primary" aria-hidden="true"></i>
                             {{$ThisTitle}} "<b>{{$rec->mchn_raid->info}}</b>"
                             <a class="btn btn-close btn-light btn-sm"
                                style="float:right;"
@@ -406,6 +407,7 @@
                 @if($rec->id<>-1)
                     <div class="col-md-4">
                         @include('objfiles.obj_files')
+                        @include('mr_opers.linked_paydocs')
                         {{--                        @include('obj_readers._readers')--}}
                     </div>
                 @endif

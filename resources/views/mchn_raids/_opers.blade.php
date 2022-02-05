@@ -4,7 +4,7 @@
         <div class="col-md-12">
             <div class="card mt-3">
                 <div class="card-header">
-                    <i class="fa fa-money text-success" aria-hidden="true"></i>
+                    <i class="fa fa-shopping-cart text-primary" aria-hidden="true"></i>
                     Операции
 
                     <span class="float-right">

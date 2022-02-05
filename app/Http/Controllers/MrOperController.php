@@ -6,11 +6,13 @@ use App\contract;
 use App\mr_oper;
 use App\machine;
 use App\mchn_raid;
+use App\obj_link;
 use App\objflag;
 use App\objlog;
 use App\objtag;
 use App\org_place;
 use App\orgstaff;
+use App\paydoc;
 use App\sysobj;
 use App\Traits\SearchDataTrait;
 use App\Traits\snsTrait;
@@ -95,6 +97,10 @@ class MrOperController extends Controller
         $userid = \Auth::user()->id;
 
         $usrrights = $this->setInterfaceRight($id);
+        $usrrights['paydocs.read'] = usrsysright::isUserHasRightByCode_cached($userid, 'paydocs.read');
+        $usrrights['paydocs.create'] = usrsysright::isUserHasRightByCode_cached($userid, 'paydocs.create');
+        //dd($usrrights);
+
 
         if ($id == -1) {
             if ($usrrights['create'] ?? false) {
@@ -162,7 +168,11 @@ class MrOperController extends Controller
         $rec->paytypes = mchn_raid::paytypes();
         $rec->contracts = contract::lstFor(['between_orgs' => [$rec->suporgid, $rec->orgid]]);
 //        $rec->finopers = $rec->finopers;
-//        dd($rec);
+
+        $rec->lnkd_paydocs = paydoc::get();
+        //= obj_link::addOrUpdate()
+        //dd($rec);
+        //dd($rec->linked_paydocs);
 
         return view('mr_opers.edit', compact('rec', "usrrights"));
     }
