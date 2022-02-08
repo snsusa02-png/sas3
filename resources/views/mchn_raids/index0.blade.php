@@ -87,19 +87,22 @@
                             <thead>
                             <tr>
                                 <td>#</td>
-                                <td>Дата</td>
+                                <td>Дата, время</td>
                                 <td>№ авто</td>
                                 <td>Водитель</td>
-                                <td>Диспетчер</td>
-
-                                <td>Поставщик, Место загрузки</td>
+                                <td>Место загрузки</td>
                                 <td>Груз, ЕИ</td>
-                                <td>Объем, ЕИ</td>
-                                <td>Цена</td>
-                                <td>Стоимость</td>
-                                <td>Заказчик, Место выгрузки</td>
+                                <td>Объем загрузки</td>
+                                <td>Цена покупки</td>
+                                <td>Стоимость загрузки</td>
+                                <td>Место выгрузки</td>
+                                <td>Имя заказчика</td>
+                                <td>Имя диспетчера</td>
                                 <td>Число рейсов</td>
                                 <td>Оплата</td>
+                                <td>Груз, ЕИ</td>
+                                <td>Подписанный объем</td>
+                                <td>Сумма</td>
 
                                 <td class="text-center;">
 
@@ -161,16 +164,6 @@
                                              'onchange' => 'form.submit()',
                                              ]) !!}
                                 </td>
-                                <td>
-                                    {!! Form::select('s_disp_staffid', $data->dispatchers??[]
-                                            , $search_params['s_disp_staffid']??'',
-                                                 [
-                                                 'class' => 'form-control',
-                                                 'placeholder' => '-все-',
-                                                 'onchange' => 'form.submit()',
-                                                 ]) !!}
-                                </td>
-
                                 <td>{!! Form::select('s_load_placeid', $data->load_places??[]
                                         , $search_params['s_load_placeid'],
                                              [
@@ -191,23 +184,30 @@
                                 <td></td>
                                 <td></td>
                                 <td></td>
-                                <td>
-                                    {!! Form::select('s_orgid', $data->orgs??[]
-        , $search_params['s_orgid'],
-             [
-             'class' => 'form-control',
-             'placeholder' => '-все-',
-             'onchange' => 'form.submit()',
-             ]) !!}
-
-                                    {{--                                    {!! Form::select('s_unload_placeid', $data->unload_places??[]--}}
-                                    {{--                                                                            , $search_params['s_unload_placeid'],--}}
-                                    {{--                                                                                 [--}}
-                                    {{--                                                                                 'class' => 'form-control',--}}
-                                    {{--                                                                                 'placeholder' => '-все-',--}}
-                                    {{--                                                                                 'onchange' => 'form.submit()',--}}
-                                    {{--                                                                                 ]) !!}--}}
+                                <td>{!! Form::select('s_unload_placeid', $data->unload_places??[]
+                                        , $search_params['s_unload_placeid'],
+                                             [
+                                             'class' => 'form-control',
+                                             'placeholder' => '-все-',
+                                             'onchange' => 'form.submit()',
+                                             ]) !!}
                                 </td>
+                                <td>{!! Form::select('s_orgid', $data->orgs??[]
+                                        , $search_params['s_orgid'],
+                                             [
+                                             'class' => 'form-control',
+                                             'placeholder' => '-все-',
+                                             'onchange' => 'form.submit()',
+                                             ]) !!}
+                                </td>
+                                <td>
+                                    {!! Form::select('s_disp_staffid', $data->dispatchers??[]
+                                            , $search_params['s_disp_staffid']??'',
+                                                 [
+                                                 'class' => 'form-control',
+                                                 'placeholder' => '-все-',
+                                                 'onchange' => 'form.submit()',
+                                                 ]) !!}</td>
                                 <td></td>
                                 <td>
                                     <div class="input-group ">
@@ -220,6 +220,9 @@
                                              ]) !!}
                                     </div>
                                 </td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
                                 <td>
                                     <div class="input-group-btn">
                                         <button type="submit" class="btn btn-sm btn-success"
@@ -240,13 +243,11 @@
 
                             $rec0 = $recs->currentPage() * $recs->perPage() - $recs->perPage() + 1;
                             $cur_wrkdate = -1;
-                            $cur_id = -1;
                             $curDocID = "";
                             $npp = 0;
                             $curDate = date_format(date_create(), 'Y-m-d');
                             $cur_opertypeid = -1;
                             $userid = \Auth()->user()->id;
-                            $saledirs = \App\mr_oper::saledirs();
                             ?>
                             @foreach($recs as $item)
                                 <?php
@@ -269,7 +270,7 @@
 
                                     @if($item->wrkdate<>$cur_wrkdate)
                                         <tr style="background-color: #ccfcfb">
-                                            <td colspan="13"><b>{{date_format(date_create($item->wrkdate),"d.m.Y")}}</b>
+                                            <td colspan="17"><b>{{date_format(date_create($item->wrkdate),"d.m.Y")}}</b>
                                             </td>
                                             <td>
                                                 @if ($usrrights['create'])
@@ -283,7 +284,6 @@
                                         </tr>
                                         <?php
                                         $cur_wrkdate = $item->wrkdate;
-                                        $cur_id = -1;
                                         $cur_opertypeid = -1;
                                         $npp = 0;
                                         ?>
@@ -298,62 +298,63 @@
                                         $cur_opertypeid = $item->opertypeid;
                                         ?>
                                     @endif
-                                    @if($item->id<>$cur_id)
-                                        @if($cur_id<>-1)
-                                            <tr style="background-color: #e0ffd5;height: 1px;">
-                                                <td colspan="14" style="height: 0px;"/>
-                                            </tr>
-                                        @endif
-                                        <?php
-                                        $cur_id = $item->id;
-                                        ?>
-                                    @endif
 
                                     <tr style="background-color: {{$tr_bg_col}}">
                                         <td class="small text-right">
                                             {{++$npp}}
                                         </td>
                                         <td class="text-center">
-                                            {{$saledirs[$item->sale_dir]??'?'}}
-                                        </td>
-                                        <td class="text-left small">
                                             <a href="{{route($thisSysObjCode.'.edit',$item->id)}}" name="{{$item->id}}"
                                                class="text-decoration-none small"
                                                title="Просмотреть/Изменить запись">
-                                                {{$item->machine_name}}
+                                                {{$item->beg_hm}} - {{$item->end_hm}}
                                             </a>
+                                        </td>
+                                        <td class="text-left small">
+                                            {{$item->machine_name}}
                                         </td>
                                         <td class="text-center">
                                             {{$item->staff_name}}
                                         </td>
                                         <td class="text-center">
-                                            {{$item->disp_name}}
-                                        </td>
-                                        <td class="text-center">
-                                            {{$item->suporg_name}}
-                                            <div class="mt-1 ml-3 small">{{$item->sup_placename}}</div>
+                                            {{$item->load_place_name}}
                                         </td>
                                         <td class="text-center small">
-                                            {{$item->refitem_name}}, {{$item->refitem_unit}}
+                                            {{$item->load_refitem_name}}, {{$item->load_refitem_unit}}
                                         </td>
                                         <td class="text-right">
-                                            {{$item->itm_qty}}
+                                            {{$item->load_qty}}
                                         </td>
                                         <td class="text-right">
-                                            {{number_format($item->itm_price,2)}}
+                                            {{number_format($item->load_price,2)}}
                                         </td>
                                         <td class="text-right">
-                                            {{number_format($item->itm_qty*$item->itm_price,2)}}
+                                            {{number_format($item->load_qty*$item->load_price,2)}}
                                         </td>
                                         <td class="text-center">
-                                            {{$item->org_name}}
-                                            <div class="mt-1 ml-3 small">{{$item->org_placename}}</div>
+                                            {{$item->unload_placename}}
+                                        </td>
+                                        <td class="text-center small">
+                                            {{--                                            {{$item->org_name}}--}}
+                                            {{$item->orgs}}
+                                        </td>
+                                        <td class="text-center">
+                                            {{$item->disp_name}}
                                         </td>
                                         <td class="text-right">
                                             {{$item->raid_qty}}
                                         </td>
                                         <td class="text-center">
                                             {{$data->paytypes[$item->paytypeid]??'?'}}
+                                        </td>
+                                        <td class="text-center small">
+                                            {{$item->unload_refitem_name}}, {{$item->unload_refitem_unit}}
+                                        </td>
+                                        <td class="text-right">
+                                            {{$item->unload_qty}}
+                                        </td>
+                                        <td class="text-right">
+                                            {{number_format($item->unload_qty*$item->unload_price,2)}}
                                         </td>
 
                                         <td class="text-right">

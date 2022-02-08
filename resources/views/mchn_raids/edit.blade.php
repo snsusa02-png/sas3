@@ -140,39 +140,55 @@
                                         @endif
                                     </div>
 
-                                    <div class="form-group offset-md-0 col-md-2">
-                                        <label class="required">Начало</label>
-                                        @if ($usrrights['edit'])
-                                            <input type="time" name="begtime" id="begtime" required
-                                                   class="form-control text-center font-weight-bold"
-                                                   {{--                                                   max="{{$rec->maxtime}}"--}}
-                                                   value="{{old('begtime',$rec->begtime)}}">
-                                        @else
-                                            <div class="font-weight-bold text-center">{{$rec->begtime}}</div>
-                                        @endif
-                                    </div>
-                                    <div class="form-group col-md-2">
-                                        <label>Окончание</label>
-                                        @if ($usrrights['edit'])
-                                            <input type="time" name="endtime" id="endtime" required
-                                                   class="form-control text-center font-weight-bold"
-                                                   {{--                                                   max="{{$rec->maxtime}}"--}}
-                                                   value="{{old('endtime',$rec->endtime)}}">
-                                        @else
-                                            <div class="font-weight-bold text-center">{{$rec->endtime}}</div>
-                                        @endif
-                                    </div>
-                                    <div class="form-group col-md-2">
-                                        <label>Всего, ч </label>
-                                        @if ($usrrights['edit'])
-                                            <input type="text" name="mchnwrkhrs" id="mchnwrkhrs"
-                                                   class="form-control text-center"
-                                                   readonly value="{{$rec->mchnwrkhrs}}">
-                                        @else
-                                            <div class="font-weight-bold text-center">{{$rec->mchnwrkhrs}}</div>
-                                        @endif
-                                    </div>
+                                    @if(1==0)
+                                        <div class="form-group offset-md-0 col-md-2">
+                                            <label class="required">Начало</label>
+                                            @if ($usrrights['edit'])
+                                                <input type="time" name="begtime" id="begtime" required
+                                                       class="form-control text-center font-weight-bold"
+                                                       {{--                                                   max="{{$rec->maxtime}}"--}}
+                                                       value="{{old('begtime',$rec->begtime)}}">
+                                            @else
+                                                <div class="font-weight-bold text-center">{{$rec->begtime}}</div>
+                                            @endif
+                                        </div>
+                                        <div class="form-group col-md-2">
+                                            <label>Окончание</label>
+                                            @if ($usrrights['edit'])
+                                                <input type="time" name="endtime" id="endtime" required
+                                                       class="form-control text-center font-weight-bold"
+                                                       {{--                                                   max="{{$rec->maxtime}}"--}}
+                                                       value="{{old('endtime',$rec->endtime)}}">
+                                            @else
+                                                <div class="font-weight-bold text-center">{{$rec->endtime}}</div>
+                                            @endif
+                                        </div>
+                                        <div class="form-group col-md-2">
+                                            <label>Всего, ч </label>
+                                            @if ($usrrights['edit'])
+                                                <input type="text" name="mchnwrkhrs" id="mchnwrkhrs"
+                                                       class="form-control text-center"
+                                                       readonly value="{{$rec->mchnwrkhrs}}">
+                                            @else
+                                                <div class="font-weight-bold text-center">{{$rec->mchnwrkhrs}}</div>
+                                            @endif
+                                        </div>
+                                    @endif
 
+                                    <div class="offset-md-0 col-md-8">
+                                        <div class="form-group">
+                                            <label for="decision">Примечание:</label>
+                                            @if ($usrrights['edit'] or $usrrights['change_status'])
+                                                <textarea class="form-control rounded-0"
+                                                          name="notes" id="notes"
+                                                          rows="1">{{old('notes',$rec->notes)}}</textarea>
+                                            @else
+                                                <div class="font-weight-bold">
+                                                    <div class="font-weight-bold">{{$rec->notes??'-'}}</div>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
                                 </div>
 
 
@@ -550,55 +566,12 @@
                                 @endif
 
                                 <div class="row">
-                                    <div class="form-group offset-md-0 col-md-4">
-                                        <label for="name" class="required">Диспетчер:</label>
-                                        @if ($usrrights['edit'])
-                                            <div class="input-group mb-3">
-                                                <input type="text" name="disp_name" id="disp_name" required
-                                                       class="ac_name disp_name form-control font-weight-bold"
-                                                       value="{{$rec->dispatcher->name}}">
-                                                <input type="text"
-                                                       class="form-control text-center small ac_status"
-                                                       style="display: none; border: #d7f3e3; " readonly>
-                                                <input type="hidden" name="disp_staffid" id="disp_staffid"
-                                                       class="ac_id staffid"
-                                                       value="{{$rec->disp_staffid}}">
-                                                <a class="btn btn-light id_lnk" data-id="disp_staffid"
-                                                   data-obj="orgstaff"
-                                                   target="_blank">
-                                                    <i class="fa fa-info text-info" aria-hidden="true"></i>
-                                                </a>
-                                            </div>
-                                        @else
-                                            <div class="font-weight-bold">{{$rec->dispatcher->name}}</div>
-                                        @endif
-                                    </div>
-
-                                    <div class="offset-md-0 col-md-8">
-                                        <div class="form-group">
-                                            <label for="decision">Примечание:</label>
-                                            @if ($usrrights['edit'] or $usrrights['change_status'])
-                                                <textarea class="form-control rounded-0"
-                                                          name="notes" id="notes"
-                                                          rows="1">{{old('notes',$rec->notes)}}</textarea>
-                                            @else
-                                                <div class="font-weight-bold">
-                                                    <div class="font-weight-bold">{{$rec->notes??'-'}}</div>
-                                                </div>
-                                            @endif
-                                        </div>
-                                    </div>
-
-
-                                </div>
-
-                                <div class="row">
 
                                     <div class="form-group offset-md-3 col-md-2">
                                         <label for="name" class="required" id="lbl_raid_qty">Число рейсов:</label>
                                         @if ($usrrights['edit'])
                                             <div class="input-group mb-3 ">
-                                                <input type="number" name="raid_qty" id="raid_qty" required
+                                                <input type="number" name="raid_qty" id="raid_qty" readonly
                                                        class="form-control text-right font-weight-bold"
                                                        min="0" step="1" max="99"
                                                        value="{{old('raid_qty',$rec->raid_qty)}}">

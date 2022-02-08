@@ -190,6 +190,215 @@ class MchnRaidController extends Controller
             ->join('machines as m', function ($join) {
                 $join->on('m.id', '=', 'mr.machineid');
             })
+            ->join('mr_opers as mro', function ($join) {
+                $join->on('mr.id', '=', 'mro.mr_id')
+                    ->where('mro.sale_dir', '<>', 0);
+            })
+            ->leftjoin('orgstaff as ds', function ($join) {
+                $join->on('ds.id', '=', 'mro.disp_staffid');
+            })
+            ->join('refitems as ri', function ($join) {
+                $join->on('ri.id', '=', 'mro.refitmid');
+            })
+            ->join('orgs as s_o', function ($join) {
+                $join->on('s_o.id', '=', 'mro.suporgid');
+            })
+            ->join('orgs as o', function ($join) {
+                $join->on('o.id', '=', 'mro.orgid');
+            })
+            ->whereraw($sc)
+            ->select('mr.id', 'mr.wrkdate'
+                , 'mro.sale_dir', 'mro.refitmid', 'mro.itm_qty', 'mro.itm_price', 'mro.itm_sum', 'mro.paytypeid'
+                , 'mro.raid_qty', 'mro.sup_placename', 'mro.org_placename', 'mro.active'
+//                , db::raw("TIME_FORMAT(mr.wrkbegdt, '%H:%i') as beg_hm")
+//                , db::raw("TIME_FORMAT(mr.wrkenddt, '%H:%i') as end_hm")
+                , 'os.lname as staff_name'
+                , 'ds.lname as disp_name'
+                , db::raw("concat(m.regnum,' ',m.name) as machine_name")
+                , 'mr.opertypeid'
+                , 'ot.name as opertype_name'
+                , 's_o.name as suporg_name'
+                , 'o.name as org_name'
+                , 'ri.name as refitem_name'
+                , 'ri.unit as refitem_unit'
+            );
+
+
+        //Сортировка пользователя ----------------------------------------
+        $sort_params = session('sort_params_' . $this->sysobjcode . '.index');
+
+//        if (isset($sort_params)) {
+//            foreach ($sort_params as $prm)
+//                $recs = $recs->orderBy($prm['field'], $prm['dir']);
+//        } else {
+        $recs = $recs
+            ->orderBy('mr.wrkdate', 'desc')
+            ->orderBy('ot.name', 'asc')
+            ->orderby('mr.id');
+//        }
+        //----------------------------------------------------------------
+
+
+        $recs = $recs->paginate($search_params['s_pageitmcnt'] ?? 10);
+
+        //номер первой записи на странице:
+        $rec0 = $recs->currentPage() * $recs->perPage() - $recs->perPage() + 1;
+
+        $data = new \stdClass();
+
+        //варианты кол-ва записей на страницу
+        $data->pageitmcnts = $this->pageitmcnts;
+
+        $data->sysobj = sysobj::find($this->sysobjid);
+
+        $data->machines = machine::getFor(
+            ['in_mchn_raids' => 1,], ['m.id', db::raw("concat(m.regnum,' - ',m.name) as name")]
+        )->pluck('name', 'id')->toArray();
+
+        $data->drivers = orgstaff::lstFor([
+            'driver_in_mchn_raids' => 1,
+        ]);
+
+        $data->refitems = refitem::lstFor_cached([
+            'in_mchn_raids' => 1,
+        ], 5);
+
+        $data->load_places = org_place::lstFor_cached([
+            'loadplace_in_mchn_raids' => 1,
+        ], 5);
+
+        $data->unload_places = place::lstFor_cached([
+            'unloadplace_in_mchn_raids' => 1,
+        ], 5);
+
+        $data->orgs = org::lstFor_cached([
+            //'in_mchn_raids_orgid' => 1,
+            //'in_mr_opers_orgid' => 1,
+            'in_mr_opers_orgid_sale' => 1,
+        ], 5);
+
+        $data->dispatchers = orgstaff::lstFor_cached([
+            'dispatcher_in_mchn_raids' => 1,
+        ], 5);
+
+        $data->paytypes = mchn_raid::paytypes();
+
+        $data->statuses = [0 => 'черновик', 2 => 'ожидает согласования', 4 => 'согласован'];
+        $data->dates = [1 => 'сегодня', 2 => 'вчера', 3 => 'за неделю', 4 => 'за месяц'];
+        $data->yes_no = [1 => 'есть', 0 => 'нет'];
+
+        //Выясним - есть ли у пользователя шаблон для этого типа объектов ИС
+        $data->template_id = user_template::where(['sysobjid' => $this->sysobjid, 'userid' => $userid])->first()->id ?? null;
+
+        return view('mchn_raids.index', compact('recs', 'rec0'
+            , 'data', 'search_params', 'sort_params'
+            , 'usrrights'));
+    }
+
+    public function index0(Request $request)
+    {
+        $userid = \Auth::user()->id;
+
+        $usrrights = $this->setInterfaceRight(-1);
+        if (1 == 0 or !$usrrights['read']) {
+            return view('home')->with(['error' => 'Нет доступа!']);
+            //return redirect(back())->with(['error'=>'Нет доступа!']);
+        }
+
+        session([$this->sysobjcode . '_pageno' => $request->page]);
+
+        // - параметры поиска: массив из имени и значенния по-умолчанию -----------------------------------------------
+        $param_names = [
+            's_pageitmcnt' => 10
+            , 's_ri_name' => ''
+            , 's_machineid' => ''
+            , 's_driverid' => ''
+            , 's_paytypeid' => ''
+            , 's_date' => ''
+            , 's_load_placeid' => ''
+            , 's_unload_placeid' => ''
+            , 's_orgid' => ''
+            , 's_disp_staffid' => ''
+        ];
+
+        $search_params = $this->search_params($request, $param_names);
+
+        //сформируем условие запроса в БД -----
+        $sc = "1=1";
+
+
+        foreach ($search_params as $item => $val) {
+            if (isset($val) and strlen($val) > 0) {
+
+                if ($item == 's_ri_name') {
+                    $sc = $sc . " and exists(select 1 from mr_opers as mro
+                        join refitems as ri on ri.id=mro.refitmid
+                        where mro.mr_id=mr.id and ri.name like '%" . mb_strtoupper($val) . "%')";
+
+                } elseif ($item == 's_machineid') {
+                    $sc = $sc . " and mr.machineid = {$val}";
+
+                } elseif ($item == 's_driverid') {
+                    $sc = $sc . " and mr.driverid = {$val}";
+
+                } elseif ($item == 's_date') {
+                    if ($val == 1) //сегодня
+                        $sc = $sc . " and mr.wrkdate = curdate()";
+                    elseif ($val == 2) //вчера
+                        $sc = $sc . " and datediff(curdate(), mr.wrkdate) = 1";
+                    elseif ($val == 3) //за неделю
+                        $sc = $sc . " and datediff(curdate(), mr.wrkdate) <= 7";
+                    elseif ($val == 4) //с начала текущего месяца
+                        $sc = $sc . " and extract(year_month from mr.wrkdate) = extract(year_month from curdate())";
+
+                } elseif ($item == 's_load_placeid') {
+                    //$sc = $sc . " and mr.load_placeid = {$val}";
+                    $sc = $sc . " and exists(select 1 from mr_opers as mro where mro.mr_id=mr.id and mro.sup_placeid = {$val})";
+
+                } elseif ($item == 's_unload_placeid') {
+//                    $sc = $sc . " and mr.unload_placeid = {$val}";
+                    $sc = $sc . " and exists(select 1 from mr_opers as mro where mro.mr_id=mr.id and mro.org_placeid = {$val})";
+
+                } elseif ($item == 's_orgid') {
+                    //Заказчик в операциях продажи (от ГК)
+                    //$sc = $sc . " and mr.orgid = {$val}";
+                    $sc = $sc . " and exists(select 1 from mr_opers as mro where mro.mr_id=mr.id and mro.orgid = {$val} and mro.sale_dir=1)";
+
+                } elseif ($item == 's_paytypeid') {
+                    //$sc = $sc . " and mr.paytypeid = {$val}";
+                    $sc = $sc . " and exists(select 1 from mr_opers as mro where mro.mr_id=mr.id and mro.paytypeid = {$val})";
+
+                } elseif ($item == 's_disp_staffid') {
+                    $sc = $sc . " and mr.disp_staffid = {$val}";
+
+                } elseif ($item == 's_statusid') {
+                    $sc = $sc . " and mr.statusid = {$val}";
+
+                }
+
+            }
+        }
+        //var_dump($sc);
+        //-------------------------------------------------------------------------------------------------------------
+
+        //по-старому ---------------
+        //для совместимости со старым методом формированя условия отбора - инициализируем переменные поиска
+//        foreach ($search_params as $item => $val) {
+//            $$item = $val;
+//        }
+        // --------------------------------------------------------------------
+
+
+        $recs = mchn_raid::from('mchn_raids as mr')
+            ->join('opertypes as ot', function ($join) {
+                $join->on('ot.id', '=', 'mr.opertypeid');
+            })
+            ->join('orgstaff as os', function ($join) {
+                $join->on('os.id', '=', 'mr.driverid');
+            })
+            ->join('machines as m', function ($join) {
+                $join->on('m.id', '=', 'mr.machineid');
+            })
             ->leftjoin('refitems as l_ri', function ($join) {
                 $join->on('l_ri.id', '=', 'mr.load_refitmid');
             })
@@ -727,85 +936,59 @@ class MchnRaidController extends Controller
 //            $rec->exe_contractid = ($rec->exe_contractid == '') ? null : $rec->exe_contractid;
 
 
+            $rec->raid_salary = $request->get('raid_salary');
             $rec->notes = mb_substr($request->get('notes'), 0, 300);
 
-//            $rec->break_hrs = $request->get('break_hrs', 0);    //Продолжительность перерыва
-            $rec->wrkbegdt = date_create($rec->wrkdate)->format('Y-m-d') . ' ' . $request->get('begtime');
-            $endtime = $request->get('endtime');
-            if ($endtime != '') {
-                $rec->wrkenddt = date_create($rec->wrkdate)->format('Y-m-d') . ' ' . $endtime;
-                $rec->mchnwrkhrs = round((date_create($rec->wrkenddt)->getTimestamp() - date_create($rec->wrkbegdt)->getTimestamp()) / 3600, 1);
-            } else {
-                $rec->wrkenddt = null;
-                $rec->mchnwrkhrs = null;
+            if (1 == 0) {
+                //2022-02-08 Оставляем в mchn_raids минимум полей
+
+                //            $rec->break_hrs = $request->get('break_hrs', 0);    //Продолжительность перерыва
+                $rec->wrkbegdt = date_create($rec->wrkdate)->format('Y-m-d') . ' ' . $request->get('begtime');
+                $endtime = $request->get('endtime');
+                if ($endtime != '') {
+                    $rec->wrkenddt = date_create($rec->wrkdate)->format('Y-m-d') . ' ' . $endtime;
+                    $rec->mchnwrkhrs = round((date_create($rec->wrkenddt)->getTimestamp() - date_create($rec->wrkbegdt)->getTimestamp()) / 3600, 1);
+                } else {
+                    $rec->wrkenddt = null;
+                    $rec->mchnwrkhrs = null;
+                }
+
+                $rec->stfwrkhrs = $request->get('stfwrkhrs');
+
+                $rec->load_refitmid = $request->get('load_refitmid');
+                $rec->unload_refitmid = $request->get('unload_refitmid');
+                //$rec->cargo_name = mb_substr($request->get('cargo_name'), 0, 60);
+
+                $rec->suporgid = $request->get('suporgid');
+                $rec->load_ownorgid = $request->get('load_ownorgid');
+                $rec->load_placeid = $request->get('load_placeid');
+                //$rec->load_placename = $request->get('load_placename');
+                //$rec->load_placename = $rec->load_place->name;
+
+                $rec->load_qty = $request->get('load_qty');
+                $rec->qty_unittypeid = $request->get('qty_unittypeid');
+                $rec->qty_unit = unittype::find($rec->qty_unittypeid)->name ?? '';
+                $rec->load_price = $request->get('load_price');
+                $rec->load_sum = $rec->load_qty * $rec->load_price;
+
+                $rec->unload_ownorgid = $request->get('unload_ownorgid');
+                $rec->unload_placeid = $request->get('unload_placeid');
+                $rec->unload_placename = $request->get('unload_placename');
+
+                $rec->unload_qty = $request->get('unload_qty');
+                $rec->unload_price = $request->get('unload_price');
+                $rec->unload_sum = $rec->unload_qty * $rec->unload_price;
+
+                $rec->ownorg_sum = $request->get('ownorg_sum');
+
+                $rec->raid_qty = $request->get('raid_qty');
+                $rec->orgid = $request->get('orgid');
+                $rec->org_name = $request->get('org_name');
+                $rec->paytypeid = $request->get('paytypeid');
+
+                $rec->disp_staffid = $request->get('disp_staffid');
+
             }
-
-            $rec->stfwrkhrs = $request->get('stfwrkhrs');
-
-            $rec->load_refitmid = $request->get('load_refitmid');
-            $rec->unload_refitmid = $request->get('unload_refitmid');
-            //$rec->cargo_name = mb_substr($request->get('cargo_name'), 0, 60);
-
-            $rec->suporgid = $request->get('suporgid');
-            $rec->load_ownorgid = $request->get('load_ownorgid');
-            $rec->load_placeid = $request->get('load_placeid');
-            //$rec->load_placename = $request->get('load_placename');
-            //$rec->load_placename = $rec->load_place->name;
-
-            $rec->load_qty = $request->get('load_qty');
-            $rec->qty_unittypeid = $request->get('qty_unittypeid');
-            $rec->qty_unit = unittype::find($rec->qty_unittypeid)->name ?? '';
-            $rec->load_price = $request->get('load_price');
-            $rec->load_sum = $rec->load_qty * $rec->load_price;
-
-            $rec->unload_ownorgid = $request->get('unload_ownorgid');
-            $rec->unload_placeid = $request->get('unload_placeid');
-            $rec->unload_placename = $request->get('unload_placename');
-
-            $rec->unload_qty = $request->get('unload_qty');
-            $rec->unload_price = $request->get('unload_price');
-            $rec->unload_sum = $rec->unload_qty * $rec->unload_price;
-
-            $rec->ownorg_sum = $request->get('ownorg_sum');
-
-            $rec->raid_qty = $request->get('raid_qty');
-            $rec->raid_salary = $request->get('raid_salary');
-
-            $rec->orgid = $request->get('orgid');
-            $rec->org_name = $request->get('org_name');
-            $rec->paytypeid = $request->get('paytypeid');
-
-            $rec->disp_staffid = $request->get('disp_staffid');
-            //$rec->reg_userid = $userid;
-
-//            $rec->meter_begqty = $request->get('meter_begqty');
-//            $rec->meter_endqty = $request->get('meter_endqty');
-//            if (isset($rec->meter_endqty) and isset($rec->meter_begqty))
-//                $rec->meter_qty = $rec->meter_endqty - $rec->meter_begqty;
-//            else
-//                $rec->meter_qty = null;
-//
-//            $rec->fuel_begqty = $request->get('fuel_begqty');
-//            $rec->fuel_inpqty = $request->get('fuel_inpqty', 0);
-//            $rec->fuel_endqty = $request->get('fuel_endqty');
-//
-//            if (isset($rec->fuel_begqty) and isset($rec->fuel_inpqty) and isset($rec->fuel_endqty))
-//                $rec->fuel_spentqty = $rec->fuel_begqty + $rec->fuel_inpqty - $rec->fuel_endqty;
-//            else
-//                $rec->fuel_spentqty = null;
-
-
-//            if ($request->get('statusid') == 2) {
-//                //переводим на "Согласование"
-//                $rec->stf_signed = 1;
-//                $rec->stf_signed_at = now();
-//            } else {
-//                $rec->stf_signed = null;
-//                $rec->stf_signed_at = null;
-//                $rec->mngr_signed = null;
-//                $rec->mngr_signed_by = null;
-//                $rec->mngr_signed_at = null;
-//            }
 
 
         } elseif ($statusid == 2) {
@@ -836,25 +1019,8 @@ class MchnRaidController extends Controller
 
         $rec->save();
 
-
-        //пересчитаем кол-во рейсов и ЗП аодителя за рейсы --------------------------------------
-        if (isset($rec->dw_id)) {
-            $raid_info = mchn_raid::where('dw_id', $rec->dw_id)
-                ->selectRaw("sum(raid_qty) as qty, sum(raid_qty*raid_salary) as sum")
-                ->first();
-
-            $driver_work = driver_work::find($rec->dw_id);
-            //$driver_work->salary_sum = $driver_work->salary_sum - $driver_work->raid_sum + $raid_info->sum; //коррекция общей суммы ЗП
-            $driver_work->salary_sum = $raid_info->sum + $driver_work->pdt_sum + $driver_work->repair_sum; //коррекция общей суммы ЗП
-            $driver_work->raid_qty = $raid_info->qty;
-            $driver_work->raid_sum = $raid_info->sum;
-            $driver_work->save();
-        }
-        //---------------------------------------------------------------------------------------
-
-        $rec->save();
-
         objlog::log_info($this->sysobjid, $rec->id, $mess, 5);
+
 
         //Выполним действия после обновления записи ---------------------------------------------
         mchn_raid::on_update($rec);

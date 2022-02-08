@@ -167,6 +167,21 @@ class mchn_raid extends Model
     {
         // Доп. действия при изменении записи
 
+        //пересчитаем кол-во рейсов и ЗП водителя за рейсы --------------------------------------
+        if (isset($rec->dw_id)) {
+            $raid_info = mchn_raid::where('dw_id', $rec->dw_id)
+                ->selectRaw("sum(raid_qty) as qty, sum(raid_qty*raid_salary) as sum")
+                ->first();
+
+            $driver_work = driver_work::find($rec->dw_id);
+            //$driver_work->salary_sum = $driver_work->salary_sum - $driver_work->raid_sum + $raid_info->sum; //коррекция общей суммы ЗП
+            $driver_work->salary_sum = $raid_info->sum + $driver_work->pdt_sum + $driver_work->repair_sum; //коррекция общей суммы ЗП
+            $driver_work->raid_qty = $raid_info->qty;
+            $driver_work->raid_sum = $raid_info->sum;
+            $driver_work->save();
+        }
+        //---------------------------------------------------------------------------------------
+
         //Забудем связанный кэш -----------------
         self::cache_clear();
 
@@ -175,6 +190,7 @@ class mchn_raid extends Model
     public static function on_delete($rec = null)
     {
         // Доп. действия при удалении записи
+
 
         //Забудем связанный кэш -----------------
         self::cache_clear($rec);

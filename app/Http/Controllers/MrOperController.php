@@ -284,6 +284,8 @@ class MrOperController extends Controller
         $rec->paytypeid = $request->get('paytypeid');
         $rec->raid_qty = $request->get('raid_qty');
 
+        $rec->disp_staffid = $request->get('disp_staffid');
+
         //$rec->active = 1; //$request->get('active', 0);
         $rec->updated_by = $userid;
         $rec->updated_at = now();

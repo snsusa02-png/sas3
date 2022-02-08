@@ -98,6 +98,32 @@
 
 
                                 <div class="row">
+                                    <div class="form-group offset-md-0 col-md-4">
+                                        <label for="name" class="required">Диспетчер:</label>
+                                        @if ($usrrights['edit'])
+                                            <div class="input-group mb-3">
+                                                <input type="text" name="disp_name" id="disp_name" required
+                                                       class="ac_name disp_name form-control font-weight-bold"
+                                                       value="{{$rec->dispatcher->name}}">
+                                                <input type="text"
+                                                       class="form-control text-center small ac_status"
+                                                       style="display: none; border: #d7f3e3; " readonly>
+                                                <input type="hidden" name="disp_staffid" id="disp_staffid"
+                                                       class="ac_id staffid"
+                                                       value="{{$rec->disp_staffid}}">
+                                                <a class="btn btn-light id_lnk" data-id="disp_staffid"
+                                                   data-obj="orgstaff"
+                                                   target="_blank">
+                                                    <i class="fa fa-info text-info" aria-hidden="true"></i>
+                                                </a>
+                                            </div>
+                                        @else
+                                            <div class="font-weight-bold">{{$rec->dispatcher->name}}</div>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <div class="row">
                                     <div class="form-group offset-md-0 col-md-7">
                                         <label for="name" class="required"><span id="lbl_sup">Поставщик</span>:</label>
                                         @if ($usrrights['edit'])

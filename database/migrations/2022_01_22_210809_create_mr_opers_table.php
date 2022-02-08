@@ -22,6 +22,9 @@ class CreateMrOpersTable extends Migration
             $table->integer('ordr')->unsigned()->default(1);
             $table->string('name', 60)->nullable()->comment('Название, суть операции');
 
+            $table->biginteger('disp_staffid')->unsigned()->nullable()->comment('Диспетчер (сотрудник)');
+		$table->foreign('disp_staffid')->references('id')->on('orgstaff');
+
 	    //поставщик товара / услуги
             $table->biginteger('suporgid')->unsigned()->index()->comment('Поставщик/Получатель оплаты');
 	            $table->foreign('suporgid')->references('id')->on('orgs');

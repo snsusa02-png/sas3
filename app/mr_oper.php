@@ -35,6 +35,12 @@ class mr_oper extends Model
         return $this->hasOne(mchn_raid::class, 'id', 'mr_id');
     }
 
+    public function dispatcher()
+    {
+        //return $this->hasOne(User::class, 'id', 'disp_userid')->withDefault();
+        return $this->hasOne(orgstaff::class, 'id', 'disp_staffid')->withDefault();
+    }
+
     public function suporg()
     {
         return $this->hasOne(org::class, 'id', 'suporgid')->withDefault();
@@ -125,6 +131,12 @@ class mr_oper extends Model
 
         //сформируем/обновим фин. операции ------
         self::rfr_finopers($rec);
+
+        //пересчитаем  итоговые поля ------------
+        //  - кол-во рейсов для родительской записи в mchn_raids
+        mchn_raid::where('id', $rec->mr_id)->update(['raid_qty' => mr_oper::where('mr_id', $rec->mr_id)->sum('raid_qty')]);
+
+        mchn_raid::on_update($rec->mchn_raid);
 
         //Забудем связанный кэш -----------------
         self::cache_clear($rec);
