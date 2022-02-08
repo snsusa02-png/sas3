@@ -1,4 +1,5 @@
-@if (isset($rec) and $rec->id != -1 and in_array($rec->kindid,[1,2]) and isset($rec->org_saldos))
+{{--@if (isset($rec) and $rec->id != -1 and in_array($rec->kindid,[1,2]) and isset($rec->org_saldos))--}}
+@if (isset($rec) and $rec->id != -1 and isset($rec->org_saldos))
     <style>
         label {
             color: gray;
