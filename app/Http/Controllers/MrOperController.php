@@ -299,11 +299,12 @@ class MrOperController extends Controller
 
         //Временно(? до модификации отчетов), для совместимости - модификация mchn_raids ------------------------------
         $raid = $rec->mchn_raid;
+
         if ($rec->sale_dir == -1) {
             //покупка
             $raid->suporgid = $rec->suporgid;
             $raid->load_placeid = $rec->sup_placeid;
-            $raid->load_placename = $rec->sup_place->name;
+            $raid->load_placename = $rec->sup_place->name ?? $rec->sup_placename;
             $raid->load_refitmid = $rec->refitmid;
             $raid->load_qty = $rec->itm_qty;
             $raid->load_price = $rec->itm_price;
@@ -316,7 +317,7 @@ class MrOperController extends Controller
             $raid->orgid = $rec->orgid;
             $raid->org_name = $rec->org->name;
             $raid->unload_placeid = $rec->org_placeid;
-            $raid->unload_placename = $rec->org_place->name;
+            $raid->unload_placename = $rec->org_place->name ?? $rec->org_placename;
             $raid->unload_ownorgid = $rec->suporgid;
 
             $raid->unload_refitmid = $rec->refitmid;

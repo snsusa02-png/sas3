@@ -1009,4 +1009,59 @@ class MchnRaidController extends Controller
         return redirect(route('mchn_raids.index'))->with(['success' => 'Пересчитаны финансовые операции по заездам!']);
     }
 
+    static public function rfr_all_mchnraids()
+    {
+        //2022-02-08 SNS. Пересчет вспомогательных полей mchn_raids по данным mr_opers
+
+        if (\Auth::user()->id <> 12)
+            return false;
+
+        try {
+
+            foreach (mr_oper::select('id')->get() as $rec) {
+
+                if ($rec->sale_dir <> 0) {
+
+                    $raid = $rec->mchn_raid;
+
+                    if ($rec->sale_dir == -1) {
+                        //покупка
+                        $raid->suporgid = $rec->suporgid;
+                        $raid->load_placeid = $rec->sup_placeid;
+                        $raid->load_placename = $rec->sup_place->name ?? $rec->sup_placename;
+                        $raid->load_refitmid = $rec->refitmid;
+                        $raid->load_qty = $rec->itm_qty;
+                        $raid->load_price = $rec->itm_price;
+                        $raid->load_sum = $rec->load_sum;
+                        $raid->load_ownorgid = $rec->orgid;
+                        $raid->save();
+
+                    } elseif ($rec->sale_dir == +1) {
+                        //продажа
+                        $raid->orgid = $rec->orgid;
+                        $raid->org_name = $rec->org->name;
+                        $raid->unload_placeid = $rec->org_placeid;
+                        $raid->unload_placename = $rec->org_place->name ?? $rec->org_placename;
+                        $raid->unload_ownorgid = $rec->suporgid;
+
+                        $raid->unload_refitmid = $rec->refitmid;
+                        $raid->unload_qty = $rec->itm_qty;
+                        $raid->unload_price = $rec->itm_price;
+                        $raid->unload_sum = $rec->load_sum;
+
+                        $raid->paytypeid = $rec->paytypeid;
+                        $raid->save();
+                    }
+
+                }
+            }
+
+        } catch (\Exception $e) {
+            Log::error('mchn_raid::rfr_all_mchnraids:' . $e->getMessage());
+            return redirect(route('mchn_raids.index'))
+                ->with(['error' => 'Ошибка пересчета индикаторных полей рейсов: ' . $e->getMessage()]);
+        }
+        return redirect(route('mchn_raids.index'))->with(['success' => 'Пересчитаны индикаторные поля заездам!']);
+    }
+
 }
