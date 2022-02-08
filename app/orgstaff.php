@@ -375,6 +375,9 @@ class orgstaff extends Model
                     } elseif ($key == 'dispatcher_in_mchn_raids') {
                         $sc .= " and " . (($val == 1) ? '' : 'not') . " exists(select 1 from mchn_raids as mr where mr.disp_staffid=os.id)";
 
+                    } elseif ($key == 'dispatcher_in_mr_opers') {
+                        $sc .= " and " . (($val == 1) ? '' : 'not') . " exists(select 1 from mr_opers as mro where mro.disp_staffid=os.id)";
+
                     } elseif ($key == 'no_signature_for_sysobj') {
                         //нет требующейся подписи на хранимом образе документа
                         $sc .= " and exists( select 1 from obj_staffs as ojs where ojs.sysobjid={$val} and ojs.staffid=os.id and ojs.signed=0 )";

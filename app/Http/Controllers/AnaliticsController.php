@@ -938,10 +938,10 @@ class AnaliticsController extends Controller
 
             if (isset($s_mngrid))
                 if ($s_mngrid == 0) {
-                    $sc .= " and mr.disp_staffid is null";
+                    $sc .= " and mro.disp_staffid is null";
                     $conditions .= 'Без диспетчера';
                 } else {
-                    $sc .= " and mr.disp_staffid=" . $s_mngrid;
+                    $sc .= " and mro.disp_staffid=" . $s_mngrid;
                     $conditions .= 'Диспетчер: <b>' . $data->dispatchers[$s_mngrid] . '</b>; ';
                 }
         }
@@ -960,7 +960,7 @@ class AnaliticsController extends Controller
             ['title' => 'категория спецтехники', 'jointbl' => 'mt', 'fld' => 'm.mchntypeid', 'lbl' => 'mchntypeid', 'show_val' => 'ifnull(mt.name,"-нет-")'],
             ['title' => 'техника', 'jointbl' => 'm', 'fld' => 'di.machineid', 'lbl' => 'machineid', 'show_val' => "ifnull(concat(m.regnum,', ',m.name),'-не известно-')"],
             ['title' => 'заказчик', 'jointbl' => 'o', 'fld' => 'mro.orgid', 'lbl' => 'orgid', 'show_val' => 'ifnull(o.name,"-не определен-")'],
-            ['title' => 'диспетчер', 'jointbl' => 'ds', 'fld' => 'mr.disp_staffid', 'lbl' => 'disp_staffid', 'show_val' => 'ifnull(ds.name,"-нет-")'],
+            ['title' => 'диспетчер', 'jointbl' => 'ds', 'fld' => 'mro.disp_staffid', 'lbl' => 'disp_staffid', 'show_val' => 'ifnull(ds.name,"-нет-")'],
             ['title' => 'поставщик', 'jointbl' => 'so', 'fld' => 'mro.suporgid', 'lbl' => 'suporgid', 'show_val' => 'ifnull(so.name,"-не известен-")'],
             ['title' => 'поставленный груз', 'jointbl' => 'ri', 'fld' => 'mro.refitmid', 'lbl' => 'refitmid', 'show_val' => 'ifnull(ri.name,"-не известен-")'],
             ['title' => 'водитель', 'jointbl' => 'os', 'fld' => 'mr.driverid', 'lbl' => 'driverid', 'show_val' => 'ifnull(os.name,"-не известен-")'],
@@ -968,6 +968,7 @@ class AnaliticsController extends Controller
             ['title' => 'место загрузки', 'jointbl' => 'p_l', 'fld' => 'mro.sup_placeid', 'lbl' => 'load_placeid', 'show_val' => 'ifnull(p_l.name,"-не известно-")'],
             ['title' => 'место выгрузки', 'jointbl' => 'p_u', 'fld' => 'mro.org_placeid', 'lbl' => 'unload_placeid', 'show_val' => 'ifnull(p_u.name,"-не известно-")'],
             ['title' => 'тип операции', 'jointbl' => 'ot', 'fld' => 'mr.opertypeid', 'lbl' => 'opertypeid', 'show_val' => 'ifnull(ot.name,"-не известно-")'],
+            ['title' => 'договор', 'jointbl' => 'c', 'fld' => 'mro.contractid', 'lbl' => 'contractid', 'show_val' => 'ifnull(c.docnum,"-без договора-")'],
         ];
 
 
@@ -1053,6 +1054,10 @@ class AnaliticsController extends Controller
                 if (isTblInGrps('p_u', $grps))
                     $recs2 = $recs2->leftjoin('org_places as p_u', 'p_u.id', 'mro.org_placeid');
 
+                if (isTblInGrps('с', $grps))
+                    $recs2 = $recs2
+                        ->leftjoin('contracts as c', 'c.id', 'mro.contractid');
+
                 if (isTblInGrps('mt', $grps)) {
                     // так как типы техники связаны через спр-к Техники, то подключим Технику
                     if (!isTblInGrps('m', $grps))
@@ -1137,7 +1142,7 @@ class AnaliticsController extends Controller
                 $recs = $recs->leftjoin('orgstaff as ds', 'ds.id', 'mr.disp_staffid');
 
             if (isTblInGrps('c', $grps))
-                $recs = $recs->leftjoin('contracts as c', 'c.id', 'mr.contractid');
+                $recs = $recs->leftjoin('contracts as c', 'c.id', 'mro.contractid');
 
             if (isTblInGrps('mt', $grps)) {
                 if (!isTblInGrps('m', $grps))

@@ -132,6 +132,7 @@ class MrOperController extends Controller
                     ->orderBy('id', 'desc')
                     ->first();
                 if (isset($pre)) {
+                    $newData['disp_staffid'] = $pre->disp_staffid;
                     $newData['suporgid'] = $pre->orgid;
                     $newData['sup_placeid'] = $pre->sup_placeid;
                     $newData['sup_placename'] = $pre->sup_placename;

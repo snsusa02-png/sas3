@@ -108,6 +108,7 @@ class MchnRaidController extends Controller
             , 's_date' => ''
             , 's_load_placeid' => ''
             , 's_unload_placeid' => ''
+            , 's_suporgid' => ''
             , 's_orgid' => ''
             , 's_disp_staffid' => ''
         ];
@@ -116,7 +117,6 @@ class MchnRaidController extends Controller
 
         //сформируем условие запроса в БД -----
         $sc = "1=1";
-
 
         foreach ($search_params as $item => $val) {
             if (isset($val) and strlen($val) > 0) {
@@ -150,14 +150,20 @@ class MchnRaidController extends Controller
 //                    $sc = $sc . " and mr.unload_placeid = {$val}";
                     $sc = $sc . " and exists(select 1 from mr_opers as mro where mro.mr_id=mr.id and mro.org_placeid = {$val})";
 
+                } elseif ($item == 's_suporgid') {
+                    //Поставщик в операциях покупки (от ГК)
+//                    $sc = $sc . " and exists(select 1 from mr_opers as mro where mro.mr_id=mr.id and mro.suporgid = {$val} and mro.sale_dir=-1)";
+                    $sc .= " and mro.suporgid={$val}";
+
                 } elseif ($item == 's_orgid') {
                     //Заказчик в операциях продажи (от ГК)
-                    //$sc = $sc . " and mr.orgid = {$val}";
-                    $sc = $sc . " and exists(select 1 from mr_opers as mro where mro.mr_id=mr.id and mro.orgid = {$val} and mro.sale_dir=1)";
+                    //$sc = $sc . " and exists(select 1 from mr_opers as mro where mro.mr_id=mr.id and mro.orgid = {$val} and mro.sale_dir=1)";
+                    $sc .= " and mro.orgid={$val}";
 
                 } elseif ($item == 's_paytypeid') {
                     //$sc = $sc . " and mr.paytypeid = {$val}";
-                    $sc = $sc . " and exists(select 1 from mr_opers as mro where mro.mr_id=mr.id and mro.paytypeid = {$val})";
+                    //$sc = $sc . " and exists(select 1 from mr_opers as mro where mro.mr_id=mr.id and mro.paytypeid = {$val})";
+                    $sc .= " and mro.paytypeid = {$val}";
 
                 } elseif ($item == 's_disp_staffid') {
                     $sc = $sc . " and mr.disp_staffid = {$val}";
@@ -271,6 +277,12 @@ class MchnRaidController extends Controller
             'unloadplace_in_mchn_raids' => 1,
         ], 5);
 
+        $data->suporgs = org::lstFor_cached([
+            //'in_mchn_raids_orgid' => 1,
+            //'in_mr_opers_orgid' => 1,
+            'in_mr_opers_suporgid' => 1,
+        ], 5);
+
         $data->orgs = org::lstFor_cached([
             //'in_mchn_raids_orgid' => 1,
             //'in_mr_opers_orgid' => 1,
@@ -278,7 +290,7 @@ class MchnRaidController extends Controller
         ], 5);
 
         $data->dispatchers = orgstaff::lstFor_cached([
-            'dispatcher_in_mchn_raids' => 1,
+            'dispatcher_in_mr_opers' => 1,
         ], 5);
 
         $data->paytypes = mchn_raid::paytypes();

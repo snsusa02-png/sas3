@@ -99,12 +99,7 @@
                                     </div>
 
                                     <div class="form-group col-md-4">
-                                        <label for="name" class="required">Водитель:
-                                        </label>
-                                        @if(isset($rec->dw_id))
-                                            <a href="{{route('driver_works.edit',$rec->dw_id)}}" class="float-right">Отчет:
-                                                >>></a>
-                                        @endif
+                                        <label for="name" class="required">Водитель: </label>
                                         @if ($usrrights['edit_dmd'])
                                             <div class="input-group mb-3 ">
                                                 <input type="text" name="drivername" id="drivername"
@@ -126,6 +121,10 @@
                                 <div class="row">
                                     <div class="form-group offset-md-0 col-md-3">
                                         <label for="name" class="required">Дата:</label>
+                                        @if(isset($rec->dw_id))
+                                            <a href="{{route('driver_works.edit',$rec->dw_id)}}" class="float-right">Отчет:
+                                                >>></a>
+                                        @endif
                                         @if ($usrrights['edit_dmd'])
                                             <input type="date" class="form-control text-center font-weight-bold"
                                                    name="wrkdate" id="wrkdate" required
@@ -175,7 +174,7 @@
                                         </div>
                                     @endif
 
-                                    <div class="offset-md-0 col-md-8">
+                                    <div class="offset-md-1 col-md-8">
                                         <div class="form-group">
                                             <label for="decision">Примечание:</label>
                                             @if ($usrrights['edit'] or $usrrights['change_status'])
@@ -189,11 +188,6 @@
                                             @endif
                                         </div>
                                     </div>
-                                </div>
-
-
-                                <div class="row">
-
                                 </div>
 
                                 @if(1==0)
@@ -567,7 +561,7 @@
 
                                 <div class="row">
 
-                                    <div class="form-group offset-md-3 col-md-2">
+                                    <div class="form-group offset-md-4 col-md-2">
                                         <label for="name" class="required" id="lbl_raid_qty">Число рейсов:</label>
                                         @if ($usrrights['edit'])
                                             <div class="input-group mb-3 ">

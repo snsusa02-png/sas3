@@ -88,15 +88,14 @@
                             <tr>
                                 <td>#</td>
                                 <td>Дата</td>
-                                <td>№ авто</td>
-                                <td>Водитель</td>
+                                <td>Водитель, Авто</td>
                                 <td>Диспетчер</td>
 
                                 <td>Поставщик, Место загрузки</td>
                                 <td>Груз, ЕИ</td>
                                 <td>Объем, ЕИ</td>
-                                <td>Цена</td>
-                                <td>Стоимость</td>
+                                <td>Цена, &#8381;</td>
+                                <td>Сумма, &#8381;</td>
                                 <td>Заказчик, Место выгрузки</td>
                                 <td>Число рейсов</td>
                                 <td>Оплата</td>
@@ -142,7 +141,13 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <div class="input-group ">
+                                    {!! Form::select('s_driverid', $data->drivers
+                                            , $search_params['s_driverid'],
+                                                 [
+                                                 'class' => 'form-control',
+                                                 'placeholder' => '-все-',
+                                                 'onchange' => 'form.submit()',
+                                                 ]) !!}
                                         {!! Form::select('s_machineid', $data->machines
                                         , $search_params['s_machineid'],
                                              [
@@ -151,15 +156,6 @@
                                              'onchange' => 'form.submit()',
                                              ]) !!}
 
-                                    </div>
-                                </td>
-                                <td>{!! Form::select('s_driverid', $data->drivers
-                                        , $search_params['s_driverid'],
-                                             [
-                                             'class' => 'form-control',
-                                             'placeholder' => '-все-',
-                                             'onchange' => 'form.submit()',
-                                             ]) !!}
                                 </td>
                                 <td>
                                     {!! Form::select('s_disp_staffid', $data->dispatchers??[]
@@ -171,7 +167,15 @@
                                                  ]) !!}
                                 </td>
 
-                                <td>{!! Form::select('s_load_placeid', $data->load_places??[]
+                                <td>
+                                    {!! Form::select('s_suporgid', $data->suporgs??[]
+, $search_params['s_suporgid']??'',
+[
+'class' => 'form-control',
+'placeholder' => '-все-',
+'onchange' => 'form.submit()',
+]) !!}
+                                    {!! Form::select('s_load_placeid', $data->load_places??[]
                                         , $search_params['s_load_placeid'],
                                              [
                                              'class' => 'form-control',
@@ -269,7 +273,7 @@
 
                                     @if($item->wrkdate<>$cur_wrkdate)
                                         <tr style="background-color: #ccfcfb">
-                                            <td colspan="13"><b>{{date_format(date_create($item->wrkdate),"d.m.Y")}}</b>
+                                            <td colspan="12"><b>{{date_format(date_create($item->wrkdate),"d.m.Y")}}</b>
                                             </td>
                                             <td>
                                                 @if ($usrrights['create'])
@@ -291,7 +295,7 @@
                                     @if($item->opertypeid<>$cur_opertypeid)
                                         <tr class="bg-warning">
                                             <td></td>
-                                            <td colspan="17"
+                                            <td colspan="12"
                                                 class="font-weight-bold font-italic">{{$item->opertype_name}}</td>
                                         </tr>
                                         <?php
@@ -316,15 +320,14 @@
                                         <td class="text-center">
                                             {{$saledirs[$item->sale_dir]??'?'}}
                                         </td>
-                                        <td class="text-left small">
+                                        <td class="text-left ">
                                             <a href="{{route($thisSysObjCode.'.edit',$item->id)}}" name="{{$item->id}}"
-                                               class="text-decoration-none small"
+                                               class="text-decoration-none"
                                                title="Просмотреть/Изменить запись">
-                                                {{$item->machine_name}}
+                                                {{$item->staff_name}}
+
+                                                <div class="mt-1 ml-3 small">{{$item->machine_name}}</div>
                                             </a>
-                                        </td>
-                                        <td class="text-center">
-                                            {{$item->staff_name}}
                                         </td>
                                         <td class="text-center">
                                             {{$item->disp_name}}
@@ -333,7 +336,7 @@
                                             {{$item->suporg_name}}
                                             <div class="mt-1 ml-3 small">{{$item->sup_placename}}</div>
                                         </td>
-                                        <td class="text-center small">
+                                        <td class="text-center ">
                                             {{$item->refitem_name}}, {{$item->refitem_unit}}
                                         </td>
                                         <td class="text-right">

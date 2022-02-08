@@ -45,6 +45,7 @@
                             <tbody>
                             <?php
                             $gk_sum = 0;
+                            $tot_raid_qty = 0;
                             ?>
                             @foreach($rec->opers as $itm)
                                 <tr>
@@ -110,10 +111,12 @@
                                 </tr>
                                 <?php
                                 $gk_sum += $itm->sale_dir * $itm->itm_qty * $itm->itm_price;
+                                $tot_raid_qty += $itm->raid_qty ?? 0;
                                 ?>
                             @endforeach
                             <tr style="background-color: #fff5c6">
-                                <td class="text-right" colspan="7">Баланс по ГК:</td>
+                                <td class="text-right" colspan="3">Рейсов: <b>{{number_format($tot_raid_qty,0)}}</b></td>
+                                <td class="text-right" colspan="4">Баланс по ГК:</td>
                                 <td class="text-right font-weight-bold">{{number_format($gk_sum,2)}}</td>
                                 <td></td>
                             </tr>
