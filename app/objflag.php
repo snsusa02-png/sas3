@@ -64,6 +64,20 @@ class objflag extends Model
             ->get();
     }
 
+    public static function FlagTypesForObj($sysobjid, $objid)
+    {
+        return flagtype::from('flagtypes as ft')
+            ->leftJoin('objflags as f', function ($j) use ($sysobjid, $objid) {
+                $j->on('f.flagtypeid', 'ft.id')
+                    ->where('objid', $objid);
+            })
+            ->where('ft.forsysobjid', $sysobjid)
+            ->where('ft.active', 1)
+            ->select('ft.id', 'ft.name', 'f.id as objflagid')
+            ->orderby('ft.name')
+            ->get();
+    }
+
     public static function IsSetObjFlag($sysobjid, $objid, $flagtypeid)
     {
 

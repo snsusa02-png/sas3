@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\bdgtacnttype;
 use App\doctype;
+use App\objflag;
 use App\orgdep;
 use App\staff_post;
 use App\stforder;
@@ -110,7 +111,7 @@ class orgstaffController extends Controller
             if (isset($val) and strlen($val) > 0) {
 
                 if ($item == 's_name') {
-                    $sc = $sc . " and concat(os.lname,' ',os.fname,' ',os.mname) like '%" . mb_strtoupper($val) . "%'";
+                    $sc = $sc . " and concat(os.lname,' ',os.fname,' ',ifnull(os.mname,'')) like '%" . mb_strtoupper($val) . "%'";
 
                 } elseif ($item == 's_orgflagid') {
                     $sc .= " and exists(select 1 from objflags f where f.sysobjid=111 and f.objid=os.orgid and f.flagtypeid={$val})";
@@ -300,6 +301,8 @@ class orgstaffController extends Controller
             'dir' => -1,
         ]);
 
+        $rec->flags = objflag::FlagTypesForObj($this->sysobjid, $rec->id);
+
         $rec->sexes = ['M' => 'муж', 'F' => 'жен'];
 
         $rec->marriage_statuses = ($rec->sex == 'F')
@@ -471,6 +474,24 @@ class orgstaffController extends Controller
             orgpost::refresh_units($os->postid);
         }
 
+        // Сохранение флагов --------------------------------------------------------------------
+        $setflags = $request->get('flagid');
+        $allflags = $request->get('lstflags');
+        $allflags = isset($allflags) ? substr($allflags, 1) : '';
+        if (isset($allflags)) {
+            $allflags = explode(',', $allflags);
+
+            foreach ($allflags as $flagid) {
+                if (isset($setflags[$flagid])) {
+                    objflag::AddObjFlag($this->sysobjid, $os->id, $flagid);
+                } else {
+                    objflag::DelObjFlag($this->sysobjid, $os->id, $flagid);
+                }
+            }
+            //dd(1);
+        }
+        // --------------------------------------------------------------------------------------
+
         //сотрудник отмечен как руководитель предприятия
         if ($request->get('is_boss') == 1 or $request->get('is_ca') == 1) {
             $org = org::find($os->orgid);
@@ -497,6 +518,7 @@ class orgstaffController extends Controller
             }
 
         }
+
 
         Cache::forget('org_aux_staff_.' . $os->orgid);
 

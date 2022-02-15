@@ -508,7 +508,8 @@ class orgController extends Controller
         $rec->ownorgid = 1;  //упрощаем
         $rec->ownorgs = org::lstOwnOrgs();
 
-        $rec->flags = objflag::FlagTypesForOrg($rec->id);
+        //$rec->flags = objflag::FlagTypesForOrg($rec->id);
+        $rec->flags = objflag::FlagTypesForObj(111, $rec->id);
 
         $rec->kinds = org::$kinds;
 

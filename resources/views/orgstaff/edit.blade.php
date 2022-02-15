@@ -121,7 +121,7 @@
                                                         <div class="row">
                                                             <div class="col-md-5">
                                                                 <div
-                                                                        class="form-group {{ ($errors->has('lname')) ? ' has-error' : '' }}">
+                                                                    class="form-group {{ ($errors->has('lname')) ? ' has-error' : '' }}">
                                                                     <label for="lname" class="required">Фамилия:</label>
                                                                     <input type="text" required
                                                                            class="form-control font-weight-bold"
@@ -302,46 +302,101 @@
                                                 </div>
                                             </div>
 
-                                            <div class="row">
-                                                <div class="offset-md-0 col-md-6">
-                                                    <div class="form-group">
-                                                        <label for="email">Создает документы (тип):</label>
-                                                        <textarea class="form-control rounded-0" name="gendoctypes"
-                                                                  rows="4">{{$rec->gendoctypes}}</textarea>
-                                                    </div>
-                                                </div>
-                                                <div class="offset-md-0 col-md-6">
-                                                    <div class="form-group">
-                                                        <label for="email">Согласует документы:</label>
-                                                        <textarea class="form-control rounded-0" name="cnfrmdoctypes"
-                                                                  rows="4">{{$rec->cnfrmdoctypes}}</textarea>
-                                                    </div>
-                                                </div>
-                                                <div class="offset-md-0 col-md-6">
-                                                    <div class="form-group">
-                                                        <label for="email">Утверждает документы:</label>
-                                                        <textarea class="form-control rounded-0" name="aprvdoctypes"
-                                                                  rows="4">{{$rec->aprvdoctypes}}</textarea>
-                                                    </div>
-                                                </div>
-                                                <div class="offset-md-0 col-md-6">
-                                                    <div class="form-group">
-                                                        <label>Особенности:</label>
-                                                        <label class="checkbox-inline">
-                                                            <input type="checkbox" name="is_boss"
-                                                                   value="1" {{($rec->is_boss==1)?'checked':''}}>
-                                                            Является
-                                                            руководителем
-                                                            предприятия</label>
-                                                        <br>
-                                                        <label class="checkbox-inline">
-                                                            <input type="checkbox" name="is_ca"
-                                                                   value="1" {{($rec->is_ca==1)?'checked':''}}> Является
-                                                            главным бухгалтером предприятия</label>
+                                            @if(isset($rec->flags))
+                                                <?php
+                                                $show = ($rec->id == -1) ? 'show' : '';
 
+                                                ?>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="form-group">
+                                                            <label for="boss_fullname">Особенности сотрудника:</label>
+                                                            <button data-toggle="collapse" data-target="#orgflaglist"
+                                                                    type="button"
+                                                                    class="btn btn-light btn-sm"><i
+                                                                    class="fa fa-eye-slash"
+                                                                    aria-hidden="true"></i>
+                                                            </button>
+
+                                                            <ul class="collapse {{$show}}" id="orgflaglist">
+                                                                <?php
+                                                                $lstFlags = '';
+                                                                ?>
+                                                                @foreach($rec->flags as $flag)
+                                                                    <li><label><input type="checkbox" class=""
+                                                                                      name="flagid[{{$flag->id}}]"
+                                                                                {{(isset($flag->objflagid))?'checked':''}}/>&nbsp;{{$flag->name}}
+                                                                        </label></li>
+                                                                    @php($lstFlags.=','.$flag->id)
+                                                                @endforeach
+
+                                                                <hr>
+                                                                <li><input type="checkbox" name="is_boss"
+                                                                           value="1" {{($rec->is_boss==1)?'checked':''}}>
+                                                                    Является
+                                                                    руководителем
+                                                                    предприятия</label>
+                                                                </li>
+                                                                <li><label class="checkbox-inline">
+                                                                        <input type="checkbox" name="is_ca"
+                                                                               value="1" {{($rec->is_ca==1)?'checked':''}}>
+                                                                        Является
+                                                                        главным бухгалтером предприятия</label>
+                                                                </li>
+                                                                <input type="hidden" name="lstflags"
+                                                                       value="{{$lstFlags}}">
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+
+
+                                                </div>
+                                            @endif
+
+                                            @if(1==0)
+                                                <div class="row">
+                                                    <div class="offset-md-0 col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="email">Создает документы (тип):</label>
+                                                            <textarea class="form-control rounded-0" name="gendoctypes"
+                                                                      rows="4">{{$rec->gendoctypes}}</textarea>
+                                                        </div>
+                                                    </div>
+                                                    <div class="offset-md-0 col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="email">Согласует документы:</label>
+                                                            <textarea class="form-control rounded-0"
+                                                                      name="cnfrmdoctypes"
+                                                                      rows="4">{{$rec->cnfrmdoctypes}}</textarea>
+                                                        </div>
+                                                    </div>
+                                                    <div class="offset-md-0 col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="email">Утверждает документы:</label>
+                                                            <textarea class="form-control rounded-0" name="aprvdoctypes"
+                                                                      rows="4">{{$rec->aprvdoctypes}}</textarea>
+                                                        </div>
+                                                    </div>
+                                                    <div class="offset-md-0 col-md-6">
+                                                        <div class="form-group">
+                                                            <label>-</label>
+                                                            <label class="checkbox-inline">
+                                                                <input type="checkbox" name="is_boss"
+                                                                       value="1" {{($rec->is_boss==1)?'checked':''}}>
+                                                                Является
+                                                                руководителем
+                                                                предприятия</label>
+                                                            <br>
+                                                            <label class="checkbox-inline">
+                                                                <input type="checkbox" name="is_ca"
+                                                                       value="1" {{($rec->is_ca==1)?'checked':''}}>
+                                                                Является
+                                                                главным бухгалтером предприятия</label>
+
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            @endif
                                         </div>
 
                                         <div id="menu2" class="container tab-pane fade"><br>
@@ -466,15 +521,15 @@
 
                                                 </div>
 
-{{--                                                <div class="row">--}}
-{{--                                                    <div class="offset-md-0 col-md-12">--}}
-{{--                                                        <div class="form-group">--}}
-{{--                                                            <label for="reg_address">Адрес регистрации:</label>--}}
-{{--                                                            <textarea class="form-control rounded-0" name="reg_address"--}}
-{{--                                                                      rows="2">{{$rec->reg_address}}</textarea>--}}
-{{--                                                        </div>--}}
-{{--                                                    </div>--}}
-{{--                                                </div>--}}
+                                                {{--                                                <div class="row">--}}
+                                                {{--                                                    <div class="offset-md-0 col-md-12">--}}
+                                                {{--                                                        <div class="form-group">--}}
+                                                {{--                                                            <label for="reg_address">Адрес регистрации:</label>--}}
+                                                {{--                                                            <textarea class="form-control rounded-0" name="reg_address"--}}
+                                                {{--                                                                      rows="2">{{$rec->reg_address}}</textarea>--}}
+                                                {{--                                                        </div>--}}
+                                                {{--                                                    </div>--}}
+                                                {{--                                                </div>--}}
 
 
                                             @endif
@@ -555,8 +610,8 @@
                         <div class="col-md-4">
 
 
-{{--                            @include('stforders._orders')--}}
-{{--                            @include('staff_posts._posts')--}}
+                            {{--                            @include('stforders._orders')--}}
+                            {{--                            @include('staff_posts._posts')--}}
                             @include('objfiles.obj_files')
                             @include('obj_contacts._contacts')
                             @include('obj_addresses._list')

@@ -412,7 +412,7 @@ class MchnRaidReportController extends Controller
                 ->join('refitems as ri', 'ri.id', 'mro.refitmid')
                 ->leftjoin('orgs as oo', 'oo.id', 'mro.suporgid')
                 ->leftjoin('orgs as o', 'o.id', 'mro.orgid')
-                ->leftjoin('orgstaff as u_d', 'u_d.id', 'mr.disp_staffid')
+                ->leftjoin('orgstaff as u_d', 'u_d.id', 'mro.disp_staffid')
                 ->whereRaw($sc)
                 ->where('mro.sale_dir', +1);
 
@@ -422,7 +422,7 @@ class MchnRaidReportController extends Controller
                 , 'mro.suporgid', 'oo.name as ownorgname'
                 , 'mro.orgid', db::raw("max(o.name) as orgname")
                 , 'mro.org_placeid as unload_placeid', db::raw("MAX(mro.org_placename) as unload_placename")
-                , 'mr.disp_staffid', db::raw("max(concat(ifnull(u_d.fname,''),' ',u_d.lname)) as dispuser_name")
+                , 'mro.disp_staffid', db::raw("max(concat(ifnull(u_d.fname,''),' ',u_d.lname)) as dispuser_name")
                 , 'mro.refitmid as unload_refitmid', 'ri.name as refitm_name'
                 , db::raw("max(ri.unit) as unit")
 
@@ -431,7 +431,7 @@ class MchnRaidReportController extends Controller
                 , db::raw("sum(mro.itm_qty*mro.itm_price) as unload_sum")
                 , db::raw("orgSaldo_onDate(mro.orgid, mro.suporgid, mr.wrkdate) as org_saldo")
             )
-                ->groupBy(['mr.wrkdate', 'mro.suporgid', 'mro.orgid', 'disp_staffid', 'mro.org_placeid', 'mro.refitmid'])
+                ->groupBy(['mr.wrkdate', 'mro.suporgid', 'mro.orgid', 'mro.disp_staffid', 'mro.org_placeid', 'mro.refitmid'])
                 ->orderby('mr.wrkdate', 'asc')
                 ->orderby('orgname', 'asc')
                 ->get();
@@ -475,10 +475,10 @@ class MchnRaidReportController extends Controller
                     , 'mr.driverid', 'os.name as driver_name'
                     , db::raw("sum(mr.raid_qty) as raid_qty")
                     , db::raw("sum(mr.raid_qty*mr.raid_salary) as salary")
-                    , db::raw("sum(dw.repair_hrs) as repair_hrs")
-                    , db::raw("sum(dw.repair_sum) as repair_sum")
-                    , db::raw("sum(dw.pdt_hrs) as pdt_hrs")
-                    , db::raw("sum(dw.pdt_sum) as pdt_sum")
+                    , db::raw("max(dw.repair_hrs) as repair_hrs")
+                    , db::raw("max(dw.repair_sum) as repair_sum")
+                    , db::raw("max(dw.pdt_hrs) as pdt_hrs")
+                    , db::raw("max(dw.pdt_sum) as pdt_sum")
                 )
                 ->groupBy('mr.machineid')
                 ->groupBy('mr.driverid')
