@@ -887,7 +887,8 @@ class MchnRaidController extends Controller
             //проверим - задана ли связь с driver_works
             $dw_id = $request->get('dw_id');
             if (isset($dw_id))
-                $driver_work = driver_work::find($dw_id);
+                //$driver_work = driver_work::find($dw_id);
+                $driver_work = null;
 
             //если нет, то попробуем поискать по соответствию wrkdate/machineid/driverid
             if (!isset($driver_work)) {
@@ -927,6 +928,7 @@ class MchnRaidController extends Controller
             $rec->mot_id = $request->get('mot_id');
 
             //если до сих пор рейс не привязан к отчету о работе
+            $rec->dw_id = null;
             if (!isset($rec->dw_id)) {
                 //то найдем/создадим такой отчет и привяжем
                 $driver_work = driver_work::find_or_create([

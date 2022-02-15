@@ -100,7 +100,8 @@
 
                                     <div class="form-group col-md-4">
                                         <label for="name" class="required">Водитель: </label>
-                                        @if ($usrrights['edit_dmd'])
+{{--                                        @if ($usrrights['edit_dmd'])--}}
+                                        @if ($usrrights['edit'])
                                             <div class="input-group mb-3 ">
                                                 <input type="text" name="drivername" id="drivername"
                                                        class="driver_name form-control ac_name font-weight-bold"
