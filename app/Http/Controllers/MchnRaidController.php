@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\contract_org;
 use App\driver_work;
 use App\mchn_raid;
 use App\machine;
 use App\mchn_opertype;
 use App\mr_oper;
 use App\obj_finoper;
+use App\obj_staff;
 use App\objlog;
 use App\objtag;
 use App\opertype;
@@ -1036,6 +1038,22 @@ class MchnRaidController extends Controller
         objlog::log_info($this->sysobjid, $rec->id, $mess, 5);
 
 
+        //для новой записи возьмем значения из шаблона ---------------------------------------------------
+        if ($id == -1) {
+
+            $tmplt = user_template::getTemplate($userid, $this->sysobjid);
+            if (isset($tmplt->mchn_raid)) {
+
+                //извлечем данные об операциях
+                $opers = $tmplt->mr_opers;
+                foreach ($opers as $oper) {
+                    mr_oper::add(['mr_id' => $rec->id], (array)$oper);
+                }
+
+            }
+        }//----------------------------------------------------------------------------------------------
+
+
         //Выполним действия после обновления записи ---------------------------------------------
         mchn_raid::on_update($rec);
         //---------------------------------------------------------------------------------------
@@ -1132,8 +1150,17 @@ class MchnRaidController extends Controller
         $document['tags'] = objtag::lstTags($this->sysobjid, $id);
         //dd($document);
 
+        $opers = mr_oper::where(['mr_id' => $rec->id])->get()
+            ->makeHidden(['id', 'mr_id', 'created_at', 'updated_at', 'created_by', 'updated_by'])->toArray();
+        //уберем пустые элементы в каждой записи массива
+        foreach ($opers as $elm) {
+            $elm = array_filter($elm);
+        }
+        //dd($document, $opers);
+
         $template_js = [
             'mchn_raid' => $document,
+            'mr_opers' => $opers,
         ];
         $template_js = json_encode($template_js);
 

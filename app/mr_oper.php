@@ -328,4 +328,38 @@ class mr_oper extends Model
             //---------------------------------------------------------------------------------------
         }
     }
+
+    static public function addOrUpdate($search_params, $set_params)
+    {
+        if (isset($search_params) and isset($set_params)) {
+
+            $rec = self::where($search_params)->first();
+
+            if (!isset($rec)) {
+                $rec = new self($search_params);
+            }
+            $rec->fill($set_params);
+            $rec->save();
+
+            return $rec;
+        }
+        return null;
+    }
+
+    static public function add($search_params, $set_params)
+    {
+        if (isset($search_params) and isset($set_params)) {
+
+            $rec = new self($search_params);
+            $rec->fill($set_params);
+            $rec->save();
+
+            self::on_update($rec);
+            
+            return $rec;
+        }
+        return null;
+    }
+
+
 }
