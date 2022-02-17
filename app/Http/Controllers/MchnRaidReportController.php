@@ -418,24 +418,28 @@ class MchnRaidReportController extends Controller
 
 
             $recs = $recs->select(
-                'mr.wrkdate'
-                , 'mro.suporgid', 'oo.name as ownorgname'
+                 'mro.suporgid', 'oo.name as ownorgname'
                 , 'mro.orgid', db::raw("max(o.name) as orgname")
                 , 'mro.org_placeid as unload_placeid', db::raw("MAX(mro.org_placename) as unload_placename")
                 , 'mro.disp_staffid', db::raw("max(concat(ifnull(u_d.fname,''),' ',u_d.lname)) as dispuser_name")
                 , 'mro.refitmid as unload_refitmid', 'ri.name as refitm_name'
+                //, 'mr.wrkdate'
+
                 , db::raw("max(ri.unit) as unit")
 
                 , db::raw("sum(mro.raid_qty) as raid_qty")
                 , db::raw("sum(mro.itm_qty) as unload_qty")
                 , db::raw("sum(mro.itm_qty*mro.itm_price) as unload_sum")
-                , db::raw("orgSaldo_onDate(mro.orgid, mro.suporgid, mr.wrkdate) as org_saldo")
+                , db::raw("orgSaldo_onDate(mro.orgid, mro.suporgid, max(mr.wrkdate)) as org_saldo")
+                , db::raw("min(mr.wrkdate) as min_wrkdate")
+                , db::raw("max(mr.wrkdate) as max_wrkdate")
             )
-                ->groupBy(['mr.wrkdate', 'mro.suporgid', 'mro.orgid', 'mro.disp_staffid', 'mro.org_placeid', 'mro.refitmid'])
-                ->orderby('mr.wrkdate', 'asc')
+                //->groupBy(['mr.wrkdate', 'mro.suporgid', 'mro.orgid', 'mro.disp_staffid', 'mro.org_placeid', 'mro.refitmid'])
+                ->groupBy([ 'mro.suporgid', 'mro.orgid', 'mro.disp_staffid', 'mro.org_placeid', 'mro.refitmid'])
+                //->orderby('mr.wrkdate', 'asc')
                 ->orderby('orgname', 'asc')
                 ->get();
-            //sqdd($recs);
+            //dd($recs);
 
             //2-й набор - группировка по местам погрузки
             $recs2 = mr_oper::from('mr_opers as mro')

@@ -743,7 +743,8 @@ class MchnRaidController extends Controller
 
         $rec->saledirs = mr_oper::saledirs();
 
-        $usrrights['delete'] = ($usrrights['delete'] and ($rec->created_by == $userid or $usrrights['manager']) and $rec->statusid == 0);
+        //$usrrights['delete'] = ($usrrights['delete'] and ($rec->created_by == $userid or $usrrights['manager']) and $rec->statusid == 0);
+        $usrrights['delete'] = ($usrrights['delete'] and ($rec->id <> -1 and count($rec->opers) == 0) and $rec->statusid == 0);
         $usrrights['save'] = ($usrrights['save'] and ($rec->created_by == $userid or $usrrights['manager']) and $rec->statusid == 0);
         $usrrights['edit'] = ($usrrights['save'] and ($rec->created_by == $userid or $usrrights['manager']) and $rec->statusid == 0);
         //можно ли изменить wrkDate, Machineid, Driverid (DMD)
@@ -1044,10 +1045,12 @@ class MchnRaidController extends Controller
             $tmplt = user_template::getTemplate($userid, $this->sysobjid);
             if (isset($tmplt->mchn_raid)) {
 
-                //извлечем данные об операциях
-                $opers = $tmplt->mr_opers;
-                foreach ($opers as $oper) {
-                    mr_oper::add(['mr_id' => $rec->id], (array)$oper);
+                if (isset($tmplt->mr_opers)) {
+                    //извлечем данные об операциях
+                    $opers = $tmplt->mr_opers;
+                    foreach ($opers as $oper) {
+                        mr_oper::add(['mr_id' => $rec->id], (array)$oper);
+                    }
                 }
 
             }

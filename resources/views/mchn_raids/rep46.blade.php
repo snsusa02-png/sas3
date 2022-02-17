@@ -284,7 +284,7 @@ $action_url = route('reports.rep' . $thisObjId);
                             <?php
                             $wrkdate = date_create($rec->wrkdate)->format('d.m.Y');
                             ?>
-                            @if($wrkdate<>$curPayDate)
+                            @if(1==0 and $wrkdate<>$curPayDate)
                                 @if($curPayDate <>-1 )
                                     <tr data-toggle="collapse" data-target=".date_{{$tr_date}}" style="cursor: pointer">
                                         <td colspan="2" class="text-right small">Итого за {{$curPayDate}}:</td>
@@ -321,12 +321,13 @@ $action_url = route('reports.rep' . $thisObjId);
                             $td_class = ($rec->org_saldo < 0) ? 'text-danger' : (($rec->org_saldo > 0) ? 'text-success' : '');
                             ?>
 
-                            <tr class="text-left collapse show date_{{$tr_date}} multi-collapse">
-                                {{--                                <td></td>--}}
+{{--                            <tr class="text-left collapse show date_{{$tr_date}} multi-collapse">--}}
+                            <tr class="text-left collapse show date_{{$tr_date??''}} multi-collapse">
                                 <td class="text-left small">
                                     <a href="{{route('orgs.edit',$rec->orgid)}}" target="_blank"
                                        class="text-decoration-none">{{$rec->orgname}}</a>
                                     <div class="float-right">{{$rec->unload_placename}}</div>
+                                    <div class="text-center mt-1 small">{{date_create($rec->min_wrkdate)->format('d.m.Y')}} .. {{date_create($rec->max_wrkdate)->format('d.m.Y')}}</div>
                                 </td>
                                 <td class="text-left small">{{$rec->dispuser_name}}</td>
                                 <td class="text-right small">{{$rec->raid_qty}}</td>
