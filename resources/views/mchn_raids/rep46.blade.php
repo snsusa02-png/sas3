@@ -321,20 +321,28 @@ $action_url = route('reports.rep' . $thisObjId);
                             $td_class = ($rec->org_saldo < 0) ? 'text-danger' : (($rec->org_saldo > 0) ? 'text-success' : '');
                             ?>
 
-{{--                            <tr class="text-left collapse show date_{{$tr_date}} multi-collapse">--}}
+                            {{--                            <tr class="text-left collapse show date_{{$tr_date}} multi-collapse">--}}
                             <tr class="text-left collapse show date_{{$tr_date??''}} multi-collapse">
                                 <td class="text-left small">
                                     <a href="{{route('orgs.edit',$rec->orgid)}}" target="_blank"
                                        class="text-decoration-none">{{$rec->orgname}}</a>
                                     <div class="float-right">{{$rec->unload_placename}}</div>
-                                    <div class="text-center mt-1 small">{{date_create($rec->min_wrkdate)->format('d.m.Y')}} .. {{date_create($rec->max_wrkdate)->format('d.m.Y')}}</div>
+                                    <div
+                                        class="text-center mt-1 small">{{date_create($rec->min_wrkdate)->format('d.m.Y')}}
+                                        .. {{date_create($rec->max_wrkdate)->format('d.m.Y')}}</div>
                                 </td>
                                 <td class="text-left small">{{$rec->dispuser_name}}</td>
                                 <td class="text-right small">{{$rec->raid_qty}}</td>
                                 <td class="text-left small">{{$rec->refitm_name}}</td>
                                 <td class="text-center small"> {{$rec->unit}}</td>
                                 <td class="text-right small">{{number_format($rec->unload_qty,2)}}
-                                <td class="text-right small">{{number_format($rec->unload_sum/$rec->unload_qty,2)}}
+                                <td class="text-right small">
+                                    @if($rec->unload_qty>0)
+                                        {{number_format($rec->unload_sum/$rec->unload_qty,2)}}
+                                    @else
+                                        0
+                                    @endif
+                                </td>
                                 <td class="text-right">{{number_format($rec->unload_sum,2)}}
                                 <td class="text-right {{$td_class}}">{{number_format($rec->org_saldo,2)}}
 
