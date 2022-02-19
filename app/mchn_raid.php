@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use DB;
 use DateTime;
+use App\Traits\Result;
 
 class mchn_raid extends Model
 {
@@ -176,7 +177,6 @@ class mchn_raid extends Model
                 ->first();
 
             $driver_work = driver_work::find($rec->dw_id);
-            //$driver_work->salary_sum = $driver_work->salary_sum - $driver_work->raid_sum + $raid_info->sum; //коррекция общей суммы ЗП
             $driver_work->salary_sum = $raid_info->sum + $driver_work->pdt_sum + $driver_work->repair_sum; //коррекция общей суммы ЗП
             $driver_work->raid_qty = $raid_info->qty;
             $driver_work->raid_sum = $raid_info->sum;
@@ -365,4 +365,34 @@ select FROM_UNIXTIME(UNIX_TIMESTAMP(CONCAT(:start_ym,n)),'%Y-%m-%d') as Date
         );
     }
 
+
+    public static function clone($id)
+    {
+        // Клонируем указанную запись mchn_raid со всем содержимым
+
+        $result = new Result;
+
+        $mchn_raid = self::find($id);
+        if (!isset($mchn_raid)) {
+            $result->err = 1;
+            $result->msg = 'Исходная запись не найдена!';
+            return $result;
+        }
+
+        $new_mchn_raid = $mchn_raid->replicate();
+        $new_mchn_raid->save();
+
+        $opers = mr_oper::where('mr_id', $mchn_raid->id)->get();
+        foreach ($opers as $oper) {
+            $new_oper = $oper->replicate();
+            $new_oper->mr_id = $new_mchn_raid->id;
+            $new_oper->save();
+            mr_oper::on_update($new_oper);
+        }
+        mchn_raid::on_update($new_mchn_raid);
+
+        $result->obj = $new_mchn_raid->toArray();
+
+        return $result;
+    }
 }

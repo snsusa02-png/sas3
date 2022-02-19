@@ -100,7 +100,7 @@
 
                                     <div class="form-group col-md-4">
                                         <label for="name" class="required">Водитель: </label>
-{{--                                        @if ($usrrights['edit_dmd'])--}}
+                                        {{--                                        @if ($usrrights['edit_dmd'])--}}
                                         @if ($usrrights['edit'])
                                             <div class="input-group mb-3 ">
                                                 <input type="text" name="drivername" id="drivername"
@@ -914,6 +914,18 @@
                                             <i class="fa fa-minus-circle" aria-hidden="true"></i>
                                         </a>
                                     @endif
+                                @endif
+                                @if (1==1 and $rec->id != -1 and $usrrights['create']??true)
+                                    <button type="submit"
+                                            class="btn btn-warning btn-sm"
+                                            style="margin-left:24px"
+                                            formaction="{{ route($thisSysObjCode . '.clone', $rec->id)}}"
+                                            formmethod="get"
+                                            onclick="return confirm('Создать копию записи?')"
+                                            title="Создать копию записи"
+                                    >
+                                        <i class="fa fa-files-o" aria-hidden="true"></i>
+                                    </button>
                                 @endif
                                 @include('layouts._who_when')
                             </form>

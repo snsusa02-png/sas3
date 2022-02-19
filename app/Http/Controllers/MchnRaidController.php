@@ -1173,6 +1173,29 @@ class MchnRaidController extends Controller
 
     }
 
+    public function clone($id)
+    {
+
+        if (!isset($id))
+            return redirect()->back()->with('error', 'Не задана исходная запись!');
+
+
+        $userid = \Auth::user()->id;
+
+        $rslt = mchn_raid::clone($id);
+        if ($rslt->err > 0)
+            return redirect()->back()->with(['error' => $rslt->msg]);
+
+        //$document = array_filter($rec->makeHidden(['id', 'created_at', 'updated_at'])->toArray());
+
+        //$document['tags'] = objtag::lstTags($this->sysobjid, $id);
+        //dd($document);
+
+        return redirect(route($this->sysobjcode . '.edit', $rslt->obj['id']))
+            ->with(['success' => 'Вы находитесь в созданной копии']);
+
+    }
+
     static public function data_for_driver_works(Request $request)
     {
         //2021-11-27 SNS. Данные разные

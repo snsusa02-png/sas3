@@ -761,6 +761,7 @@ Route::get('mchn_raids/{id}', 'MchnRaidController@edit')->name('mchn_raids.edit'
 Route::match(array('POST', 'PUT'), 'mchn_raids/{id}', "MchnRaidController@update")->name('mchn_raids.update');
 Route::put('mchn_raids/{id}/delete', "MchnRaidController@destroy")->name("mchn_raids.delete");
 Route::get('mchn_raids/{id}/make_template', "MchnRaidController@make_template")->name('mchn_raids.make_template');
+Route::get('mchn_raids/{id}/clone', "MchnRaidController@clone")->name('mchn_raids.clone');
 
 //Операции по mchn_raids
 Route::get('mr_opers/create/{mr_id}/', "MrOperController@create")->name('mr_opers.create');
