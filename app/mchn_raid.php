@@ -6,6 +6,8 @@ use App\Traits\DeleteTrait;
 use App\Traits\FilesTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
+use DB;
+use DateTime;
 
 class mchn_raid extends Model
 {
@@ -326,5 +328,41 @@ class mchn_raid extends Model
         return null;
     }
 
+
+    public static function informer_calendar_raid_qtys()
+    {
+        //Cache::forget('informer_calendar_raid_qtys');
+        return Cache::remember('informer_calendar_raid_qtys', now()->addMinutes(6)
+            , function () {
+
+                $d = new DateTime('first day of this month');
+                $start_ymd = $d->format('Y-m-d');
+                $start_ym = $d->format('Y-m-');
+                //$start_ym = '2022-01-';
+
+                $results = DB::select(
+                    DB::raw("select d.date, weekday(d.date)+1 as dow, day(d.date) as day, s.raid_qty
+                    from(
+select FROM_UNIXTIME(UNIX_TIMESTAMP(CONCAT(:start_ym,n)),'%Y-%m-%d') as Date
+	from (
+        select (((b4.0 << 1 | b3.0) << 1 | b2.0) << 1 | b1.0) << 1 | b0.0 as n
+                from  (select 0 union all select 1) as b0,
+                      (select 0 union all select 1) as b1,
+                      (select 0 union all select 1) as b2,
+                      (select 0 union all select 1) as b3,
+                      (select 0 union all select 1) as b4 ) t
+        where n > 0 and n <= day(last_day(:start_ymd))
+        ) as d
+      left join (select wrkdate,sum(raid_qty) raid_qty from mchn_raids as mr group by wrkdate) as s
+                      on s.wrkdate=d.date
+        order by date;"), array(
+                    'start_ymd' => $start_ymd,
+                    'start_ym' => $start_ym,
+                ));
+                //dd($results);
+                return $results;
+            }
+        );
+    }
 
 }

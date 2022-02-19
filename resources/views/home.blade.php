@@ -166,6 +166,7 @@
                 @includeif("informers._long_wait_bills")
                 @includeif("informers._nofile_invoices")
                 @include("informers._users_today")
+                @include("informers._calendar_raids")
                 @includeif("informers._ownorg_saldos")
                 @includeif("informers._ownorg_saldo_details")
                 @include("informers._opertypes_sums")

@@ -8,6 +8,7 @@ use App\cwp_work;
 use App\equiprqst_expense;
 use App\invoice;
 use App\machine;
+use App\mchn_raid;
 use App\meeting;
 use App\news;
 use App\obj_approval;
@@ -85,6 +86,12 @@ class HomeController extends Controller
         //Сводка по видам деятельности//-------------------------------------------------------
         $data->opertypes_sums = opertype::informer_opertypes_sums();
         //-------------------------------------------------------------------------------------
+
+        //Календарь с кол-вом рейсов//-------------------------------------------------------
+        $data->calendar_raid_title = 'Количество рейсов';
+        $data->calendar_raid_qtys = mchn_raid::informer_calendar_raid_qtys();
+        //-------------------------------------------------------------------------------------
+
 
 
         //непрочитанные сообщения//-------------------------------------------------------------

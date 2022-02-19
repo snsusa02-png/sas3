@@ -160,6 +160,7 @@ class mr_oper extends Model
         }
         Cache::forget('informer_saldos');
         Cache::forget('informer_ownorg_saldo_details');
+        Cache::forget('informer_calendar_raid_qtys');
         //-----------------------------------------------------------
     }
 
@@ -355,7 +356,7 @@ class mr_oper extends Model
             $rec->save();
 
             self::on_update($rec);
-            
+
             return $rec;
         }
         return null;
