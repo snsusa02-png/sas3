@@ -1179,22 +1179,20 @@ class MchnRaidController extends Controller
         if (!isset($id))
             return redirect()->back()->with('error', 'Не задана исходная запись!');
 
-
         $userid = \Auth::user()->id;
+        $usrrights['create'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.create');
+
+        if (!$usrrights['create'])
+            return redirect()->back()->with('error', 'У вас нет права на создание записей!');
 
         $rslt = mchn_raid::clone($id);
         if ($rslt->err > 0)
             return redirect()->back()->with(['error' => $rslt->msg]);
 
-        //$document = array_filter($rec->makeHidden(['id', 'created_at', 'updated_at'])->toArray());
-
-        //$document['tags'] = objtag::lstTags($this->sysobjid, $id);
-        //dd($document);
-
         return redirect(route($this->sysobjcode . '.edit', $rslt->obj['id']))
             ->with(['success' => 'Вы находитесь в созданной копии']);
-
     }
+
 
     static public function data_for_driver_works(Request $request)
     {

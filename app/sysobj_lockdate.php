@@ -27,5 +27,11 @@ class sysobj_lockdate extends Model
         return $this->hasOne(User::class, 'id', 'updated_by')->withDefault();
     }
 
+    public static function mindate($sysobjid)
+    {
+        //возвращает дату до которой все заблокировано. То есть минимально-разрешенную дату для записей этой системы
+        return self::find($sysobjid)->lock_before ?? null;
+    }
+
 
 }

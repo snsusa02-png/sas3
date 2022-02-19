@@ -371,6 +371,7 @@ select FROM_UNIXTIME(UNIX_TIMESTAMP(CONCAT(:start_ym,n)),'%Y-%m-%d') as Date
         // Клонируем указанную запись mchn_raid со всем содержимым
 
         $result = new Result;
+        $userid = \Auth::user()->id;
 
         $mchn_raid = self::find($id);
         if (!isset($mchn_raid)) {
@@ -380,16 +381,23 @@ select FROM_UNIXTIME(UNIX_TIMESTAMP(CONCAT(:start_ym,n)),'%Y-%m-%d') as Date
         }
 
         $new_mchn_raid = $mchn_raid->replicate();
+        //дата записи не может быть ранее sysobj_lockdates.lock_before
+        $new_mchn_raid->wrkdate = max($new_mchn_raid->wrkdate, sysobj_lockdate::mindate(self::$sysobjid));
+        $new_mchn_raid->created_by = $userid;
+        $new_mchn_raid->updated_by = $userid;
         $new_mchn_raid->save();
+        mchn_raid::on_update($new_mchn_raid);
 
+        //перенесем операции
         $opers = mr_oper::where('mr_id', $mchn_raid->id)->get();
         foreach ($opers as $oper) {
             $new_oper = $oper->replicate();
             $new_oper->mr_id = $new_mchn_raid->id;
+            $new_oper->created_by = $userid;
+            $new_oper->updated_by = $userid;
             $new_oper->save();
             mr_oper::on_update($new_oper);
         }
-        mchn_raid::on_update($new_mchn_raid);
 
         $result->obj = $new_mchn_raid->toArray();
 

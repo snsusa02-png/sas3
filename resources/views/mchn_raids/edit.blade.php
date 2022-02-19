@@ -893,7 +893,7 @@
                                         <i class="fa fa-trash-o" aria-hidden="true"></i>
                                     </button>
                                 @endif
-                                @if (1==1 and $rec->id != -1 and $usrrights['make_template']??true)
+                                @if (1==1 and $rec->id != -1 and $usrrights['create'] and $usrrights['make_template']??true)
                                     <button type="submit"
                                             class="btn btn-info btn-sm"
                                             style="margin-left:24px"
