@@ -6,8 +6,13 @@ $(document).ready(function () {
             $("#s_wrkdate").show();
         } else {
             $("#s_wrkdate").hide();
-            $(this).closest("form").submit();
         }
+    });
+
+    //$("#s_wrkdate").change(function (e) {
+    $("#s_wrkdate").focusout(function (e) {
+        $(this).closest("form").submit();
+        //console.log('focusout')
     });
 
     if ($("#s_timestatuscode").val() == 5)

@@ -30,6 +30,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
+use DateTime;
 
 class MchnRaidController extends Controller
 {
@@ -125,7 +126,6 @@ class MchnRaidController extends Controller
 
         //сформируем условие запроса в БД -----
         $sc = "1=1";
-
         foreach ($search_params as $item => $val) {
             if (isset($val) and strlen($val) > 0) {
 
@@ -152,21 +152,20 @@ class MchnRaidController extends Controller
                         $sc = $sc . " and datediff(curdate(), mr.wrkdate) <= 7";
                     elseif ($val == 4) //с начала текущего месяца
                         $sc .= " and extract(year_month from mr.wrkdate) = extract(year_month from curdate())";
-                        //$sc .= " and year(mr.wrkdate) = year(curdate())";
-                    elseif ($val == 5) //конкретная дата
+                    //$sc .= " and year(mr.wrkdate) = year(curdate())";
+                    elseif ($val == 5
+                        and DateTime::createFromFormat('Y-m-d', $search_params['s_wrkdate']) !== false) {
+                        //конкретная дата
                         $sc .= " and mr.wrkdate = '" . $search_params['s_wrkdate'] . "'";
-
+                    }
                 } elseif ($item == 's_load_placeid') {
-                    //$sc = $sc . " and mr.load_placeid = {$val}";
                     $sc = $sc . " and exists(select 1 from mr_opers as mro where mro.mr_id=mr.id and mro.sup_placeid = {$val})";
 
                 } elseif ($item == 's_unload_placeid') {
-//                    $sc = $sc . " and mr.unload_placeid = {$val}";
                     $sc = $sc . " and exists(select 1 from mr_opers as mro where mro.mr_id=mr.id and mro.org_placeid = {$val})";
 
                 } elseif ($item == 's_suporgid') {
                     //Поставщик в операциях покупки (от ГК)
-//                    $sc = $sc . " and exists(select 1 from mr_opers as mro where mro.mr_id=mr.id and mro.suporgid = {$val} and mro.sale_dir=-1)";
                     $sc .= " and mro.suporgid={$val}";
 
                 } elseif ($item == 's_orgid') {
@@ -254,7 +253,8 @@ class MchnRaidController extends Controller
         $recs = $recs
             ->orderBy('mr.wrkdate', 'desc')
             ->orderBy('ot.name', 'asc')
-            ->orderby('mr.id');
+            ->orderby('mr.id', 'desc')
+            ->orderby('mro.id', 'asc');
 //        }
         //----------------------------------------------------------------
 
@@ -930,7 +930,8 @@ class MchnRaidController extends Controller
         return redirect($route)->with($sd);
     }
 
-    public function admindelete($id)
+    public
+    function admindelete($id)
     {
         $rec = mchn_raid::find($id);
         if ($rec) {
@@ -978,7 +979,8 @@ class MchnRaidController extends Controller
 
     }
 
-    public function make_template($id)
+    public
+    function make_template($id)
     {
 
         if (!isset($id))
@@ -1016,7 +1018,8 @@ class MchnRaidController extends Controller
 
     }
 
-    public function clone($id)
+    public
+    function clone($id)
     {
 
         if (!isset($id))

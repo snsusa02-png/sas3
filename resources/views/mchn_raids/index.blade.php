@@ -154,7 +154,6 @@
                                            id="s_wrkdate"
                                            value="{{ $search_params['s_wrkdate'] ?? ''}}"
                                            placeholder="-название-"
-                                           onchange='form.submit()'
                                            STYLE="display: none;"/>
 
                                 </td>

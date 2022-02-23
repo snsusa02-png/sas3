@@ -75,8 +75,8 @@ $(document).ready(function () {
     });
 
     $("#orgid").change(function () {
-        $("#unload_placeid").val('')
-        $("#unload_placename").val('')
+        $("#org_placeid").val('')
+        $("#org_placename").val('')
     });
 
 
