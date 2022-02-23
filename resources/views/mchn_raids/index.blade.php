@@ -83,6 +83,17 @@
                     <div class="mt-2">
                         @include('layouts.edit_msgs')
 
+                        <div class="form-group offset-md-10 col-md-2">
+                            <label for="s_reguserid" class="required">Регистратор:</label>
+                            {!! Form::select('s_reguserid', $data->regusers??[]
+                                    , $search_params['s_reguserid']??'',
+                                         [
+                                         'class' => 'form-control',
+                                         'placeholder' => '-все-',
+                                         'onchange' => 'form.submit()',
+                                         ]) !!}
+                        </div>
+
                         <table class="table table-striped table-bordered table-sm" style="background-color: snow;">
                             <thead>
                             <tr>
@@ -130,15 +141,22 @@
                             <tr style="text-align: center;">
                                 <td></td>
                                 <td>
-                                    <div class="input-group ">
-                                        {!! Form::select('s_date', $data->dates??[]
-                                        , $search_params['s_date']??'',
-                                             [
-                                             'class' => 'form-control',
-                                             'placeholder' => '-все-',
-                                             'onchange' => 'form.submit()',
-                                             ]) !!}
+                                    <div class="input-group">
+                                        {!! Form::select('s_timestatuscode', $data->timestatuses??[], $search_params['s_timestatuscode']??'',
+                                            [
+                                            'class' => 'form-control small',
+                                            'placeholder' => '-все-',
+                                            'id' => 's_timestatuscode',
+                                            ])
+                                        !!}
                                     </div>
+                                    <input type="date" class="form-control c" name="s_wrkdate"
+                                           id="s_wrkdate"
+                                           value="{{ $search_params['s_wrkdate'] ?? ''}}"
+                                           placeholder="-название-"
+                                           onchange='form.submit()'
+                                           STYLE="display: none;"/>
+
                                 </td>
                                 <td>
                                     {!! Form::select('s_driverid', $data->drivers
@@ -148,13 +166,13 @@
                                                  'placeholder' => '-все-',
                                                  'onchange' => 'form.submit()',
                                                  ]) !!}
-                                        {!! Form::select('s_machineid', $data->machines
-                                        , $search_params['s_machineid'],
-                                             [
-                                             'class' => 'form-control',
-                                             'placeholder' => '-все-',
-                                             'onchange' => 'form.submit()',
-                                             ]) !!}
+                                    {!! Form::select('s_machineid', $data->machines
+                                    , $search_params['s_machineid'],
+                                         [
+                                         'class' => 'form-control',
+                                         'placeholder' => '-все-',
+                                         'onchange' => 'form.submit()',
+                                         ]) !!}
 
                                 </td>
                                 <td>
@@ -169,12 +187,12 @@
 
                                 <td>
                                     {!! Form::select('s_suporgid', $data->suporgs??[]
-, $search_params['s_suporgid']??'',
-[
-'class' => 'form-control',
-'placeholder' => '-все-',
-'onchange' => 'form.submit()',
-]) !!}
+            , $search_params['s_suporgid']??'',
+            [
+            'class' => 'form-control',
+            'placeholder' => '-все-',
+            'onchange' => 'form.submit()',
+            ]) !!}
                                     {!! Form::select('s_load_placeid', $data->load_places??[]
                                         , $search_params['s_load_placeid'],
                                              [
@@ -197,7 +215,7 @@
                                 <td></td>
                                 <td>
                                     {!! Form::select('s_orgid', $data->orgs??[]
-        , $search_params['s_orgid'],
+            , $search_params['s_orgid'],
              [
              'class' => 'form-control',
              'placeholder' => '-все-',

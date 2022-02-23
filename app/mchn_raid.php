@@ -53,7 +53,7 @@ class mchn_raid extends Model
 
     public function mr_opers()
     {
-        return $this->hasMany(mr_oper::class, 'id', 'mr_id');
+        return $this->hasMany(mr_oper::class, 'mr_id', 'id');
     }
 
     public function opertype()
@@ -145,6 +145,23 @@ class mchn_raid extends Model
         return false;
     }
 
+
+    public function admindelete()
+    {
+        $result = new Result;
+        //Удаляем себя вместе с дочками
+        try {
+            DB::transaction(function () {
+                $this->mr_opers()->delete();
+                $this->files()->delete();  //TODO: ? ->deleteOne() ? Так как не удаляется файл с диска
+                return parent::delete();
+            });
+        } catch (\Exception $e) {
+            $result->err = 1;
+            $result->msg = 'Ошибка удаления записи: ' . $e->getMessage();
+        }
+        return $result;
+    }
 
     public static function min_wrkdate()
     {

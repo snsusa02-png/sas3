@@ -283,7 +283,7 @@
                                              'required' => 'required',
                                              ]) !!}
                                         @else
-                                            <div class="font-weight-bold">{{$rec->paytypes[$rec->paytypeid]??'?'}}</div>
+                                            <div class="font-weight-bold text-center">{{$rec->paytypes[$rec->paytypeid]??'?'}}</div>
                                         @endif
                                     </div>
                                 </div>
@@ -376,7 +376,7 @@
                                                        value="{{old('raid_qty',$rec->raid_qty)}}">
                                             </div>
                                         @else
-                                            <div class="font-weight-bold">{{$rec->raid_qty}}</div>
+                                            <div class="font-weight-bold text-center">{{$rec->raid_qty}}</div>
                                         @endif
                                     </div>
                                 </div>

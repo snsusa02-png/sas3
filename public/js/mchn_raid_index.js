@@ -1,5 +1,20 @@
 $(document).ready(function () {
 
+    $("#s_timestatuscode").change(function (e) {
+
+        if ($("#s_timestatuscode").val() == 5) {
+            $("#s_wrkdate").show();
+        } else {
+            $("#s_wrkdate").hide();
+            $(this).closest("form").submit();
+        }
+    });
+
+    if ($("#s_timestatuscode").val() == 5)
+        $("#s_wrkdate").show();
+    else
+        $("#s_wrkdate").hide();
+
     //добавление подсветки для непустых полей
     $(".form-control").change(function () {
         //console.log($(this).val())
@@ -9,7 +24,7 @@ $(document).ready(function () {
             $(this).removeClass('searchby');
     });
 
-    $('.form-control').each(function(index, value) {
+    $('.form-control').each(function (index, value) {
         //console.log(`${index}: ${this.id}`);
         if ($(this).val())
             $(this).addClass('searchby');
@@ -19,7 +34,7 @@ $(document).ready(function () {
 
     $(window).scroll(function () {
 
-        if ($(this).scrollTop()+$(window).height() < $(".container-fluid").height()) {
+        if ($(this).scrollTop() + $(window).height() < $(".container-fluid").height()) {
             $('.scrolldown').fadeIn('slow', 'linear');
         } else {
             $('.scrolldown').fadeOut('fast', 'swing');

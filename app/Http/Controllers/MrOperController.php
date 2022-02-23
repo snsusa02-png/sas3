@@ -57,6 +57,9 @@ class MrOperController extends Controller
         $usrrights['save'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.update');
         $usrrights['delete'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.delete');
 
+        //Права менедежера возьмем по родительской записи
+        $usrrights['manager'] = usrsysright::isUserHasRightByCode_cached($userid, sysobj::acl_sysobjcode('mchn_raids') . '.manager');
+
 
         if ($recid > 0) {
             //для существующих записей проверим открытость периода
@@ -174,6 +177,11 @@ class MrOperController extends Controller
         //= obj_link::addOrUpdate()
         //dd($rec);
         //dd($rec->linked_paydocs);
+
+        //Коррекция прав с учетом менеджерства
+        $usrrights['save'] = ($usrrights['save'] and ($rec->created_by == $userid or $usrrights['manager']) );
+        $usrrights['delete'] = ($usrrights['delete'] and ($rec->created_by == $userid or $usrrights['manager']) );
+        //dd($rec->created_by == $userid, $usrrights['save']);
 
         return view('mr_opers.edit', compact('rec', "usrrights"));
     }

@@ -662,6 +662,10 @@ class User extends Authenticatable
                         //пользователь должен быть Инициатором в запросах на инспекцию СК
                         $sc .= " and exists( select 1 from checkrqsts as cr where cr.inituserid=u.id )";
 
+                    } elseif ($key == 'mchn_raids_created_by') {
+                        //пользователь - создатель записей в mchn_raids
+                        $sc .= " and exists( select 1 from mchn_raids as mr where mr.created_by=u.id )";
+
                     } elseif ($key == 'in_equiprqst_estimator') {
                         //пользователь должен быть оценщиком в заявках на материалы
                         $sc .= " and exists( select 1 from equiprqst_items as eri where eri.est_price_by=u.id )";

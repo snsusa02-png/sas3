@@ -126,7 +126,8 @@
                                             <a href="{{route('driver_works.edit',$rec->dw_id)}}" class="float-right">Отчет:
                                                 >>></a>
                                         @endif
-                                        @if ($usrrights['edit_dmd'])
+{{--                                        @if ($usrrights['edit_dmd'])--}}
+                                        @if ($usrrights['edit'])
                                             <input type="date" class="form-control text-center font-weight-bold"
                                                    name="wrkdate" id="wrkdate" required
                                                    min="{{$rec->wrkdate_min}}"
@@ -893,7 +894,20 @@
                                         <i class="fa fa-trash-o" aria-hidden="true"></i>
                                     </button>
                                 @endif
-                                @if (1==1 and $rec->id != -1 and $usrrights['create'] and $usrrights['make_template']??true)
+                                @if ($usrrights['admindelete'])
+                                    <button type="submit"
+                                            class="btn btn-danger btn-sm"
+                                            style="margin-left:24px; margin-right:8px;"
+                                            formaction="{{ route($thisSysObjCode.'.admindelete', $rec->id)}}"
+                                            formmethod="post"
+                                            onclick="return confirm('Заявка будет удалена административно - без учета ограничений!\n\nПродолжать?')"
+                                            title="Административно удалить заявку"
+                                    >
+                                        <i class="fa fa-bomb" aria-hidden="true"></i>
+                                    </button>
+                                @endif
+
+                            @if (1==1 and $rec->id != -1 and $usrrights['create'] and $usrrights['make_template']??true)
                                     <button type="submit"
                                             class="btn btn-info btn-sm"
                                             style="margin-left:24px"

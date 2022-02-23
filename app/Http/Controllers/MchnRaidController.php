@@ -65,16 +65,20 @@ class MchnRaidController extends Controller
         $usrrights['set_lockdate'] = false;
 
         $usrrights['save'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.update');
-        $usrrights['delete'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.delete');
         $usrrights['manager'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.manager');
         $usrrights['set_lockdate'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.set_lockdate');;
 
         if ($recid > 0) {
+
             //для существующих записей проверим открытость периода
             if (mchn_raid::isLocked($recid)) {
                 $usrrights['save'] = false;
                 $usrrights['delete'] = false;
                 $usrrights['admindelete'] = false;
+            } else {
+                // период Открыт - все определяется правами
+                $usrrights['delete'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.delete');
+                $usrrights['admindelete'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.admindelete');
             }
         }
 
@@ -103,11 +107,13 @@ class MchnRaidController extends Controller
         // - параметры поиска: массив из имени и значенния по-умолчанию -----------------------------------------------
         $param_names = [
             's_pageitmcnt' => 10
+            , 's_reguserid' => $userid
             , 's_ri_name' => ''
             , 's_machineid' => ''
             , 's_driverid' => ''
             , 's_paytypeid' => ''
-            , 's_date' => ''
+            , 's_timestatuscode' => 2   //вчера
+            , 's_wrkdate' => ''
             , 's_load_placeid' => ''
             , 's_unload_placeid' => ''
             , 's_suporgid' => ''
@@ -128,13 +134,16 @@ class MchnRaidController extends Controller
                         join refitems as ri on ri.id=mro.refitmid
                         where mro.mr_id=mr.id and ri.name like '%" . mb_strtoupper($val) . "%')";
 
+                } elseif ($item == 's_reguserid') {
+                    $sc = $sc . " and mr.created_by = {$val}";
+
                 } elseif ($item == 's_machineid') {
                     $sc = $sc . " and mr.machineid = {$val}";
 
                 } elseif ($item == 's_driverid') {
                     $sc = $sc . " and mr.driverid = {$val}";
 
-                } elseif ($item == 's_date') {
+                } elseif ($item == 's_timestatuscode') {
                     if ($val == 1) //сегодня
                         $sc = $sc . " and mr.wrkdate = curdate()";
                     elseif ($val == 2) //вчера
@@ -142,7 +151,10 @@ class MchnRaidController extends Controller
                     elseif ($val == 3) //за неделю
                         $sc = $sc . " and datediff(curdate(), mr.wrkdate) <= 7";
                     elseif ($val == 4) //с начала текущего месяца
-                        $sc = $sc . " and extract(year_month from mr.wrkdate) = extract(year_month from curdate())";
+                        $sc .= " and extract(year_month from mr.wrkdate) = extract(year_month from curdate())";
+                        //$sc .= " and year(mr.wrkdate) = year(curdate())";
+                    elseif ($val == 5) //конкретная дата
+                        $sc .= " and mr.wrkdate = '" . $search_params['s_wrkdate'] . "'";
 
                 } elseif ($item == 's_load_placeid') {
                     //$sc = $sc . " and mr.load_placeid = {$val}";
@@ -267,6 +279,10 @@ class MchnRaidController extends Controller
             'driver_in_mchn_raids' => 1,
         ]);
 
+        $data->regusers = User::lstFor([
+            'mchn_raids_created_by' => 1,
+        ]);
+
         $data->refitems = refitem::lstFor_cached([
             'in_mchn_raids' => 1,
         ], 5);
@@ -299,215 +315,8 @@ class MchnRaidController extends Controller
 
         $data->statuses = [0 => 'черновик', 2 => 'ожидает согласования', 4 => 'согласован'];
         $data->dates = [1 => 'сегодня', 2 => 'вчера', 3 => 'за неделю', 4 => 'за месяц'];
-        $data->yes_no = [1 => 'есть', 0 => 'нет'];
+        $data->timestatuses = [1 => 'сегодня', 2 => 'вчера', 3 => 'за неделю', 4 => 'за месяц', 5 => 'календарь'];
 
-        //Выясним - есть ли у пользователя шаблон для этого типа объектов ИС
-        $data->template_id = user_template::where(['sysobjid' => $this->sysobjid, 'userid' => $userid])->first()->id ?? null;
-
-        return view('mchn_raids.index', compact('recs', 'rec0'
-            , 'data', 'search_params', 'sort_params'
-            , 'usrrights'));
-    }
-
-    public function index0(Request $request)
-    {
-        $userid = \Auth::user()->id;
-
-        $usrrights = $this->setInterfaceRight(-1);
-        if (1 == 0 or !$usrrights['read']) {
-            return view('home')->with(['error' => 'Нет доступа!']);
-            //return redirect(back())->with(['error'=>'Нет доступа!']);
-        }
-
-        session([$this->sysobjcode . '_pageno' => $request->page]);
-
-        // - параметры поиска: массив из имени и значенния по-умолчанию -----------------------------------------------
-        $param_names = [
-            's_pageitmcnt' => 10
-            , 's_ri_name' => ''
-            , 's_machineid' => ''
-            , 's_driverid' => ''
-            , 's_paytypeid' => ''
-            , 's_date' => ''
-            , 's_load_placeid' => ''
-            , 's_unload_placeid' => ''
-            , 's_orgid' => ''
-            , 's_disp_staffid' => ''
-        ];
-
-        $search_params = $this->search_params($request, $param_names);
-
-        //сформируем условие запроса в БД -----
-        $sc = "1=1";
-
-
-        foreach ($search_params as $item => $val) {
-            if (isset($val) and strlen($val) > 0) {
-
-                if ($item == 's_ri_name') {
-                    $sc = $sc . " and exists(select 1 from mr_opers as mro
-                        join refitems as ri on ri.id=mro.refitmid
-                        where mro.mr_id=mr.id and ri.name like '%" . mb_strtoupper($val) . "%')";
-
-                } elseif ($item == 's_machineid') {
-                    $sc = $sc . " and mr.machineid = {$val}";
-
-                } elseif ($item == 's_driverid') {
-                    $sc = $sc . " and mr.driverid = {$val}";
-
-                } elseif ($item == 's_date') {
-                    if ($val == 1) //сегодня
-                        $sc = $sc . " and mr.wrkdate = curdate()";
-                    elseif ($val == 2) //вчера
-                        $sc = $sc . " and datediff(curdate(), mr.wrkdate) = 1";
-                    elseif ($val == 3) //за неделю
-                        $sc = $sc . " and datediff(curdate(), mr.wrkdate) <= 7";
-                    elseif ($val == 4) //с начала текущего месяца
-                        $sc = $sc . " and extract(year_month from mr.wrkdate) = extract(year_month from curdate())";
-
-                } elseif ($item == 's_load_placeid') {
-                    //$sc = $sc . " and mr.load_placeid = {$val}";
-                    $sc = $sc . " and exists(select 1 from mr_opers as mro where mro.mr_id=mr.id and mro.sup_placeid = {$val})";
-
-                } elseif ($item == 's_unload_placeid') {
-//                    $sc = $sc . " and mr.unload_placeid = {$val}";
-                    $sc = $sc . " and exists(select 1 from mr_opers as mro where mro.mr_id=mr.id and mro.org_placeid = {$val})";
-
-                } elseif ($item == 's_orgid') {
-                    //Заказчик в операциях продажи (от ГК)
-                    //$sc = $sc . " and mr.orgid = {$val}";
-                    $sc = $sc . " and exists(select 1 from mr_opers as mro where mro.mr_id=mr.id and mro.orgid = {$val} and mro.sale_dir=1)";
-
-                } elseif ($item == 's_paytypeid') {
-                    //$sc = $sc . " and mr.paytypeid = {$val}";
-                    $sc = $sc . " and exists(select 1 from mr_opers as mro where mro.mr_id=mr.id and mro.paytypeid = {$val})";
-
-                } elseif ($item == 's_disp_staffid') {
-                    $sc = $sc . " and mr.disp_staffid = {$val}";
-
-                } elseif ($item == 's_statusid') {
-                    $sc = $sc . " and mr.statusid = {$val}";
-
-                }
-
-            }
-        }
-        //var_dump($sc);
-        //-------------------------------------------------------------------------------------------------------------
-
-        //по-старому ---------------
-        //для совместимости со старым методом формированя условия отбора - инициализируем переменные поиска
-//        foreach ($search_params as $item => $val) {
-//            $$item = $val;
-//        }
-        // --------------------------------------------------------------------
-
-
-        $recs = mchn_raid::from('mchn_raids as mr')
-            ->join('opertypes as ot', function ($join) {
-                $join->on('ot.id', '=', 'mr.opertypeid');
-            })
-            ->join('orgstaff as os', function ($join) {
-                $join->on('os.id', '=', 'mr.driverid');
-            })
-            ->join('machines as m', function ($join) {
-                $join->on('m.id', '=', 'mr.machineid');
-            })
-            ->leftjoin('refitems as l_ri', function ($join) {
-                $join->on('l_ri.id', '=', 'mr.load_refitmid');
-            })
-            ->leftjoin('refitems as u_ri', function ($join) {
-                $join->on('u_ri.id', '=', 'mr.unload_refitmid');
-            })
-            ->leftjoin('org_places as l_op', function ($join) {
-                $join->on('l_op.id', '=', 'mr.load_placeid');
-            })
-            ->leftjoin('orgstaff as ds', function ($join) {
-                $join->on('ds.id', '=', 'mr.disp_staffid');
-            })
-            ->whereraw($sc)
-            ->select('mr.*'
-                , db::raw("TIME_FORMAT(mr.wrkbegdt, '%H:%i') as beg_hm")
-                , db::raw("TIME_FORMAT(mr.wrkenddt, '%H:%i') as end_hm")
-                , 'os.lname as staff_name'
-                , 'ds.lname as disp_name'
-                , db::raw("concat(m.regnum,' ',m.name) as machine_name")
-                , 'mr.opertypeid'
-                , 'ot.name as opertype_name'
-                , 'l_op.name as load_place_name'
-                , 'l_ri.name as load_refitem_name'
-                , 'l_ri.unit as load_refitem_unit'
-                , 'u_ri.name as unload_refitem_name'
-                , 'u_ri.unit as unload_refitem_unit'
-                , db::raw("(select group_concat( o.name SEPARATOR '; ')
-                            from mr_opers as mro
-                            join orgs as o on o.id=mro.orgid
-                            where mro.mr_id=mr.id and mro.sale_dir=1
-                            order by mro.id
-                            ) as orgs")
-            );
-
-
-        //Сортировка пользователя ----------------------------------------
-        $sort_params = session('sort_params_' . $this->sysobjcode . '.index');
-
-//        if (isset($sort_params)) {
-//            foreach ($sort_params as $prm)
-//                $recs = $recs->orderBy($prm['field'], $prm['dir']);
-//        } else {
-        $recs = $recs
-            ->orderBy('mr.wrkdate', 'desc')
-            ->orderBy('ot.name', 'asc')
-            ->orderby('mr.id');
-//        }
-        //----------------------------------------------------------------
-
-        $recs = $recs->paginate($search_params['s_pageitmcnt'] ?? 10);
-
-        //номер первой записи на странице:
-        $rec0 = $recs->currentPage() * $recs->perPage() - $recs->perPage() + 1;
-
-        $data = new \stdClass();
-
-        //варианты кол-ва записей на страницу
-        $data->pageitmcnts = $this->pageitmcnts;
-
-        $data->sysobj = sysobj::find($this->sysobjid);
-
-        $data->machines = machine::getFor(
-            ['in_mchn_raids' => 1,], ['m.id', db::raw("concat(m.regnum,' - ',m.name) as name")]
-        )->pluck('name', 'id')->toArray();
-
-        $data->drivers = orgstaff::lstFor([
-            'driver_in_mchn_raids' => 1,
-        ]);
-
-        $data->refitems = refitem::lstFor_cached([
-            'in_mchn_raids' => 1,
-        ], 5);
-
-        $data->load_places = org_place::lstFor_cached([
-            'loadplace_in_mchn_raids' => 1,
-        ], 5);
-
-        $data->unload_places = place::lstFor_cached([
-            'unloadplace_in_mchn_raids' => 1,
-        ], 5);
-
-        $data->orgs = org::lstFor_cached([
-            //'in_mchn_raids_orgid' => 1,
-            //'in_mr_opers_orgid' => 1,
-            'in_mr_opers_orgid_sale' => 1,
-        ], 5);
-
-        $data->dispatchers = orgstaff::lstFor_cached([
-            'dispatcher_in_mchn_raids' => 1,
-        ], 5);
-
-        $data->paytypes = mchn_raid::paytypes();
-
-        $data->statuses = [0 => 'черновик', 2 => 'ожидает согласования', 4 => 'согласован'];
-        $data->dates = [1 => 'сегодня', 2 => 'вчера', 3 => 'за неделю', 4 => 'за месяц'];
         $data->yes_no = [1 => 'есть', 0 => 'нет'];
 
         //Выясним - есть ли у пользователя шаблон для этого типа объектов ИС
@@ -743,8 +552,15 @@ class MchnRaidController extends Controller
 
         $rec->saledirs = mr_oper::saledirs();
 
-        //$usrrights['delete'] = ($usrrights['delete'] and ($rec->created_by == $userid or $usrrights['manager']) and $rec->statusid == 0);
-        $usrrights['delete'] = ($usrrights['delete'] and ($rec->id <> -1 and count($rec->opers) == 0) and $rec->statusid == 0);
+        if ($usrrights['delete']) {
+            if ($rec->statusid == 0)
+                if (count($rec->opers) > 0)
+                    $usrrights['delete'] = false;
+                else {
+                    $usrrights['admindelete'] = false;
+                }
+        }
+
         $usrrights['save'] = ($usrrights['save'] and ($rec->created_by == $userid or $usrrights['manager']) and $rec->statusid == 0);
         $usrrights['edit'] = ($usrrights['save'] and ($rec->created_by == $userid or $usrrights['manager']) and $rec->statusid == 0);
         //можно ли изменить wrkDate, Machineid, Driverid (DMD)
@@ -1061,14 +877,19 @@ class MchnRaidController extends Controller
         mchn_raid::on_update($rec);
         //---------------------------------------------------------------------------------------
 
-        if ($id == -1 or $rec->statusid <> $statusid)
-            return redirect(route('mchn_raids.edit', $rec->id) . '?returl=' . $request->get('returl'));
-        else {
-            $retURL = $request->get('returl') ?? route($this->sysobjcode . '.index')
-                . '?page=' . session($this->sysobjcode . '_pageno') . '#' . $rec->id;
+//        if ($id == -1 or $rec->statusid <> $statusid)
+//            return redirect(route('mchn_raids.edit', $rec->id) . '?returl=' . $request->get('returl'));
+//        else {
+//            $retURL = $request->get('returl') ?? route($this->sysobjcode . '.index')
+//                . '?page=' . session($this->sysobjcode . '_pageno') . '#' . $rec->id;
+//
+//            return redirect($retURL)->with('success', $mess);
+//        }
 
-            return redirect($retURL)->with('success', $mess);
-        }
+        //2022-02-23 всегда возвращаемся в карточку (Волженцова)
+        return redirect(route('mchn_raids.edit', $rec->id) . '?returl=' . $request->get('returl'))
+            ->with('success', $mess);
+
     }
 
     /**
@@ -1107,6 +928,28 @@ class MchnRaidController extends Controller
 
         }
         return redirect($route)->with($sd);
+    }
+
+    public function admindelete($id)
+    {
+        $rec = mchn_raid::find($id);
+        if ($rec) {
+            $res = $rec->admindelete();
+            $sd = array();
+            if ($res->err == 1) {
+                $route = route($this->sysobjcode . '.edit', $id);
+                $sd["error"] = $res->msg;
+                objlog::log_info($this->sysobjid, $id, $res->msg, 2);
+
+            } else {
+                $route = route($this->sysobjcode . '.index') . '?page=' . session('pageno');
+                $sd['success'] = 'Запись о перевозке удалена административно';
+                objlog::log_info($this->sysobjid, 0, "Административное удаление перевозки id=" . $id, 2);
+            }
+            return redirect($route)->with($sd);
+        }
+        return redirect(route($this->sysobjcode . '.index') . '?page=' . session('pageno'));
+
     }
 
 
