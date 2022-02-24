@@ -98,7 +98,7 @@
 
 
                                 <div class="row">
-                                    <div class="form-group offset-md-0 col-md-4">
+                                    <div class="form-group offset-md-0 col-md-5">
                                         <label for="name" class="required">Диспетчер:</label>
                                         @if ($usrrights['edit'])
                                             <div class="input-group mb-3">

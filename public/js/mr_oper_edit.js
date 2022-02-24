@@ -178,7 +178,7 @@ $(document).ready(function () {
             minLength: 1,
             autoFill: true,
             cacheLength: 1,
-            // autoFocus: true,
+            autoFocus: true,
 
             select: function (event, ui) {
                 if (ui.item.id) {
@@ -322,7 +322,7 @@ $(document).ready(function () {
             minLength: 1,
             autoFill: true,
             cacheLength: 1,
-            // autoFocus: true,
+            autoFocus: true,
 
             select: function (event, ui) {
                 if (ui.item.id) {
@@ -486,7 +486,7 @@ $(document).ready(function () {
                 //---------------------------------------------------------------------
 
                 $('#itm_qty').prop('step', 1 / 10 ** ui.item.decimal_dgts);
-                console.log('11111' + ui.item.decimal_dgts);
+                //console.log('11111' + ui.item.decimal_dgts);
 
 
                 //$('#code1s').val(ui.item.code1s);
@@ -634,7 +634,7 @@ $(document).ready(function () {
             minLength: 1,
             autoFill: true,
             cacheLength: 10,
-            // autoFocus: true,
+            autoFocus: true,
 
             select: function (event, ui) {
                 if (ui.item.id) {
@@ -776,7 +776,7 @@ $(document).ready(function () {
             minLength: 1,
             autoFill: true,
             cacheLength: 10,
-            // autoFocus: true,
+            autoFocus: true,
 
             select: function (event, ui) {
                 if (ui.item.id) {
@@ -990,7 +990,7 @@ $(document).ready(function () {
             minLength: 1,
             autoFill: true,
             cacheLength: 10,
-            // autoFocus: true,
+            autoFocus: true,
 
             select: function (event, ui) {
                 if (ui.item.id) {
@@ -1161,7 +1161,7 @@ $(document).ready(function () {
         minLength: 2,
         autoFill: true,
         cacheLength: 10,
-        // autoFocus: true,
+        autoFocus: true,
 
         select: function (event, ui) {
             if (ui.item.id) {

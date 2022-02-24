@@ -371,6 +371,13 @@
                                         </td>
                                         <td class="text-right">
                                             {{$item->raid_qty}}
+
+                                            <a href="{{ route($thisSysObjCode.'.clone',$item->id)}}"
+                                               class="btn btn-sm btn-warning "
+                                               title="Создать копию записи"
+                                               onclick="return confirm('Создать копию записи?')">
+                                                <i class="fa fa-files-o" aria-hidden="true"></i>
+                                            </a>
                                         </td>
                                         <td class="text-center">
                                             {{$data->paytypes[$item->paytypeid]??'?'}}

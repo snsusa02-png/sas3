@@ -113,6 +113,7 @@ class AutoCompleteController extends Controller
 
             $search = " 1=1";
             if (count($find) > 0) {
+
                 $search .= ' and ((1=1';
                 foreach ($find as $f) {
                     $search .= " and LCASE( CONCAT(' ', os.lname, ' ', ifnull(os.fname,' '), ' ', ifnull(os.fname,' ')))";
@@ -120,6 +121,35 @@ class AutoCompleteController extends Controller
                 }
                 $search .= ')';
                 $search .= ')';
+
+
+//                $val = $search_str;
+//                $search_flds = "os.name";
+//
+//                $sc = "";
+//                $words = explode(" ", $val);
+//                if (count($words) > 0) {
+//                    $sc .= ' and (';
+//
+//                    //ищем "как ввел"
+//                    $sc .= ' (1=1';
+//                    foreach ($words as $word) {
+//                        $sc .= " and {$search_flds} like '%" . $word . "%'";
+//                    }
+//                    $sc .= ')';
+//
+//                    //попробуем вариант с перекодировкой - если пользователь забыл переключить клавиатуру на русский язык
+//                    $words = explode(" ", StringUtil::switcher_ru($val));
+//                    $sc .= ' or (1=1';
+//                    foreach ($words as $word) {
+//                        $sc .= " and {$search_flds} like '%" . $word . "%'";
+//                    }
+//                    $sc .= ')';
+//
+//                    $sc .= ')';
+//                }
+//                $search .= $search . $sc;
+                //dd($search);
             }
 
             //ограничение по наличию флага с указанным ID
