@@ -38,8 +38,8 @@
                     <thead>
                     <tr class="small">
                         <td>Контрагент</td>
-                        <td>Сальдо, &#x20bd;</td>
-                        <td>на начало</td>
+                        <td class="text-center">Сальдо, &#x20bd;</td>
+                        <td class="text-center">на начало</td>
                     </tr>
                     </thead>
                     <tbody>
@@ -50,19 +50,26 @@
                         ?>
                         <tr>
                             <td class="small">
-                                {{$itm->ownorg_name}}
+                                {{$itm->ownorgname}}
                             </td>
-                            <td class="text-right" style="{{$saldo_style}}">
-                                <b>{{number_format($itm->saldo,2)}}</b>
-                                <div class="ml-1">
-                                    <a href="{{route('reports.rep48',['ownorgid'=>$itm->ownorgid,'orgid'=>$rec->id])}}?returl={{$retURL}}">
-                                        {{number_format($itm->saldo+$itm->opersum,2)}}</a>
+                            <td class="text-right font-weight-bold">
+                                <div class="" style="{{$saldo_style}}">
+                                    {{number_format($itm->saldo,2)}}
+                                </div>
+                                <?php
+                                $saldo = $itm->saldo + $itm->opersum;
+                                $saldo_style = ($saldo > 0) ? 'color:green' : 'color:red';
+                                ?>
+                                <div class="ml-1" style="{{$saldo_style}}">
+                                    {{number_format($itm->saldo+$itm->opersum,2)}}
                                 </div>
                             </td>
                             <td class=" text-center">
                                 {{date_create($itm->ondate)->format('d.m.Y')}}
                                 <div class="ml-1">
-                                {{date_create($itm->max_operdate)->format('d.m.Y')}}
+                                    <a href="{{route('reports.rep48',['ownorgid'=>$itm->ownorgid,'orgid'=>$rec->id])}}?returl={{$retURL}}">
+                                        {{date_create($itm->max_operdate)->format('d.m.Y')}}
+                                    </a>
                                 </div>
                             </td>
                             <td>
