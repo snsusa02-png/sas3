@@ -1,4 +1,4 @@
-@if ($rec->id != -1 and in_array($rec->kindid,[1,2]) and $usrrights['org_places.read']??false)
+@if ($rec->id != -1 and in_array($rec->kindid,[1,2,3]) and $usrrights['org_places.read']??false)
     <div class="card mt-3">
         <div class="card-header">
             Офисы, склады контрагента

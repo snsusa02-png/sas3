@@ -177,7 +177,7 @@ $(document).ready(function () {
         minLength: 2,
         autoFill: true,
         cacheLength: 10,
-        // autoFocus: true,
+        autoFocus: true,
 
         select: function (event, ui) {
             if (ui.item.id) {
@@ -320,7 +320,7 @@ $(document).ready(function () {
         minLength: 2,
         autoFill: true,
         cacheLength: 10,
-        // autoFocus: true,
+        autoFocus: true,
 
         select: function (event, ui) {
             if (ui.item.id) {

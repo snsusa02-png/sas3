@@ -516,14 +516,6 @@ class orgController extends Controller
         if ($rec->id <> -1) {
             $rec->org_saldos = org_saldo::lstSaldos_cached($rec->id);
         }
-//        $rec->org_saldos = org_saldo::from('org_saldos as s')
-//            ->join('orgs as oo', 'oo.id', 's.ownorgid')
-//            ->where('orgid', $rec->id)
-//            ->select('s.*', 'oo.name as ownorg_name')
-//            ->orderBy('oo.name')
-//            ->get();
-//        dd($rec->org_saldos);
-
 
         $auxinfo = org::AuxInfo($rec);
 
