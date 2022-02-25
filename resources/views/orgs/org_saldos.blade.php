@@ -52,11 +52,18 @@
                             <td class="small">
                                 {{$itm->ownorg_name}}
                             </td>
-                            <td class="text-right font-weight-bold" style="{{$saldo_style}}">
-                                {{number_format($itm->saldo,2)}}
+                            <td class="text-right" style="{{$saldo_style}}">
+                                <b>{{number_format($itm->saldo,2)}}</b>
+                                <div class="ml-1">
+                                    <a href="{{route('reports.rep48',['ownorgid'=>$itm->ownorgid,'orgid'=>$rec->id])}}?returl={{$retURL}}">
+                                        {{number_format($itm->saldo+$itm->opersum,2)}}</a>
+                                </div>
                             </td>
-                            <td class="small text-center">
+                            <td class=" text-center">
                                 {{date_create($itm->ondate)->format('d.m.Y')}}
+                                <div class="ml-1">
+                                {{date_create($itm->max_operdate)->format('d.m.Y')}}
+                                </div>
                             </td>
                             <td>
                                 @if($usrrights['org_saldos.update']??false)

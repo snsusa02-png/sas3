@@ -514,10 +514,15 @@ class orgController extends Controller
         $rec->kinds = org::$kinds;
 
         if ($rec->id <> -1) {
-            //$rec->org_saldos = org_saldo::lstSaldos_cached($rec->id);
-            $rec->org_saldos = org::lstSaldos_cached($rec->id);
-            //dd($rec->org_saldos);
+            $rec->org_saldos = org_saldo::lstSaldos_cached($rec->id);
         }
+//        $rec->org_saldos = org_saldo::from('org_saldos as s')
+//            ->join('orgs as oo', 'oo.id', 's.ownorgid')
+//            ->where('orgid', $rec->id)
+//            ->select('s.*', 'oo.name as ownorg_name')
+//            ->orderBy('oo.name')
+//            ->get();
+//        dd($rec->org_saldos);
 
 
         $auxinfo = org::AuxInfo($rec);
@@ -550,12 +555,6 @@ class orgController extends Controller
 
         $rec->org_names = org_name::getFor(['orgid' => $rec->id], ['n.id', 'n.name', 'n.begdate', 'n.enddate', 'n.active', db::raw("ont.name as type_name")]);
 
-        $rec->org_saldos = org_saldo::from('org_saldos as s')
-            ->join('orgs as oo', 'oo.id', 's.ownorgid')
-            ->where('orgid', $rec->id)
-            ->select('s.*', 'oo.name as ownorg_name')
-            ->orderBy('oo.name')
-            ->get();
 
 //        $rec->paydocs = paydoc::where(['orgid' => $rec->id])
 //            ->orderby('paydate', 'desc')

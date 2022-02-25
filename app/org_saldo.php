@@ -70,11 +70,25 @@ class org_saldo extends Model
     static public function lstSaldos_cached($orgid)
     {
         //массив записей с организациями-продавцами (Владельцами)
-        return Cache::remember('lstSaldos_' . $orgid, now()->addMinutes(25)
+        //Cache::forget('lstSaldos_' . $orgid);
+        return Cache::remember('lstSaldos_' . $orgid, now()->addMinutes(15)
             , function () use ($orgid) {
                 return self::from('org_saldos as s')
                     ->join('orgs as oo', 'oo.id', 's.ownorgid')
-                    ->select('s.id', 's.ownorgid', 's.ondate', 's.saldo', 's.active', 'oo.name as ownorgname')
+                    ->select('s.id', 's.ownorgid', 's.ondate', 's.saldo', 's.active', 'oo.name as ownorgname'
+                    , db::raw("(select sum(opersum * if(fo.srcorgid=s.orgid,1,-1))
+                        from obj_finopers as fo
+                        where fo.operdate>=s.ondate
+	                        and fo.srcorgid in (s.orgid,s.ownorgid)
+                            and fo.tgtorgid in (s.orgid,s.ownorgid)
+                        ) as opersum")
+                        , db::raw("(select max(operdate)
+                        from obj_finopers as fo
+                        where fo.operdate>=s.ondate
+	                        and fo.srcorgid in (s.orgid,s.ownorgid)
+                            and fo.tgtorgid in (s.orgid,s.ownorgid)
+                        ) as max_operdate")
+                    )
                     ->where('s.orgid', $orgid)
                     ->orderby('oo.name', 'asc')
                     ->orderby('s.ownorgid', 'asc')

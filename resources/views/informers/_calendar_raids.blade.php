@@ -54,7 +54,7 @@
                         @endif
 
                         <?php
-                        $tclass = ($itm->day == $now_day) ? 'text-danger font-weight-bold ' : 'text-secondary';
+                        $tclass = ($itm->day == $now_day) ? 'text-primary font-weight-bold ' : 'text-secondary';
                         $tclass2 = (isset($itm->raid_qty)) ? 'text-danger' : 'text-secondary ';
                         $pre_dow = $itm->dow;
                         ?>
