@@ -1183,7 +1183,7 @@ class refItemController extends Controller
     {
         //2021-11-07 SNS. Для автокомплита
 
-        $fields = ['ri.id', 'ri.name', 'ri.code', 'ri.unittypeid', 'ri.unit', 'ut.decimal_dgts'];
+        $fields = ['ri.id', 'ri.name', 'ri.code', 'ri.unittypeid', 'ri.unit', 'ut.decimal_dgts', 'ri.producttypeid'];
 
         $price_on_date = $request->price_on_date;
         $load_placeid = $request->load_placeid;

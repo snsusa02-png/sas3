@@ -149,7 +149,7 @@
                                     </div>
 
                                     <div class="form-group offset-md-0 col-md-5">
-                                        <label for="name" class="">Место получения:</label>
+                                        <label for="name" class=""><span id="lbl_sup_place">Место</span>:</label>
                                         @if ($usrrights['edit'])
                                             {{--                                            <div class="input-group mb-3 ">--}}
                                             {{--                                                <input type="text" name="load_placename" id="load_placename" required--}}
@@ -185,7 +185,7 @@
                                 <div class="row">
 
                                     <div class="form-group offset-md-0 col-md-12">
-                                        <label for="name" class="required">Товар / Услуга:</label>
+                                        <label for="name" class="required"><span id="lbl_refitm">Товар / Услуга</span>:</label>
                                         @if ($usrrights['edit'])
                                             <div class="input-group">
                                                 <input type="text" class="form-control font-weight-bold ac_name "
@@ -199,6 +199,8 @@
                                                 <input type="hidden" name="refitmid" id="refitmid"
                                                        class="ac_id"
                                                        value="{{$rec->refitmid}}">
+                                                <input type="hidden" name="producttypeid" id="producttypeid"
+                                                       value="{{$rec->refitem->producttypeid}}">
                                                 <a class="btn btn-light id_lnk" id="refitmid_lnk"
                                                    data-id="refitmid"
                                                    data-obj="refitems" target="_blank">
@@ -283,7 +285,8 @@
                                              'required' => 'required',
                                              ]) !!}
                                         @else
-                                            <div class="font-weight-bold text-center">{{$rec->paytypes[$rec->paytypeid]??'?'}}</div>
+                                            <div
+                                                class="font-weight-bold text-center">{{$rec->paytypes[$rec->paytypeid]??'?'}}</div>
                                         @endif
                                     </div>
                                 </div>
@@ -315,7 +318,7 @@
                                     </div>
 
                                     <div class="form-group offset-md-0 col-md-5">
-                                        <label for="name" class="">Место выгрузки:</label>
+                                        <label for="name" class=""><span id="lbl_org_place">Место</span>:</label>
                                         @if ($usrrights['edit'])
                                             <div class="input-group mb-3 ">
                                                 <input type="text" name="org_placename" id="org_placename"

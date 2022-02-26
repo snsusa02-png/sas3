@@ -2,44 +2,7 @@ $(document).ready(function () {
 
     function sale_dir_change() {
 
-        const sale_dir = $("#sale_dir").val();
-
-        if (sale_dir == -1) {
-            //Покупка
-            $("#lbl_sup").html('Поставщик')
-            $("#lbl_org").html('Покупатель')
-            $('#itm_price').prop('readonly', true);
-
-            $('.raid_info').hide();
-            $('#raid_qty').prop('required', false);
-            $('#lbl_raid_qty').removeClass('required');
-
-        } else if (sale_dir == 0) {
-            //внутр. операция
-            $("#lbl_sup").html('Отправитель')
-            $("#lbl_org").html('Получатель')
-            $("#paytypeid").val(2)
-
-            $('.raid_info').hide();
-            $('#raid_qty').prop('required', false);
-            $('#lbl_raid_qty').removeClass('required');
-
-        } else if (sale_dir == +1) {
-            $("#lbl_sup").html('Исполнитель')
-            $("#lbl_org").html('Заказчик')
-            $('#itm_price').prop('readonly', false);
-
-            $('.raid_info').show();
-            $('#raid_qty').prop('required', true);
-            $('#lbl_raid_qty').addClass('required');
-
-            // console.log($("#suporgid").data('gk'));
-            // if ($("#suporgid").data('gk') == 0) {
-            //     $("#suporgid").val('');
-            //     $("#suporg_name").val('');
-            // }
-
-        }
+        rfr_labels();
     }
 
     $("#sale_dir").change(function () {
@@ -414,7 +377,6 @@ $(document).ready(function () {
     $("#itm_name").autocomplete({
         source: function (request, response) {
             $.ajax({
-                //url: "/refitems/autocomplete/search",
                 url: "/api/refitems/for_ac",
                 dataType: "json",
                 data: {
@@ -444,7 +406,7 @@ $(document).ready(function () {
                         var lbl = item.name;
                         //lbl = lbl + " (категория: " + item.itname;
                         //if (item.specinfo) lbl = lbl + "; " + item.specinfo;
-                        lbl = lbl + "(цена: " + item.price + " &#x20bd; / " + item.unit + ")";
+                        lbl = lbl + "(цена: " + ((item.price)?item.price+" &#x20bd;":"не указана") + " / " + item.unit + ")";
                         return {
                             label: lbl,
                             value: item.name,
@@ -452,6 +414,7 @@ $(document).ready(function () {
                             code1s: item.code,
                             icon: item.photourl,
                             specinfo: item.specinfo,
+                            producttypeid: item.producttypeid,
                             unit: item.unit,
                             unittypeid: item.unittypeid,
                             decimal_dgts: item.decimal_dgts,
@@ -488,6 +451,7 @@ $(document).ready(function () {
                 $('#itm_qty').prop('step', 1 / 10 ** ui.item.decimal_dgts);
                 //console.log('11111' + ui.item.decimal_dgts);
 
+                $('#producttypeid').val(ui.item.producttypeid);
 
                 //$('#code1s').val(ui.item.code1s);
                 //$('#code').val(ui.item.id);
@@ -502,6 +466,8 @@ $(document).ready(function () {
 
                 ac_id.change();  //для срабатывания слушателей за изменением этого поля
                 $('#itm_price').change();
+
+                rfr_labels();   //перерисовка этикеток полей
 
             } else
                 event.preventDefault();
@@ -1118,7 +1084,6 @@ $(document).ready(function () {
     });
 
 
-
     $(".disp_name").autocomplete({
         source: function (request, response) {
             $.ajax({
@@ -1262,11 +1227,94 @@ $(document).ready(function () {
         return $("<li></li>").append($div).appendTo(ul);
     };
 
+    function rfr_labels() {
+        const sale_dir = $('#sale_dir').val();
+        const producttypeid = $('#producttypeid').val();
+//        console.log('sale_dir =' + sale_dir);
+//        console.log('producttypeid =' + producttypeid);
+
+        if (sale_dir == -1) {
+            //Покупка
+            $("#lbl_sup").html('Поставщик')
+            $("#lbl_org").html('Покупатель')
+            $('#itm_price').prop('readonly', true);
+
+            $('.raid_info').hide();
+            $('#raid_qty').prop('required', false);
+            $('#lbl_raid_qty').removeClass('required');
+
+            if (producttypeid == 1) {
+                //Услуга
+                $("#lbl_refitm").html('Услуга');
+                $("#lbl_sup_place").html('Место');
+                $("#lbl_sup_place").parent().removeClass('required')
+                $("#lbl_org_place").html('Место');
+            } else {
+                //Товар
+                $("#lbl_refitm").html('Товар');
+                $("#lbl_sup_place").html('Место загрузки');
+                $("#lbl_sup_place").parent().addClass('required')
+                $("#lbl_org_place").html('Место выгрузки (не обязательно)');
+            }
+
+        } else if (sale_dir == 0) {
+            //внутр. операция
+            $("#lbl_sup").html('Отправитель')
+            $("#lbl_org").html('Получатель')
+            $("#paytypeid").val(2)
+
+            $('.raid_info').hide();
+            $('#raid_qty').prop('required', false);
+            $('#lbl_raid_qty').removeClass('required');
+
+            $("#lbl_refitm").html('Товар / Услуга');
+            $("#lbl_sup_place").html('Место');
+            $("#lbl_sup_place").parent().removeClass('required')
+            $("#lbl_org_place").html('Место');
+            $("#lbl_org_place").parent().removeClass('required')
+
+        } else if (sale_dir == +1) {
+            //Продажа
+
+            $("#lbl_sup").html('Исполнитель')
+            $("#lbl_org").html('Заказчик')
+            $('#itm_price').prop('readonly', false);
+
+            $('.raid_info').show();
+            $('#raid_qty').prop('required', true);
+            $('#lbl_raid_qty').addClass('required');
+
+            if (producttypeid == 1) {
+                //Услуга
+                $("#lbl_refitm").html('Услуга');
+                $("#lbl_sup_place").html('Место (не обязательно)');
+                $("#lbl_sup_place").parent().removeClass('required')
+                $("#lbl_org_place").html('Место предоставления услуги');
+            } else {
+                //Товар
+                $("#lbl_refitm").html('Товар');
+                $("#lbl_sup_place").html('Место загрузки');
+                $("#lbl_sup_place").parent().removeClass('required')
+                $("#lbl_org_place").html('Место выгрузки');
+            }
+        }
+
+
+
+        if (sale_dir == 1) {
+
+        } else if (sale_dir == -1) {
+        } else {
+
+        }
+    }
+
 
     //при загрузке --------------------------------------------------------------------------
 
     sale_dir_change();
 
+    rfr_labels();
 
     //покраска в зеленый всех автозаполняемых названий с установленными id в соответств. полях ---
     $.each($(".ac_name"), function (key, value) {

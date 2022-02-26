@@ -60,6 +60,8 @@ class MrOperController extends Controller
         //Права менедежера возьмем по родительской записи
         $usrrights['manager'] = usrsysright::isUserHasRightByCode_cached($userid, sysobj::acl_sysobjcode('mchn_raids') . '.manager');
 
+        $usrrights['paydocs.read'] = usrsysright::isUserHasRightByCode_cached($userid, 'paydocs.read');
+        $usrrights['paydocs.create'] = usrsysright::isUserHasRightByCode_cached($userid, 'paydocs.create');
 
         if ($recid > 0) {
             //для существующих записей проверим открытость периода
@@ -100,10 +102,6 @@ class MrOperController extends Controller
         $userid = \Auth::user()->id;
 
         $usrrights = $this->setInterfaceRight($id);
-        $usrrights['paydocs.read'] = usrsysright::isUserHasRightByCode_cached($userid, 'paydocs.read');
-        $usrrights['paydocs.create'] = usrsysright::isUserHasRightByCode_cached($userid, 'paydocs.create');
-        //dd($usrrights);
-
 
         if ($id == -1) {
             if ($usrrights['create'] ?? false) {
@@ -173,9 +171,6 @@ class MrOperController extends Controller
         $rec->contracts = contract::lstFor(['between_orgs' => [$rec->suporgid, $rec->orgid]]);
 //        $rec->finopers = $rec->finopers;
 
-        $rec->lnkd_paydocs = paydoc::get();
-        //= obj_link::addOrUpdate()
-        //dd($rec);
         //dd($rec->linked_paydocs);
 
         //Коррекция прав с учетом менеджерства
