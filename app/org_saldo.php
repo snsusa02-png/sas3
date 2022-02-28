@@ -234,7 +234,7 @@ class org_saldo extends Model
         if (!usrsysright::isUserHasRightByCode_cached($userid, 'paydocs.read'))
             return null;
 
-        Cache::forget('informer_all_saldos');
+        //Cache::forget('informer_all_saldos');
         return Cache::remember('informer_all_saldos', now()->addMinutes(15)
             , function () {
                 //Сводка контрашентов с ненулевым балансом по всем организациям ГК
@@ -250,6 +250,7 @@ where exists (select 1 from objflags as f where f.sysobjid=111 and f.objid=tgtor
     ) as a
     join orgs as oo on oo.id=a.ownorgid
         join orgs as o on o.id=a.orgid
+        where a.ownorgid<>a.orgid
 order by saldo asc"));
 
             }

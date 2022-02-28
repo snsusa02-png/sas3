@@ -7,6 +7,9 @@
                 Текущий Баланс
             </div>
             <div class="card-body " style="">
+                <?php
+                $retURL = Request::url();
+                ?>
                 @foreach($data->all_saldos as $itm)
                     <?php
                     $td_class = ($itm->saldo < 0) ? 'text-danger' : (($itm->saldo > 0) ? 'text-success' : '');
@@ -20,7 +23,8 @@
                     }
                     ?>
                     <div class="row mb-3">
-                        <div class="col-md-5">{{$itm->orgname}}</div>
+                        <div class="col-md-5"><a href="{{route('reports.rep48',[$itm->ownorgid,$itm->orgid])}}?returl={{$retURL}}"
+                                                 class="text-decoration-none">{{$itm->orgname}}</a></div>
                         <div class="col-md-4 small">{{$itm->ownorgname}}</div>
                         <div class="col-md-3 text-right font-weight-bold {{$td_class}}"
                              title="{{$saldo_title}}"
