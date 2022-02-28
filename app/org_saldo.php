@@ -226,4 +226,34 @@ class org_saldo extends Model
         );
     }
 
+    public static function informer_all_saldos()
+    {
+        $userid = \Auth::user()->id;
+
+        //todo: нужно завязаться на более подходящее право
+        if (!usrsysright::isUserHasRightByCode_cached($userid, 'paydocs.read'))
+            return null;
+
+        Cache::forget('informer_all_saldos');
+        return Cache::remember('informer_all_saldos', now()->addMinutes(15)
+            , function () {
+                //Сводка контрашентов с ненулевым балансом по всем организациям ГК
+
+                return DB::select( DB::raw("select oo.name as ownorgname, o.name as orgname, a.*, orgSaldo_onDate(o.id,oo.id,null) as saldo
+from (
+    SELECT srcorgid as ownorgid, tgtorgid as orgid FROM `obj_finopers`
+where exists (select 1 from objflags as f where f.sysobjid=111 and f.objid=srcorgid and f.flagtypeid=12)
+union
+SELECT tgtorgid as ownorgid, srcorgid as orgid FROM `obj_finopers`
+where exists (select 1 from objflags as f where f.sysobjid=111 and f.objid=tgtorgid and f.flagtypeid=12)
+    ) as a
+    join orgs as oo on oo.id=a.ownorgid
+        join orgs as o on o.id=a.orgid
+        where  o.name like 'Карьер%'
+order by saldo asc"));
+
+            }
+        );
+    }
+
 }

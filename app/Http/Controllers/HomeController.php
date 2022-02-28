@@ -74,7 +74,6 @@ class HomeController extends Controller
         $data->finconfirms = null;
 
 
-
         //текущий баланс организаций холдинга//------------------------------------------------
         $data->ownorg_saldos = org_saldo::informer_saldos();
         //-------------------------------------------------------------------------------------
@@ -82,6 +81,9 @@ class HomeController extends Controller
         //детализация балансов контрагентов в разрезе организаций холдинга//-------------------
         $data->ownorg_saldo_details = org_saldo::informer_ownorg_saldo_details();
         //-------------------------------------------------------------------------------------
+
+        $data->all_saldos = org_saldo::informer_all_saldos();
+        //dd($data->all_saldos);
 
         //Сводка по видам деятельности//-------------------------------------------------------
         $data->opertypes_sums = opertype::informer_opertypes_sums();
@@ -91,7 +93,6 @@ class HomeController extends Controller
         $data->calendar_raid_title = 'Количество рейсов';
         $data->calendar_raid_qtys = mchn_raid::informer_calendar_raid_qtys();
         //-------------------------------------------------------------------------------------
-
 
 
         //непрочитанные сообщения//-------------------------------------------------------------
