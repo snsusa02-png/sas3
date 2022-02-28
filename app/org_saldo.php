@@ -239,7 +239,8 @@ class org_saldo extends Model
             , function () {
                 //Сводка контрашентов с ненулевым балансом по всем организациям ГК
 
-                return DB::select( DB::raw("select oo.name as ownorgname, o.name as orgname, a.*, orgSaldo_onDate(o.id,oo.id,null) as saldo
+                return DB::select( DB::raw(
+                    "select oo.name as ownorgname, o.name as orgname, a.*, orgSaldo_onDate(o.id,oo.id,null) as saldo
 from (
     SELECT srcorgid as ownorgid, tgtorgid as orgid FROM `obj_finopers`
 where exists (select 1 from objflags as f where f.sysobjid=111 and f.objid=srcorgid and f.flagtypeid=12)
@@ -249,7 +250,6 @@ where exists (select 1 from objflags as f where f.sysobjid=111 and f.objid=tgtor
     ) as a
     join orgs as oo on oo.id=a.ownorgid
         join orgs as o on o.id=a.orgid
-        where  o.name like 'Карьер%'
 order by saldo asc"));
 
             }
