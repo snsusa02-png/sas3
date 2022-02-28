@@ -503,7 +503,6 @@ class PaydocController extends Controller
     function destroy(Request $request, $id)
     {
         $usrrights = $this->setInterfaceRight($id);
-        $usrrights['delete'] = false;
         if (!($usrrights['delete']))
             return redirect()->back()->with('error', 'У вас нет права на удаление этих данных!');
 
