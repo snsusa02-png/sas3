@@ -17,7 +17,7 @@
                     </div>
 
                     @if(isset($data->now_users) and count($data->now_users))
-                    <ul>
+                    <ul class="small">
                         @foreach($data->now_users as $usr)
                             <li>{{$usr->name}}</li>
                         @endforeach
