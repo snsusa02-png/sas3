@@ -1,7 +1,7 @@
 <div class="col-lg-3 col-md-6 col-sm-6">
     <div class="card card-stats mt-3">
         <div class="card-header">
-            Посетителей сегодня
+            Сейчас на сайте
         </div>
         <div class="card-body ">
             <div class="row">
@@ -15,6 +15,14 @@
                         <p class="card-title"
                            style="font-size: 24px">{{UserAct::cntAllVisitorsToday()}} </p>
                     </div>
+
+                    @if(isset($data->now_users) and count($data->now_users))
+                    <ul>
+                        @foreach($data->now_users as $usr)
+                            <li>{{$usr->name}}</li>
+                        @endforeach
+                    </ul>
+                    @endif
                 </div>
             </div>
         </div>

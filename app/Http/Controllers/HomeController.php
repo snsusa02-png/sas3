@@ -25,6 +25,7 @@ use App\prodplan_item;
 use App\equiprqst;
 use App\qcheck_item;
 use App\report;
+use App\User;
 use App\usrsysright;
 use App\vp_photo;
 use Illuminate\Http\Request;
@@ -73,13 +74,20 @@ class HomeController extends Controller
         //согласование остатка бюджета на материалы - устарело после ввода системы бюджетов
         $data->finconfirms = null;
 
+        $data->now_users = User::from('users as u')
+            ->join('sessions as s','s.user_id','u.id')
+            ->whereRaw(" (unix_timestamp()-s.last_activity)<1000")
+            ->select("u.id",'u.name')
+            ->orderBy('s.last_activity','desc')
+            ->get();
+
 
         //текущий баланс организаций холдинга//------------------------------------------------
-        $data->ownorg_saldos = org_saldo::informer_saldos();
+        //$data->ownorg_saldos = org_saldo::informer_saldos();
         //-------------------------------------------------------------------------------------
 
         //детализация балансов контрагентов в разрезе организаций холдинга//-------------------
-        $data->ownorg_saldo_details = org_saldo::informer_ownorg_saldo_details();
+        //$data->ownorg_saldo_details = org_saldo::informer_ownorg_saldo_details();
         //-------------------------------------------------------------------------------------
 
         $data->all_saldos = org_saldo::informer_all_saldos();

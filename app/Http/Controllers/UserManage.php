@@ -159,7 +159,8 @@ class UserManage extends Controller
                 } elseif ($item == 's_online') {
                     $sc = $sc . " and " . (($val == 0) ? ' not' : '')
                         . " exists(select 1 from sessions as s"
-                        . " where s.user_id=u.id and (" . now()->getTimestamp() . "-s.last_activity)<300)";
+                        //. " where s.user_id=u.id and (" . now()->getTimestamp() . "-s.last_activity)<300)";
+                        . " where s.user_id=u.id and (UNIX_TIMESTAMP()-s.last_activity)<300)";
 
                 } elseif ($item == 's_sysfuncid') {
                     $sc = $sc . " and exists(select 1 from usrsysrights ur

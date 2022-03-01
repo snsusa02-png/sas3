@@ -39,6 +39,25 @@
             @endforeach
         @endif
 
+            @if (\App\usrsysright::isUserHasRightByCode(\Auth::user()->id,'users.reports'))
+                <a href="{{route('reports.rep5')}}"
+                   class="list-group-item list-group-item-action font-weight-bold">
+                    <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                    Статистика входов пользователей в ИС "ГК Баско"
+                </a>
+                <a href="{{route('reports.rep10')}}"
+                   class="list-group-item list-group-item-action font-weight-bold">
+                    <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                    Статистика операций пользователей в ИС "ГК Баско"
+                </a>
+                <a href="{{route('reports.rep11')}}"
+                   class="list-group-item list-group-item-action font-weight-bold">
+                    <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                    Статистика операций в течение суток
+                </a>
+                <hr>
+            @endif
+
         @if (1==0)
             @if (\App\usrsysright::isUserHasRightByCode(\Auth::user()->id,'orgplnpays.read'))
                 <a href="{{route('reports.rep13')}}"
@@ -104,24 +123,6 @@
                 <hr>
             @endif
 
-            @if (\App\usrsysright::isUserHasRightByCode(\Auth::user()->id,'users.reports'))
-                <a href="{{route('reports.rep5')}}"
-                   class="list-group-item list-group-item-action font-weight-bold">
-                    <i class="fa fa-file-text-o" aria-hidden="true"></i>
-                    Статистика входов пользователей в ИС "ГК Баско"
-                </a>
-                <a href="{{route('reports.rep10')}}"
-                   class="list-group-item list-group-item-action font-weight-bold">
-                    <i class="fa fa-file-text-o" aria-hidden="true"></i>
-                    Статистика операций пользователей в ИС "ГК Баско"
-                </a>
-                <a href="{{route('reports.rep11')}}"
-                   class="list-group-item list-group-item-action font-weight-bold">
-                    <i class="fa fa-file-text-o" aria-hidden="true"></i>
-                    Статистика операций в течение суток
-                </a>
-                <hr>
-            @endif
 
             @if (\App\usrsysright::isUserHasRightByCode(\Auth::user()->id,'equiprqsts.read'))
 

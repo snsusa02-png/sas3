@@ -546,13 +546,11 @@ class ReportController extends Controller
             $recs = null;
             $sort_params = null;
         }
-
         //dd($recs);
 
         $data = new \stdClass();
 
         $data->usrrights = $usrrights;
-
 
         //Cache::forget("usedtags_{$this->sysobjid}");
         $data->usedtags = Cache::remember("usedtags_{$this->sysobjid}", now()->addMinutes(5)
