@@ -108,6 +108,7 @@ class MchnRaidController extends Controller
         // - параметры поиска: массив из имени и значенния по-умолчанию -----------------------------------------------
         $param_names = [
             's_pageitmcnt' => 10
+            , 's_opertypeid' => ''
             , 's_reguserid' => $userid
             , 's_ri_name' => ''
             , 's_machineid' => ''
@@ -133,6 +134,9 @@ class MchnRaidController extends Controller
                     $sc = $sc . " and exists(select 1 from mr_opers as mro
                         join refitems as ri on ri.id=mro.refitmid
                         where mro.mr_id=mr.id and ri.name like '%" . mb_strtoupper($val) . "%')";
+
+                } elseif ($item == 's_opertypeid') {
+                    $sc = $sc . " and mr.opertypeid = {$val}";
 
                 } elseif ($item == 's_reguserid') {
                     $sc = $sc . " and mr.created_by = {$val}";
@@ -270,6 +274,10 @@ class MchnRaidController extends Controller
         $data->pageitmcnts = $this->pageitmcnts;
 
         $data->sysobj = sysobj::find($this->sysobjid);
+
+        $data->opertypes = opertype::lstFor([
+            'in_mchn_raids' => 1,
+        ]);
 
         $data->machines = machine::getFor(
             ['in_mchn_raids' => 1,], ['m.id', db::raw("concat(m.regnum,' - ',m.name) as name")]

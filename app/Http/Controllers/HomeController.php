@@ -76,7 +76,7 @@ class HomeController extends Controller
 
         $data->now_users = User::from('users as u')
             ->join('sessions as s','s.user_id','u.id')
-            ->whereRaw(" (unix_timestamp()-s.last_activity)<1000")
+            ->whereRaw(" (unix_timestamp()-s.last_activity)<500")
             ->select("u.id",'u.name')
             ->orderBy('s.last_activity','desc')
             ->get();

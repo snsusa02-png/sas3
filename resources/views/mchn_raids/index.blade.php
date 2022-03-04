@@ -83,15 +83,28 @@
                     <div class="mt-2">
                         @include('layouts.edit_msgs')
 
-                        <div class="form-group offset-md-10 col-md-2">
-                            <label for="s_reguserid" class="required">Регистратор:</label>
-                            {!! Form::select('s_reguserid', $data->regusers??[]
-                                    , $search_params['s_reguserid']??'',
-                                         [
-                                         'class' => 'form-control',
-                                         'placeholder' => '-все-',
-                                         'onchange' => 'form.submit()',
-                                         ]) !!}
+                        <div class="row">
+                            <div class="form-group  col-md-4">
+                                <label for="s_reguserid" class="required">Вид работ:</label>
+                                {!! Form::select('s_opertypeid', $data->opertypes??[]
+                                        , $search_params['s_opertypeid']??'',
+                                             [
+                                             'class' => 'form-control',
+                                             'placeholder' => '-все-',
+                                             'onchange' => 'form.submit()',
+                                             ]) !!}
+                            </div>
+
+                            <div class="form-group offset-md-6 col-md-2">
+                                <label for="s_reguserid" class="required">Регистратор:</label>
+                                {!! Form::select('s_reguserid', $data->regusers??[]
+                                        , $search_params['s_reguserid']??'',
+                                             [
+                                             'class' => 'form-control',
+                                             'placeholder' => '-все-',
+                                             'onchange' => 'form.submit()',
+                                             ]) !!}
+                            </div>
                         </div>
 
                         <table class="table table-striped table-bordered table-sm" style="background-color: snow;">
