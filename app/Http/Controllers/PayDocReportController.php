@@ -278,17 +278,20 @@ class PayDocReportController extends Controller
             $sc .= " and fo.operdate>='{$mindate}'";
 
         $recs = obj_finoper::from('obj_finopers as fo')
+            ->leftJoin('mr_opers as mro', function ($j) {
+                $j->on('mro.id', 'fo.objid')
+                    ->where('fo.sysobjid', 1107);
+            })
             ->whereRaw($sc)
             ->orderBy('operdate')
 //            ->select('fo.*'
 //                , db::raw("if(srcorgid = {$ownorgid}, - 1, + 1) * opersum as opersum")
-            ->select('sysobjid', 'sumtypeid', 'operdate', 'price', 'descript'
-                , db::raw("sum(qty) as qty")
+            ->select('sysobjid', 'sumtypeid', 'operdate', 'fo.price', 'descript', 'mro.org_placename'
+                , db::raw("sum(fo.qty) as qty")
                 , db::raw("sum( if(srcorgid = {$ownorgid}, - 1, + 1) * opersum) as opersum")
             )
-            ->groupBy(['sysobjid', 'sumtypeid', 'operdate', 'price', 'descript'])
+            ->groupBy(['sysobjid', 'sumtypeid', 'operdate', 'price', 'descript', 'mro.org_placename'])
             ->get();
-        //dd($recs);
 
         $data = new \stdClass();
         $data->returl = $returl;

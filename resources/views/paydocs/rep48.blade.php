@@ -175,6 +175,7 @@ $thisTitle = $report->title ?? $report->name;
                                     @else
                                         {{$rec->descript}}
                                     @endif
+                                    <div class="float-right"> {{$rec->org_placename}}</div>
                                 </td>
                                 <td class="text-right small">{{$sh_qty}}</td>
                                 <td class="text-right small">{{$sh_price}}</td>
