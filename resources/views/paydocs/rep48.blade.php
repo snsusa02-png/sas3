@@ -163,10 +163,10 @@ $thisTitle = $report->title ?? $report->name;
                             //                            else
                             $ref_url = null;
 
+                            $tstyle = ($rec->sumtypeid == 1) ? 'background-color:#ffff94' : '';
                             ?>
-                            <tr class="text-left ">
+                            <tr class="text-left" style="{{$tstyle}}">
                                 <td class="text-center small">
-                                    {{--                                    {{date_create($rec->operdate)->format('d.m.Y')}}--}}
                                 </td>
                                 <td class="text-left small">
                                     <span class="font-weight-bold small"> {{$sumtypes[$rec->sumtypeid]??'?'}}</span>:
