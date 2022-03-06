@@ -135,9 +135,25 @@ $thisTitle = $report->title ?? $report->name;
                         <?php
                         $sumtypes = [1 => 'платеж', 2 => 'поставка'];
                         $cur_operdate = -1;
+                        $day_qty = $day_sum = 0;
                         ?>
                         @foreach($recs as $rec)
                             @if($rec->operdate<>$cur_operdate)
+                                @if($cur_operdate<>-1)
+                                    <tr class="text-left font-italic" style="background-color: #cfebff">
+                                        <td class="text-right small " colspan="2">
+                                            Итого за день:
+                                        </td>
+                                        <td class=" small text-right">{{number_format($day_qty,1)}}</td>
+                                        <td></td>
+                                        <td class="text-right">{{number_format($day_sum,2)}}</td>
+                                        <td></td>
+                                    </tr>
+                                    <?php
+                                    $day_qty = 0;
+                                    $day_sum = 0;
+                                    ?>
+                                @endif
                                 <tr class="text-left ">
                                     <td class="text-left small font-weight-bold" colspan="6">
                                         {{date_create($rec->operdate)->format('d.m.Y')}}
@@ -183,9 +199,26 @@ $thisTitle = $report->title ?? $report->name;
                                 <td class="text-right small {{$tdс_class}}">{{number_format($curSum,2)}}</td>
                             </tr>
                             <?php
+                            $day_qty += $rec->qty;
+                            $day_sum += $rec->opersum;
                             $totSum += $rec->opersum;
                             ?>
                         @endforeach
+                        @if($cur_operdate<>-1)
+                            <tr class="text-left font-italic" style="background-color: #cfebff">
+                                <td class="text-right small " colspan="2">
+                                    Итого за день:
+                                </td>
+                                <td class=" small text-right">{{number_format($day_qty,1)}}</td>
+                                <td></td>
+                                <td class="text-right">{{number_format($day_sum,2)}}</td>
+                                <td></td>
+                            </tr>
+                            <?php
+                            $day_qty = 0;
+                            $day_sum = 0;
+                            ?>
+                        @endif
 
                         @if(1==1)
                             <?php

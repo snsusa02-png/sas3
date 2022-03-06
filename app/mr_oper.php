@@ -147,7 +147,7 @@ class mr_oper extends Model
     {
         // Доп. действия при удалении записи -------------------------
 
-        //удалим записи из obj_finopers, для которых нет соответствующих записей в mr_opers
+        //удалим записи из obj_finopers, для которых уже нет соответствующих записей в mr_opers
         obj_finoper::from('obj_finopers as f')
             ->where('sysobjid', self::$sysobjid)
             ->whereRaw("not exists (select 1 from mr_opers as mro where mro.id=f.objid)")
@@ -276,8 +276,6 @@ class mr_oper extends Model
 
         //dd($rec, self::$sysobjid, $rec->id);
         //сформируем фин. операцию --------------------------------------------------------------
-//        obj_finoper::where(['sysobjid' => self::$sysobjid, 'objid' => $rec->id])->update(['updated_by' => 0]);
-
         obj_finoper::addOrUpdate(
             ['sysobjid' => self::$sysobjid, 'objid' => $rec->id, 'mark' => 1],
             ['sysobjid' => self::$sysobjid, 'objid' => $rec->id, 'mark' => 1
@@ -294,6 +292,12 @@ class mr_oper extends Model
                 , 'updated_by' => $userid
                 , 'updated_at' => now()
             ]);
+
+        //удалим записи из obj_finopers, для которых уже нет соответствующих записей в mr_opers
+        obj_finoper::from('obj_finopers as f')
+            ->where('sysobjid', self::$sysobjid)
+            ->whereRaw("not exists (select 1 from mr_opers as mro where mro.id=f.objid)")
+            ->delete();
     }
 
     static public function addOrUpdate($search_params, $set_params)

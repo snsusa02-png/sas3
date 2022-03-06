@@ -264,9 +264,16 @@ class paydoc extends Model
                     , 'updated_at' => now()
                 ]);
         }
-        //удалим лишние записи
+        //удалим лишние (прежние) записи
         obj_finoper::where(['sysobjid' => self::$sysobjid, 'objid' => $rec->id, 'updated_by' => 0])->delete();
         //---------------------------------------------------------------------------------------
+
+        //удалим записи из obj_finopers, для которых уже нет соответствующих записей в paydocs
+        obj_finoper::from('obj_finopers as f')
+            ->where('sysobjid', self::$sysobjid)
+            ->whereRaw("not exists (select 1 from paydocs as t where t.id=f.objid)")
+            ->delete();
+
     }
 
 }
