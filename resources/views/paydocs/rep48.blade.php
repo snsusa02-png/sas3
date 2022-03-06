@@ -156,12 +156,12 @@ $thisTitle = $report->title ?? $report->name;
                             $sh_qty = (isset($rec->qty)) ? number_format($rec->qty, 2) : '';
                             $sh_price = (isset($rec->price)) ? number_format($rec->price, 2) : '';
 
-                            //                            if ($rec->sysobjid == 520)
-                            //                                $ref_url = route('paydocs.edit', $rec->objid);
-                            //                            elseif ($rec->sysobjid == 1106)
-                            //                                $ref_url = route('mchn_raids.edit', $rec->objid);
-                            //                            else
-                            $ref_url = null;
+                            if ($rec->sysobjid == 520)
+                                $ref_url = route('paydocs.edit', $rec->objid);
+                            elseif ($rec->sysobjid == 1107)
+                                $ref_url = route('mr_opers.edit', $rec->objid);
+                            else
+                                $ref_url = null;
 
                             $tstyle = ($rec->sumtypeid == 1) ? 'background-color:#ffff94' : '';
                             ?>

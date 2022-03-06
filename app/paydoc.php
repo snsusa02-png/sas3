@@ -90,6 +90,12 @@ class paydoc extends Model
     {
         // Доп. действия при удалении записи
 
+        //удалим записи из obj_finopers, для которых нет соответствующих записей в paydocs
+        obj_finoper::from('obj_finopers as f')
+            ->where('sysobjid', self::$sysobjid)
+            ->whereRaw("not exists (select 1 from paydocs as pd where pd.id=f.objid)")
+            ->delete();
+
         //Забудем связанный кэш -----------------
         self::cache_clear($rec);
 

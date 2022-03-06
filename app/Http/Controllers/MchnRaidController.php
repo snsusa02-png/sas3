@@ -1086,6 +1086,22 @@ class MchnRaidController extends Controller
                 mchn_raid::rfr_finopers($rec->id);
             }
 
+            //удалим призраков из obj_finopers ------------------------
+            //получим уник список sysobjs, связанных с obj_finopers
+            $chk_list = [
+                ['sysobjid' => 520, 'tbl' => 'paydocs'],
+                ['sysobjid' => 1107, 'tbl' => 'mr_opers'],
+            ];
+            foreach ($chk_list as $itm){
+                //удалим записи из obj_finopers, для которых нет соответствующих записей в исходной таблице
+                $tbl = $itm['tbl'];
+                obj_finoper::from('obj_finopers as f')
+                    ->where('sysobjid', $itm['sysobjid'])
+                    ->whereRaw("not exists (select 1 from {$tbl} as t where t.id=f.objid)")
+                    ->delete();
+            }
+            //-----------------------------------------------------------
+
         } catch (\Exception $e) {
             Log::error('mchn_raid::rfr_all_finopers:' . $e->getMessage());
             return redirect(route('mchn_raids.index'))

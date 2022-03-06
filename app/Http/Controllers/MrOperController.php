@@ -152,6 +152,9 @@ class MrOperController extends Controller
         } else {
 
             $rec = mr_oper::from('mr_opers as mro')->where('id', $id)->first();
+            if (!isset($rec))
+                return redirect(route($this->sysobjcode . '.index'))
+                    ->with(['error'=>'Запись не найдена!']);
 
             $rec->sup_places = org_place::lstFor([
                 'orgid' => $rec->suporgid
@@ -161,8 +164,6 @@ class MrOperController extends Controller
                 'orgid' => $rec->orgid
             ]);
 
-            if (!isset($rec))
-                return redirect(route($this->sysobjcode . '.index'));
 
         }
 
