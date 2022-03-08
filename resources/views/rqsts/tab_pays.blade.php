@@ -11,6 +11,11 @@ $userid = \Auth::user()->id;
                 'route' => 'paydocs.index',
                 'title' => 'Платежи'
             ],
+            [
+                'right' => 'paydocs.read',
+                'route' => 'invoices.index',
+                'title' => 'Счета'
+            ],
         ];
         ?>
         @foreach($menu_itms as $mnu)

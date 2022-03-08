@@ -17,31 +17,38 @@ class CreateInvoicesTable extends Migration
             $table->id();
 
 
-            $table->bigInteger('ownorgid')->unsigned();
-		$table->foreign('ownorgid')->references('id')->on('orgs')->comment('Кому выставлен счет');
+            $table->bigInteger('src_orgid')->unsigned();
+		$table->foreign('src_orgid')->references('id')->on('orgs')->comment('Кто выставил счет');
 
-            $table->bigInteger('orgid')->unsigned();
-		$table->foreign('orgid')->references('id')->on('orgs')->comment('Кто выставил счет. Контрагент');
+            $table->bigInteger('tgt_orgid')->unsigned();
+		$table->foreign('tgt_orgid')->references('id')->on('orgs')->comment('Кому выставлен счет');
+
+            $table->bigInteger('ownorgid')->unsigned();
+		$table->foreign('ownorgid')->references('id')->on('orgs')->comment('Организация, принявшая документ к учету');
+
+//            $table->bigInteger('orgid')->unsigned();
+//		$table->foreign('orgid')->references('id')->on('orgs')->comment('');
 
             $table->bigInteger('contractid')->unsigned();
 //		$table->foreign('contractid')->references('id')->on('contracts')->comment('Договор с контрагентом');
 
-            $table->biginteger('buildobjid')->unsigned()->nullable()->index()->comment('Объект ID по BuildObjs.ID');
+//            $table->biginteger('buildobjid')->unsigned()->nullable()->index()->comment('Объект ID по BuildObjs.ID');
 //		$table->foreign('buildobjid')->references('id')->on('buildobjs')->comment('');
-            $table->biginteger('buildopertypeid')->unsigned()->nullable()->comment('Вид работ объекта по BuildOperTypes.ID');
-//		$table->foreign('buildopertypeid')->references('id')->on('buildopertypes')->comment('');
 
-            $table->bigInteger('exe_orgid')->unsigned();
-		$table->foreign('exe_orgid')->references('id')->on('orgs')->comment('Кто подрядчик');
+            $table->biginteger('opertypeid')->unsigned()->nullable()->comment('Вид работ по OperTypes.ID');
+		$table->foreign('opertypeid')->references('id')->on('opertypes')->comment('');
 
-            $table->bigInteger('exe_contractid')->unsigned();
+//            $table->bigInteger('exe_orgid')->unsigned();
+//		$table->foreign('exe_orgid')->references('id')->on('orgs')->comment('Кто подрядчик');
+
+//            $table->bigInteger('exe_contractid')->unsigned();
 //		$table->foreign('exe_contractid')->references('id')->on('contracts')->comment('Договор с подрядчиком');
 
 //            $table->bigInteger('orgacntid')->nullable()->unsigned();
 //		$table->foreign('orgacntid')->references('id')->on('org_acnts')->comment('р/счет');
 
-            $table->bigInteger('for_orgid')->unsigned()->nullable();
-		$table->foreign('for_orgid')->references('id')->on('orgs')->comment('Для кого выписан счет. Конечный покупатель');
+//            $table->bigInteger('for_orgid')->unsigned()->nullable();
+//		$table->foreign('for_orgid')->references('id')->on('orgs')->comment('Для кого выписан счет. Конечный покупатель');
 
             $table->bigInteger('inituserid')->nullable()->unsigned();
 		$table->foreign('inituserid')->references('id')->on('users')->comment('Инициатор/Куратор');
@@ -55,7 +62,7 @@ class CreateInvoicesTable extends Migration
             $table->date('docdate')->nullable()->comment('Дата документа');
             $table->date('enddate')->nullable()->comment('Окончание действия документа, включительно до 23:59:59');
             $table->date('fullpaydate')->nullable()->comment('Дата полной оплаты счета. Полная если сумма оплаты == сумме использования');
-            $table->date('getdate')->nullable()->comment('Дата получения (материалов/документа)');
+//            $table->date('getdate')->nullable()->comment('Дата получения (материалов/документа)');
 
             $table->decimal('docsum',12,2)->nullable()->comment('Сумма счета');
             $table->decimal('usedsum',12,2)->nullable()->comment('Сумма использования счета');
@@ -69,7 +76,7 @@ class CreateInvoicesTable extends Migration
             $table->bigInteger('categoryid')->unsigned()->nullable();
 		$table->foreign('categoryid')->references('id')->on('pay_categories')->comment('Вид платежа');
 
-            $table->Integer('plngetwrkdays')->nullable()->unsigned()->comment('Примерный срок получения в рабочих днях от даты оплаты');
+//            $table->Integer('plngetwrkdays')->nullable()->unsigned()->comment('Примерный срок получения в рабочих днях от даты оплаты');
 
             $table->boolean('active')->default(true);
             $table->boolean('locked')->default(false)->comment('Блокирован от изменений');

@@ -19,7 +19,7 @@ class CreateInvoiceItemsTable extends Migration
  	   $table->biginteger('invoiceid')->unsigned()->nullable()->index()->comment('связь с документом');
 		$table->foreign('invoiceid')->references('id')->on('invoices');
 
-            $table->biginteger('eritmid')->unsigned()->index();
+//            $table->biginteger('eritmid')->unsigned()->index();
 //		$table->foreign('eritmid')->references('id')->on('equiprqst_items')->onDelete('set null');
 
             $table->string('code', 30)->nullable()->comment('Код товара по системе поставщика');
@@ -41,12 +41,21 @@ class CreateInvoiceItemsTable extends Migration
 
             $table->integer('ordr')->default(1);
 
+
+            $table->biginteger('src_sysobjid')->unsigned()->nullable();
+		$table->foreign('src_sysobjid')->references('id')->on('sysobjs')->onDelete('set null');
+            $table->biginteger('src_objid')->unsigned()->nullable();
+
+
             $table->timestamp('created_at')->nullable()->useCurrent=true;
             $table->bigInteger('created_by')->nullable()->unsigned()->default(1)
                 ->comment('UserID, создавшего запись');
             $table->timestamp('updated_at')->nullable()->useCurrent=true;
             $table->bigInteger('updated_by')->nullable()->unsigned()->default(1)
                 ->comment('UserID, изменившего запись');
+
+            $table->index(['src_sysobjid', 'src_objid']);
+
         });
     }
 

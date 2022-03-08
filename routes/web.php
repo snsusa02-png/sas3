@@ -985,6 +985,18 @@ Route::get('/api/contractroles/typeid/', 'ContractroleController@list_for_contra
 Route::get('/api/regnum_srcs/', 'RegnumSrcController@list_for');
 
 
+//Счета на оплату
+Route::match(array('GET', 'POST'), 'invoices', "InvoiceController@index")->name("invoices.index");
+Route::get('invoices/create/{pardocid}', "InvoiceController@create")->name('invoices.create');
+//загрузка счета из файла в формате XLS
+//Route::get('invoices/load/', "InvoiceController@load")->name('invoices.load');
+//Route::put('invoices/import/', "InvoiceController@import")->name('invoices.import');
+Route::get('invoices/{id}/edit', "InvoiceController@edit")->name('invoices.edit');
+Route::match(array('POST', 'PUT'), 'invoices/{id}', "InvoiceController@update")->name('invoices.update');
+Route::put('invoices/{id}/delete', "InvoiceController@destroy")->name("invoices.delete");
+Route::get('invoices/{id}/send2pay', "InvoiceController@send2pay")->name('invoices.send2pay');
+
+
 //План платежей организации
 Route::match(array('GET', 'POST'), 'orgplnpays', "OrgplnpayController@index")->name("orgplnpays.index");
 Route::get('orgplnpays/create', "OrgplnpayController@create")->name('orgplnpays.create');
