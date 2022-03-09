@@ -240,7 +240,14 @@ class org_saldo extends Model
                 //Сводка контрашентов с ненулевым балансом по всем организациям ГК
 
                 return DB::select( DB::raw(
-                    "select oo.name as ownorgname, o.name as orgname, a.*, orgSaldo_onDate(o.id,oo.id,null) as saldo
+                    "select oo.name as ownorgname, o.name as orgname, a.*
+                    , orgSaldo_onDate(o.id,oo.id,null) as saldo
+                    , (select group_concat( trim(concat(ifnull(os.fname,''),' ', os.lname)) SEPARATOR ',')
+                            from orgstaff as os
+                            join org_curators as oc
+                            on oc.staffid=os.id and oc.active=1 and now() between oc.begdt and ifnull(oc.enddt,now())
+                            where oc.orgid=o.id
+                            ) as org_curators
 from (
     SELECT srcorgid as ownorgid, tgtorgid as orgid FROM `obj_finopers`
 where exists (select 1 from objflags as f where f.sysobjid=111 and f.objid=srcorgid and f.flagtypeid=12)

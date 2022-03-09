@@ -24,7 +24,9 @@
                     ?>
                     <div class="row mb-3">
                         <div class="col-md-5"><a href="{{route('reports.rep48',[$itm->ownorgid,$itm->orgid])}}?returl={{$retURL}}"
-                                                 class="text-decoration-none">{{$itm->orgname}}</a></div>
+                                                 class="text-decoration-none">{{$itm->orgname}}</a>
+                            <div class="small text-right" title="Куратор">{{$itm->org_curators}}</div>
+                        </div>
                         <div class="col-md-4 small">{{$itm->ownorgname}}</div>
                         <div class="col-md-3 text-right font-weight-bold {{$td_class}}"
                              title="{{$saldo_title}}"

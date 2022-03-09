@@ -171,7 +171,7 @@
                 @includeif("informers._ownorg_saldos")
                 @includeif("informers._ownorg_saldo_details")
 
-                @includeif("informers._all_saldos")
+                @include("informers._all_saldos")
                 @include("informers._opertypes_sums")
 
             @endif

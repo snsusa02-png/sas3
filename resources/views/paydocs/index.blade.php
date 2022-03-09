@@ -115,17 +115,19 @@
                                 <td/>
                                 <td>
                                     <div class="input-group">
-                                        {!! Form::select('s_paydate', $data->dates??[]
-, $search_params['s_paydate']??'',
-     [
-     'class' => 'form-control',
-     'placeholder' => '-все-',
-     'onchange' => 'form.submit()',
-     ]) !!}
-
-                                        {{--                                        <input type="date" class="form-control" name="s_paydate"--}}
-                                        {{--                                               value="{{$search_params['s_paydate'] ?? ''}}"--}}
-                                        {{--                                               placeholder="Дата"/>--}}
+                                        {!! Form::select('s_timestatuscode', $data->timestatuses??[]
+                                            , $search_params['s_timestatuscode']??'',
+                                                 [
+                                                 'class' => 'form-control',
+                                                 'placeholder' => '-все-',
+                                                 'onchange' => 'form.submit()',
+                                                 'id' => 's_timestatuscode',
+                                                 ]) !!}
+                                        <input type="date" class="form-control c" name="s_paydate"
+                                               id="s_paydate"
+                                               value="{{ $search_params['s_paydate'] ?? ''}}"
+                                               placeholder="-название-"
+                                               STYLE="display: none;"/>
                                     </div>
                                 </td>
                                 <td>
@@ -263,7 +265,7 @@
             </div>
         </div>
 
-        <script src="{{ asset('js/contract_index.js') }}" defer></script>
+        <script src="{{ asset('js/paydocs_index.js') }}" defer></script>
 
     </div>
 

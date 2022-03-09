@@ -18,6 +18,7 @@ use App\usrsysright;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use DateTime;
 
 class PaydocController extends Controller
 {
@@ -65,7 +66,7 @@ class PaydocController extends Controller
                 $usrrights['delete'] = false;
                 $usrrights['admindelete'] = false;
             }
-        }else{
+        } else {
             $usrrights['save'] = $usrrights['create'];
         }
 
@@ -91,6 +92,7 @@ class PaydocController extends Controller
         // - параметры поиска: массив из имени и значенния по-умолчанию -----------------------------------------------
         $param_names = [
             's_pageitmcnt' => 10
+            , 's_timestatuscode' => 2
             , 's_paydate' => ''
             , 's_ownorgid' => ''
             , 's_orgid' => ''
@@ -107,7 +109,7 @@ class PaydocController extends Controller
         foreach ($search_params as $item => $val) {
             if (isset($val) and strlen($val) > 0) {
 
-                if ($item == 's_paydate') {
+                if ($item == 's_timestatuscode') {
                     if ($val == 1) //сегодня
                         $sc = $sc . " and pd.paydate = curdate()";
                     elseif ($val == 2) //вчера
@@ -116,8 +118,11 @@ class PaydocController extends Controller
                         $sc = $sc . " and datediff(curdate(), pd.paydate) <= 7";
                     elseif ($val == 4) //с начала текущего месяца
                         $sc = $sc . " and extract(year_month from pd.paydate) = extract(year_month from curdate())";
-                    else
-                        $sc = $sc . " and pd.paydate = '{$val}'";
+                    elseif ($val == 5
+                        and DateTime::createFromFormat('Y-m-d', $search_params['s_paydate']) !== false) {
+                        //конкретная дата
+                        $sc .= " and pd.paydate = '" . $search_params['s_paydate'] . "'";
+                    }
 
                 } elseif ($item == 's_ownorgid') {
                     $sc = $sc . " and pd.ownorgid = {$val}";
@@ -198,7 +203,7 @@ class PaydocController extends Controller
 
 
         $data->statuses = [0 => 'черновик', 2 => 'ожидает согласования', 4 => 'согласован'];
-        $data->dates = [1 => 'сегодня', 2 => 'вчера', 3 => 'за неделю', 4 => 'за месяц'];
+        $data->timestatuses = [1 => 'сегодня', 2 => 'вчера', 3 => 'за неделю', 4 => 'за месяц', 5 => 'календарь'];
         $data->yes_no = [1 => 'есть', 0 => 'нет'];
 
         //Выясним - есть ли у пользователя шаблон для этого типа объектов ИС
