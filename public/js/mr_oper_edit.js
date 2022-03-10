@@ -406,7 +406,7 @@ $(document).ready(function () {
                         var lbl = item.name;
                         //lbl = lbl + " (категория: " + item.itname;
                         //if (item.specinfo) lbl = lbl + "; " + item.specinfo;
-                        lbl = lbl + "(цена: " + ((item.price)?item.price+" &#x20bd;":"не указана") + " / " + item.unit + ")";
+                        lbl = lbl + "(цена: " + ((item.price) ? item.price + " &#x20bd;" : "не указана") + " / " + item.unit + ")";
                         return {
                             label: lbl,
                             value: item.name,
@@ -1230,6 +1230,7 @@ $(document).ready(function () {
     function rfr_labels() {
         const sale_dir = $('#sale_dir').val();
         const producttypeid = $('#producttypeid').val();
+        const opertypeid = $('#opertypeid').val();
 //        console.log('sale_dir =' + sale_dir);
 //        console.log('producttypeid =' + producttypeid);
 
@@ -1280,15 +1281,28 @@ $(document).ready(function () {
             $("#lbl_org").html('Заказчик')
             $('#itm_price').prop('readonly', false);
 
-            $('.raid_info').show();
-            $('#raid_qty').prop('required', true);
-            $('#lbl_raid_qty').addClass('required');
+            if (opertypeid == 5) {
+                $('#raid_qty').prop('required', false);
+                $('#lbl_raid_qty').removeClass('required');
+                $('.raid_info').hide();
+            } else {
+                $('#raid_qty').prop('required', true);
+                $('#lbl_raid_qty').addClass('required');
+                $('.raid_info').show();
+            }
 
             if (producttypeid == 1) {
                 //Услуга
                 $("#lbl_refitm").html('Услуга');
-                $("#lbl_sup_place").html('Место (не обязательно)');
-                $("#lbl_sup_place").parent().removeClass('required')
+
+                if (opertypeid == 5) {
+                    $('.sup_place_info').hide();
+                }else{
+                    $('.sup_place_info').show();
+                    $("#lbl_sup_place").html('Место (не обязательно)');
+                    $("#lbl_sup_place").parent().removeClass('required')
+                }
+
                 $("#lbl_org_place").html('Место предоставления услуги');
             } else {
                 //Товар
@@ -1298,7 +1312,6 @@ $(document).ready(function () {
                 $("#lbl_org_place").html('Место выгрузки');
             }
         }
-
 
 
         if (sale_dir == 1) {

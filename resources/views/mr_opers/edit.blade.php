@@ -55,6 +55,7 @@
                                 @csrf
                                 {{ Form::hidden('mr_id', $rec->mr_id) }}
                                 {{ Form::hidden('wrkdate', $rec->mchn_raid->wrkdate,['id'=>'wrkdate']) }}
+                                {{ Form::hidden('opertypeid', $rec->mchn_raid->opertypeid,['id'=>'opertypeid']) }}
                                 {{ Form::hidden('ttt', 0) }}
 
                                 <div class="row">
@@ -148,7 +149,7 @@
                                         @endif
                                     </div>
 
-                                    <div class="form-group offset-md-0 col-md-5">
+                                    <div class="form-group offset-md-0 col-md-5 sup_place_info">
                                         <label for="name" class=""><span id="lbl_sup_place">Место</span>:</label>
                                         @if ($usrrights['edit'])
                                             {{--                                            <div class="input-group mb-3 ">--}}
