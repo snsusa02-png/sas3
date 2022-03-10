@@ -136,14 +136,40 @@
                                 </div>
 
                                 <div class="row">
-                                    <div class="form-group col-md-12">
-                                        <label for="orgid" class="required">Владелец:</label>
-                                        {!! Form::select('orgid', $rec->ownorgs, $rec->orgid,
-                                         [
-                                         'class' => 'form-control',
-                                         'placeholder' => '-выбор-',
-                                         ]) !!}
+
+{{--                                    <div class="form-group col-md-12">--}}
+{{--                                        <label for="orgid" class="required">Владелец:</label>--}}
+{{--                                        {!! Form::select('orgid', $rec->ownorgs, $rec->orgid,--}}
+{{--                                         [--}}
+{{--                                         'class' => 'form-control',--}}
+{{--                                         'placeholder' => '-выбор-',--}}
+{{--                                         ]) !!}--}}
+{{--                                    </div>--}}
+
+                                    <div class="form-group offset-md-0 col-md-12">
+                                        <label for="name" class="required"><span id="lbl_org">Владелец</span>:</label>
+                                        @if ($usrrights['save'])
+                                            <div class="input-group mb-3 ">
+                                                <input type="text" name="org_name" required id="org_name"
+                                                       class="ac_name ac_org_name form-control font-weight-bold"
+                                                       value="{{old('org_name',$rec->org->info)}}">
+                                                <input type="text" class="form-control text-center small ac_status"
+                                                       title=""
+                                                       style="display: none; border: #d7f3e3; max-width: 30px" readonly>
+                                                <input type="hidden" name="orgid" class="ac_id" id="orgid"
+                                                       data-gk="{{$rec->org_gk}}"
+                                                       value="{{old('orgid',$rec->orgid)}}">
+                                                <a class="btn btn-light id_lnk" data-id="orgid" data-obj="orgs"
+                                                   target="_blank">
+                                                    <i class="fa fa-info text-info" aria-hidden="true"></i>
+                                                </a>
+                                            </div>
+                                            <div></div>
+                                        @else
+                                            <div class="font-weight-bold">{{$rec->org->info}}</div>
+                                        @endif
                                     </div>
+
                                 </div>
                                 <div class="form-group">
                                     <label for="active" style="color: rgb(73, 80, 87);">Активный:</label>
@@ -175,15 +201,7 @@
                                     </button>
                                 @endif
                                 &nbsp;
-                                @if ($rec->id != -1)
-                                    <div class="small" style="margin-top: 8px; color:gray;">
-                                        создана: {{$rec->created_at}} / {{$rec->whocrt->name}}
-                                        <br>
-                                        изменена: {{$rec->updated_at}} / {{$rec->whoupd->name}}
-                                        <br><a
-                                            href="{{route('objevntlog',['sysobjid'=>$sysobjid, 'objid'=>$rec->id,'route'=>Route::current()->getName()])}}">журнал</a>
-                                    </div>
-                                @endif
+                                @include('layouts._who_when')
                             </form>
                         </div>
                     </div>
@@ -193,7 +211,7 @@
                     <div class="col-md-6">
 
                         @include('objfiles.obj_files')
-                        {{--                        @include('machines/obj_images')--}}
+                        {{--@include('machines/obj_images')--}}
 
                         <div class="card d-none d-sm-block  p-2 my-2 my-md-3"
                              style="min-width:400px !important;">
@@ -255,5 +273,6 @@
 
             </div>
         </div>
+        <script src="{{ asset('js/machine_edit.js') }}" defer></script>
     @endif
 @endsection

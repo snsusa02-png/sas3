@@ -28,7 +28,7 @@
                             <div class="small text-right" title="Куратор">{{$itm->org_curators}}</div>
                         </div>
                         <div class="col-md-4 small">{{$itm->ownorgname}}</div>
-                        <div class="col-md-3 text-right font-weight-bold {{$td_class}}"
+                        <div class="col-md-3 text-right font-weight-bold text-nowrap {{$td_class}}"
                              title="{{$saldo_title}}"
                              style="font-size: 16px">{{number_format($itm->saldo,0)}}</div>
                     </div>

@@ -213,20 +213,20 @@ class MchnRaidController extends Controller
             ->join('machines as m', function ($join) {
                 $join->on('m.id', '=', 'mr.machineid');
             })
-            ->join('mr_opers as mro', function ($join) {
+            ->leftjoin('mr_opers as mro', function ($join) {
                 $join->on('mr.id', '=', 'mro.mr_id')
                     ->where('mro.sale_dir', '<>', 0);
             })
             ->leftjoin('orgstaff as ds', function ($join) {
                 $join->on('ds.id', '=', 'mro.disp_staffid');
             })
-            ->join('refitems as ri', function ($join) {
+            ->leftjoin('refitems as ri', function ($join) {
                 $join->on('ri.id', '=', 'mro.refitmid');
             })
-            ->join('orgs as s_o', function ($join) {
+            ->leftjoin('orgs as s_o', function ($join) {
                 $join->on('s_o.id', '=', 'mro.suporgid');
             })
-            ->join('orgs as o', function ($join) {
+            ->leftjoin('orgs as o', function ($join) {
                 $join->on('o.id', '=', 'mro.orgid');
             })
             ->whereraw($sc)
