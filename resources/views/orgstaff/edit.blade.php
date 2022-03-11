@@ -615,6 +615,7 @@
                             @include('objfiles.obj_files')
                             @include('obj_contacts._contacts')
                             @include('obj_addresses._list')
+                            @include('stf_salaries._list')
                             @include('objflags._flags')
 
                             @if (count($rec->userrights)>0)

@@ -1118,6 +1118,12 @@ Route::get('user_templates/{id}/edit', "UserTemplateController@edit")->name('use
 Route::match(array('POST', 'PUT'), 'user_templates/{id}', "UserTemplateController@update")->name('user_templates.update');
 Route::get('user_templates/{id}/delete', "UserTemplateController@destroy")->name("user_templates.delete");
 
+//stf_salaries - ЗП сотрудников
+Route::get('stf_salaries/{staffid}/create', "StfSalaryController@create")->name('stf_salaries.create');
+Route::get('stf_salaries/{id}/edit', "StfSalaryController@edit")->name('stf_salaries.edit');
+Route::match(array('POST', 'PUT'), 'stf_salaries/{id}', "StfSalaryController@update")->name('stf_salaries.update');
+Route::put('stf_salaries/{id}/delete', "StfSalaryController@destroy")->name("stf_salaries.delete");
+
 
 // Дата блокировки данных ----------------------------------------------------------------------------------------------
 Route::get('_lockdates/{sysobjid}/edit', "SysobjLockdateController@edit")->name('sysobj_lockdates.edit');

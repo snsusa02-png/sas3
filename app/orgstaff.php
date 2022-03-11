@@ -69,6 +69,12 @@ class orgstaff extends Model
             ->where('obj_features.sysobjid', self::$sysobjid);
     }
 
+    public function salaries()
+    {
+        return $this->hasMany(stf_salary::class, 'staffid', 'id')
+            ->orderby('wrkbegdate', 'desc');
+    }
+
     public function getNamePostAttribute()
     {
         if (isset($this->id)) {
