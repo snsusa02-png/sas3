@@ -385,6 +385,38 @@
                                     </div>
                                 </div>
 
+                                <div class="row">
+                                    <div class="form-group offset-md-2 col-md-4 agent_sum_info">
+                                        <label for="name" class="">Вознаграждение агента, &#8381;:</label>
+                                        @if ($usrrights['edit'])
+                                            <?php
+                                            //$readonly = ($rec->sup_gk == 0) ? 'readonly' : '';
+                                            ?>
+                                            <div class="input-group mb-3 ">
+                                                <input type="number" name="agent_sum" id="agent_sum"
+                                                       class="form-control text-right font-weight-bold"
+                                                       min="0" step="0.01"
+                                                       value="{{old('agent_sum',$rec->agent_sum)}}">
+                                            </div>
+                                        @else
+                                            <div class="font-weight-bold">{{number_format($rec->agent_sum,2)}}</div>
+                                        @endif
+                                    </div>
+
+                                    <div class="form-group offset-md-2 col-md-4 driver_sum_info">
+                                        <label for="name" class="">ЗП водителя, &#8381;:</label>
+                                            <?php
+                                            //$readonly = ($rec->sup_gk == 0) ? 'readonly' : '';
+                                            ?>
+                                            <div class="input-group mb-3 ">
+                                                <input type="number" name="driver_sum" id="driver_sum"
+                                                       class="form-control text-right font-weight-bold"
+                                                       readonly
+                                                       value="{{$rec->driver_sum}}">
+                                            </div>
+                                    </div>
+                                </div>
+
                                 @if(1==0)
                                     <div class="row">
                                         <div class="offset-md-0 col-md-12">

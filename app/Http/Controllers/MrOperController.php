@@ -289,6 +289,10 @@ class MrOperController extends Controller
         $rec->paytypeid = $request->get('paytypeid');
         $rec->raid_qty = $request->get('raid_qty');
 
+        $rec->agent_sum = $request->get('agent_sum') ?? 0;
+
+        $rec->driver_sum = $request->get('driver_sum') ?? 0;
+
         $rec->disp_staffid = $request->get('disp_staffid');
 
         //$rec->active = 1; //$request->get('active', 0);

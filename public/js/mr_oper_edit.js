@@ -43,12 +43,30 @@ $(document).ready(function () {
     });
 
 
+    function recalc_driver_sum() {
+        const itm_sum = parseFloat($("#itm_sum").val()) ?? 0;
+        var agent_sum = parseFloat($("#agent_sum").val()) ?? 0;
+        agent_sum = (isNaN(agent_sum)) ? 0 : agent_sum;
+        const k1 = ($("#paytypeid").val() == 1) ? 1 : 0.8;
+        const k2 = 0.1;
+
+        var driver_sum = Math.round((itm_sum * k1 - agent_sum) * k2 * 100) / 100;
+        driver_sum = (driver_sum < 0) ? 0 : driver_sum;
+        $("#driver_sum").val(driver_sum);
+        //console.log(driver_sum)
+    }
+
+    $("#agent_sum, #paytypeid").change(function () {
+        recalc_itmsum();
+    });
+
     function recalc_itmsum() {
         const qty = parseFloat($("#itm_qty").val()) ?? 0;
         const price = parseFloat($("#itm_price").val()) ?? 0;
         const sum = Math.round(100 * qty * price) / 100;
         $("#itm_sum").val(sum);
         //console.log(sum)
+        recalc_driver_sum();
     }
 
     $("#itm_qty, #itm_price").change(function () {
@@ -1244,6 +1262,9 @@ $(document).ready(function () {
             $('#raid_qty').prop('required', false);
             $('#lbl_raid_qty').removeClass('required');
 
+            $('.agent_sum_info').hide();
+            $('.driver_sum_info').hide();
+
             if (producttypeid == 1) {
                 //Услуга
                 $("#lbl_refitm").html('Услуга');
@@ -1281,7 +1302,16 @@ $(document).ready(function () {
             $("#lbl_org").html('Заказчик')
             $('#itm_price').prop('readonly', false);
 
-            if (opertypeid == 5) {
+            if (opertypeid == 1) {
+            } else if (opertypeid == 3) {
+                $('.agent_sum_info').show();
+                $('.driver_sum_info').show();
+
+            } else if (opertypeid == 4) {
+                $('.agent_sum_info').show();
+                $('.driver_sum_info').show();
+
+            } else if (opertypeid == 5) {
                 $('#raid_qty').prop('required', false);
                 $('#lbl_raid_qty').removeClass('required');
                 $('.raid_info').hide();
@@ -1297,7 +1327,7 @@ $(document).ready(function () {
 
                 if (opertypeid == 5) {
                     $('.sup_place_info').hide();
-                }else{
+                } else {
                     $('.sup_place_info').show();
                     $("#lbl_sup_place").html('Место (не обязательно)');
                     $("#lbl_sup_place").parent().removeClass('required')

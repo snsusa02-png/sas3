@@ -19,7 +19,8 @@ class CreateMrOpersTable extends Migration
             $table->bigInteger('mr_id')->unsigned()->comment('ID записи о рейсах mchn_raids.id');
 	        $table->foreign('mr_id')->references('id')->on('mchn_raids');
 
-            $table->integer('ordr')->unsigned()->default(1);
+            $table->tinyinteger('sale_dir')->comment('-1 - покупка, 0 - внутренняя операция, +1 - продажа на сторону');
+
             $table->string('name', 60)->nullable()->comment('Название, суть операции');
 
             $table->biginteger('disp_staffid')->unsigned()->nullable()->comment('Диспетчер (сотрудник)');
@@ -56,9 +57,14 @@ class CreateMrOpersTable extends Migration
 
 	    $table->biginteger('paytypeid')->unsigned()->nullable()->comment('ID типа оплаты 1-б/нал, 2-нал');
 
-            $table->tinyinteger('sale_dir')->comment('-1 - покупка, 0 - внутренняя операция, +1 - продажа на сторону');
+            $table->decimal('agent_sum', 12,2)->nullable()->comment('Вознаграждение агента, руб');
+	    $table->biginteger('agentid')->unsigned()->nullable()->comment('ID агента (по Agents.id?)');
+
+            $table->decimal('driver_sum', 12,2)->nullable()->comment('ЗП водителя от операции, руб');
+
 
             $table->boolean('active')->default(1)->comment('0-черновик; 1-используется в расчетах');
+            $table->integer('ordr')->unsigned()->default(1);
 
             $table->timestamp('created_at')->nullable()->useCurrent=true;
             $table->bigInteger('created_by')->nullable()->unsigned()->default(1)
