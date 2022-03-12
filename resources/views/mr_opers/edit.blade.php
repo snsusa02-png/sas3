@@ -406,14 +406,18 @@
                                     <div class="form-group offset-md-2 col-md-4 driver_sum_info">
                                         <label for="name" class="">ЗП водителя, &#8381;:</label>
                                             <?php
-                                            //$readonly = ($rec->sup_gk == 0) ? 'readonly' : '';
+                                            $readonly = (1==0) ? 'readonly' : '';
                                             ?>
+                                        @if ($usrrights['edit'])
                                             <div class="input-group mb-3 ">
                                                 <input type="number" name="driver_sum" id="driver_sum"
                                                        class="form-control text-right font-weight-bold"
-                                                       readonly
-                                                       value="{{$rec->driver_sum}}">
+                                                       {{$readonly}}
+                                                       value="{{old('driver_sum',$rec->driver_sum)}}">
                                             </div>
+                                        @else
+                                            <div class="font-weight-bold">{{number_format($rec->driver_sum,2)}}</div>
+                                        @endif
                                     </div>
                                 </div>
 

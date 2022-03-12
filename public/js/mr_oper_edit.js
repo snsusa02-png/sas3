@@ -53,6 +53,7 @@ $(document).ready(function () {
         var driver_sum = Math.round((itm_sum * k1 - agent_sum) * k2 * 100) / 100;
         driver_sum = (driver_sum < 0) ? 0 : driver_sum;
         $("#driver_sum").val(driver_sum);
+        $("#driver_sum").attr("max",driver_sum);
         //console.log(driver_sum)
     }
 
