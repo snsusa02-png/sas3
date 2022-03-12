@@ -12,6 +12,7 @@ use App\report;
 use App\org;
 use App\machine;
 use App\objlog;
+use App\stf_salary;
 use App\Traits\SearchDataTrait;
 use App\usrsysright;
 use http\Env\Response;
@@ -418,7 +419,7 @@ class MchnRaidReportController extends Controller
 
 
             $recs = $recs->select(
-                 'mro.suporgid', 'oo.name as ownorgname'
+                'mro.suporgid', 'oo.name as ownorgname'
                 , 'mro.orgid', db::raw("max(o.name) as orgname")
                 , 'mro.org_placeid as unload_placeid', db::raw("MAX(mro.org_placename) as unload_placename")
                 , 'mro.disp_staffid', db::raw("max(concat(ifnull(u_d.fname,''),' ',u_d.lname)) as dispuser_name")
@@ -435,7 +436,7 @@ class MchnRaidReportController extends Controller
                 , db::raw("max(mr.wrkdate) as max_wrkdate")
             )
                 //->groupBy(['mr.wrkdate', 'mro.suporgid', 'mro.orgid', 'mro.disp_staffid', 'mro.org_placeid', 'mro.refitmid'])
-                ->groupBy([ 'mro.suporgid', 'mro.orgid', 'mro.disp_staffid', 'mro.org_placeid', 'mro.refitmid'])
+                ->groupBy(['mro.suporgid', 'mro.orgid', 'mro.disp_staffid', 'mro.org_placeid', 'mro.refitmid'])
                 //->orderby('mr.wrkdate', 'asc')
                 ->orderby('orgname', 'asc')
                 ->get();
@@ -657,6 +658,110 @@ class MchnRaidReportController extends Controller
         $data->ownorgs = org::lstFor_cached([
             'in_driver_works_ownorgid' => 1,
         ]);
+        //dd($data->ownorgs);
+
+        return view('driver_works.rep' . $report_id, compact('recs', 'search_params', 'data'));
+    }
+
+    public function rep52(Request $request)
+    {
+        //
+        $report_id = 52;
+
+        $userid = \Auth::user()->id;
+
+        if (!usrsysright::isUserHasRightByCode_cached($userid, $this->objcode . '.read'))
+            return redirect(route('home'))
+                ->with(['error' => 'У вас нет полномочий для работы с данной информацией!']);
+
+        // - параметры поиска: массив из имени и значения по-умолчанию -----------------------------------------------
+        $fdom = new DateTime('first day of this month');
+        $fdomc = $fdom->format('Y-m-d');
+        $year = $fdom->format('Y');
+        $ldom = new DateTime('last day of this month');
+        $ldomc = $ldom->format('Y-m-d');
+        $curdate = new DateTime();
+        $cd = $curdate->format('Y-m-d');
+
+        $month = date("n");
+        $yearQuarter = ceil($month / 3);
+
+        $param_names = [
+            's_pageitmcnt' => 20
+            , 's_ownorgid' => '' //Auth::user()->curorgid
+            , 's_month' => $month
+            , 's_year' => $year
+        ];
+
+        $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);
+
+        $begdate = today();
+        $search_params['s_begdate'] = $begdate->format('Y-m-d');
+        $search_params['s_enddate'] = $begdate->format('Y-m-t');
+
+        $recs = null;
+
+        $s_year = $search_params['s_year'];
+        $s_month = $search_params['s_month'];
+
+        if ($s_year <> '' and $s_month <> '') {
+
+            $sql = " select staffid, os.name as staff_name, os.lname as staff_lname, os.fname as staff_fname, os.mname as staff_mname
+            , os.postname, sum(driver_sum) as driver_sum, sum(salary_sum) as salary_sum from (
+    SELECT mr.driverid as staffid, DATE_FORMAT(mr.wrkdate,'%Y-%m') as ym , sum(mro.driver_sum) as driver_sum, null as salary_sum
+        FROM `mr_opers` as mro
+        join mchn_raids as mr on mr.id=mro.mr_id
+        where mro.driver_sum >0
+            and year(mr.wrkdate)={$s_year}
+            and month(mr.wrkdate)={$s_month}
+            and mr.opertypeid in(3,4)
+        group by mr.driverid,ym
+    union all
+    select staffid, DATE_FORMAT(ss.wrkbegdate,'%Y-%m') as ym , null as driver_sum, sum(ss.salary_sum) as salary_sum
+        from stf_salaries as ss
+        where year(ss.wrkbegdate)={$s_year}
+            and month(ss.wrkbegdate)={$s_month}
+        group by ss.staffid,ym
+     ) as a
+    join orgstaff as os on os.id=a.staffid
+    group by staffid";
+
+            $recs = DB::select(DB::raw($sql));
+            //dd($sql, $recs);
+
+            //обновим счетчик использования отчета
+            report::updUseCnt($report_id, $userid, \Auth::user()->name);
+
+            //занесем в журнал
+            objlog::log_info(855, $report_id, 'запрошен отчет; ' . $s_year . ' ' . $s_month);
+        } else {
+            $recs = null;
+        }
+
+        $data = new \stdClass();
+
+        $data->years = Cache::remember('stf_salary_years', now()->addMinutes(55)
+            , function () {
+                return stf_salary::selectRaw("year(wrkbegdate) as year")->distinct()->orderby('year')
+                    ->get()->pluck('year', 'year')->toArray();
+            });
+        //dd($data->years);
+
+        $month_names = Config::get('constants.monthes');
+        $data->monthes = Cache::remember('stf_salary_monthes', now()->addMinutes(15)
+            , function () {
+                return stf_salary::selectRaw("month(wrkbegdate) as month")->distinct()->orderby('month')
+                    ->get()->pluck('month', 'month')->toArray();
+            });
+        foreach ($data->monthes as $key => $val) {
+            //dd($key,$val);
+            $data->monthes[$val] = $month_names[$key];
+        }
+        //dd($data->monthes);
+
+//        $data->ownorgs = org::lstFor_cached([
+//            'in_driver_works_ownorgid' => 1,
+//        ]);
         //dd($data->ownorgs);
 
         return view('driver_works.rep' . $report_id, compact('recs', 'search_params', 'data'));

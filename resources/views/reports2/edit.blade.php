@@ -121,6 +121,14 @@
                                 </div>
 
                                 <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label for="descript">Тэги:</label>
+                                    <textarea class="form-control rounded-0" name="tags" id="tags"
+                                              rows="2">{{ old('tags_lst',$rec->tags_lst) }}</textarea>
+                                </div>
+                                </div>
+
+                                <div class="row">
                                     <div class="form-group col-md-12">
                                         <label for="descript">Категория доступа:</label>
 

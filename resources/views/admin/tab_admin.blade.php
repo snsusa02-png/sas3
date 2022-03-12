@@ -7,6 +7,15 @@
 		@endif
 {{--        @dd(\App\usrsysright::isUserHasRightByCode(\Auth::user()->id,'acs.admin'))--}}
 
+		@if(\App\usrsysright::isUserHasRightByCode(\Auth::user()->id,'users.read'))
+			<a href="{{route('reports.index')}}"
+			   class="list-group-item list-group-item-action">Отчеты
+				<div class="description small font-italic" style="margin-left:2em;">
+                    Настройка параметров отчетов
+				</div>
+			</a>
+		@endif
+
 		@if(\App\usrsysright::isUserHasRightByCode(\Auth::user()->id,'acs.read'))
 			<a href="{{route('acs.index')}}"
 			   class="list-group-item list-group-item-action">Категории информации

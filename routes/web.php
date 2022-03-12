@@ -417,9 +417,9 @@ Route::post('/changePassword', 'ProfileController@changePassword')->name('change
 
 
 // отчеты по пользователям
-//Route::match(array('POST', 'GET'), '/users/rep/5', "UserReportController@rep05")->name('reports.rep5');
-//Route::match(array('POST', 'GET'), '/users/rep/10', "UserReportController@rep10")->name('reports.rep10');
-//Route::match(array('POST', 'GET'), '/users/rep/11', "UserReportController@rep11")->name('reports.rep11');
+Route::match(array('POST', 'GET'), '/users/rep/5', "UserReportController@rep05")->name('reports.rep5');
+Route::match(array('POST', 'GET'), '/users/rep/10', "UserReportController@rep10")->name('reports.rep10');
+Route::match(array('POST', 'GET'), '/users/rep/11', "UserReportController@rep11")->name('reports.rep11');
 
 
 //Смена текущей представляемой пользователем организации
@@ -1024,6 +1024,7 @@ Route::match(array('POST', 'GET'), '/reports/rep/46', "MchnRaidReportController@
 Route::match(array('POST', 'GET'), '/reports/rep/47', "PayDocReportController@rep47")->name('reports.rep47');
 Route::match(array('POST', 'GET'), '/reports/rep/48/{ownorgid}/{orgid}', "PayDocReportController@rep48")->name('reports.rep48');
 Route::match(array('POST', 'GET'), '/reports/rep/51', "MchnRaidReportController@rep51")->name('reports.rep51');
+Route::match(array('POST', 'GET'), '/reports/rep/52', "MchnRaidReportController@rep52")->name('reports.rep52');
 
 //Состав плана платежей
 Route::get('orgplnpay_items/create/{docid}/', "OrgplnpayItemController@create")->name('orgplnpay_items.create');

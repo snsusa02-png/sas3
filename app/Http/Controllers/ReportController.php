@@ -265,6 +265,9 @@ class ReportController extends Controller
             $usrrights['delete'] = false;
         }
 
+        //извлечем/сформатируем теги для этой записи
+        $rec->tags_lst = objtag::lstTags($this->sysobjid, $id);
+
         //$data = new \stdClass();
         $rec->users_stat = objlog::from('objlogs as ol')
             ->join('users as u', 'u.id', 'write_by')
@@ -354,6 +357,10 @@ class ReportController extends Controller
 
         objlog::log_info($this->sysobjid, $rec->id, $mess, 5);
         connectify('success', $rec->info, $mess);
+
+        // Сохранение тэгов -----------------------------------------------------------------
+        objtag::attach($this->sysobjid, $rec->id, $request->get('tags'));
+        //-----------------------------------------------------------------------------------
 
         if ($id == -1 or $rec->statusid <> $statusid) {
             return redirect(route($this->sysobjcode . '.edit', $rec->id));
