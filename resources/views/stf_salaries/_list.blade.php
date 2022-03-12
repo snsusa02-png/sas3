@@ -1,4 +1,4 @@
-@if ($rec->id != -1 and $usrrights['salary.read']??true and isset($rec->salaries) )
+@if ($rec->id != -1 and $usrrights['stf_salaries.read']??false and isset($rec->salaries) )
     <div class="row">
 
         <div class="col-md-12">

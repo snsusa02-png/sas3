@@ -1122,7 +1122,8 @@ Route::get('user_templates/{id}/delete', "UserTemplateController@destroy")->name
 Route::get('stf_salaries/{staffid}/create', "StfSalaryController@create")->name('stf_salaries.create');
 Route::get('stf_salaries/{id}/edit', "StfSalaryController@edit")->name('stf_salaries.edit');
 Route::match(array('POST', 'PUT'), 'stf_salaries/{id}', "StfSalaryController@update")->name('stf_salaries.update');
-Route::put('stf_salaries/{id}/delete', "StfSalaryController@destroy")->name("stf_salaries.delete");
+//Route::put('stf_salaries/{id}/delete', "StfSalaryController@destroy")->name("stf_salaries.delete");
+Route::get('stf_salaries/{id}/delete', "StfSalaryController@destroy")->name("stf_salaries.delete");
 
 
 // Дата блокировки данных ----------------------------------------------------------------------------------------------

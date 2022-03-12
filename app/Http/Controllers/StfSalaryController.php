@@ -2,84 +2,238 @@
 
 namespace App\Http\Controllers;
 
+use App\ac;
+use App\mr_oper;
+use App\objlog;
 use App\stf_salary;
+use App\sysobj;
+use App\user_ac;
+use App\usrsysright;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class StfSalaryController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    public function __construct()
     {
-        //
+        $this->middleware('auth');
+
+        $this->sysobjid = 1208;
+        $this->parsysobjid = 121; //orgstaff
+        $this->sysobjcode = 'stf_salaries';
+        $this->model = 'App\stf_salary';
+        $this->acl_sysobjcode = sysobj::acl_sysobjcode($this->sysobjcode);
+
     }
+
+    protected function setInterfaceRight($recid)
+    {
+        /*
+         * Формирует массив прав пользователя для текущего объекта
+        */
+        $userid = \Auth::user()->id;
+
+        $usrrights = array();
+        $usrrights['read'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.read');
+        $usrrights['create'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.create');
+        $usrrights['save'] = false;
+        $usrrights['delete'] = false;
+        $usrrights['admindelete'] = false;
+
+        $usrrights['save'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.update');
+        $usrrights['delete'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.delete');
+
+        if ($recid > 0) {
+            //для существующих записей проверим открытость периода
+            if ($this->model::isLocked($recid)) {
+
+                $usrrights['save'] = false;
+                $usrrights['delete'] = false;
+                $usrrights['admindelete'] = false;
+            }
+        }
+
+        $usrrights['edit'] = $usrrights['save'];
+
+        return $usrrights;
+    }
+
 
     /**
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public
+    function create(Request $request, $staffid = null)
     {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\stf_salary  $stf_salary
-     * @return \Illuminate\Http\Response
-     */
-    public function show(stf_salary $stf_salary)
-    {
-        //
+        return $this->edit($request, -1, $staffid);
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\stf_salary  $stf_salary
+     * @param \App\user_ac $rec
      * @return \Illuminate\Http\Response
      */
-    public function edit(stf_salary $stf_salary)
+//    public function edit(user_ac $rec)
+    public function edit(Request $request, $id, $staffid = null)
     {
-        //
+
+        $userid = \Auth::user()->id;
+
+        $usrrights = $this->setInterfaceRight($id);
+        if (!$usrrights['read'])
+            return redirect()->back()->with('error', 'У вас нет права на доступ к этой информации!');
+
+
+        if ($id == -1) {
+            if ($usrrights['create'] ?? false) {
+
+                $rec = new $this->model([
+                    'id' => -1,
+                    'staffid' => $staffid,
+                    'active' => 1,
+                    'created_by' => $userid,
+                ]);
+            } else {
+                $rslt = ['error' => 'У вас нет права на это действие!'];
+                if (isset($staffid))
+                    return redirect(route('orgstaff.edit', $staffid))->with($rslt);
+                else
+                    return redirect(route('orgstaff.index'))->with($rslt);
+            }
+        } else {
+            $rec = $this->model::find($id);
+        }
+
+        $rec->_obj_info = $rec->orgstaff->Info;
+
+        if (!isset($rec))
+            return redirect(route('orgstaff.edit', $staffid));
+
+        $rec->retURL = $request->get('returl') ?? route('orgstaff.edit', $rec->staffid);
+
+        return view($this->sysobjcode . '.edit', compact('rec', "usrrights"));
     }
+
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\stf_salary  $stf_salary
+     * @param \Illuminate\Http\Request $request
+     * @param \App\user_ac $rec
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, stf_salary $stf_salary)
+//    public function update(Request $request, user_ac $rec)
+    public function update(Request $request, $id)
     {
         //
+
+        $messages = [
+            'wrkbegdate.required' => 'Укажите начало периода работы',
+            'wrkbegdate.required' => 'Укажите окончание периода работы',
+            'salary_sum.required' => 'Укажите сумму',
+        ];
+
+        $rules = [
+            "wrkbegdate" => "required",
+            "wrkbegdate" => "required",
+            "salary_sum" => "required",
+        ];
+
+        $request->validate($rules, $messages);
+
+        $userid = \Auth::user()->id;
+        $mess = "";
+        if ($id == -1) {
+
+            $staffid = $request->get('staffid');
+            $rec = new $this->model([
+                "staffid" => $staffid,
+                "created_by" => $userid,
+                "created_at" => now(),
+                "updated_by" => $userid,
+                "updated_at" => now()
+            ]);
+            $mess = "Запись создана";
+        } else {
+            $rec = $this->model::find($id);
+            $mess = "Запись обновлена";
+        }
+
+        $rec->wrkbegdate = $request->get('wrkbegdate');
+        $rec->wrkenddate = $request->get('wrkenddate');
+        $rec->salary_sum = $request->get('salary_sum');
+
+        $rec->updated_by = $userid;
+        $rec->updated_at = now();
+        $rec->save();
+
+        objlog::log_info($this->sysobjid, $rec->id, $mess, 5);
+
+        //Cache::forget("user_{$usrid}_has_acs_{$rec->acsid}");
+
+        $retURL = $request->get('retURL') ?? route('orgstaff.edit', $rec->staffid) . '?#deps';
+
+        return redirect($retURL)->with('success', $mess);
+
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\stf_salary  $stf_salary
+     * @param \App\user_ac $rec
      * @return \Illuminate\Http\Response
      */
-    public function destroy(stf_salary $stf_salary)
+    public function destroy($id)
     {
-        //
+        $res = $this->model::delete_by_id($id, $this->sysobjid);
+
+        $sd = array();
+        if ($res->err == 1) {
+            objlog::log_info($this->sysobjid, $id, 'Попытка удаления записи', 2);
+            $route = route('orgstaff.edit', $id);
+            $sd["error"] = $res->msg;
+        } else {
+            $parobjid = $res->obj['staffid'];
+            objlog::log_info($this->parsysobjid, $parobjid, 'Удалена запись о начислении ЗП', 5);
+            objlog::log_info($this->sysobjid, $id, 'Запись удалена', 5);
+
+            //забудем кэшированные данные про ...:
+            //Cache::forget("user_{$usrid}_has_acs_{$acsid}");
+
+            $route = route('orgstaff.edit', $parobjid);
+            $sd['success'] = 'Запись удалена';
+        }
+        return redirect($route)->with($sd);
     }
+
+    static public function list_for(Request $request)
+    {
+        //2021-06-09 SNS. Обертка для вызова user_ac::lstFor
+
+        $result = "";
+        try {
+
+            $list = $this->model::lstFor([
+                'orgid' => $request->orgid,
+                'active' => $request->active,
+                'active_or_current' => $request->active_or_current,
+                'with_posts' => $request->with_posts,
+                'with_post_vacancies' => $request->with_post_vacancies,
+                'with_post_vacancies_staff' => $request->with_post_vacancies_staff,
+            ]);
+
+
+            $result = array('user_acs' => $list);
+
+        } catch (\Exception $e) {
+            Log::error('user_acs::list_for:' . $e->getMessage());
+        }
+        return response()->json($result);
+    }
+
 }

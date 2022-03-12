@@ -73,7 +73,7 @@ class objflag extends Model
             })
             ->where('ft.forsysobjid', $sysobjid)
             ->where('ft.active', 1)
-            ->select('ft.id', 'ft.name', 'f.id as objflagid')
+            ->select('ft.id', 'ft.name', 'ft.name as flagtype_name', 'f.id as objflagid')
             ->orderby('ft.name')
             ->get();
     }
