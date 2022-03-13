@@ -1070,7 +1070,7 @@ class AnaliticsController extends Controller
                     $recs2 = $recs2->leftjoin('contracts as c', 'c.id', 'mr.contractid');
 
                 if (isTblInGrps('ds', $grps))
-                    $recs2 = $recs2->leftjoin('orgstaff as ds', 'ds.id', 'mr.disp_staffid');
+                    $recs2 = $recs2->leftjoin('orgstaff as ds', 'ds.id', 'mro.disp_staffid');
 
                 if (isTblInGrps('ri', $grps))
                     $recs2 = $recs2->leftjoin('refitems as ri', 'ri.id', 'mro.refitmid');
