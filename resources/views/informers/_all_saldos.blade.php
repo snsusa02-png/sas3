@@ -24,7 +24,9 @@
                     ?>
                     <div class="row mb-3">
                         <div class="col-md-5"><a href="{{route('reports.rep48',[$itm->ownorgid,$itm->orgid])}}?returl={{$retURL}}"
-                                                 class="text-decoration-none">{{$itm->orgname}}</a>
+                                                 class="text-decoration-none" title="по фин. транзакциям">{{$itm->orgname}}</a>
+                            <a href="{{route('reports.rep53',[$itm->ownorgid,$itm->orgid])}}?returl={{$retURL}}"
+                               class="ml-1 text-decoration-none" title="по услугам и платежам">...</a>
                             <div class="small text-right" title="Куратор">{{$itm->org_curators}}</div>
                         </div>
                         <div class="col-md-4 small">{{$itm->ownorgname}}</div>

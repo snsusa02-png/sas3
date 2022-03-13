@@ -348,7 +348,6 @@ class PayDocReportController extends Controller
 
             $ownorg->recs = $recs;
         }
-        //dd($ownorgs);
 
         return view('paydocs.informer49', compact('ownorgs'));
     }
@@ -438,7 +437,6 @@ class PayDocReportController extends Controller
         //занесем в журнал
         objlog::log_info(855, $report_id, 'запрошен отчет; ' . $ownorgid . '/' . $orgid);
 
-        $report_id = 48;
         return view('paydocs.rep' . $report_id, compact('recs', 'data'));
     }
 
