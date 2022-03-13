@@ -230,6 +230,9 @@ $action_url = route('reports.rep' . $thisObjId);
                                     <a href="{{route('reports.rep48',[$ownorgid,$rec->orgid])}}?returl={{$retURL}}"
                                        target="_blank1"
                                        class="text-decoration-none">{{$rec->orgname}}</a>
+                                    <a href="{{route('reports.rep53',[$ownorgid,$rec->orgid])}}?returl={{$retURL}}"
+                                       target="_blank1"
+                                       class="ml-3 small text-decoration-none">по поставкам</a>
                                 </td>
                                 <td class="text-right {{$td_class}}">{{number_format($rec->org_saldo,2)}}
 

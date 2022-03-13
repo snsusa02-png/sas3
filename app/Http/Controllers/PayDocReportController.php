@@ -9,6 +9,7 @@ use App\eritm_supply;
 use App\Exports\InvoicesExport;
 use App\Exports\PayPlanExport;
 use App\mchn_raid;
+use App\mr_oper;
 use App\obj_finoper;
 use App\org_saldo;
 use App\orgplnpay;
@@ -221,9 +222,6 @@ class PayDocReportController extends Controller
         $returl = $request->get('returl') ?? route('home');
         $userid = Auth::user()->id;
 
-//        $ownorgid = $request->get('ownorgid');
-//        $orgid = $request->get('orgid');
-
         if (!(isset($ownorgid) and isset($orgid)))
             return redirect($returl)
                 ->with(['error' => 'Запрос ожидал две компании!']);
@@ -231,10 +229,8 @@ class PayDocReportController extends Controller
         $org_saldo = org_saldo::from('org_saldos as s')
             ->where(['ownorgid' => $ownorgid, 'orgid' => $orgid])
             ->first();
-        //dd($org_saldo);
 
         $mindate = $org_saldo->ondate ?? null;
-        //dd($mindate);
 
         //соберем все операции и платежи начиная с $mindate
         $sc1 = $sc2 = "1=1";
@@ -355,6 +351,95 @@ class PayDocReportController extends Controller
         //dd($ownorgs);
 
         return view('paydocs.informer49', compact('ownorgs'));
+    }
+
+    function rep53(Request $request, $ownorgid, $orgid)
+    {
+        //Детализация баланса контрагента по данным mr_opers и paydocs
+
+        $report_id = 53;
+
+        $returl = $request->get('returl') ?? route('home');
+        $userid = Auth::user()->id;
+
+        if (!(isset($ownorgid) and isset($orgid)))
+            return redirect($returl)
+                ->with(['error' => 'Запрос ожидал две компании!']);
+
+        $org_saldo = org_saldo::from('org_saldos as s')
+            ->where(['ownorgid' => $ownorgid, 'orgid' => $orgid])
+            ->first();
+
+        $mindate = $org_saldo->ondate ?? null;
+
+        //соберем все операции и платежи начиная с $mindate
+        $sc1 = $sc2 = "1=1";
+        if (isset($mindate)) {
+            $sc1 .= " and mr.wrkdate>='{$mindate}'";
+            $sc2 .= " and pd.paydate>='{$mindate}'";
+        }
+
+        if (1 == 1) {
+            $sells = mr_oper::from('mr_opers as mro')
+                ->join('mchn_raids as mr', 'mr.id', 'mro.mr_id')
+                ->join('refitems as ri', 'ri.id', 'mro.refitmid')
+                ->where(['mro.suporgid' => $ownorgid, 'mro.orgid' => $orgid])
+                ->whereRaw($sc1)
+                ->select('mr.wrkdate as operdate', db::raw('2 as sumtypeid')
+                    , db::raw("1106 as sysobjid")
+                    , 'mro.org_placename'
+//                ,'mro.id as objid'
+                    , db::raw("concat(ri.name,', ',ri.unit) as descript")
+                    , db::raw("sum(mro.itm_qty) as qty")
+                    , db::raw("sum(-mro.itm_sum) as opersum")
+                )
+                ->groupBy('operdate', 'sysobjid', 'org_placename', 'mro.refitmid');
+
+            $buys = mr_oper::from('mr_opers as mro')
+                ->join('mchn_raids as mr', 'mr.id', 'mro.mr_id')
+                ->join('refitems as ri', 'ri.id', 'mro.refitmid')
+                ->where(['mro.suporgid' => $orgid, 'mro.orgid' => $ownorgid])
+                ->whereRaw($sc1)
+                ->select('mr.wrkdate as operdate', db::raw('2 as sumtypeid')
+                    , db::raw("1106 as sysobjid")
+                    , 'mro.org_placename'
+                    , db::raw("concat(ri.name,', ',ri.unit) as descript")
+                    , db::raw("sum(mro.itm_qty) as qty")
+                    , db::raw("sum(+mro.itm_sum) as opersum")
+                )
+                ->groupBy('operdate', 'sysobjid', 'org_placename', 'mro.refitmid');
+
+            $recs = paydoc::from('paydocs as pd')
+                ->where(['pd.ownorgid' => $ownorgid, 'pd.orgid' => $orgid, 'pd.active' => 1])
+                ->whereRaw($sc2)
+                ->select('pd.paydate as operdate', db::raw('1 as sumtypeid')
+                    , db::raw("520 as sysobjid")
+                    , db::raw("null as org_placename")
+                    , db::raw("concat('оплата (',ifnull(pd.reason,''),')') as descript")
+                    , db::raw("null as qty")
+                    , db::raw("pd.paydir*pd.paysum as opersum")
+                )
+                ->union($sells)
+                ->union($buys)
+                ->orderBy('operdate')
+                ->get();
+            //dd($recs);
+        }
+
+        $data = new \stdClass();
+        $data->returl = $returl;
+        $data->ownorg = org::find($ownorgid);
+        $data->org = org::find($orgid);
+        $data->org_saldo = $org_saldo;
+
+        //обновим счетчик использования отчета
+        report::updUseCnt($report_id, $userid, \Auth::user()->name);
+
+        //занесем в журнал
+        objlog::log_info(855, $report_id, 'запрошен отчет; ' . $ownorgid . '/' . $orgid);
+
+        $report_id = 48;
+        return view('paydocs.rep' . $report_id, compact('recs', 'data'));
     }
 
 }

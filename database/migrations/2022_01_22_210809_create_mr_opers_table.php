@@ -60,6 +60,7 @@ class CreateMrOpersTable extends Migration
             $table->decimal('agent_sum', 12,2)->nullable()->comment('Вознаграждение агента, руб');
 	    $table->biginteger('agentid')->unsigned()->nullable()->comment('ID агента (по Agents.id?)');
 
+	    $table->biginteger('drvsum_calctypeid')->unsigned()->nullable()->comment('ID типа расчета ЗП водителя (driver_sum) 1-ручной, 2-базовая схема, 3-схема ГК Восток');
             $table->decimal('driver_sum', 12,2)->nullable()->comment('ЗП водителя от операции, руб');
 
 
