@@ -386,8 +386,7 @@ class PayDocReportController extends Controller
                 ->whereRaw($sc1)
                 ->select('mr.wrkdate as operdate', db::raw('2 as sumtypeid')
                     , db::raw("1106 as sysobjid")
-                    , 'mro.org_placename'
-//                ,'mro.id as objid'
+                    , db::raw('max(mro.org_placename) as org_placename')
                     , db::raw("concat(ri.name,', ',ri.unit) as descript")
                     , db::raw("sum(mro.itm_qty) as qty")
                     , db::raw("sum(-mro.itm_sum) as opersum")
@@ -401,7 +400,7 @@ class PayDocReportController extends Controller
                 ->whereRaw($sc1)
                 ->select('mr.wrkdate as operdate', db::raw('2 as sumtypeid')
                     , db::raw("1106 as sysobjid")
-                    , 'mro.org_placename'
+                    , db::raw('max(mro.sup_placename) as org_placename')
                     , db::raw("concat(ri.name,', ',ri.unit) as descript")
                     , db::raw("sum(mro.itm_qty) as qty")
                     , db::raw("sum(+mro.itm_sum) as opersum")
