@@ -27,7 +27,7 @@
                                                  class="text-decoration-none" title="по фин. транзакциям">{{$itm->orgname}}</a>
                             <a href="{{route('reports.rep53',[$itm->ownorgid,$itm->orgid])}}?returl={{$retURL}}"
                                class="ml-1 text-decoration-none" title="по услугам и платежам">...</a>
-                            <div class="small text-right" title="Куратор">{{$itm->org_curators}}</div>
+                            <span class="small text-right ml-1" title="Куратор">{{$itm->org_curators}}</span>
                         </div>
                         <div class="col-md-4 small">{{$itm->ownorgname}}</div>
                         <div class="col-md-3 text-right font-weight-bold text-nowrap {{$td_class}}"
