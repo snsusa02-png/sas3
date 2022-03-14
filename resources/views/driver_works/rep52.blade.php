@@ -211,6 +211,7 @@ $action_url = route('reports.rep' . $thisObjId);
                             <td rowspan="1">Работник</td>
                             <td rowspan="1" class="text-center">Оклад, &#8381;</td>
                             <td rowspan="1" class="text-center">Сдельная часть, &#8381;</td>
+                            <td rowspan="1" class="text-center">Всего, &#8381;</td>
                         </tr>
                         <?php
                         $npp = 0;
@@ -232,6 +233,7 @@ $action_url = route('reports.rep' . $thisObjId);
                                 <td>{{$itm->staff_name}}, <span class="small ml-2"> {{$itm->postname}}</span></td>
                                 <td class="text-right">{{number_format($itm->salary_sum,2)}}</td>
                                 <td class="text-right">{{number_format($itm->driver_sum,2)}}</td>
+                                <td class="text-right font-weight-bold">{{number_format($itm->salary_sum+$itm->driver_sum,2)}}</td>
                             </tr>
                             <?php
                             $totDrvSum += $itm->driver_sum;
@@ -241,16 +243,12 @@ $action_url = route('reports.rep' . $thisObjId);
                         @endforeach
 
                         <tr>
-                            <td colspan="2" class="text-right">Всего:</td>
+                            <td colspan="2" class="text-right">Итого:</td>
                             <td class="text-right font-weight-bold">{{number_format($totSlrSum,2)}}</td>
                             <td class="text-right font-weight-bold">{{number_format($totDrvSum,2)}}</td>
-                        </tr>
-                        <tr>
-                            <td colspan="2" class="text-right">Итого:</td>
-                            <td colspan="2" class="text-center font-weight-bold">{{number_format($totSum,2)}}</td>
+                            <td class="text-right font-weight-bold">{{number_format($totSum,2)}}</td>
                         </tr>
                     </table>
-
                     {{-- ------------------------------------------------------------------------------------------}}
 
                 </div>
