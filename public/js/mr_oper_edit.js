@@ -44,16 +44,25 @@ $(document).ready(function () {
 
 
     function recalc_driver_sum() {
-        const itm_sum = parseFloat($("#itm_sum").val()) ?? 0;
-        var agent_sum = parseFloat($("#agent_sum").val()) ?? 0;
-        agent_sum = (isNaN(agent_sum)) ? 0 : agent_sum;
-        const k1 = ($("#paytypeid").val() == 1) ? 1 : 0.8;
-        const k2 = 0.1;
 
-        var driver_sum = Math.round((itm_sum * k1 - agent_sum) * k2 * 100) / 100;
-        driver_sum = (driver_sum < 0) ? 0 : driver_sum;
-        $("#driver_sum").val(driver_sum);
-        $("#driver_sum").attr("max",driver_sum);
+        const opertypeid = $("#opertypeid").val();
+        if (opertypeid == 3 || opertypeid == 4) {
+            $(".driver_sum_info").show();
+            const itm_sum = parseFloat($("#itm_sum").val()) ?? 0;
+            var agent_sum = parseFloat($("#agent_sum").val()) ?? 0;
+            agent_sum = (isNaN(agent_sum)) ? 0 : agent_sum;
+            const k1 = ($("#paytypeid").val() == 1) ? 1 : 0.8;
+            const k2 = 0.1;
+
+            var driver_sum = Math.round((itm_sum * k1 - agent_sum) * k2 * 100) / 100;
+            driver_sum = (driver_sum < 0) ? 0 : driver_sum;
+            $("#driver_sum").val(driver_sum);
+            $("#driver_sum").attr("max", driver_sum);
+        } else {
+            $(".driver_sum_info").hide();
+            $("#driver_sum").val('');
+            $("#driver_sum").attr("max", 0);
+        }
         //console.log(driver_sum)
     }
 
@@ -1296,12 +1305,18 @@ $(document).ready(function () {
             $("#lbl_org_place").html('Место');
             $("#lbl_org_place").parent().removeClass('required')
 
+            $('.agent_sum_info').hide();
+            $('.driver_sum_info').hide();
+
         } else if (sale_dir == +1) {
             //Продажа
 
             $("#lbl_sup").html('Исполнитель')
             $("#lbl_org").html('Заказчик')
             $('#itm_price').prop('readonly', false);
+
+            $('.agent_sum_info').hide();
+            $('.driver_sum_info').hide();
 
             if (opertypeid == 1) {
             } else if (opertypeid == 3) {

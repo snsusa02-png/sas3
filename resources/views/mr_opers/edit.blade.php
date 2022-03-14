@@ -412,7 +412,7 @@
                                             <div class="input-group mb-3 ">
                                                 <input type="number" name="driver_sum" id="driver_sum"
                                                        class="form-control text-right font-weight-bold"
-                                                       {{$readonly}}
+                                                       {{$readonly}} step="0.01"
                                                        value="{{old('driver_sum',$rec->driver_sum)}}">
                                             </div>
                                         @else
