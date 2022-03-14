@@ -230,7 +230,7 @@ $action_url = route('reports.rep' . $thisObjId);
                             ?>
                             <tr>
                                 <td class="small text-right">{{++$npp}}</td>
-                                <td>{{$itm->staff_name}}, <span class="small ml-2"> {{$itm->postname}}</span></td>
+                                <td><a href="{{route('orgstaff.edit',$itm->staffid)}}" target="_blank">{{$itm->staff_name}}</a>, <span class="small ml-2"> {{$itm->postname}}</span></td>
                                 <td class="text-right">{{number_format($itm->salary_sum,2)}}</td>
                                 <td class="text-right">{{number_format($itm->driver_sum,2)}}</td>
                                 <td class="text-right font-weight-bold">{{number_format($itm->salary_sum+$itm->driver_sum,2)}}</td>
