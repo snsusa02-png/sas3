@@ -1319,6 +1319,9 @@ $(document).ready(function () {
             $('.driver_sum_info').hide();
 
             if (opertypeid == 1) {
+                $('.raid_info').show();
+            } else if (opertypeid == 2) {
+                $('.raid_info').show();
             } else if (opertypeid == 3) {
                 $('.agent_sum_info').show();
                 $('.driver_sum_info').show();
