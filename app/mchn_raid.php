@@ -154,6 +154,13 @@ class mchn_raid extends Model
             DB::transaction(function () {
                 $this->mr_opers()->delete();
                 $this->files()->delete();  //TODO: ? ->deleteOne() ? Так как не удаляется файл с диска
+
+                //удалим записи из obj_finopers, для которых уже нет соответствующих записей в mr_opers
+                obj_finoper::from('obj_finopers as f')
+                    ->where('sysobjid', 1107)
+                    ->whereRaw("not exists (select 1 from mr_opers as mro where mro.id=f.objid)")
+                    ->delete();
+
                 return parent::delete();
             });
         } catch (\Exception $e) {
@@ -210,6 +217,11 @@ class mchn_raid extends Model
     {
         // Доп. действия при удалении записи
 
+        //удалим записи из obj_finopers, для которых уже нет соответствующих записей в mr_opers
+        obj_finoper::from('obj_finopers as f')
+            ->where('sysobjid', self::$sysobjid)
+            ->whereRaw("not exists (select 1 from mr_opers as mro where mro.id=f.objid)")
+            ->delete();
 
         //Забудем связанный кэш -----------------
         self::cache_clear($rec);

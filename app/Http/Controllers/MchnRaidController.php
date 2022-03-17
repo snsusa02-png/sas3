@@ -20,6 +20,7 @@ use App\refitem;
 use App\sysobj;
 use App\sysobj_lockdate;
 use App\place;
+use App\Traits\Result;
 use App\Traits\SearchDataTrait;
 use App\Traits\snsTrait;
 use App\unittype;
@@ -951,9 +952,11 @@ class MchnRaidController extends Controller
                 objlog::log_info($this->sysobjid, $id, $res->msg, 2);
 
             } else {
+
                 $route = route($this->sysobjcode . '.index') . '?page=' . session('pageno');
                 $sd['success'] = 'Запись о перевозке удалена административно';
                 objlog::log_info($this->sysobjid, 0, "Административное удаление перевозки id=" . $id, 2);
+
             }
             return redirect($route)->with($sd);
         }
@@ -1092,7 +1095,7 @@ class MchnRaidController extends Controller
                 ['sysobjid' => 520, 'tbl' => 'paydocs'],
                 ['sysobjid' => 1107, 'tbl' => 'mr_opers'],
             ];
-            foreach ($chk_list as $itm){
+            foreach ($chk_list as $itm) {
                 //удалим записи из obj_finopers, для которых нет соответствующих записей в исходной таблице
                 $tbl = $itm['tbl'];
                 obj_finoper::from('obj_finopers as f')

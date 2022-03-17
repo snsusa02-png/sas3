@@ -138,7 +138,7 @@ $thisTitle = $report->title ?? $report->name;
                         $day_qty = $day_sum = 0;
                         ?>
                         @foreach($recs as $rec)
-                            @if($rec->operdate<>$cur_operdate)
+                            @if(1==0 and $rec->operdate<>$cur_operdate)
                                 @if($cur_operdate<>-1)
                                     <tr class="text-left font-italic" style="background-color: #cfebff">
                                         <td class="text-right small " colspan="2">
@@ -172,12 +172,16 @@ $thisTitle = $report->title ?? $report->name;
                             $sh_qty = (isset($rec->qty)) ? number_format($rec->qty, 2) : '';
                             $sh_price = (isset($rec->price)) ? number_format($rec->price, 2) : '';
 
-                            $ref_url = null;
+                            if ($rec->sysobjid == 520)
+                                $ref_url = route('paydocs.edit', $rec->objid);
+                            else
+                                $ref_url = null;
 
                             $tstyle = ($rec->sumtypeid == 1) ? 'background-color:#ffff94' : '';
                             ?>
                             <tr class="text-left" style="{{$tstyle}}">
                                 <td class="text-center small">
+                                    {{date_create($rec->operdate)->format('d.m.Y')}}
                                 </td>
                                 <td class="text-left small">
                                     <span class="font-weight-bold small"> {{$sumtypes[$rec->sumtypeid]??'?'}}</span>:
