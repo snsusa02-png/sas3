@@ -166,16 +166,19 @@ $thisTitle = $report->title ?? $report->name;
                             <?php
                             $curSum += $rec->opersum;
 
-                            $td_class = ($rec->itmsum < 0) ? 'text-danger' : (($rec->itmsum > 0) ? 'text-success' : '');
+                            $td_class = ($rec->opersum < 0) ? 'text-danger' : (($rec->opersum > 0) ? 'text-success' : '');
                             $tdс_class = ($curSum < 0) ? 'text-danger' : (($totSum > 0) ? 'text-success' : '');
 
                             $sh_qty = (isset($rec->qty)) ? number_format($rec->qty, 2) : '';
-                            $sh_price = (isset($rec->price)) ? number_format($rec->price, 2) : '';
+                            //$sh_price = (isset($rec->price)) ? number_format($rec->price, 2) : '';
+                            $sh_price = '';
+                            if (isset($rec->qty) and isset($rec->qty) > 0)
+                                $sh_price = number_format(abs($rec->opersum) / $rec->qty, 2);
 
-//                            if ($rec->sysobjid == 520)
-//                                $ref_url = route('paydocs.edit', $rec->objid);
-//                            else
-                                $ref_url = null;
+                            //                            if ($rec->sysobjid == 520)
+                            //                                $ref_url = route('paydocs.edit', $rec->objid);
+                            //                            else
+                            $ref_url = null;
 
                             $tstyle = ($rec->sumtypeid == 1) ? 'background-color:#ffff94' : '';
                             ?>
