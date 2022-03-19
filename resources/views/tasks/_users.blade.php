@@ -22,7 +22,7 @@
         </div>
 
         @if (count($rec->users)>0)
-            <div class="card-body collapse" id="users">
+            <div class="card-body collapse show" id="users">
                 <table class="table-condensed table-striped small" style="width: 100%;">
                     <thead>
                     <tr>
@@ -92,19 +92,15 @@
                     </tbody>
                 </table>
             </div>
-            <div class="card-footer">
-                <div class="small text-right"> всего персон: {{count($rec->readers)}},
-{{--                    подходов: {{number_format($totReadCnt,0)}}--}}
-                </div>
-
-                @if (1==0 and $MustReadNoReadCnt>0)
+            @if (1==0 and $MustReadNoReadCnt>0)
+                <div class="card-footer">
                     <a class="btn btn-close btn-primary ml-2 btn-sm"
                        href="{{ route('contracts.notify_mustreaders', $rec->id) }}"
                        title="Уведомить обязательных читателей">
                         <i class="fa fa-paper-plane" aria-hidden="true"></i>
                     </a>
-                @endif
-            </div>
+                </div>
+            @endif
         @endif
     </div>
 @endif
