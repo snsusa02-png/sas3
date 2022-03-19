@@ -213,7 +213,6 @@
                                         @endif
                                     </div>
 
-
                                 </div>
 
                                 <div class="row">
@@ -227,18 +226,8 @@
                                             <div class="input-group mb-3 ">
                                                 <input type="number" name="itm_qty" id="itm_qty"
                                                        class="form-control text-right font-weight-bold" required
-                                                       min="0" step="0.01" max="999"
+                                                       min="0" step="0.001" max="999"
                                                        value="{{old('itm_qty',$rec->itm_qty)}}">
-
-                                                {{--                                                {!! Form::select('qty_unittypeid', $rec->unittypes??[],--}}
-                                                {{--                                                    old('qty_unittypeid',$rec->qty_unittypeid),--}}
-                                                {{--                                                 [--}}
-                                                {{--                                                     'id' => 'qty_unittypeid',--}}
-                                                {{--                                                 'class' => 'form-control small',--}}
-                                                {{--                                                 'placeholder' => '',--}}
-                                                {{--                                                 'required' => 'required',--}}
-                                                {{--                                                 'style' => 'max-width:36%',--}}
-                                                {{--                                                 ]) !!}--}}
                                             </div>
                                         @else
                                             <div class="font-weight-bold">{{$rec->itm_qty}} {{$rec->qty_unit}}</div>
