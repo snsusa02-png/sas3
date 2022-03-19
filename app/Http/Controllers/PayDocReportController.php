@@ -168,6 +168,13 @@ class PayDocReportController extends Controller
             $recs = org::from('orgs as o')
                 ->whereRaw($sc);
 
+
+            $sc_task = "";
+            //Если у пользователя нет права в Задачах, то показывать только публичные задачи и задачи в которых он участвует
+            if ( !usrsysright::isUserHasRightByCode_cached($userid, 'tasks.read'))
+                $sc_task = " and ( tsk.public_lvl=2 or tsk.inituserid={$userid}
+                                    or exists (select 1 from task_users r where r.taskid=tsk.id and userid={$userid}) )";
+
             $recs = $recs->select(
                 'o.id as orgid', 'o.name as orgname'
                 , db::raw("orgSaldo_onDate(o.id, {$ownorgid}, null) as org_saldo")
@@ -177,7 +184,12 @@ class PayDocReportController extends Controller
                             on oc.staffid=os.id and oc.active=1 and now() between oc.begdt and ifnull(oc.enddt,now())
                             where oc.orgid=o.id
                             ) as org_curators")
-
+                , db::raw("(select group_concat( concat(tsk.name,'|',tsk.id)  SEPARATOR ';')
+                            from tasks as tsk
+                            where tsk.srcsysobjid=111 and tsk.srcobjid=o.id
+                            and tsk.statusid is null
+                            {$sc_task}
+                            ) as tasks")
             )
                 ->orderby('org_saldo', 'asc')
                 ->get();
@@ -209,7 +221,10 @@ class PayDocReportController extends Controller
             'in_org_curators_now' => 1,
         ]);
 
-        return view('paydocs.rep' . $report_id, compact('recs', 'search_params', 'data'));
+        $usrrights = [];
+        $usrrights['link_tasks'] = usrsysright::isUserHasRightByCode_cached($userid, 'tasks.create');
+
+        return view('paydocs.rep' . $report_id, compact('recs', 'search_params', 'data', 'usrrights'));
     }
 
     public

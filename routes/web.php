@@ -1133,6 +1133,45 @@ Route::get('_lockdates/{sysobjid}/edit', "SysobjLockdateController@edit")->name(
 Route::match(array('POST', 'PUT'), '_lockdates/{sysobjid}', "SysobjLockdateController@update")->name('sysobj_lockdates.update');
 //----------------------------------------------------------------------------------------------------------------------
 
+// Задачи --------------------------------------------------------------------------------------------------------------
+Route::get('/tasks', 'myTaskController@index')->name('tasks.index');
+Route::get('/tasks/create', 'myTaskController@create')->name('tasks.create');
+Route::get('/tasks/edit/{id}', 'myTaskController@edit')->name('tasks.edit');
+Route::match(array('POST', 'PUT'), 'tasks/{id}', "myTaskController@update")->name('tasks.update');
+Route::put('/tasks/delete/{id}', 'myTaskController@destroy')->name('tasks.delete');
+
+Route::match(array('POST', 'PUT'), 'tasks/take/{id}', "myTaskController@take")->name('tasks.take');
+Route::match(array('POST', 'PUT'), 'tasks/break/{id}', "myTaskController@breakwork")->name('tasks.break');
+Route::match(array('POST', 'PUT'), 'tasks/complete/{id}', "myTaskController@complete")->name('tasks.complete');
+//----------------------------------------------------------------------------------------------------------------------
+
+//работники по задаче
+Route::get('/task_users/create/{taskid}', "TaskUserController@create")->name('task_users.create');
+Route::get('/task_users/edit/{id}', 'TaskUserController@edit')->name('task_users.edit');
+Route::match(array('POST', 'PUT'), '/task_users/update/{id}', "TaskUserController@update")->name('task_users.update');
+Route::put('/task_users/delete/{id}', "TaskUserController@destroy")->name("task_users.delete");
+
+//отчеты по задаче
+Route::get('/task_reports/create/{taskid}', "TaskReportController@create")->name('task_reports.create');
+Route::get('/task_reports/edit/{id}', 'TaskReportController@edit')->name('task_reports.edit');
+Route::match(array('POST', 'PUT'), '/task_reports/update/{id}', "TaskReportController@update")->name('task_reports.update');
+Route::put('/task_reports/delete/{id}', "TaskReportController@destroy")->name("task_reports.delete");
+
+//Route::get('/fullcalendar', 'FullCalendarEventMasterController@index');
+Route::match(array('GET', 'POST', 'PUT'), '/events', 'FullCalendarEventMasterController@index')->name('events.calendar');
+Route::get('/fullcalendar/get', 'FullCalendarEventMasterController@get');
+Route::post('/fullcalendar/create', 'FullCalendarEventMasterController@create');
+Route::post('/fullcalendar/update', 'FullCalendarEventMasterController@update');
+Route::post('/fullcalendar/move', 'FullCalendarEventMasterController@move');
+Route::post('/fullcalendar/delete', 'FullCalendarEventMasterController@destroy');
+
+
+Route::get('/tasks', 'myTaskController@index')->name('tasks.index');
+Route::get('/tasks/create', 'myTaskController@create')->name('tasks.create');
+Route::get('/tasks/edit/{id}', 'myTaskController@edit')->name('tasks.edit');
+Route::match(array('POST', 'PUT'), 'tasks/{id}', "myTaskController@update")->name('tasks.update');
+Route::put('/tasks/delete/{id}', 'myTaskController@destroy')->name('tasks.delete');
+
 
 // Информеры -----------------------------------------------------------------------------------------------------------
 Route::match(array('GET', 'POST'), '/informers/', "InformerController@index")->name('informers.index');

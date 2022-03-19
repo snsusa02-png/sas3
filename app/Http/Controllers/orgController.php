@@ -90,6 +90,7 @@ class orgController extends Controller
         $usrrights['org_acnts.create'] = false;
         $usrrights['orgdeps.read'] = false;
         $usrrights['orgdeps.create'] = false;
+        $usrrights['link_tasks'] = false;
 
         if ($id == -1) {
             $usrrights['save'] = $usrrights['create'];
@@ -104,6 +105,7 @@ class orgController extends Controller
             $usrrights['org_acnts.create'] = usrsysright::isUserHasRightByCode_cached($userid, 'org_acnts.create');
             $usrrights['orgdeps.read'] = usrsysright::isUserHasRightByCode_cached($userid, 'org_acnts.read');
             $usrrights['orgdeps.create'] = usrsysright::isUserHasRightByCode_cached($userid, 'org_acnts.create');
+            $usrrights['link_tasks'] = usrsysright::isUserHasRightByCode_cached($userid, 'tasks.create');
         }
         return $usrrights;
     }
@@ -530,6 +532,9 @@ class orgController extends Controller
             +1 => 'позитивный',
         ];
 
+        $data = new \stdClass();
+        $data->sysobjid = $this->sysobjid;
+        //$data->sysobj = sysobj::find($this->sysobjid);
 
         $ObjFlags = objflag::getFlags4Obj($this->sysobjid, $id);
 
@@ -553,7 +558,7 @@ class orgController extends Controller
 //            ->get();
         //dd($rec->paydocs);
 
-        return view($this->sysobjcode . '.edit', compact('rec', 'auxinfo', "ObjFlags", "usrrights"));
+        return view($this->sysobjcode . '.edit', compact('rec', 'data', 'auxinfo', "ObjFlags", "usrrights"));
     }
 
     /**

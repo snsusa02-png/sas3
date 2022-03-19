@@ -38,6 +38,12 @@ class task_user extends Model
             ->toArray();
     }
 
+    public static function pln_executors($taskid)
+    {
+        //return [7 => 'исполнитель', 8 => 'куратор'];
+        return self::where(['taskid' => $taskid, 'roletypeid' => 7])->select('userid')->get()->pluck('userid')->toArray();
+    }
+
     public function whocrt()
     {
         return $this->hasOne(User::class, 'id', 'created_by');

@@ -234,10 +234,16 @@ class org_saldo extends Model
         if (!usrsysright::isUserHasRightByCode_cached($userid, 'paydocs.read'))
             return null;
 
-        Cache::forget('informer_all_saldos');
+        //Cache::forget('informer_all_saldos');
         return Cache::remember('informer_all_saldos', now()->addMinutes(15)
-            , function () {
-                //Сводка контрашентов с ненулевым балансом по всем организациям ГК
+            , function () use ($userid) {
+                //Сводка контрагентов с ненулевым балансом по всем организациям ГК
+
+                $sc_task = "";
+                //Если у пользователя нет права в Задачах, то показывать только публичные задачи и задачи в которых он участвует
+                if ( !usrsysright::isUserHasRightByCode_cached($userid, 'tasks.read'))
+                    $sc_task = " and ( tsk.public_lvl=2 or tsk.inituserid={$userid}
+                                    or exists (select 1 from task_users r where r.taskid=tsk.id and userid={$userid}) )";
 
                 return DB::select( DB::raw(
                     "select oo.name as ownorgname, o.name as orgname, a.*
@@ -248,6 +254,12 @@ class org_saldo extends Model
                             on oc.staffid=os.id and oc.active=1 and now() between oc.begdt and ifnull(oc.enddt,now())
                             where oc.orgid=o.id
                             ) as org_curators
+                    , (select group_concat( concat(tsk.name,'|',tsk.id)  SEPARATOR ';')
+                            from tasks as tsk
+                            where tsk.srcsysobjid=111 and tsk.srcobjid=o.id
+                and tsk.statusid is null
+                            {$sc_task}
+                            ) as tasks
 from (
     SELECT srcorgid as ownorgid, tgtorgid as orgid FROM `obj_finopers`
 where exists (select 1 from objflags as f where f.sysobjid=111 and f.objid=srcorgid and f.flagtypeid=12)

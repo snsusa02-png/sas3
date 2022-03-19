@@ -1,4 +1,16 @@
 ﻿--------------------------------------------------------------------------------------------------
+2022.03.19
+--------------------------------------------------------------------------------------------------
+ALTER TABLE `sasdv`.`mr_opers`
+CHANGE COLUMN `itm_qty` `itm_qty` DECIMAL(8,3) NOT NULL COMMENT 'кол-во товара (в единицах qty_unit)' ;
+
+update org_curators oc
+set userid=(select userid from orgstaff as os where os.id=oc.staffid)
+where oc.userid is null
+
+select * FROM `obj_finopers` as fo WHERE sysobjid=1107 and not exists (select 1 from mr_opers as mro where mro.id=fo.objid)
+
+--------------------------------------------------------------------------------------------------
 2022.03.13
 --------------------------------------------------------------------------------------------------
 ALTER TABLE `sasdv`.`mr_opers`

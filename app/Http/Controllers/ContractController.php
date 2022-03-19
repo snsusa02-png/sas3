@@ -85,6 +85,7 @@ class ContractController extends Controller
         $usrrights['admindelete'] = false;
         $usrrights['contract_workplans.create'] = false;
         $usrrights['obj_staffs.create'] = false;
+        $usrrights['link_tasks'] = false;
 
         if ($id == -1) {
             $usrrights['save'] = $usrrights['create'];
@@ -103,6 +104,9 @@ class ContractController extends Controller
 
             $usrrights['contract_reviews.read'] = usrsysright::isUserHasRightByCode_cached($userid, 'contracts.read');
             $usrrights['contract_reviews.create'] = usrsysright::isUserHasRightByCode_cached($userid, 'contracts.create');
+
+            $usrrights['link_tasks'] = usrsysright::isUserHasRightByCode_cached($userid, 'tasks.create');
+
         }
 
         return $usrrights;
@@ -734,7 +738,7 @@ class ContractController extends Controller
             $rec->template_id = user_template::where(['sysobjid' => $this->sysobjid, 'userid' => $userid])->first()->id ?? null;
 
 
-            if ($userid == 121 or 1==1)
+            if ($userid == 121 or 1 == 1)
                 $rec->finopers = obj_finoper::from('obj_finopers as fo')
                     ->join('orgs as s_o', 's_o.id', 'fo.srcorgid')
                     ->join('orgs as t_o', 't_o.id', 'fo.tgtorgid')

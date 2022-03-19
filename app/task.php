@@ -30,6 +30,27 @@ class task extends Model
         return $this->hasOne(User::class, 'id', 'updated_by')->withDefault();
     }
 
+    public function inituser()
+    {
+        return $this->hasOne(User::class, 'id', 'inituserid')->withDefault();
+    }
+
+    public function executor()
+    {
+        return $this->hasOne(User::class, 'id', 'exeuserid')->withDefault();
+    }
+
+
+    public static function public_lvls()
+    {
+        return [0 => 'личная запись', 1 => 'видны дата/время', 2 => 'публичная'];
+    }
+
+    public static function exe_statuses()
+    {
+        //return [1 => 'в ожидании', 2 => 'выполняется', 3 => 'выполнено', 4 => 'не выполнено', 5 => 'отменено'];
+        return [ 3 => 'выполнено', 4 => 'не выполнено'];
+    }
 
     public function tags()
     {
@@ -55,7 +76,7 @@ class task extends Model
     public function getInfoAttribute()
     {
         if (isset($this->id)) {
-            $rslt = 'Событие: "' . $this->title . '", ' . date_format(date_create($this->begdt), "d.m.Y H:i");
+            $rslt = 'Задача: "' . $this->inituser->name . ': ' . $this->name . '"';
             if (isset($this->event_place))
                 $rslt .= ', место: ' . $this->event_place;
             return $rslt;
@@ -80,6 +101,25 @@ class task extends Model
             }
         );
         return $data;
+    }
+
+    public static function cache_clear($rec)
+    {
+        //Забудем связанный кэш -------------------------------------
+        if (isset($rec)) {
+        }
+        Cache::forget('informer_all_saldos');   //из-за того что в информере отбражаются задачи, связанные с контрагентом
+        //-----------------------------------------------------------
+    }
+
+    public static function on_update($rec)
+    {
+        // Доп. действия при изменении записи
+
+
+        //Забудем связанный кэш -----------------
+        self::cache_clear($rec);
+
     }
 
     public static function make_notifies()
@@ -148,5 +188,44 @@ class task extends Model
         //удалить ззавершенные (по времени отображения) уведомления
         user_notice::removeEnded();
     }
+
+
+    static public function informer_user_wait_tasks($userid = null)
+    {
+        //Cache::forget('informer_user_wait_tasks' . ($userid ?? '*'));
+        return Cache::remember('informer_user_wait_tasks' . ($userid ?? '*'), now()->addMinutes(15)
+            , function () use ($userid) {
+
+                $lst = self::from('tasks as tsk')
+                    ->join('users as iu', 'iu.id', 'tsk.inituserid')
+                    ->whereIn('tsk.statusid', [1])
+                    ->whereRaw("exists(select 1 from task_users as tu where tu.taskid=tsk.id and tu.roletypeid=7 and tu.userid={$userid})")
+                    ->select('tsk.id', 'tsk.name', 'tsk.priority', 'tsk.plnbegdt', 'tsk.plnenddt', 'tsk.inituserid', 'iu.name as inituser_name')
+                    ->orderBy('tsk.priority', 'desc')
+                    ->orderBy('tsk.plnbegdt', 'asc')
+                    ->get();
+                return ($lst);
+
+            });
+    }
+
+    static public function informer_user_exec_tasks($userid = null)
+    {
+        //Cache::forget('informer_user_exec_tasks' . ($userid ?? '*'));
+        return Cache::remember('informer_user_exec_tasks' . ($userid ?? '*'), now()->addMinutes(15)
+            , function () use ($userid) {
+
+                $lst = self::from('tasks as tsk')
+                    ->join('users as iu', 'iu.id', 'tsk.inituserid')
+                    ->whereIn('tsk.statusid', [2])
+                    ->where('tsk.exeuserid', $userid)
+                    ->select('tsk.id', 'tsk.name', 'tsk.priority', 'tsk.fctbegdt', 'tsk.plnbegdt', 'tsk.plnenddt', 'tsk.progress', 'tsk.inituserid', 'iu.name as inituser_name')
+                    ->orderBy('tsk.fctbegdt', 'asc')
+                    ->get();
+                return ($lst);
+
+            });
+    }
+
 
 }

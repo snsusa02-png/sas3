@@ -205,8 +205,6 @@ class org_curator extends Model
             ->where('c.orgid', '=', $orgid)
             ->where('c.active', 1)
             ->whereRaw('? between c.begdt and ifnull(c.enddt,now())', [$viewdt])
-//            ->where('c.begdt', '<=', $viewdt)
-//            ->whereRaw('ifnull(c.enddt,now())>=now()')
             ->select('c.userid')
             ->first();
 

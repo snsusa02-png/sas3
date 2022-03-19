@@ -15,6 +15,10 @@ if (!isset($report))
 $thisTitle = $report->title ?? $report->name;
 $action_url = route('reports.rep' . $thisObjId);
 
+$userid = \Auth::user()->id;
+$usrrights = [];
+$usrrights['link_tasks'] = \App\usrsysright::isUserHasRightByCode_cached($userid, 'tasks.create');;
+
 ?>
 @section('title')
     {{$thisTitle}}
@@ -230,12 +234,44 @@ $action_url = route('reports.rep' . $thisObjId);
                                     <a href="{{route('reports.rep48',[$ownorgid,$rec->orgid])}}?returl={{$retURL}}"
                                        target="_blank1"
                                        class="text-decoration-none">{{$rec->orgname}}</a>
-                                    <a href="{{route('reports.rep53',[$ownorgid,$rec->orgid])}}?returl={{$retURL}}"
-                                       target="_blank1"
-                                       class="ml-3 small text-decoration-none">по поставкам</a>
-                                </td>
-                                <td class="text-right {{$td_class}}">{{number_format($rec->org_saldo,2)}}
+{{--                                    <a href="{{route('reports.rep53',[$ownorgid,$rec->orgid])}}?returl={{$retURL}}"--}}
+{{--                                       target="_blank1"--}}
+{{--                                       class="ml-3 small text-decoration-none">по поставкам</a>--}}
 
+                                    <div class="float-right">
+                                        @if( $usrrights['link_tasks']??false )
+                                            <a href="{{ route('tasks.create')}}?srcsysobjid=111&srcobjid={{$rec->orgid}}&returl={{Request::url()}}"
+                                               class=""
+                                               title="Создать задачу">
+                                                <i class="fa fa-plus-circle text-info text-right" aria-hidden="true"></i>
+                                            </a>
+                                        @endif
+                                        @if(isset($rec->tasks))
+                                            <?php
+                                            $tasks = explode(';', $rec->tasks);
+                                            ?>
+                                            <label class="small mb-0">Задачи:</label>
+                                            <ul class="mb-1" style="border-top: 1px solid silver; ">
+                                                @foreach($tasks as $task)
+                                                    <?php
+                                                    $itm = explode('|', $task);
+                                                    ?>
+                                                    <li><a href="{{route('tasks.edit',$itm[1]??0)}}?returl={{Request::url()}}"
+                                                           style="color: firebrick"
+                                                           target="_blank">{{$itm[0]}}</a></li>
+                                                @endforeach
+                                            </ul>
+                                        @endif
+
+                                    </div>
+                                </td>
+                                <td class="text-right {{$td_class}}">
+                                    <a href="{{route('reports.rep53',[$ownorgid,$rec->orgid])}}?returl={{$retURL}}"
+                                       target="_blank1" style="color:inherit;"
+                                       class="text-decoration-none">
+                                {{number_format($rec->org_saldo,2)}}
+                                    </a>
+                                </td>
                             </tr>
                             <?php
                             $totSum += $rec->org_saldo;

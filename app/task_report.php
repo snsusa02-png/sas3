@@ -24,6 +24,11 @@ class task_report extends Model
         return $this->hasOne(task::class, 'id', 'taskid');
     }
 
+    public function user()
+    {
+        return $this->hasOne(User::class, 'id', 'userid')->withDefault();
+    }
+
     public function whocrt()
     {
         return $this->hasOne(User::class, 'id', 'created_by')->withDefault();

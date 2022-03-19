@@ -179,6 +179,7 @@ class OrgCuratorController extends Controller
         }
         //$rec->userid = $request->get('userid');
         $rec->staffid = $request->get('staffid');
+        $rec->userid = $rec->staff->userid;
 
 //        $staffid = User::find($rec->userid)->StaffID;
 //        $staffid = isset($staffid) ? $staffid : 0;
