@@ -40,6 +40,11 @@ class task extends Model
         return $this->hasOne(User::class, 'id', 'exeuserid')->withDefault();
     }
 
+    public function srcsysobj()
+    {
+        return $this->hasOne(sysobj::class, 'id', 'srcsysobjыйдid')->withDefault();
+    }
+
 
     public static function public_lvls()
     {
@@ -49,7 +54,7 @@ class task extends Model
     public static function exe_statuses()
     {
         //return [1 => 'в ожидании', 2 => 'выполняется', 3 => 'выполнено', 4 => 'не выполнено', 5 => 'отменено'];
-        return [ 3 => 'выполнено', 4 => 'не выполнено'];
+        return [3 => 'выполнено', 4 => 'не выполнено'];
     }
 
     public function tags()
@@ -109,6 +114,12 @@ class task extends Model
         if (isset($rec)) {
         }
         Cache::forget('informer_all_saldos');   //из-за того что в информере отбражаются задачи, связанные с контрагентом
+
+        Cache::forget('informer_user_active_tasks*');
+        foreach (task_user::from('task_users as tu')->join('tasks as t', 't.id', 'tu.taskid')->whereNull('t.statusid')->select('tu.userid')->distinct()->get() as $itm) {
+            Cache::forget('informer_user_active_tasks' . $itm->userid );
+        }
+
         //-----------------------------------------------------------
     }
 
@@ -227,5 +238,25 @@ class task extends Model
             });
     }
 
+    static public function informer_user_active_tasks($userid = null)
+    {
+        //2022-03-19 SNS модификация под САС ДВ - считается, что задачи со STATUSID is Null - пользователь уже выполняет
+        //Cache::forget('informer_user_active_tasks' . ($userid ?? '*'));
+        return Cache::remember('informer_user_active_tasks' . ($userid ?? '*'), now()->addMinutes(12)
+            , function () use ($userid) {
+
+                $lst = self::from('tasks as tsk')
+                    ->join('users as iu', 'iu.id', 'tsk.inituserid')
+                    ->whereNull('tsk.statusid')
+                    ->whereRaw("exists(select 1 from task_users as tu where tu.taskid=tsk.id and tu.roletypeid=7 and tu.userid={$userid})")
+                    ->select('tsk.id', 'tsk.name', 'tsk.priority', 'tsk.plnbegdt', 'tsk.plnenddt', 'tsk.inituserid'
+                        , 'tsk.srcobjinfo', 'iu.name as inituser_name')
+                    ->orderBy('tsk.priority', 'desc')
+                    ->orderBy('tsk.plnbegdt', 'asc')
+                    ->get();
+                return ($lst);
+
+            });
+    }
 
 }

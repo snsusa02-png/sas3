@@ -65,6 +65,7 @@ class CreateTasksTable extends Migration
             $table->bigInteger('srcsysobjid')->nullable()->unsigned()->comment('id типа объекта - источника задачи');
 		$table->foreign('srcsysobjid')->references('id')->on('sysobjs');
             $table->bigInteger('srcobjid')->nullable()->unsigned()->comment('id объекта в таблице, определяемой srcsysobjid');
+            $table->string('srcobjinfo',160)->nullable()->comment('Информация о связанном объекте - для отображения в списках');
 
             $table->integer('sortorder')->unsigned()->nullable()->default(0)->comment('');
 

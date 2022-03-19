@@ -8,6 +8,9 @@ update org_curators oc
 set userid=(select userid from orgstaff as os where os.id=oc.staffid)
 where oc.userid is null
 
+ALTER TABLE `sasdv`.`tasks`
+ADD COLUMN `srcobjinfo` VARCHAR(160) NULL COMMENT 'Информация о связанном объекте (для отображения в списках)' AFTER `updated_by`;
+
 select * FROM `obj_finopers` as fo WHERE sysobjid=1107 and not exists (select 1 from mr_opers as mro where mro.id=fo.objid)
 
 --------------------------------------------------------------------------------------------------

@@ -556,13 +556,23 @@ class myTaskController extends Controller
             return redirect(route($this->objcode . ' . index'));
 
 
+        //Привязка задачи к объекту ИС ------------
         $rec->srcsysobjid = $request->get('srcsysobjid');
         $rec->srcobjid = $request->get('srcobjid');
+        $src_model = sysobj::find($rec->srcsysobjid)->model_class;
+        if (isset($src_model)) {
+            $src_model = "\App\\" . $src_model;
+            $rec->srcobjinfo = $src_model::find($rec->srcobjid)->info ?? '';
+        } else
+            $rec->srcobjinfo = '';
+        //-----------------------------------------
+
         $rec->inituserid = $request->get('inituserid');
 
         //$rec->name = mb_substr($request->get('name'), 0, 160);
         $rec->name = mb_substr($request->get('descript'), 0, 160);
         $rec->descript = mb_substr($request->get('descript'), 0, 300);
+
         $rec->plnbegdt = $request->get('plnbegdt');
         $rec->plnenddt = $request->get('plnenddt') ?? $rec->plnbegdt;
         //$rec->place = mb_substr($request->get('place'), 0, 160);
@@ -577,7 +587,7 @@ class myTaskController extends Controller
         $rec->updated_at = now();
         $rec->save();
         objlog::log_info($this->sysobjid, $rec->id, $mess, 5);
-        connectify('success', $rec->name, $mess);
+        //connectify('success', $rec->name, $mess);
 
 
         // Сохранение тэгов -----------------------------------------------------------------
@@ -640,7 +650,7 @@ class myTaskController extends Controller
             objlog::log_info($this->sysobjid, $id, 'Попытка удаления записи', 2);
             $route = route('tasks.edit', $id);
             $sd["error"] = $res->msg;
-            connectify('error', $res->obj['name'], $res->msg);
+            //connectify('error', $res->obj['name'], $res->msg);
         } else {
             $sd['success'] = 'Запись о событии (' . $id . ': '
                 . $res->obj['name'] . ') удалена';
@@ -648,7 +658,7 @@ class myTaskController extends Controller
 
             $pageno = session($this->objcode . '_pageno');
             $route = route($this->objcode . '.index') . '?page=' . $pageno;
-            connectify('success', $res->obj['name'], 'Запись удалена.');
+            //connectify('success', $res->obj['name'], 'Запись удалена.');
         }
         return redirect($route)->with($sd);
     }
@@ -663,7 +673,7 @@ class myTaskController extends Controller
             $ownorgid = $request->ownorgid;
             $orgid = $request->orgid;
             $list = task::from("tasks as c")
-                ->join("orgs as oo", 'oo.id', "e.ownorgid")
+                ->join("orgs as oo", 'oo.id', "e . ownorgid")
                 ->where('e.ownorgid', $ownorgid);
             if (isset($orgid))
                 $list = $list->where('e.orgid', $orgid);
@@ -716,7 +726,7 @@ class myTaskController extends Controller
                 //сформируем сообщение
                 $obj = task::find($id);
 
-                $subj = "Уведомление о документе (" . $obj->name . ': ' . $obj->docnum . ' / ' . $obj->docdate . ")";
+                $subj = "Уведомление о документе(" . $obj->name . ': ' . $obj->docnum . ' / ' . $obj->docdate . ")";
 
 
                 $lstrcpts = ''; //список персон которым отправлено уведомление
@@ -734,10 +744,10 @@ class myTaskController extends Controller
                             //$email = 'snsusa02@gmail.com';
 
                             $msg = "Здравствуйте, " . $rcpt->fname . " " . $rcpt->mname . "!"
-                                . "<br>"
-                                . "<br>Вам необходимо ознакомиться с документом: <b>" . $obj->info . "</b>"
-                                . "<br><hr>"
-                                . " <a href='" . $ref_url . "'>Перейти к документу</a>";
+                                . " < br>"
+                                . " < br>Вам необходимо ознакомиться с документом: <b > " . $obj->info . "</b > "
+                                . "<br ><hr > "
+                                . " <a href = '" . $ref_url . "' > Перейти к документу </a > ";
                             //dd($subj, $msg);
                             dispatch((new SendNotify($email, $subj, $msg))->onQueue('high'));
                         }
@@ -782,7 +792,7 @@ class myTaskController extends Controller
     {
         task::make_notifies();
 
-        return redirect(route("tasks.index"))->with(['success' => 'ok']);
+        return redirect(route("tasks . index"))->with(['success' => 'ok']);
     }
 
 
@@ -811,7 +821,7 @@ class myTaskController extends Controller
         $rec->save();
 
         $msg = "Задача взята в работу";
-        connectify('success', '', $msg);
+        //connectify('success', '', $msg);
         objlog::log_info($this->sysobjid, $rec->id, $msg, 3);
 
         return redirect(route($this->sysobjcode . '.edit', $taskid));
@@ -840,7 +850,7 @@ class myTaskController extends Controller
         $rec->statusid = 1; //в ожидании
         $rec->save();
 
-        connectify('success', '', 'Приостановлена работа по задаче.');
+        //connectify('success', '', 'Приостановлена работа по задаче.');
         $msg = "Работа с задачей приостановлена";
         objlog::log_info($this->sysobjid, $rec->id, $msg, 3);
 

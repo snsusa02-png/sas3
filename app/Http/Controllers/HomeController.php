@@ -35,6 +35,7 @@ use MongoDB\Driver\Query;
 use App\orgstaff;
 use App\equiprqst_item;
 use App\document;
+use App\task;
 
 class HomeController extends Controller
 {
@@ -80,6 +81,12 @@ class HomeController extends Controller
             ->select("u.id",'u.name')
             ->orderBy('s.last_activity','desc')
             ->get();
+
+        //Задачи, ожидающие взятия пользователем ----------------------------------------------
+        //$data->user_wait_tasks = task::informer_user_wait_tasks($userid);
+        //$data->user_exec_tasks = task::informer_user_exec_tasks($userid);
+        $data->user_active_tasks = task::informer_user_active_tasks($userid);
+        //-------------------------------------------------------------------------------------
 
 
         //текущий баланс организаций холдинга//------------------------------------------------
