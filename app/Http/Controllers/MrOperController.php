@@ -374,7 +374,7 @@ class MrOperController extends Controller
             objlog::log_info($this->sysobjid, 0, $sd['success'], 5);
 
             $route = route('mchn_raids.edit', ['id' => $res->obj['mr_id']]);
-            connectify('success', ($res->obj['name'] ?? '-'), 'Запись удалена.');
+            //connectify('success', ($res->obj['name'] ?? '-'), 'Запись удалена.');
 
             //Выполним действия после удаления записи -----------------------------------------------
             mr_oper::on_delete($res->rec);

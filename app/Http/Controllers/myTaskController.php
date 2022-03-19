@@ -659,6 +659,11 @@ class myTaskController extends Controller
             $pageno = session($this->objcode . '_pageno');
             $route = route($this->objcode . '.index') . '?page=' . $pageno;
             //connectify('success', $res->obj['name'], 'Запись удалена.');
+
+            //Выполним действия после удаления записи -----------------------------------------------
+            task::on_delete($res->rec);
+            //---------------------------------------------------------------------------------------
+
         }
         return redirect($route)->with($sd);
     }
