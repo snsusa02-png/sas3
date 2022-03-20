@@ -1,5 +1,18 @@
 @if( isset($data->all_saldos) and count($data->all_saldos)>0)
 
+    <style>
+        .a-modest {
+            box-shadow: inset 0 0 0 0 #54b3d6;
+            color: #54b3d6;
+            margin: 0 -.25rem;
+            padding: 0 .25rem;
+            transition: color .3s ease-in-out, box-shadow .3s ease-in-out;
+        }
+        .a-modest:hover {
+            box-shadow: inset 100px 0 0 0 yellow;
+            color: white;
+        }
+    </style>
     <div class="col-lg-6 col-md-6 col-sm-12">
         <div class="card card-stats mt-3">
             <div class="card-header">
@@ -60,9 +73,9 @@
                     <div class="row mb-3">
                         <div class="col-md-5"><a
                                 href="{{route('reports.rep48',[$itm->ownorgid,$itm->orgid])}}?returl={{$retURL}}"
-                                class="text-decoration-none" title="по фин. транзакциям">{{$itm->orgname}}</a>
-                            <a href="{{route('reports.rep53',[$itm->ownorgid,$itm->orgid])}}?returl={{$retURL}}"
-                               class="ml-1 text-decoration-none" title="по услугам и платежам">...</a>
+                                class="text-decoration-none" title="показать детализацию по фин. транзакциям">{{$itm->orgname}}</a>
+{{--                            <a href="{{route('reports.rep53',[$itm->ownorgid,$itm->orgid])}}?returl={{$retURL}}"--}}
+{{--                               class="ml-1 text-decoration-none" title="по услугам и платежам">...</a>--}}
                             <span class="small text-right ml-1" title="Куратор">{{$itm->org_curators}}</span>
                         </div>
                         <div class="col-md-4 small">{{$itm->ownorgname}}
@@ -85,7 +98,7 @@
                                             $titm = explode('|', $task);
                                             ?>
                                             <li><a href="{{route('tasks.edit',$titm[1]??0)}}?returl={{Request::url()}}"
-                                                   style="color: firebrick"
+                                                   style1="color: firebrick"
                                                    target="_blank">{{$titm[0]}}</a></li>
                                         @endforeach
                                     </ul>
@@ -95,7 +108,11 @@
                         </div>
                         <div class="col-md-3 text-right font-weight-bold text-nowrap {{$td_class}}"
                              title="{{$saldo_title}}"
-                             style="font-size: 16px">{{number_format($itm->saldo,0)}}</div>
+                             style="font-size: 16px">
+                            <a href="{{route('reports.rep53',[$itm->ownorgid,$itm->orgid])}}?returl={{$retURL}}"
+                               class="ml-1 text-decoration-none a-modest" style="color: inherit"
+                               title="показать детализацию по услугам и платежам">{{number_format($itm->saldo,0)}}</a>
+                        </div>
                     </div>
                     @endforeach
                 </div>
