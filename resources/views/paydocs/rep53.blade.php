@@ -171,9 +171,10 @@ $thisTitle = $report->title ?? $report->name;
 
                             $sh_qty = (isset($rec->qty)) ? number_format($rec->qty, 2) : '';
                             //$sh_price = (isset($rec->price)) ? number_format($rec->price, 2) : '';
-                            $sh_price = '';
-                            if (isset($rec->qty) and isset($rec->qty) > 0)
-                                $sh_price = number_format(abs($rec->opersum) / $rec->qty, 2);
+                            //$sh_price = '';
+                            //if (isset($rec->qty) and isset($rec->qty) > 0)
+                            //    $sh_price = number_format(abs($rec->opersum) / $rec->qty, 2);
+                            $sh_price = (isset($rec->itm_price)) ? number_format($rec->itm_price, 2) : '';
 
                             //                            if ($rec->sysobjid == 520)
                             //                                $ref_url = route('paydocs.edit', $rec->objid);

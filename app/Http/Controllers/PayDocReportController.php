@@ -171,7 +171,7 @@ class PayDocReportController extends Controller
 
             $sc_task = "";
             //Если у пользователя нет права в Задачах, то показывать только публичные задачи и задачи в которых он участвует
-            if ( !usrsysright::isUserHasRightByCode_cached($userid, 'tasks.read'))
+            if (!usrsysright::isUserHasRightByCode_cached($userid, 'tasks.read'))
                 $sc_task = " and ( tsk.public_lvl=2 or tsk.inituserid={$userid}
                                     or exists (select 1 from task_users r where r.taskid=tsk.id and userid={$userid}) )";
 
@@ -403,10 +403,11 @@ class PayDocReportController extends Controller
                     , db::raw("1106 as sysobjid")
                     , db::raw('max(mro.org_placename) as org_placename')
                     , db::raw("concat(ri.name,', ',ri.unit) as descript")
+                    , 'mro.itm_price'
                     , db::raw("sum(mro.itm_qty) as qty")
                     , db::raw("sum(-mro.itm_sum) as opersum")
                 )
-                ->groupBy('operdate', 'sysobjid', 'org_placename', 'mro.refitmid');
+                ->groupBy('operdate', 'sysobjid', 'org_placename', 'mro.refitmid', 'mro.itm_price');
 
             $buys = mr_oper::from('mr_opers as mro')
                 ->join('mchn_raids as mr', 'mr.id', 'mro.mr_id')
@@ -417,10 +418,11 @@ class PayDocReportController extends Controller
                     , db::raw("1106 as sysobjid")
                     , db::raw('max(mro.sup_placename) as org_placename')
                     , db::raw("concat(ri.name,', ',ri.unit) as descript")
+                    , 'mro.itm_price'
                     , db::raw("sum(mro.itm_qty) as qty")
                     , db::raw("sum(+mro.itm_sum) as opersum")
                 )
-                ->groupBy('operdate', 'sysobjid', 'org_placename', 'mro.refitmid');
+                ->groupBy('operdate', 'sysobjid', 'org_placename', 'mro.refitmid', 'mro.itm_price');
 
             $recs = paydoc::from('paydocs as pd')
                 ->where(['pd.ownorgid' => $ownorgid, 'pd.orgid' => $orgid, 'pd.active' => 1])
@@ -429,6 +431,7 @@ class PayDocReportController extends Controller
                     , db::raw("520 as sysobjid")
                     , db::raw("null as org_placename")
                     , db::raw("concat('оплата (',ifnull(pd.reason,''),')') as descript")
+                    , db::raw("null as itm_price")
                     , db::raw("null as qty")
                     , db::raw("pd.paydir*pd.paysum as opersum")
                 )
