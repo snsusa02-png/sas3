@@ -427,6 +427,10 @@ class MchnRaidController extends Controller
 
         $rec->retURL = $request->get('returl');
 
+        $rec->in_gk = machine::from('machines as m')->where('m.id', $rec->machineid)
+                ->selectRaw("(select count(*) from objflags f where f.sysobjid=111 and f.flagtypeid=12 and f.objid=m.orgid) as in_gk")->first()->in_gk ?? -1;
+        //dd($rec->in_gk);
+
         $rec->begtime = (isset($rec->wrkbegdt)) ? strftime('%H:%M', strtotime($rec->wrkbegdt)) : '';
         $rec->endtime = (isset($rec->wrkenddt)) ? strftime('%H:%M', strtotime($rec->wrkenddt)) : '';
 

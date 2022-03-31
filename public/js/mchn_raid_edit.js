@@ -363,7 +363,8 @@ $(document).ready(function () {
                                 value: item.name,
                                 id: item.id,
                                 orgid: item.orgid,
-                                orgname: item.orgname
+                                orgname: item.orgname,
+                                in_gk: item.in_gk
                             }
                         }));
                     }
@@ -388,6 +389,21 @@ $(document).ready(function () {
                     var ac_status = $(this).parent().find('.ac_status');
                     ac_status.hide().removeClass("ac-fail");
                     $(this).addClass("ac-act");
+
+                    //console.log(ui.item.in_gk);
+                    $("#in_gk").val(ui.item.in_gk);
+                    //if (ui.item.in_gk == 1) {
+                    if ($("#in_gk").val() == 1) {
+                        $(".driver_info").show();
+                        $(".salary_info").show();
+                        $("#driverid").val('');     //зачищаем 160
+
+                    } else {
+                        $(".driver_info").hide();
+                        $(".salary_info").hide();
+                        $("#driverid").val(160);    //160 - "-неизвестный--водитель-"
+                        $("#raid_salary").val(0);
+                    }
 
                     //получить режимы эксплуатации -----
                     var selector = "#mot_id";
@@ -1456,7 +1472,26 @@ $(document).ready(function () {
     });
 
 
+    function rfr_iface(){
+        //перерисовка интерфейса в зависимости от значений
+        if ($("#in_gk").val() == 1) {
+            $("#driverid").val('');     //зачищаем 160
+            $(".driver_info").show();
+            $(".salary_info").show();
+
+        } else {
+            $(".driver_info").hide();
+            $(".salary_info").hide();
+            $("#driverid").val(160);    //160 - "-неизвестный--водитель-"
+            $("#raid_salary").val(0);
+        }
+
+    }
+
+
     //при загрузке -------------------------------------------------
+
+    rfr_iface();
 
     //покраска в зеленый всех автозаполняемых названий с установленными id в соответств. полях
     $.each($(".ac_name"), function (key, value) {

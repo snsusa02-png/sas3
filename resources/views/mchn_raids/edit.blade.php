@@ -21,6 +21,8 @@
         $retURL = \Request::get('returl') ?? $rec->retURL ?? (route($thisSysObjCode . '.index') . "?page=" . session($thisSysObjCode . '_pageno') . '#' . $rec->id);
 
         $inputReadOnly = '';
+
+        $in_gk_hide = ($rec->in_gk == 0) ? 'display:none;' : '';
         ?>
         <style>
             label {
@@ -55,8 +57,8 @@
                                 @csrf
                                 {{ Form::hidden('ttt', 0) }}
                                 {{ Form::hidden('dw_id', $rec->dw_id) }}
+                                {{ Form::hidden('in_gk', $rec->in_gk,['id'=>'in_gk']) }}
                                 {!! Form::hidden('returl', $retURL) !!}
-
 
                                 <div class="row">
                                     <div class="form-group offset-md-0 col-md-4">
@@ -98,7 +100,7 @@
 
                                     </div>
 
-                                    <div class="form-group col-md-4">
+                                    <div class="form-group col-md-4 driver_info" style="{{$in_gk_hide}}">
                                         <label for="name" class="required">Водитель: </label>
                                         {{--                                        @if ($usrrights['edit_dmd'])--}}
                                         @if ($usrrights['edit'])
@@ -123,10 +125,10 @@
                                     <div class="form-group offset-md-0 col-md-3">
                                         <label for="name" class="required">Дата:</label>
                                         @if(isset($rec->dw_id))
-                                            <a href="{{route('driver_works.edit',$rec->dw_id)}}" class="float-right">Отчет:
+                                            <a href="{{route('driver_works.edit',$rec->dw_id)}}" class="float-right" style="{{$in_gk_hide}}">Отчет:
                                                 >>></a>
                                         @endif
-{{--                                        @if ($usrrights['edit_dmd'])--}}
+                                        {{--                                        @if ($usrrights['edit_dmd'])--}}
                                         @if ($usrrights['edit'])
                                             <input type="date" class="form-control text-center font-weight-bold"
                                                    name="wrkdate" id="wrkdate" required
@@ -561,7 +563,7 @@
                                     </div>
                                 @endif
 
-                                <div class="row">
+                                <div class="row salary_info" style="{{$in_gk_hide}}">
 
                                     <div class="form-group offset-md-4 col-md-2">
                                         <label for="name" class="required" id="lbl_raid_qty">Число рейсов:</label>
@@ -907,7 +909,7 @@
                                     </button>
                                 @endif
 
-                            @if (1==1 and $rec->id != -1 and $usrrights['create'] and $usrrights['make_template']??true)
+                                @if (1==1 and $rec->id != -1 and $usrrights['create'] and $usrrights['make_template']??true)
                                     <button type="submit"
                                             class="btn btn-info btn-sm"
                                             style="margin-left:24px"

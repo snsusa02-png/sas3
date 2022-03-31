@@ -421,7 +421,9 @@ class MachineController extends Controller
                 'orgid' => $request->orgid,
                 'active' => $request->active ?? 1,
             ],
-                ['m.id', 'm.name', 'm.regnum', 'm.orgid', 'o.name as orgname']);
+                ['m.id', 'm.name', 'm.regnum', 'm.orgid', 'o.name as orgname'
+                , db::raw("(select count(*) from objflags f where f.sysobjid=111 and f.flagtypeid=12 and f.objid=m.orgid) as in_gk")
+                ]);
 
             $result = $list;
 

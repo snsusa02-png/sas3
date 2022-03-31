@@ -531,7 +531,7 @@ $(document).ready(function () {
         .on('blur', function (event) {
             ac_id = $(this).parent().find('.ac_id');
             ac_status = $(this).parent().find('.ac_status');
-            console.log($(this).val().length);
+            //console.log($(this).val().length);
 
             if ($(this).val().length == 0) {
                 ac_id.val('');
