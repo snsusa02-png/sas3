@@ -72,7 +72,7 @@ $(document).ready(function () {
 
 
             source: function (request, response) {
-                var ft = null;  //flagtypeid
+                var ft = 141;  //flagtypeid
 
                 $.ajax({
                     url: "/api/orgs/for_ac",

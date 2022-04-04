@@ -273,6 +273,8 @@
 
             </div>
         </div>
+        <link href="{{ asset('css/jquery-ui.css') }}" rel="stylesheet">
+        <script src="{{ asset('js/jquery-ui.js') }}" defer></script>
         <script src="{{ asset('js/machine_edit.js') }}" defer></script>
     @endif
 @endsection

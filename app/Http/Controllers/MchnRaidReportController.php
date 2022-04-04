@@ -321,6 +321,7 @@ class MchnRaidReportController extends Controller
             , 's_month' => $month
             , 's_quarter' => $yearQuarter
             , 's_year' => $year
+            , 's_orgid' => ''
         ];
 
         $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);
@@ -382,7 +383,11 @@ class MchnRaidReportController extends Controller
 
 
                 if ($item == 's_ownorgid') {
-                    $sc = $sc . " and mr.load_ownorgid = '{$val}'";
+                    //$sc = $sc . " and mr.load_ownorgid = '{$val}'";
+                    $sc = $sc . " and '{$val}' in (mro.suporgid, mro.orgid)";
+
+                } elseif ($item == 's_orgid') {
+                    $sc = $sc . " and '{$val}' in (mro.suporgid, mro.orgid)";
 
                 } elseif ($item == 's_begdate') {
                     $sc = $sc . " and mr.wrkdate >= '{$val}'";
@@ -471,6 +476,7 @@ class MchnRaidReportController extends Controller
 
             //3-й набор - итоги по машинам/водителям
             $recs3 = mchn_raid::from('mchn_raids as mr')
+                ->join('mr_opers as mro', 'mro.mr_id', 'mr.id')
                 ->join('machines as m', 'm.id', 'mr.machineid')
                 ->join('orgstaff as os', 'os.id', 'mr.driverid')
                 ->leftjoin('driver_works as dw', 'dw.id', 'mr.dw_id')
@@ -516,6 +522,10 @@ class MchnRaidReportController extends Controller
 
         $data->ownorgs = org::lstFor_cached([
             'in_mchn_raids_ownorgid' => 1,
+        ]);
+        $data->orgs = org::lstFor_cached([
+            'in_mr_opers' => 1,
+            'not_flagtypeid' => 12,
         ]);
 
         return view('mchn_raids.rep' . $report_id, compact('recs', 'recs2', 'recs3', 'search_params', 'data'));

@@ -1336,9 +1336,22 @@ class org extends Model
                         $sc .= " and " . (($val == 0) ? "not" : "")
                             . " exists (select 1 from mr_opers as mro where mro.orgid=o.id and mro.sale_dir=1)";
 
+                    } elseif ($key == 'in_mr_opers') {
+                        //организация указана в mr_opers.orgid или в mr_opers.sup_orgid
+                        $sc .= " and " . (($val == 0) ? "not" : "")
+                            . " exists (select 1 from mr_opers as mro where o.id in (mro.suporgid, mro.orgid))";
+
                     } elseif ($key == 'flagtypeid') {
                         //у организации должен быть нужный признак
                         $sc .= " and exists (select 1 from objflags as f
+                                        where f.objid=o.id
+                                        and f.sysobjid=111
+                                        and f.flagtypeid={$val}
+                                    )";
+
+                    } elseif ($key == 'not_flagtypeid') {
+                        //у организации не должно быть заданного признака
+                        $sc .= " and not exists (select 1 from objflags as f
                                         where f.objid=o.id
                                         and f.sysobjid=111
                                         and f.flagtypeid={$val}

@@ -132,17 +132,17 @@ $action_url = route('reports.rep' . $thisObjId);
                                     <?php
                                     $s_orgname = $search_params['s_orgname'] ?? '';
                                     ?>
-                                    @if(1==0)
-                                        <div class="form-group col-md-3">
-                                            <label for="name">Получатель:</label>
-                                            {!! Form::select('s_orgid', $data->orgs, $search_params['s_orgid'],
-                                                            [
-                                                            'class' => 'form-control',
-                                                            'placeholder' => '-все-',
-                                                            ])
-                                                            !!}
-                                        </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="name">Получатель:</label>
+                                        {!! Form::select('s_orgid', $data->orgs, $search_params['s_orgid'],
+                                                        [
+                                                        'class' => 'form-control',
+                                                        'placeholder' => '-все-',
+                                                        ])
+                                                        !!}
+                                    </div>
 
+                                    @if(1==0)
                                         <div class="form-group col-md-3">
                                             <label for="s_categoryid">Категория:</label>
                                             {!! Form::select('s_categoryid', $data->categories, $search_params['s_categoryid']??'',
