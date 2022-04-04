@@ -349,7 +349,7 @@ class MachineController extends Controller
 
             $pageno = session($this->objcode . '_pageno');
             $route = route($this->objcode . '.index') . '?page=' . $pageno;
-            connectify('success', $res->obj['name'], 'Запись удалена.');
+            //connectify('success', $res->obj['name'], 'Запись удалена.');
         }
         return redirect($route)->with($sd);
     }
