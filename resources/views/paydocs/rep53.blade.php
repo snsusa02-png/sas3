@@ -53,6 +53,8 @@ $thisTitle = $report->title ?? $report->name;
             @else
 
                 <div class="page p-2 container-fluid">
+                    <div id="_calc_selected_sum" class="p-3 text-center bg-light  font-weight-bold w-25 border  border-danger rounded-pill"
+                         style="position: sticky; top: 2em; display: none"></div>
 
                     <span class="float-right">
                     <a class="btn btn-warning btn-sm print-window d-print-none "
@@ -237,7 +239,6 @@ $thisTitle = $report->title ?? $report->name;
                         </tbody>
                         <tfoot>
                     </table>
-                    <div id="_calc_selected_sum" class="text-center font-weight-bold" style="display: none"></div>
                 </div>
             @endif
         @endif
