@@ -124,8 +124,8 @@ $thisTitle = $report->title ?? $report->name;
                                 </td>
                                 <td class="text-right "></td>
                                 <td class="text-right "></td>
-                                <td class="text-right {{$td_class}}">{{number_format($data->org_saldo->saldo,2)}}</td>
-                                <td class="text-right small {{$td_class}}">{{number_format($curSum,2)}}</td>
+                                <td class="text-right {{$td_class}}" data-num="{{$data->org_saldo->saldo}}">{{number_format($data->org_saldo->saldo,2)}}</td>
+                                <td class="text-right small {{$td_class}}" >{{number_format($curSum,2)}}</td>
                             </tr>
                             <?php
                             $totSum += $data->org_saldo->saldo;
@@ -196,10 +196,10 @@ $thisTitle = $report->title ?? $report->name;
                                     @endif
                                     <div class="float-right"> {{$rec->org_placename}}</div>
                                 </td>
-                                <td class="text-right small">{{$sh_qty}}</td>
+                                <td class="text-right small calced" data-num="{{$rec->qty}}" >{{$sh_qty}}</td>
                                 <td class="text-right small">{{$sh_price}}</td>
-                                <td class="text-right {{$td_class}}">{{number_format($rec->opersum,2)}}</td>
-                                <td class="text-right small {{$tdс_class}}">{{number_format($curSum,2)}}</td>
+                                <td class="text-right calced {{$td_class}}" data-num="{{$rec->opersum}}" >{{number_format($rec->opersum,2)}}</td>
+                                <td class="text-right small calced {{$tdс_class}}" data-num="{{$curSum}}" >{{number_format($curSum,2)}}</td>
                             </tr>
                             <?php
                             $day_qty += $rec->qty;
@@ -212,9 +212,9 @@ $thisTitle = $report->title ?? $report->name;
                                 <td class="text-right small " colspan="2">
                                     Итого за день:
                                 </td>
-                                <td class=" small text-right">{{number_format($day_qty,1)}}</td>
+                                <td class=" small text-right calc" data-num="{{$day_qty}}" >{{number_format($day_qty,1)}}</td>
                                 <td></td>
-                                <td class="text-right">{{number_format($day_sum,2)}}</td>
+                                <td class="text-right calc" data-num="{{$day_sum}}>{{number_format($day_sum,2)}}</td>
                                 <td></td>
                             </tr>
                             <?php
@@ -237,13 +237,13 @@ $thisTitle = $report->title ?? $report->name;
                         </tbody>
                         <tfoot>
                     </table>
-
+                    <div id="_calc_selected_sum" class="text-center font-weight-bold" style="display: none"></div>
                 </div>
             @endif
         @endif
 
     </div>
 
-    <script src="{{ asset('js/rep43.js') }}" defer></script>
+    <script src="{{ asset('js/rep53.js') }}" defer></script>
 
 @endsection

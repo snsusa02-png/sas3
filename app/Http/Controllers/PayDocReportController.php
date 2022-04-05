@@ -235,6 +235,8 @@ class PayDocReportController extends Controller
         $report_id = 48;
 
         $returl = $request->get('returl') ?? route('home');
+        $export2xls = $request->get('xls') ?? 0;
+
         $userid = Auth::user()->id;
 
         if (!(isset($ownorgid) and isset($orgid)))
@@ -316,6 +318,15 @@ class PayDocReportController extends Controller
 
         //занесем в журнал
         objlog::log_info(855, $report_id, 'запрошен отчет; ' . $ownorgid . '/' . $orgid);
+
+        if ($export2xls == "1") {
+            $response = Excel::download(new PayPlanExport($recs, $data), "saldo_details.xlsx", \Maatwebsite\Excel\Excel::XLSX);
+
+            //$response= Excel::download(new InvoicesExport, 'invoices.xls', \Maatwebsite\Excel\Excel::XLS);
+            //HERE IS THE MAGIC FOLKS
+            ob_end_clean();
+            return $response;
+        }
 
         return view('paydocs.rep' . $report_id, compact('recs', 'data'));
     }

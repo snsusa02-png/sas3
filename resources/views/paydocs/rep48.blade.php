@@ -60,9 +60,10 @@ $thisTitle = $report->title ?? $report->name;
                        title="печать">
                         <i class="fa fa-print" aria-hidden="true"></i>
                     </a>
-                        @if(1==0)
+                        @if(1==1)
                             <a class="btn btn-success btn-sm mr-3"
-                               href="{{ route('reports.rep43_excel')  }}" title="Выгрузить результаты в Excel">
+                               href="{{ route('reports.rep48',['ownorgid'=>$data->ownorg->id,'orgid'=>$data->org->id]) }}?xls=1"
+                               title="Выгрузить результаты в Excel">
                                         <i class="fa fa-file-excel-o" aria-hidden="true"></i>
                                     </a>
                         @endif
@@ -241,6 +242,6 @@ $thisTitle = $report->title ?? $report->name;
 
     </div>
 
-    <script src="{{ asset('js/rep43.js') }}" defer></script>
+    <script src="{{ asset('js/rep48.js') }}" defer></script>
 
 @endsection
