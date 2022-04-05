@@ -1472,10 +1472,11 @@ $(document).ready(function () {
     });
 
 
-    function rfr_iface(){
+    function rfr_iface() {
         //перерисовка интерфейса в зависимости от значений
         if ($("#in_gk").val() == 1) {
-            $("#driverid").val('');     //зачищаем 160
+            if ($("#driverid").val() == 160)
+                $("#driverid").val('');     //зачищаем 160
             $(".driver_info").show();
             $(".salary_info").show();
 

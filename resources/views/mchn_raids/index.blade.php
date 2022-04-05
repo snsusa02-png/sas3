@@ -386,7 +386,7 @@
                                             {{$item->raid_qty}}
 
                                             <a href="{{ route($thisSysObjCode.'.clone',$item->id)}}"
-                                               class="btn btn-sm btn-warning "
+                                               class="btn btn-sm btn-warning ml-1"
                                                title="Создать копию записи"
                                                onclick="return confirm('Создать копию записи?')">
                                                 <i class="fa fa-files-o" aria-hidden="true"></i>

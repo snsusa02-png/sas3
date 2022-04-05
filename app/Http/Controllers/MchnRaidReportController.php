@@ -383,11 +383,12 @@ class MchnRaidReportController extends Controller
 
 
                 if ($item == 's_ownorgid') {
-                    //$sc = $sc . " and mr.load_ownorgid = '{$val}'";
-                    $sc = $sc . " and '{$val}' in (mro.suporgid, mro.orgid)";
+                    $sc = $sc . " and mr.load_ownorgid = '{$val}'";
+                    //$sc = $sc . " and '{$val}' in (mro.suporgid, mro.orgid)";
 
                 } elseif ($item == 's_orgid') {
-                    $sc = $sc . " and '{$val}' in (mro.suporgid, mro.orgid)";
+                    //$sc = $sc . " and '{$val}' in (mro.suporgid, mro.orgid)";
+                    $sc = $sc . " and exists (select 1 from mr_opers as mro1 where mro1.mr_id=mr.id and '{$val}' in (mro1.suporgid, mro1.orgid))";
 
                 } elseif ($item == 's_begdate') {
                     $sc = $sc . " and mr.wrkdate >= '{$val}'";
@@ -476,7 +477,7 @@ class MchnRaidReportController extends Controller
 
             //3-й набор - итоги по машинам/водителям
             $recs3 = mchn_raid::from('mchn_raids as mr')
-                ->join('mr_opers as mro', 'mro.mr_id', 'mr.id')
+                //->join('mr_opers as mro', 'mro.mr_id', 'mr.id')
                 ->join('machines as m', 'm.id', 'mr.machineid')
                 ->join('orgstaff as os', 'os.id', 'mr.driverid')
                 ->leftjoin('driver_works as dw', 'dw.id', 'mr.dw_id')

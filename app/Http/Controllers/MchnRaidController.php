@@ -184,7 +184,7 @@ class MchnRaidController extends Controller
                     $sc .= " and mro.paytypeid = {$val}";
 
                 } elseif ($item == 's_disp_staffid') {
-                    $sc = $sc . " and mr.disp_staffid = {$val}";
+                    $sc = $sc . " and mro.disp_staffid = {$val}";
 
                 } elseif ($item == 's_statusid') {
                     $sc = $sc . " and mr.statusid = {$val}";
