@@ -151,6 +151,19 @@
 
                                 </div>
 
+                                <div class="row">
+                                    <div class="form-group offset-md-5 col-md-4 col-sm-6">
+                                        <label for="ondate" class="required"
+                                               title="Взаиморасчеты с клиентом согласованы по дату (включительно)">Согласовано
+                                            по:</label>
+                                        <input type="date" class="form-control" name="aligmentdate" {{$ro_mode}}
+                                        title="Взаиморасчеты с клиентом согласованы по дату (включительно)"
+                                               max="{{$rec->maxdate}}" required
+                                               value="{{old('aligmentdate',$rec->aligmentdate)}}"/>
+                                    </div>
+
+                                </div>
+
                                 <hr>
                                 @if ($usrrights['save'])
                                     <button type="submit" class="btn btn-success" title="Сохранить изменения">

@@ -173,6 +173,7 @@ class OrgSaldoController extends Controller
         $rec->ondate = $request->get('ondate');
         $rec->saldo = $request->get('saldo');
         $rec->active = 1; //$request->get('active') ?? 0;
+        $rec->aligmentdate = $request->get('aligmentdate');
         $rec->updated_by = $userid;
         $rec->save();
 

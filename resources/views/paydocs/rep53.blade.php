@@ -53,7 +53,8 @@ $thisTitle = $report->title ?? $report->name;
             @else
 
                 <div class="page p-2 container-fluid">
-                    <div id="_calc_selected_sum" class="p-3 text-center bg-light  font-weight-bold w-25 border  border-danger rounded-pill"
+                    <div id="_calc_selected_sum"
+                         class="p-3 text-center bg-light  font-weight-bold w-25 border  border-danger rounded-pill"
                          style="position: sticky; top: 2em; display: none"></div>
 
                     <span class="float-right">
@@ -81,8 +82,10 @@ $thisTitle = $report->title ?? $report->name;
                                  target="_blank"><b>{{$data->org->name??'-'}}</b></a>
                         и <a href="{{route('orgs.edit',$data->ownorg->id)}}"
                              target="_blank"><b>{{$data->ownorg->name??'-'}}</b></a>
+                        @if(isset($data->org_saldo->aligmentdate))
+                            <br>Взаиморасчеты согласованы с клиентом на дату {{date_create($data->org_saldo->aligmentdate)->format('d.m.Y')}} включительно
+                        @endif
                         <span class="small ml-3 d-print-none"><br>по состоянию на {{now()}}</span>
-
                         @if(1==0)
                             <button class="btn btn-primary btn-sm d-print-none" type="button" data-toggle="collapse"
                                     data-target=".multi-collapse" aria-expanded="false"
@@ -110,6 +113,12 @@ $thisTitle = $report->title ?? $report->name;
                         <?php
                         $npp = 0;
                         $totSum = $curSum = 0;
+                        if (isset($data->org_saldo->aligmentdate))
+                            $aligmentdate = date_create($data->org_saldo->aligmentdate);
+                        elseif (isset($data->org_saldo->ondate))
+                            $aligmentdate = date_create($data->org_saldo->ondate) + 1;
+                        else
+                            $aligmentdate = date_create('1970-01-01');
                         ?>
                         @if(isset($data->org_saldo))
                             <?php
@@ -126,8 +135,9 @@ $thisTitle = $report->title ?? $report->name;
                                 </td>
                                 <td class="text-right "></td>
                                 <td class="text-right "></td>
-                                <td class="text-right {{$td_class}}" data-num="{{$data->org_saldo->saldo}}">{{number_format($data->org_saldo->saldo,2)}}</td>
-                                <td class="text-right small {{$td_class}}" >{{number_format($curSum,2)}}</td>
+                                <td class="text-right {{$td_class}}"
+                                    data-num="{{$data->org_saldo->saldo}}">{{number_format($data->org_saldo->saldo,2)}}</td>
+                                <td class="text-right small {{$td_class}}">{{number_format($curSum,2)}}</td>
                             </tr>
                             <?php
                             $totSum += $data->org_saldo->saldo;
@@ -168,14 +178,12 @@ $thisTitle = $report->title ?? $report->name;
                             <?php
                             $curSum += $rec->opersum;
 
+                            $tr_class = (date_create($rec->operdate) <= $aligmentdate) ? "table-success" : "";
+
                             $td_class = ($rec->opersum < 0) ? 'text-danger' : (($rec->opersum > 0) ? 'text-success' : '');
                             $tdс_class = ($curSum < 0) ? 'text-danger' : (($totSum > 0) ? 'text-success' : '');
 
-                            $sh_qty = (isset($rec->qty)) ? number_format($rec->qty, 2) : '';
-                            //$sh_price = (isset($rec->price)) ? number_format($rec->price, 2) : '';
-                            //$sh_price = '';
-                            //if (isset($rec->qty) and isset($rec->qty) > 0)
-                            //    $sh_price = number_format(abs($rec->opersum) / $rec->qty, 2);
+                            $sh_qty = (isset($rec->qty)) ? number_format($rec->qty, 3) : '';
                             $sh_price = (isset($rec->itm_price)) ? number_format($rec->itm_price, 2) : '';
 
                             //                            if ($rec->sysobjid == 520)
@@ -185,7 +193,7 @@ $thisTitle = $report->title ?? $report->name;
 
                             $tstyle = ($rec->sumtypeid == 1) ? 'background-color:#ffff94' : '';
                             ?>
-                            <tr class="text-left" style="{{$tstyle}}">
+                            <tr class="text-left {{$tr_class}}" style="{{$tstyle}}">
                                 <td class="text-center small">
                                     {{date_create($rec->operdate)->format('d.m.Y')}}
                                 </td>
@@ -198,10 +206,12 @@ $thisTitle = $report->title ?? $report->name;
                                     @endif
                                     <div class="float-right"> {{$rec->org_placename}}</div>
                                 </td>
-                                <td class="text-right small calced" data-num="{{$rec->qty}}" >{{$sh_qty}}</td>
+                                <td class="text-right small calced" data-num="{{$rec->qty}}">{{$sh_qty}}</td>
                                 <td class="text-right small">{{$sh_price}}</td>
-                                <td class="text-right calced {{$td_class}}" data-num="{{$rec->opersum}}" >{{number_format($rec->opersum,2)}}</td>
-                                <td class="text-right small calced {{$tdс_class}}" data-num="{{$curSum}}" >{{number_format($curSum,2)}}</td>
+                                <td class="text-right calced {{$td_class}}"
+                                    data-num="{{$rec->opersum}}">{{number_format($rec->opersum,2)}}</td>
+                                <td class="text-right small calced {{$tdс_class}}"
+                                    data-num="{{$curSum}}">{{number_format($curSum,2)}}</td>
                             </tr>
                             <?php
                             $day_qty += $rec->qty;
@@ -214,23 +224,25 @@ $thisTitle = $report->title ?? $report->name;
                                 <td class="text-right small " colspan="2">
                                     Итого за день:
                                 </td>
-                                <td class=" small text-right calc" data-num="{{$day_qty}}" >{{number_format($day_qty,1)}}</td>
+                                <td class=" small text-right calc"
+                                    data-num="{{$day_qty}}">{{number_format($day_qty,1)}}</td>
                                 <td></td>
                                 <td class="text-right calc" data-num="{{$day_sum}}>{{number_format($day_sum,2)}}</td>
                                 <td></td>
                             </tr>
                             <?php
-                            $day_qty = 0;
-                            $day_sum = 0;
-                            ?>
-                        @endif
+                                $day_qty = 0;
+                                $day_sum = 0;
+                                ?>
+                                @endif
 
-                        @if(1==1)
-                            <?php
-                            $td_class = ($totSum < 0) ? 'text-danger' : (($totSum > 0) ? 'text-success' : '');
-                            $tdс_class = ($curSum < 0) ? 'text-danger' : (($totSum > 0) ? 'text-success' : '');
-                            ?>
-                            <tr style="border-top:1px solid darkred !important;">
+                                @if(1==1)
+                                <?php
+                                $td_class = ($totSum < 0) ? 'text-danger' : (($totSum > 0) ? 'text-success' : '');
+                                $tdс_class = ($curSum < 0) ? 'text-danger' : (($totSum > 0) ? 'text-success' : '');
+                                ?>
+                                    <tr style=" border-top:1px solid darkred !important;
+                                ">
                                 <td colspan="4" class="text-right">Итого:</td>
                                 <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totSum,2)}}</td>
                                 <td class="text-right small {{$tdс_class}}">{{number_format($curSum,2)}}</td>
