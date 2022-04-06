@@ -83,9 +83,9 @@ $thisTitle = $report->title ?? $report->name;
                         и <a href="{{route('orgs.edit',$data->ownorg->id)}}"
                              target="_blank"><b>{{$data->ownorg->name??'-'}}</b></a>
                         @if(isset($data->org_saldo->aligmentdate))
-                            <br>Взаиморасчеты согласованы с клиентом на дату {{date_create($data->org_saldo->aligmentdate)->format('d.m.Y')}} включительно
+                            <div class="small">Взаиморасчеты согласованы с клиентом по <b>{{date_create($data->org_saldo->aligmentdate)->format('d.m.Y')}}</b> включительно</div>
                         @endif
-                        <span class="small ml-3 d-print-none"><br>по состоянию на {{now()}}</span>
+                        <span class="small"><br>по состоянию на {{now()}}</span>
                         @if(1==0)
                             <button class="btn btn-primary btn-sm d-print-none" type="button" data-toggle="collapse"
                                     data-target=".multi-collapse" aria-expanded="false"
@@ -115,8 +115,9 @@ $thisTitle = $report->title ?? $report->name;
                         $totSum = $curSum = 0;
                         if (isset($data->org_saldo->aligmentdate))
                             $aligmentdate = date_create($data->org_saldo->aligmentdate);
-                        elseif (isset($data->org_saldo->ondate))
-                            $aligmentdate = date_create($data->org_saldo->ondate) + 1;
+                        elseif (isset($data->org_saldo) and isset($data->org_saldo->ondate))
+                            //$aligmentdate = date_create($data->org_saldo->ondate) + 1;
+                            $aligmentdate = $data->org_saldo->ondate;
                         else
                             $aligmentdate = date_create('1970-01-01');
                         ?>
