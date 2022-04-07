@@ -27,16 +27,24 @@
     <tbody>
     <?php
     $npp = 0;
-    $totSum = $curSum = (isset($data->org_saldo)) ? $data->org_saldosaldo : 0;
     ?>
-    <tr>
-        <td>{{ date_create($data->org_saldo->ondate)->format('d.m.Y') }}</td>
-        <td>- начальное сальдо -</td>
-        <td></td>
-        <td></td>
-        <td>{{ $data->org_saldo->saldo }}</td>
-        <td>{{ $curSum }}</td>
-    </tr>
+    @if(isset($data->org_saldo))
+        <?php
+        $totSum = $curSum = $data->org_saldo->saldo;
+        ?>
+        <tr>
+            <td>{{ $data->org_saldo->ondate }}</td>
+            <td>- начальное сальдо -</td>
+            <td></td>
+            <td></td>
+            <td>{{ $data->org_saldo->saldo }}</td>
+            <td>{{ $curSum }}</td>
+        </tr>
+    @else
+        <?php
+        $totSum = $curSum = 0;
+        ?>
+    @endif
 
     @foreach($items as $itm)
         <?php
