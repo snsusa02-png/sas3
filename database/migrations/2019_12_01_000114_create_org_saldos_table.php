@@ -25,6 +25,8 @@ class CreateOrgSaldosTable extends Migration
 
             $table->boolean('active')->default(true);
 
+            $table->date('aligmentdate')->comment('Дата согласования взаиморасчетов с клиентом (включительно)');
+
             $table->timestamp('created_at')->nullable()->useCurrent=true;
             $table->bigInteger('created_by')->nullable()->unsigned()->default(1)
                 ->comment('UserID, создавшего запись');

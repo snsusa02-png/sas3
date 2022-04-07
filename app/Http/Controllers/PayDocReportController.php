@@ -8,6 +8,7 @@ use App\eritm_offer;
 use App\eritm_supply;
 use App\Exports\InvoicesExport;
 use App\Exports\PayPlanExport;
+use App\Exports\rep53Export;
 use App\mchn_raid;
 use App\mr_oper;
 use App\obj_finoper;
@@ -17,6 +18,7 @@ use App\orgplnpay_item;
 use App\orgstaff;
 use App\pay_category;
 use App\paydoc;
+use App\task;
 use App\prodplan_fact;
 use App\report;
 use App\org;
@@ -42,6 +44,8 @@ use App\Events\notifyEvent;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Str;
+use function GuzzleHttp\Promise\task;
 
 class PayDocReportController extends Controller
 {
@@ -386,6 +390,7 @@ class PayDocReportController extends Controller
 
         $returl = $request->get('returl') ?? route('home');
         $userid = Auth::user()->id;
+        $export2xls = $request->get('xls') ?? 0;
 
         if (!(isset($ownorgid) and isset($orgid)))
             return redirect($returl)
@@ -459,11 +464,41 @@ class PayDocReportController extends Controller
         $data->org = org::find($orgid);
         $data->org_saldo = $org_saldo;
 
+        $sc_task = "1=1";
+        //Если у пользователя нет права в Задачах, то показывать только публичные задачи и задачи в которых он участвует
+        if (!usrsysright::isUserHasRightByCode_cached($userid, 'tasks.read'))
+            $sc_task = " and ( tsk.public_lvl=2 or tsk.inituserid={$userid}
+                                    or exists (select 1 from task_users r where r.taskid=tsk.id and userid={$userid}) )";
+
+//        $data->tasks = task::from('tasks as tsk')
+//            ->selectRaw("group_concat( concat(tsk.name,'|',tsk.id)  SEPARATOR ';') as tasks")
+//            ->where(['tsk.srcsysobjid' => 111, 'tsk.srcobjid' => $orgid])
+//            ->whereNull('tsk.statusid')
+//            ->whereRaw($sc_task)
+//            ->get();
+
+        $data->tasks = task::from('tasks as tsk')
+            ->where(['tsk.srcsysobjid' => 111, 'tsk.srcobjid' => $orgid])
+            ->whereNull('tsk.statusid')
+            ->whereRaw($sc_task)
+            ->select('tsk.name', 'tsk.id')
+            ->get();
+
+
         //обновим счетчик использования отчета
         report::updUseCnt($report_id, $userid, \Auth::user()->name);
 
         //занесем в журнал
         objlog::log_info(855, $report_id, 'запрошен отчет; ' . $ownorgid . '/' . $orgid);
+        if ($export2xls == "1") {
+            $response = Excel::download(new rep53Export($recs, $data), "Детализация_" . Str::slug($data->org->name) . ".xlsx", \Maatwebsite\Excel\Excel::XLSX);
+
+            //$response= Excel::download(new InvoicesExport, 'invoices.xls', \Maatwebsite\Excel\Excel::XLS);
+            //HERE IS THE MAGIC FOLKS
+            ob_end_clean();
+            return $response;
+        }
+
 
         return view('paydocs.rep' . $report_id, compact('recs', 'data'));
     }

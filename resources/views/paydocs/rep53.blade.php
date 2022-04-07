@@ -15,6 +15,10 @@ if (!isset($report))
 $thisTitle = $report->title ?? $report->name;
 //$action_url = route('reports.rep' . $thisObjId);
 
+$userid = \Auth::user()->id;
+$usrrights = [];
+$usrrights['link_tasks'] = \App\usrsysright::isUserHasRightByCode_cached($userid, 'tasks.create');;
+
 ?>
 @section('title')
     {{$thisTitle}}
@@ -63,9 +67,10 @@ $thisTitle = $report->title ?? $report->name;
                        title="печать">
                         <i class="fa fa-print" aria-hidden="true"></i>
                     </a>
-                        @if(1==0)
+                        @if(1==1)
                             <a class="btn btn-success btn-sm mr-3"
-                               href="{{ route('reports.rep43_excel')  }}" title="Выгрузить результаты в Excel">
+                               href="{{ route('reports.rep53',['ownorgid'=>$data->ownorg->id,'orgid'=>$data->org->id]) }}?xls=1"
+                               title="Выгрузить результаты в Excel">
                                         <i class="fa fa-file-excel-o" aria-hidden="true"></i>
                                     </a>
                         @endif
@@ -83,7 +88,9 @@ $thisTitle = $report->title ?? $report->name;
                         и <a href="{{route('orgs.edit',$data->ownorg->id)}}"
                              target="_blank"><b>{{$data->ownorg->name??'-'}}</b></a>
                         @if(isset($data->org_saldo->aligmentdate))
-                            <div class="small">Взаиморасчеты согласованы с клиентом по <b>{{date_create($data->org_saldo->aligmentdate)->format('d.m.Y')}}</b> включительно</div>
+                            <div class="small">Взаиморасчеты согласованы с клиентом по
+                                <b>{{date_create($data->org_saldo->aligmentdate)->format('d.m.Y')}}</b> включительно
+                            </div>
                         @endif
                         <span class="small"><br>по состоянию на {{now()}}</span>
                         @if(1==0)
@@ -252,6 +259,26 @@ $thisTitle = $report->title ?? $report->name;
                         </tbody>
                         <tfoot>
                     </table>
+                    <div class=" bg-white mt-3 p-2">
+                        @if( $usrrights['link_tasks']??false )
+                            <a href="{{ route('tasks.create')}}?srcsysobjid=111&srcobjid={{$data->org->id}}&returl={{Request::url()}}"
+                               class=""
+                               title="Создать задачу">
+                                <i class="fa fa-plus-circle text-info text-right" aria-hidden="true"></i>
+                            </a>
+                        @endif
+                        @if(1==1 and isset($data->tasks))
+                            <label class="small mb-0">Задачи:</label>
+                            <ul class="mb-1" style="border-top: 1px solid silver;">
+                                @foreach($data->tasks as $tsk)
+                                    <li><a href="{{route('tasks.edit',$tsk->id)}}?returl={{Request::url()}}"
+                                           style1="color: firebrick"
+                                           target="_blank">{{  $tsk->name}}</a></li>
+                                @endforeach
+                            </ul>
+                        @endif
+                    </div>
+
                 </div>
             @endif
         @endif
