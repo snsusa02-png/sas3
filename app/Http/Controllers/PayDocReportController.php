@@ -467,15 +467,8 @@ class PayDocReportController extends Controller
         $sc_task = "1=1";
         //Если у пользователя нет права в Задачах, то показывать только публичные задачи и задачи в которых он участвует
         if (!usrsysright::isUserHasRightByCode_cached($userid, 'tasks.read'))
-            $sc_task = " and ( tsk.public_lvl=2 or tsk.inituserid={$userid}
+            $sc_task = "( tsk.public_lvl=2 or tsk.inituserid={$userid}
                                     or exists (select 1 from task_users r where r.taskid=tsk.id and userid={$userid}) )";
-
-//        $data->tasks = task::from('tasks as tsk')
-//            ->selectRaw("group_concat( concat(tsk.name,'|',tsk.id)  SEPARATOR ';') as tasks")
-//            ->where(['tsk.srcsysobjid' => 111, 'tsk.srcobjid' => $orgid])
-//            ->whereNull('tsk.statusid')
-//            ->whereRaw($sc_task)
-//            ->get();
 
         $data->tasks = task::from('tasks as tsk')
             ->where(['tsk.srcsysobjid' => 111, 'tsk.srcobjid' => $orgid])
