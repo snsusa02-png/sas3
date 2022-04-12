@@ -520,7 +520,6 @@ class orgController extends Controller
         }
 
         $auxinfo = org::AuxInfo($rec);
-
         for ($x = 0; $x <= count($auxinfo) - 1; $x++) {
             if ($auxinfo[$x]["reccount"] > 0 and $usrrights['delete'])
                 $usrrights['delete'] = false;

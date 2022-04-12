@@ -1,4 +1,5 @@
-@if( 1==1 and isset($rec) and ($rec->id!=-1) and $rec->kindid==1 )
+{{--@if( 1==1 and isset($rec) and ($rec->id!=-1) and $rec->kindid==1 )--}}
+@if( 1==1 and isset($rec) and ($rec->id!=-1) )
 
     <div class="card d-none d-sm-block  p-2 my-2 my-md-3"
          style="min-width:400px !important;">
