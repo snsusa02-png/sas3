@@ -6,15 +6,18 @@
     <?php
     $thisTitle = "Спецтехника";
     $thisSysObjCode = 'machines';
+
+    $userid = \Auth::user()->id;
     ?>
 
+    <link rel="stylesheet" href="/css/subnav.css">
     <form name="forIndex" id="forIndex" method="post" action="{{ route('machines.index') }}">
         @csrf
         <div class="container">
 
             <?php
             $breadcrumbs = [
-                'Справочники' => "http://basco.test/admin?tab=nsi-dic",
+                'Справочники' => "/admin?tab=nsi-dic",
                 $thisTitle => null,
             ];
             ?>
@@ -23,6 +26,29 @@
             <div class="row justify-content-center">
                 <div class="col-md-12">
                     <h3>{{$thisTitle}}</h3>
+
+                    <div class="row mb-2">
+                        <div class="col-md-8 ">
+                            <div class="subnav shift">
+                                <ul>
+                                    @if(1==1 and \Illuminate\Support\Facades\Route::has('orgs.index'))
+                                        <li><a href="{{route('orgs.index')}}"
+                                               title="Контрагенты">Контрагенты</a>
+                                        </li>
+                                    @endif
+                                    @if( \App\usrsysright::isUserHasRightByCode_cached($userid,'mchn_raids.read')
+                                     and \Illuminate\Support\Facades\Route::has('orgstaff.index'))
+                                        <li><a href="{{route('mchn_raids.index')}}"
+                                               title="Учет перевозок">Перевозки</a>
+                                        </li>
+                                    @endif
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="input-group col-md-4">
+                        </div>
+                    </div>
+
                     <div class="mt-2">
 
                         @include('layouts.edit_msgs')

@@ -19,8 +19,6 @@ $(document).ready(function () {
             $("#lbl_address").html('Адрес регистрации:');
 
         } else if (kindid === '3') {
-            //$(".hk1").show(100);
-            //$(".hk2").hide();
             $(".hk3").hide();
             $("#lbl_name").html('ФИО:');
             $("#lbl_address").html('Адрес регистрации:');

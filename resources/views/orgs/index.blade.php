@@ -47,6 +47,12 @@
                                                title="Персонал организации">Персонал</a>
                                         </li>
                                     @endif
+                                    @if( \App\usrsysright::isUserHasRightByCode_cached($userid,'machines.read')
+                                     and \Illuminate\Support\Facades\Route::has('machines.index'))
+                                        <li><a href="{{route('machines.index')}}"
+                                               title="Справочник спецтехники">Спецтехника</a>
+                                        </li>
+                                    @endif
                                 </ul>
                             </div>
                         </div>

@@ -67,7 +67,7 @@
                                         <a class="nav-link hk2 hk3" data-toggle="tab" href="#menu1">Руководство</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link hk3" data-toggle="tab" href="#menu2">Описание</a>
+                                        <a class="nav-link hk3-" data-toggle="tab" href="#menu2">Описание</a>
                                     </li>
                                     @if($usrrights['private_acs']??false)
                                     @endif
