@@ -268,6 +268,8 @@ union
 SELECT tgtorgid as ownorgid, srcorgid as orgid FROM `obj_finopers`
 where exists (select 1 from objflags as f where f.sysobjid=111 and f.objid=tgtorgid and f.flagtypeid=12)
   and not exists(select 1 from objflags as f where f.sysobjid=111 and f.objid=srcorgid and f.flagtypeid=12)
+union
+select s.ownorgid, s.orgid from org_saldos s
     ) as a
     join orgs as oo on oo.id=a.ownorgid
         join orgs as o on o.id=a.orgid
