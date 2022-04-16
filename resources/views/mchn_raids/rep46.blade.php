@@ -338,7 +338,8 @@ $action_url = route('reports.rep' . $thisObjId);
                                 <td class="text-right small">{{number_format($rec->unload_qty,2)}}
                                 <td class="text-right small">
                                     @if($rec->unload_qty>0)
-                                        {{number_format($rec->unload_sum/$rec->unload_qty,2)}}
+{{--                                        {{number_format($rec->unload_sum/$rec->unload_qty,2)}}--}}
+                                        {{number_format($rec->itm_price,2)}}
                                     @else
                                         0
                                     @endif

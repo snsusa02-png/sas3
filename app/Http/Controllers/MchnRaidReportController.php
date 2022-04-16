@@ -430,6 +430,7 @@ class MchnRaidReportController extends Controller
                 , 'mro.org_placeid as unload_placeid', db::raw("MAX(mro.org_placename) as unload_placename")
                 , 'mro.disp_staffid', db::raw("max(concat(ifnull(u_d.fname,''),' ',u_d.lname)) as dispuser_name")
                 , 'mro.refitmid as unload_refitmid', 'ri.name as refitm_name'
+                , 'mro.itm_price'
                 //, 'mr.wrkdate'
 
                 , db::raw("max(ri.unit) as unit")
@@ -442,7 +443,7 @@ class MchnRaidReportController extends Controller
                 , db::raw("max(mr.wrkdate) as max_wrkdate")
             )
                 //->groupBy(['mr.wrkdate', 'mro.suporgid', 'mro.orgid', 'mro.disp_staffid', 'mro.org_placeid', 'mro.refitmid'])
-                ->groupBy(['mro.suporgid', 'mro.orgid', 'mro.disp_staffid', 'mro.org_placeid', 'mro.refitmid'])
+                ->groupBy(['mro.suporgid', 'mro.orgid', 'mro.disp_staffid', 'mro.org_placeid', 'mro.refitmid', 'mro.itm_price'])
                 //->orderby('mr.wrkdate', 'asc')
                 ->orderby('orgname', 'asc')
                 ->get();
