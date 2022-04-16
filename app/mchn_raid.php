@@ -358,6 +358,51 @@ class mchn_raid extends Model
     }
 
 
+    public static function informer_calendar_sums()
+    {
+        //Cache::forget('informer_calendar_sums');
+        return Cache::remember('informer_calendar_sums', now()->addMinutes(6)
+            , function () {
+
+                //$d = new DateTime('first day of this month');
+                $d = today();
+                $d->modify('-30 day');
+
+                $start_ymd = $d->format('Y-m-d');
+
+                $results = DB::select(
+                    DB::raw("select date, weekday(date) as dow, day(date) as day, sum(raid_qty) as raid_qty, sum(inp_paysum) as inp_paysum, sum(out_paysum) as out_paysum
+                            from (
+                                SELECT mr.wrkdate as date, sum(mro.raid_qty) as raid_Qty, null inp_paysum, null out_paysum
+                                    FROM `mchn_raids` as mr
+                                    join mr_opers as mro
+                                    on mro.mr_id=mr.id
+                                    WHERE mr.wrkdate>='{$start_ymd}'
+                                    group by mr.wrkdate
+                                UNION
+                                SELECT pd.paydate as date, null as raid_Qty, sum(pd.paysum) as inp_paysum, null out_paysum
+                                    FROM `paydocs` as pd
+                                    WHERE pd.paydate>='{$start_ymd}'
+                                    and pd.paydir=1
+                                    group by pd.paydate
+                                UNION
+                                SELECT pd.paydate as date, null as raid_Qty, null as inp_paysum, sum(pd.paysum) as out_paysum
+                                    FROM `paydocs` as pd
+                                    WHERE pd.paydate>='{$start_ymd}'
+                                    and pd.paydir=-1
+                                    group by pd.paydate
+                            ) as a
+                            group by date
+                            order by date desc")
+                );
+                //dd($results);
+                return $results;
+            }
+        );
+    }
+
+
+
     public static function informer_calendar_raid_qtys()
     {
         //Cache::forget('informer_calendar_raid_qtys');

@@ -168,6 +168,7 @@
                 @include('informers._user_active_tasks')
                 @include("informers._users_today")
                 @include("informers._all_saldos")
+                @include("informers._calendar_sums")
                 @include("informers._calendar_raids")
 
 {{--                @includeif("informers._ownorg_saldos")--}}

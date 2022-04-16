@@ -104,9 +104,15 @@ class HomeController extends Controller
         $data->opertypes_sums = opertype::informer_opertypes_sums();
         //-------------------------------------------------------------------------------------
 
+        //Календарь с суммами//-------------------------------------------------------
+        $data->calendar_sums_title = 'Рейсы/Приход/Расход';
+        $data->calendar_sums_items = mchn_raid::informer_calendar_sums();
+        //dd($data->calendar_sums_items);
+        //-------------------------------------------------------------------------------------
+
         //Календарь с кол-вом рейсов//-------------------------------------------------------
-        $data->calendar_raid_title = 'Количество рейсов';
-        $data->calendar_raid_qtys = mchn_raid::informer_calendar_raid_qtys();
+        //$data->calendar_raid_title = 'Количество рейсов';
+        //$data->calendar_raid_qtys = mchn_raid::informer_calendar_raid_qtys();
         //-------------------------------------------------------------------------------------
 
 
