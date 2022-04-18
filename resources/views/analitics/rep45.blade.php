@@ -371,6 +371,18 @@
                                             </div>
                                         @endif
 
+                                        @if (count($data->unload_places)>1)
+                                            <div class="form-group col-md-4">
+                                                <label for="s_suporgid">Место выгрузки:</label>
+                                                {!! Form::select('s_unload_placeid', $data->unload_places, $search_params['s_unload_placeid'],
+                                                                [
+                                                                'class' => 'form-control',
+                                                                'placeholder' => '',
+                                                                ])
+                                                                !!}
+                                            </div>
+                                        @endif
+
 
                                         @if (1==0 and count($data->buildobjs)>1)
                                             <div class="form-group col-md-6">

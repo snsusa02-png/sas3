@@ -14,6 +14,7 @@ use App\mr_oper;
 use App\order;
 use App\org;
 use App\org_curator;
+use App\org_place;
 use App\orgstaff;
 use App\report;
 use App\saleplan;
@@ -640,6 +641,7 @@ class AnaliticsController extends Controller
             $search_params['s_buildobjid'] = $request->get("s_buildobjid");
             $search_params['s_contractid'] = $request->get("s_contractid");
             $search_params['s_contractid'] = $request->get("s_contractid");
+            $search_params['s_unload_placeid'] = $request->get("s_unload_placeid");
 
             $search_params['vTimeSelType'] = $request->get("vTimeSelType");
 
@@ -695,6 +697,7 @@ class AnaliticsController extends Controller
         $s_buildobjid = null;
         $s_suporgid = null;
         $s_contractid = null;
+        $s_unload_placeid = null;
         $vTimeSelType = 1;
         $vYr1 = null;
         $vYr1 = today()->format('Y');
@@ -734,6 +737,7 @@ class AnaliticsController extends Controller
                     $s_suporgid = $params['s_suporgid'] ?? null;
                     $s_buildobjid = $params['s_buildobjid'] ?? null;
                     $s_contractid = $params['s_contractid'] ?? null;
+                    $s_unload_placeid = $params['s_unload_placeid'] ?? null;
 //                    dd($params);
                     $vTimeSelType = $params['vTimeSelType'] ?? 1;
                     $vYr1 = $params['vYr1'] ?? null;
@@ -772,6 +776,7 @@ class AnaliticsController extends Controller
             "s_suporgid" => $s_suporgid,
             "s_buildobjid" => $s_buildobjid,
             "s_contractid" => $s_contractid,
+            "s_unload_placeid" => $s_unload_placeid,
             "vTimeSelType" => $vTimeSelType,
             "vYr1" => $vYr1,
             "vMn1" => $vMn1,
@@ -891,6 +896,9 @@ class AnaliticsController extends Controller
         $data->suporgs = org::lstFor_cached(['in_mr_opers_suporgid' => 1]);  //Продавцы
         $data->orgs = org::lstFor_cached(['in_mr_opers_orgid' => 1]);  //Покупатели
 
+        $data->load_places = org_place::lstFor_cached(['in_mr_opers_load_placeid' => 1]);  //Места погрузки
+        $data->unload_places = org_place::lstFor_cached(['in_mr_opers_unload_placeid' => 1]);  //Места выгрузки
+
         $data->orggroups = group::lstOrgGroups_cache();
         $data->years = mchn_raid::years();
         $data->monthes = Config::get('constants.monthes');
@@ -917,6 +925,10 @@ class AnaliticsController extends Controller
             if (1 == 1 and isset($s_suporgid)) {
                 $sc .= " and mro.suporgid=" . $s_suporgid;
                 $conditions .= 'Исполнитель = "<b>' . $data->suporgs[$s_suporgid] . '</b>"; ';
+            }
+            if (1 == 1 and isset($s_unload_placeid)) {
+                $sc .= " and mro.org_placeid=" . $s_unload_placeid;
+                $conditions .= 'Место выгрузки = "<b>' . $data->unload_places[$s_unload_placeid] ?? '-' . '</b>"; ';
             }
 
             if (1 == 1 and isset($s_contractid)) {
@@ -966,7 +978,7 @@ class AnaliticsController extends Controller
             ['title' => 'водитель', 'jointbl' => 'os', 'fld' => 'mr.driverid', 'lbl' => 'driverid', 'show_val' => 'ifnull(os.name,"-не известен-")'],
             ['title' => 'тип оплаты', 'jointbl' => 'pt', 'fld' => 'mro.paytypeid', 'lbl' => 'paytypeid', 'show_val' => 'ifnull(pt.name,"-не известен-")'],
             ['title' => 'место загрузки', 'jointbl' => 'p_l', 'fld' => 'mro.sup_placeid', 'lbl' => 'load_placeid', 'show_val' => 'ifnull(p_l.name,"-не известно-")'],
-            ['title' => 'место выгрузки', 'jointbl' => 'p_u', 'fld' => 'mro.org_placeid', 'lbl' => 'unload_placeid', 'show_val' => 'ifnull(p_u.name,"-не известно-")'],
+            ['title' => 'место выгрузки', 'jointbl' => 'p_u', 'fld' => 'mro.org_placeid', 'lbl' => 'org_placeid', 'show_val' => 'ifnull(p_u.name,"-не известно-")'],
             ['title' => 'тип операции', 'jointbl' => 'ot', 'fld' => 'mr.opertypeid', 'lbl' => 'opertypeid', 'show_val' => 'ifnull(ot.name,"-не известно-")'],
             ['title' => 'договор', 'jointbl' => 'c', 'fld' => 'mro.contractid', 'lbl' => 'contractid', 'show_val' => 'ifnull(c.docnum,"-без договора-")'],
         ];

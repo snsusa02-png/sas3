@@ -68,6 +68,16 @@ class org_place extends Model
                         $sc .= " and " . (($val == 1) ? '' : 'not') .
                             " exists (select 1 from mchn_raids as mr where mr.load_placeid=p.id)";
 
+                    } elseif ($key == 'in_mr_opers_load_placeid') {
+                        // Место, связанное с клиентом. Но при Покупке, это Место погрузки
+                        $sc .= " and " . (($val == 1) ? '' : 'not') .
+                            " exists (select 1 from mr_opers as mro where mro.org_placeid=p.id and mro.sale_dir=-1)";
+
+                    } elseif ($key == 'in_mr_opers_unload_placeid') {
+                        // Место, связанное с клиентом. Но при Продаже, это Место выгрузки
+                        $sc .= " and " . (($val == 1) ? '' : 'not') .
+                            " exists (select 1 from mr_opers as mro where mro.org_placeid=p.id and mro.sale_dir=1)";
+
                     }
                 }
 
