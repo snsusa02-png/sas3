@@ -371,10 +371,22 @@
                                             </div>
                                         @endif
 
-                                        @if (count($data->unload_places)>1)
+                                        @if (count($data->sup_places)>1)
                                             <div class="form-group col-md-4">
-                                                <label for="s_suporgid">Место выгрузки:</label>
-                                                {!! Form::select('s_unload_placeid', $data->unload_places, $search_params['s_unload_placeid'],
+                                                <label for="s_suporgid">Место поставщика:</label>
+                                                {!! Form::select('s_sup_placeid', $data->sup_places??[], $search_params['s_sup_placeid'],
+                                                                [
+                                                                'class' => 'form-control',
+                                                                'placeholder' => '',
+                                                                ])
+                                                                !!}
+                                            </div>
+                                        @endif
+
+                                        @if (count($data->org_places)>1)
+                                            <div class="form-group col-md-4">
+                                                <label for="s_suporgid">Место клиента:</label>
+                                                {!! Form::select('s_org_placeid', $data->org_places, $search_params['s_org_placeid'],
                                                                 [
                                                                 'class' => 'form-control',
                                                                 'placeholder' => '',
