@@ -452,7 +452,7 @@ class PayDocReportController extends Controller
                 )
                 ->union($sells)
                 ->union($buys)
-                ->orderBy('operdate','desc')
+                ->orderBy('operdate')
                 ->get();
             //dd($recs);
         }
