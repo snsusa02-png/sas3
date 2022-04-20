@@ -55,7 +55,6 @@ class PayDocReportController extends Controller
     {
         $this->middleware('auth');
         $this->sysobjid = 855;  //reports
-        //$this->objcode = 'reports';
         $this->objcode = 'paydocs';
     }
 
@@ -453,7 +452,7 @@ class PayDocReportController extends Controller
                 )
                 ->union($sells)
                 ->union($buys)
-                ->orderBy('operdate')
+                ->orderBy('operdate','desc')
                 ->get();
             //dd($recs);
         }
