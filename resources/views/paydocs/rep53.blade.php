@@ -95,12 +95,15 @@ $usrrights['link_tasks'] = \App\usrsysright::isUserHasRightByCode_cached($userid
                     @endif
                 </div>
 
-                <table class="table table-sm table-striped rep-data mt-3"
+                <table id="results"
+                       class="table table-sm table-striped rep-data mt-3"
                        style="background-color: snow; font-size:16px; max-width:960px"
                        align=center>
                     <thead>
                     <tr class="text-left small" valign="top">
-                        <td class="text-center">Дата</td>
+                        <td class="text-center">Дата
+                            <button class="btn btn-sm btn-light" id="sort_1" data-dir="1"><i class="fa fa-sort-asc" aria-hidden="true"></i></button>
+                        </td>
                         <td class="text-left">Операция</td>
                         <td class="text-right">Кол-во</td>
                         <td class="text-right">Цена,руб</td>
@@ -128,7 +131,7 @@ $usrrights['link_tasks'] = \App\usrsysright::isUserHasRightByCode_cached($userid
                         ?>
 
                         <tr class="text-left ">
-                            <td class="text-center small">
+                            <td class="text-center small" data-npp="1">
                                 {{date_create($data->org_saldo->ondate)->format('d.m.Y')}}
                             </td>
                             <td class="text-center small font-weight-bold">
@@ -149,12 +152,13 @@ $usrrights['link_tasks'] = \App\usrsysright::isUserHasRightByCode_cached($userid
                     $sumtypes = [1 => 'платеж', 2 => 'поставка'];
                     $cur_operdate = -1;
                     $day_qty = $day_sum = 0;
+                    $npp = 2;
                     ?>
                     @foreach($recs as $rec)
                         @if(1==0 and $rec->operdate<>$cur_operdate)
                             @if($cur_operdate<>-1)
                                 <tr class="text-left font-italic" style="background-color: #cfebff">
-                                    <td class="text-right small " colspan="2">
+                                    <td class="text-right small " colspan="2" data-npp="{{$npp++}}">
                                         Итого за день:
                                     </td>
                                     <td class=" small text-right">{{number_format($day_qty,1)}}</td>
@@ -168,7 +172,7 @@ $usrrights['link_tasks'] = \App\usrsysright::isUserHasRightByCode_cached($userid
                                 ?>
                             @endif
                             <tr class="text-left ">
-                                <td class="text-left small font-weight-bold" colspan="6">
+                                <td class="text-left small font-weight-bold" colspan="6" data-npp="{{$npp++}}">
                                     {{date_create($rec->operdate)->format('d.m.Y')}}
                                 </td>
                             </tr>
@@ -195,7 +199,7 @@ $usrrights['link_tasks'] = \App\usrsysright::isUserHasRightByCode_cached($userid
                         $tstyle = ($rec->sumtypeid == 1) ? 'background-color:#ffff94' : '';
                         ?>
                         <tr class="text-left {{$tr_class}}" style="{{$tstyle}}">
-                            <td class="text-center small">
+                            <td class="text-center small" data-npp="{{$npp++}}">
                                 {{date_create($rec->operdate)->format('d.m.Y')}}
                             </td>
                             <td class="text-left small">
@@ -222,7 +226,7 @@ $usrrights['link_tasks'] = \App\usrsysright::isUserHasRightByCode_cached($userid
                     @endforeach
                     @if($cur_operdate<>-1)
                         <tr class="text-left font-italic" style="background-color: #cfebff">
-                            <td class="text-right small " colspan="2">
+                            <td class="text-right small " colspan="2" data-npp="{{$npp++}}">
                                 Итого за день:
                             </td>
                             <td class=" small text-right calc"
@@ -244,7 +248,7 @@ $usrrights['link_tasks'] = \App\usrsysright::isUserHasRightByCode_cached($userid
                             ?>
                                 <tr style=" border-top:1px solid darkred !important;
                             ">
-                            <td colspan="4" class="text-right">Итого:</td>
+                            <td colspan="4" class="text-right" data-npp="{{$npp++}}">Итого:</td>
                             <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totSum,2)}}</td>
                             <td class="text-right small {{$tdс_class}}">{{number_format($curSum,2)}}</td>
                         </tr>
