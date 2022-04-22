@@ -73,4 +73,5 @@ function sortByNPP() {
 
 //document.querySelector("#sort_1").addEventListener("click", sortByDate);
 document.querySelector("#sort_1").addEventListener("click", sortByNPP);
+document.querySelector("#sort_1").addEventListener("tap", sortByNPP);
 sortByNPP();
