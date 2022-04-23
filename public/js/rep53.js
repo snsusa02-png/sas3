@@ -46,14 +46,10 @@ function sortByDate() {
 
 function sortByNPP() {
     var tbody = document.querySelector("#results tbody");
-    alert('tbody')
     // получим все строки таблицы как массив
     var rows = [].slice.call(tbody.querySelectorAll("tr"));
-    alert('rows')
     var sort_btn = document.querySelector("#sort_1");
-    alert('sort_btn')
     var sort_dir = -1*sort_btn.dataset.dir;
-    alert('sort_dir')
     if (sort_dir == 1) {
         sort_btn.innerHTML = '<i class="fa fa-sort-desc" aria-hidden="true"></i>';
     } else{
@@ -64,12 +60,10 @@ function sortByNPP() {
     rows.sort(function (a, b) {
         return sort_dir * ((a.cells[0].dataset.npp) - (b.cells[0].dataset.npp));
     });
-    alert('after sort')
 
     rows.forEach(function (v) {
         tbody.appendChild(v); // note that .appendChild() *moves* elements
     });
-    alert('after appendChild')
 }
 
 //document.querySelector("#sort_1").addEventListener("click", sortByDate);
