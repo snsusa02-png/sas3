@@ -17,7 +17,7 @@ $thisTitle = $report->title ?? $report->name;
 
 $userid = \Auth::user()->id;
 $usrrights = [];
-$usrrights['link_tasks'] = \App\usrsysright::isUserHasRightByCode_cached($userid, 'tasks.create');;
+$usrrights['link_tasks'] = \App\usrsysright::isUserHasRightByCode_cached($userid, 'tasks.create');
 
 ?>
 @section('title')
@@ -36,13 +36,6 @@ $usrrights['link_tasks'] = \App\usrsysright::isUserHasRightByCode_cached($userid
         .page {
             background-color: white;
         }
-
-        .totSum {
-            background-color: white;
-            font-weight: bold;
-            font-size: 1.1em;
-        }
-
     </style>
 
     <div class="container">
@@ -73,7 +66,7 @@ $usrrights['link_tasks'] = \App\usrsysright::isUserHasRightByCode_cached($userid
                                     </a>
                         </span>
 
-                <div class="mt-2" align="center"
+                <div class="mt-2 text-center"
                      style="font-size: 18px;">
                     <h4>{{$thisTitle}}</h4>
                     между <a href="{{route('orgs.edit',$data->org->id)}}"
@@ -97,10 +90,9 @@ $usrrights['link_tasks'] = \App\usrsysright::isUserHasRightByCode_cached($userid
 
                 <table id="results"
                        class="table table-sm table-striped rep-data mt-3"
-                       style="background-color: snow; font-size:16px; max-width:960px"
-                       align=center>
+                       style="background-color: snow; font-size:16px; max-width:960px; align-self: center">
                     <thead>
-                    <tr class="text-left small" valign="top">
+                    <tr class="text-left small" style="vertical-align:middle;">
                         <td class="text-center">Дата
                             <button class="btn btn-sm btn-light" id="sort_1" data-dir="1"><i class="fa fa-sort-asc" aria-hidden="true"></i></button>
                         </td>
@@ -246,9 +238,8 @@ $usrrights['link_tasks'] = \App\usrsysright::isUserHasRightByCode_cached($userid
                             $td_class = ($totSum < 0) ? 'text-danger' : (($totSum > 0) ? 'text-success' : '');
                             $tdс_class = ($curSum < 0) ? 'text-danger' : (($totSum > 0) ? 'text-success' : '');
                             ?>
-                                <tr style=" border-top:1px solid darkred !important;
-                            ">
-                            <td colspan="4" class="text-right" data-npp="{{$npp++}}">Итого:</td>
+                                <tr>
+                            <td colspan="4" class="text-right" data-npp="{{$npp++}}">Итого, на сейчас:</td>
                             <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totSum,2)}}</td>
                             <td class="text-right small {{$tdс_class}}">{{number_format($curSum,2)}}</td>
                         </tr>
