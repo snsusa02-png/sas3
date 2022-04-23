@@ -495,4 +495,47 @@ class PayDocReportController extends Controller
         return view('paydocs.rep' . $report_id, compact('recs', 'data'));
     }
 
+    function rep54(Request $request, $date)
+    {
+        //Детализация платежей за дату
+
+        $report_id = 54;
+
+        $returl = $request->get('returl') ?? route('home');
+        $userid = Auth::user()->id;
+        $export2xls = $request->get('xls') ?? 0;
+
+        $data = new \stdClass();
+        $data->date = $date;
+        $data->returl = $returl;
+
+        $recs = paydoc::from('paydocs as pd')
+            ->join('orgs as oo', 'oo.id', 'pd.ownorgid')
+            ->join('orgs as o', 'o.id', 'pd.orgid')
+            ->where('pd.paydate', $date)
+            ->select('pd.id as objid', 'pd.paydir', 'pd.ownorgid'
+                , 'oo.name as ownorg_name'
+                , 'o.name as org_name'
+                , db::raw("ifnull(pd.reason,' ') as descript")
+                , db::raw("pd.paydir*pd.paysum as paysum")
+                , db::raw("case when (pd.paydir=1)  then pd.paysum else null end as inp_sum")
+                , db::raw("case when (pd.paydir=-1) then pd.paysum else null end as out_sum")
+            )
+            ->get();
+        //dd($date,$recs);
+
+        //занесем в журнал
+        objlog::log_info(855, $report_id, 'запрошен отчет; ' . $date);
+        if ($export2xls == "1") {
+            $response = Excel::download(new rep54Export($recs, $data), "Платежи за " . Str::slug($data->$date) . ".xlsx", \Maatwebsite\Excel\Excel::XLSX);
+
+            //$response= Excel::download(new InvoicesExport, 'invoices.xls', \Maatwebsite\Excel\Excel::XLS);
+            //HERE IS THE MAGIC FOLKS
+            ob_end_clean();
+            return $response;
+        }
+
+        return view('paydocs.rep' . $report_id, compact('recs', 'data'));
+    }
+
 }

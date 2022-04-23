@@ -23,6 +23,7 @@
                     $new_row = true;
                     $pre_dow = 9;
                     $now_day = now()->format('d');
+                    $retURL = Request::url();
                     ?>
 
                     @foreach($data->calendar_sums_items as $itm)
@@ -37,8 +38,26 @@
                         <tr style="{{$tr_style}}">
                             <td class="align-text-top small {{$tclass}}">{{date_create($itm->date)->format('d.m.Y')}}</td>
                             <td class="text-right">{{$itm->raid_qty??' '}}</td>
-                            <td class="text-right">{{$inp_paysum}}</td>
-                            <td class="text-right">{{$out_paysum}}</td>
+                            <td class="text-right">
+                                @if(isset($itm->inp_paysum))
+                                    <a href="{{route('reports.rep54',['date'=>$itm->date])}}?returl={{$retURL}}"
+                                       title="Детализация платежей">
+                                        {{$inp_paysum}}
+                                    </a>
+                                @else
+                                    {{$inp_paysum}}
+                                @endif
+                            </td>
+                            <td class="text-right">
+                                @if(isset($itm->out_paysum))
+                                    <a href="{{route('reports.rep54',['date'=>$itm->date])}}?returl={{$retURL}}"
+                                       title="Детализация платежей">
+                                        {{$out_paysum}}
+                                    </a>
+                                @else
+                                    {{$out_paysum}}
+                                @endif
+                            </td>
                         </tr>
                     @endforeach
                     </tbody>

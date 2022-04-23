@@ -1026,6 +1026,7 @@ Route::match(array('POST', 'GET'), '/reports/rep/48/{ownorgid}/{orgid}', "PayDoc
 Route::match(array('POST', 'GET'), '/reports/rep/51', "MchnRaidReportController@rep51")->name('reports.rep51');
 Route::match(array('POST', 'GET'), '/reports/rep/52', "MchnRaidReportController@rep52")->name('reports.rep52');
 Route::match(array('POST', 'GET'), '/reports/rep/53/{ownorgid}/{orgid}', "PayDocReportController@rep53")->name('reports.rep53');
+Route::match(array('POST', 'GET'), '/reports/rep/54/{date}', "PayDocReportController@rep54")->name('reports.rep54');
 
 //Состав плана платежей
 Route::get('orgplnpay_items/create/{docid}/', "OrgplnpayItemController@create")->name('orgplnpay_items.create');
