@@ -92,11 +92,13 @@ $thisTitle = $report->title ?? $report->name;
                     </div>
 
                     <table class="table table-sm table-striped rep-data mt-3"
-                           style="background-color: snow; font-size:16px; max-width:960px"
+                           style="background-color: snow; font-size:16px; max-width:960px" id="results"
                            align=center>
                         <thead>
                         <tr class="text-left small" valign="top">
-                            <td class="text-center">Дата</td>
+                            <td class="text-center">Дата
+                                <button class="btn btn-sm btn-light" id="sort_1" data-dir="1"><i class="fa fa-sort-asc" aria-hidden="true"></i></button>
+                            </td>
                             <td class="text-left">Операция</td>
                             <td class="text-right">Кол-во</td>
                             <td class="text-right">Цена,руб</td>
@@ -117,7 +119,7 @@ $thisTitle = $report->title ?? $report->name;
                             ?>
 
                             <tr class="text-left ">
-                                <td class="text-center small">
+                                <td class="text-center small" data-npp="1">
                                     {{date_create($data->org_saldo->ondate)->format('d.m.Y')}}
                                 </td>
                                 <td class="text-center small font-weight-bold">
@@ -137,15 +139,16 @@ $thisTitle = $report->title ?? $report->name;
                         $sumtypes = [1 => 'платеж', 2 => 'поставка'];
                         $cur_operdate = -1;
                         $day_qty = $day_sum = 0;
+                        $npp = 2;
                         ?>
                         @foreach($recs as $rec)
                             @if($rec->operdate<>$cur_operdate)
                                 @if($cur_operdate<>-1)
                                     <tr class="text-left font-italic" style="background-color: #cfebff">
-                                        <td class="text-right small " colspan="2">
+                                        <td class="text-right small " colspan="2" data-npp="{{$npp++}}">
                                             Итого за день:
                                         </td>
-                                        <td class=" small text-right">{{number_format($day_qty,1)}}</td>
+                                        <td class=" small text-right">{{number_format($day_qty,3)}}</td>
                                         <td></td>
                                         <td class="text-right">{{number_format($day_sum,2)}}</td>
                                         <td></td>
@@ -156,7 +159,7 @@ $thisTitle = $report->title ?? $report->name;
                                     ?>
                                 @endif
                                 <tr class="text-left ">
-                                    <td class="text-left small font-weight-bold" colspan="6">
+                                    <td class="text-left small font-weight-bold" colspan="6" data-npp="{{$npp++}}">
                                         {{date_create($rec->operdate)->format('d.m.Y')}}
                                     </td>
                                 </tr>
@@ -170,7 +173,7 @@ $thisTitle = $report->title ?? $report->name;
                             $td_class = ($rec->itmsum < 0) ? 'text-danger' : (($rec->itmsum > 0) ? 'text-success' : '');
                             $tdс_class = ($curSum < 0) ? 'text-danger' : (($totSum > 0) ? 'text-success' : '');
 
-                            $sh_qty = (isset($rec->qty)) ? number_format($rec->qty, 2) : '';
+                            $sh_qty = (isset($rec->qty)) ? number_format($rec->qty, 3) : '';
                             $sh_price = (isset($rec->price)) ? number_format($rec->price, 2) : '';
 
                             if ($rec->sysobjid == 520)
@@ -183,7 +186,7 @@ $thisTitle = $report->title ?? $report->name;
                             $tstyle = ($rec->sumtypeid == 1) ? 'background-color:#ffff94' : '';
                             ?>
                             <tr class="text-left" style="{{$tstyle}}">
-                                <td class="text-center small">
+                                <td class="text-center small" data-npp="{{$npp++}}">
                                 </td>
                                 <td class="text-left small">
                                     <span class="font-weight-bold small"> {{$sumtypes[$rec->sumtypeid]??'?'}}</span>:
@@ -207,10 +210,10 @@ $thisTitle = $report->title ?? $report->name;
                         @endforeach
                         @if($cur_operdate<>-1)
                             <tr class="text-left font-italic" style="background-color: #cfebff">
-                                <td class="text-right small " colspan="2">
+                                <td class="text-right small " colspan="2" data-npp="{{$npp++}}">
                                     Итого за день:
                                 </td>
-                                <td class=" small text-right">{{number_format($day_qty,1)}}</td>
+                                <td class=" small text-right">{{number_format($day_qty,3)}}</td>
                                 <td></td>
                                 <td class="text-right">{{number_format($day_sum,2)}}</td>
                                 <td></td>
@@ -227,7 +230,7 @@ $thisTitle = $report->title ?? $report->name;
                             $tdс_class = ($curSum < 0) ? 'text-danger' : (($totSum > 0) ? 'text-success' : '');
                             ?>
                             <tr style="border-top:1px solid darkred !important;">
-                                <td colspan="4" class="text-right">Итого:</td>
+                                <td colspan="4" class="text-right" data-npp="{{$npp++}}">Итого:</td>
                                 <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totSum,2)}}</td>
                                 <td class="text-right small {{$tdс_class}}">{{number_format($curSum,2)}}</td>
                             </tr>
