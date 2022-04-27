@@ -113,6 +113,7 @@ class MchnRaidController extends Controller
             , 's_reguserid' => $userid
             , 's_ri_name' => ''
             , 's_machineid' => ''
+            , 's_machine_name' => ''
             , 's_driverid' => ''
             , 's_paytypeid' => ''
             , 's_timestatuscode' => 2   //вчера
@@ -145,6 +146,10 @@ class MchnRaidController extends Controller
                 } elseif ($item == 's_machineid') {
                     $sc = $sc . " and mr.machineid = {$val}";
 
+                } elseif ($item == 's_machine_name') {
+                        $sc .= " and exists(select 1 from machines as m
+                            where m.id=mr.machineid and concat(m.regnum,' - ', m.name) like '%" . mb_strtoupper($val) . "%')";
+                        //dd($sc);
                 } elseif ($item == 's_driverid') {
                     $sc = $sc . " and mr.driverid = {$val}";
 
