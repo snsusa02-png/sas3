@@ -122,6 +122,7 @@ class MchnRaidController extends Controller
             , 's_unload_placeid' => ''
             , 's_suporgid' => ''
             , 's_orgid' => ''
+            , 's_org_name' => ''
             , 's_disp_staffid' => ''
         ];
 
@@ -149,7 +150,6 @@ class MchnRaidController extends Controller
                 } elseif ($item == 's_machine_name') {
                         $sc .= " and exists(select 1 from machines as m
                             where m.id=mr.machineid and concat(m.regnum,' - ', m.name) like '%" . mb_strtoupper($val) . "%')";
-                        //dd($sc);
                 } elseif ($item == 's_driverid') {
                     $sc = $sc . " and mr.driverid = {$val}";
 
@@ -182,6 +182,10 @@ class MchnRaidController extends Controller
                     //Заказчик в операциях продажи (от ГК)
                     //$sc = $sc . " and exists(select 1 from mr_opers as mro where mro.mr_id=mr.id and mro.orgid = {$val} and mro.sale_dir=1)";
                     $sc .= " and mro.orgid={$val}";
+
+                } elseif ($item == 's_org_name') {
+                    $sc .= " and exists(select 1 from orgs as o
+                            where o.id=mro.orgid and o.name like '%" . mb_strtoupper($val) . "%')";
 
                 } elseif ($item == 's_paytypeid') {
                     //$sc = $sc . " and mr.paytypeid = {$val}";

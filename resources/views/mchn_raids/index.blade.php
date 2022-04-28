@@ -232,13 +232,21 @@
                                 <td></td>
                                 <td></td>
                                 <td>
-                                    {!! Form::select('s_orgid', $data->orgs??[]
-            , $search_params['s_orgid'],
-             [
-             'class' => 'form-control',
-             'placeholder' => '-все-',
-             'onchange' => 'form.submit()',
-             ]) !!}
+{{--                                    {!! Form::select('s_orgid', $data->orgs??[]--}}
+{{--            , $search_params['s_orgid'],--}}
+{{--             [--}}
+{{--             'class' => 'form-control',--}}
+{{--             'placeholder' => '-все-',--}}
+{{--             'onchange' => 'form.submit()',--}}
+{{--             ]) !!}--}}
+                                    <input type="text" name="s_org_name" list="orgs" class="form-control"
+                                           value="{{$search_params['s_org_name']??''}}">
+                                    <datalist id="orgs">
+                                        @foreach($data->orgs as $key=>$val)
+                                            <option value="{{ $val }}">
+                                        @endforeach
+                                    </datalist>
+
 
                                     {{--                                    {!! Form::select('s_unload_placeid', $data->unload_places??[]--}}
                                     {{--                                                                            , $search_params['s_unload_placeid'],--}}
