@@ -56,4 +56,14 @@ $(document).ready(function () {
         }
     });
 
+    // настройки для DataList
+    $('[list]').focusin(function(){
+        //выделение всего текста при входе в input
+        $(this).css("background-color", "#FFFFCC").select();
+    })
+    $('[list]').change(function(){
+        // отправка формы при изменении данных
+        $(this).closest("form").submit();
+    })
+
 });

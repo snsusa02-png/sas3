@@ -240,6 +240,7 @@
 {{--             'onchange' => 'form.submit()',--}}
 {{--             ]) !!}--}}
                                     <input type="text" name="s_org_name" list="orgs" class="form-control"
+                                           id="s_org_name"
                                            value="{{$search_params['s_org_name']??''}}">
                                     <datalist id="orgs">
                                         @foreach($data->orgs as $key=>$val)

@@ -760,7 +760,7 @@ class orgController extends Controller
         }
         // --------------------------------------------------------------------------------------
 
-        connectify('success', $rec->name, $mess);
+        //connectify('success', $rec->name, $mess);
         if ($id == -1) {
             return redirect(route($this->objcode . '.edit', $rec->id));
         } else {
