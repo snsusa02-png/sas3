@@ -160,6 +160,7 @@
                                             'class' => 'form-control small',
                                             'placeholder' => '-все-',
                                             'id' => 's_timestatuscode',
+                                            'onchange' => 'form.submit()',
                                             ])
                                         !!}
                                     </div>
