@@ -1334,7 +1334,8 @@ class refitem extends Model
 
                         $search_flds = "ri.name";
                         if ($key == 'name_type')
-                            $search_flds = "concat(ri.name,' ',it.name)";
+                            //$search_flds = "concat(ri.name,' ',it.name)";
+                            $search_flds = "ri.name";
 
                         $words = explode(" ", $val);
                         if (count($words) > 0) {
