@@ -11,8 +11,10 @@ function sortByNPP() {
     let sort_dir = -1*parseInt(sort_btn.dataset.dir);
     if (sort_dir === 1) {
         sort_btn.innerHTML = '<i class="fa fa-sort-desc" aria-hidden="true"></i>';
+        $(".day_sums").show();
     } else{
         sort_btn.innerHTML = '<i class="fa fa-sort-asc" aria-hidden="true"></i>';
+        $(".day_sums").hide();
     }
     sort_btn.dataset.dir = sort_dir.toString();
 

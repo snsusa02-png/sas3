@@ -144,9 +144,9 @@ $thisTitle = $report->title ?? $report->name;
                         @foreach($recs as $rec)
                             @if($rec->operdate<>$cur_operdate)
                                 @if($cur_operdate<>-1)
-                                    <tr class="text-left font-italic" style="background-color: #cfebff">
+                                    <tr class="text-left font-italic day_sums" style="background-color: #cfebff">
                                         <td class="text-right small " colspan="2" data-npp="{{$npp++}}">
-                                            Итого за день:
+                                            Итого за день ({{date_create($cur_operdate)->format('d.m.Y')}}):
                                         </td>
                                         <td class=" small text-right">{{number_format($day_qty,3)}}</td>
                                         <td></td>
@@ -158,7 +158,7 @@ $thisTitle = $report->title ?? $report->name;
                                     $day_sum = 0;
                                     ?>
                                 @endif
-                                <tr class="text-left ">
+                                <tr class="text-left day_sums">
                                     <td class="text-left small font-weight-bold" colspan="6" data-npp="{{$npp++}}">
                                         {{date_create($rec->operdate)->format('d.m.Y')}}
                                     </td>
@@ -187,6 +187,7 @@ $thisTitle = $report->title ?? $report->name;
                             ?>
                             <tr class="text-left" style="{{$tstyle}}">
                                 <td class="text-center small" data-npp="{{$npp++}}">
+                                    {{date_create($rec->operdate)->format('d.m.Y')}}
                                 </td>
                                 <td class="text-left small">
                                     <span class="font-weight-bold small"> {{$sumtypes[$rec->sumtypeid]??'?'}}</span>:
@@ -209,9 +210,9 @@ $thisTitle = $report->title ?? $report->name;
                             ?>
                         @endforeach
                         @if($cur_operdate<>-1)
-                            <tr class="text-left font-italic" style="background-color: #cfebff">
+                            <tr class="text-left font-italic day_sums" style="background-color: #cfebff">
                                 <td class="text-right small " colspan="2" data-npp="{{$npp++}}">
-                                    Итого за день:
+                                    Итого за день ({{date_create($cur_operdate)->format('d.m.Y')}}):
                                 </td>
                                 <td class=" small text-right">{{number_format($day_qty,3)}}</td>
                                 <td></td>
