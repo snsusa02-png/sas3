@@ -65,6 +65,7 @@ class MchnRaidController extends Controller
         $usrrights['delete'] = false;
         $usrrights['admindelete'] = false;
         $usrrights['set_lockdate'] = false;
+        $usrrights['finopers_refresh'] = usrsysright::isUserHasRightByCode_cached($userid, 'admin-global');
 
         $usrrights['save'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.update');
         $usrrights['manager'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.manager');
@@ -148,7 +149,7 @@ class MchnRaidController extends Controller
                     $sc = $sc . " and mr.machineid = {$val}";
 
                 } elseif ($item == 's_machine_name') {
-                        $sc .= " and exists(select 1 from machines as m
+                    $sc .= " and exists(select 1 from machines as m
                             where m.id=mr.machineid and concat(m.regnum,' - ', m.name) like '%" . mb_strtoupper($val) . "%')";
                 } elseif ($item == 's_driverid') {
                     $sc = $sc . " and mr.driverid = {$val}";

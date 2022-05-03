@@ -74,6 +74,14 @@
                                                                                                aria-hidden="true"></i></a>
                                             </li>
                                         @endif
+                                        @if($usrrights['finopers_refresh']??false)
+                                            <li><a href="{{route('mchn_raids.rfr_all_finopers')}}"
+                                                   title="Пересчет фин. транзакций для всех документов">
+                                                    <i class="fa fa-money fa-1" aria-hidden="true"></i>
+                                                    <i class="fa fa-refresh fa-1"
+                                                       aria-hidden="true"></i></a>
+                                            </li>
+                                        @endif
                                     </ul>
                                 </div>
                             </div>

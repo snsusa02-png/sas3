@@ -13,6 +13,13 @@
                             <i class="fa fa-eye-slash" aria-hidden="true"></i>
                             <span class="badge badge-info">{{count($rec->finopers)}}</span>
                         </button>
+                        @if(isset($sysobjid) and $rec->id<>-1 and $usrrights['finopers_refresh']??false)
+                            <a class="btn btn-sm btn-warning"
+                               href="{{ route('obj_finopers.refresh_for_obj',['sysobjid'=>$sysobjid,'objid'=>$rec->id]) }}"
+                               title="Обновить транзакции">
+                                   <i class="fa fa-refresh" aria-hidden="true"></i>
+                                </a>
+                        @endif
                     </span>
                 </div>
 

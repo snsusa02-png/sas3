@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\contract;
+use App\mchn_raid;
+use App\obj_finoper;
 use App\obj_link;
 use App\opertype;
 use App\paydoc;
@@ -19,6 +21,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 use DateTime;
+use Illuminate\Support\Facades\Log;
 
 class PaydocController extends Controller
 {
@@ -51,6 +54,7 @@ class PaydocController extends Controller
         $usrrights['save'] = false;
         $usrrights['delete'] = false;
         $usrrights['admindelete'] = false;
+        $usrrights['finopers_refresh'] = usrsysright::isUserHasRightByCode_cached($userid, 'admin-global');
 
         $usrrights['manager'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.manager');
 
@@ -384,6 +388,9 @@ class PaydocController extends Controller
             }
         }
 
+        //Выполним действия перед открытием записи ---------------------------------------------
+        paydoc::on_open($rec);
+        //---------------------------------------------------------------------------------------
 
         $rec->returl = $request->get('returl');
 
@@ -567,6 +574,43 @@ class PaydocController extends Controller
 
         return redirect(route($this->sysobjcode . '.edit', $id))->with(['success' => 'Шаблон сохранен']);
 
+    }
+
+    static public function rfr_all_finopers()
+    {
+        //2022-05-03 SNS. Пересчет фин-результата для всех записей paydocs
+
+        if (\Auth::user()->id <> 12)
+            return false;
+
+        try {
+
+            foreach (paydoc::get() as $rec) {
+                paydoc::rfr_finopers($rec);
+            }
+
+            //удалим призраков из obj_finopers ------------------------
+            //получим уник список sysobjs, связанных с obj_finopers
+            $chk_list = [
+                ['sysobjid' => 520, 'tbl' => 'paydocs'],
+                ['sysobjid' => 1107, 'tbl' => 'mr_opers'],
+            ];
+            foreach ($chk_list as $itm) {
+                //удалим записи из obj_finopers, для которых нет соответствующих записей в исходной таблице
+                $tbl = $itm['tbl'];
+                obj_finoper::from('obj_finopers as f')
+                    ->where('sysobjid', $itm['sysobjid'])
+                    ->whereRaw("not exists (select 1 from {$tbl} as t where t.id=f.objid)")
+                    ->delete();
+            }
+            //-----------------------------------------------------------
+
+        } catch (\Exception $e) {
+            Log::error('paydoc::rfr_all_finopers:' . $e->getMessage());
+            return redirect(route('mchn_raids.index'))
+                ->with(['error' => 'Ошибка пересчета финансовых операций по платежам: ' . $e->getMessage()]);
+        }
+        return redirect(route('paydocs.index'))->with(['success' => 'Пересчитаны финансовые операции по платежам!']);
     }
 
 }

@@ -68,10 +68,22 @@ class paydoc extends Model
         }
         return false;
     }
+
     public static function min_paydate()
     {
         //определим минимально-допустимую дату для поля paydate
         return sysobj_lockdate::where('sysobjid', self::$sysobjid)->first()->lock_before ?? null;
+    }
+
+    public static function on_open($rec)
+    {
+        // Доп. действия при открытии существующей
+
+        if ($rec->id <> 1) {
+
+            //сформируем/обновим фин. операции ------
+            //self::rfr_finopers($rec);
+        }
     }
 
     public static function on_update($rec)
@@ -86,7 +98,7 @@ class paydoc extends Model
 
     }
 
-    public static function on_delete($rec=null)
+    public static function on_delete($rec = null)
     {
         // Доп. действия при удалении записи
 
@@ -101,7 +113,7 @@ class paydoc extends Model
 
     }
 
-    public static function cache_clear($rec=null)
+    public static function cache_clear($rec = null)
     {
         //Забудем связанный кэш -------------------------------------
         if (isset($rec)) {

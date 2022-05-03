@@ -1,4 +1,31 @@
 ﻿--------------------------------------------------------------------------------------------------
+2022.05.03
+--------------------------------------------------------------------------------------------------
+-- вывод предшествующего сальдо вместе с текущим сальдо
+
+select d.*, orgSaldo_onDate(d.orgid,d.ownorgid,d.prev_operdate) as prev_saldo, orgSaldo_onDate(d.orgid,d.ownorgid, null) as cur_saldo
+from
+ (with x as (select distinct orgid, ownorgid from paydocs)
+	select x.ownorgid,x.orgid
+    , ( select a.operdate from (
+        SELECT DISTINCT mr.wrkdate as operdate, mro.orgid, mro.suporgid as ownorgid
+        from mr_opers as mro
+        join mchn_raids as mr on mr.id=mro.mr_id
+        where mro.orgid=x.orgid and mro.suporgid=x.ownorgid
+
+        union
+        select paydate as operdate, orgid, ownorgid
+        from paydocs as pd
+        where pd.orgid=x.orgid and pd.ownorgid=x.ownorgid
+        order by operdate desc limit 2,1
+        ) a) prev_operdate
+
+    from x
+) d
+where d.prev_operdate is not null
+order by cur_saldo
+
+--------------------------------------------------------------------------------------------------
 2022.04.23
 --------------------------------------------------------------------------------------------------
 INSERT INTO `sasdv`.`reports` (`id`, `name`, `acsid`, `acs_rightid`, `public`)

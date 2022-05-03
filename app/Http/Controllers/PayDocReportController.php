@@ -450,8 +450,8 @@ class PayDocReportController extends Controller
                     , db::raw("null as qty")
                     , db::raw("pd.paydir*pd.paysum as opersum")
                 )
-                ->union($sells)
-                ->union($buys)
+                ->unionall($sells)
+                ->unionall($buys)
                 ->orderBy('operdate')
                 ->get();
             //dd($recs);

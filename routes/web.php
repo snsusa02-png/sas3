@@ -753,7 +753,6 @@ Route::get('driver_works/{id}/delete', "DriverWorkController@destroy")->name("dr
 Route::get('driver_works/{id}/make_template', "DriverWorkController@make_template")->name('driver_works.make_template');
 
 // mchn_raids - Учет рейсов спецтехники --------------------------------------------------------------------------
-Route::get('mchn_raids/rfr_all_finopers', "MchnRaidController@rfr_all_finopers");
 Route::get('mchn_raids/rfr_all_mchnraids', "MchnRaidController@rfr_all_mchnraids");
 Route::match(array('GET', 'POST'), '/mchn_raids/', "MchnRaidController@index")->name('mchn_raids.index');
 Route::get('mchn_raids/create/{dw_id}', "MchnRaidController@create")->name('mchn_raids.create');
@@ -1054,6 +1053,11 @@ Route::get('paydocs/{id}/edit', "PaydocController@edit")->name('paydocs.edit');
 Route::match(array('POST', 'PUT'), 'paydocs/{id}', "PaydocController@update")->name('paydocs.update');
 Route::match(array('GET', 'PUT'), 'paydocs/{id}/delete', "PaydocController@destroy")->name("paydocs.delete");
 Route::get('paydocs/{id}/make_template', "PaydocController@make_template")->name('paydocs.make_template');
+
+//Фин. транзакции
+Route::get('obj_finopers/{sysobjid}/{objid}/refresh', "ObjFinoperController@refresh_for_obj")->name('obj_finopers.refresh_for_obj');
+Route::get('mchn_raids/rfr_all_finopers', "MchnRaidController@rfr_all_finopers")->name('mchn_raids.rfr_all_finopers');
+Route::get('paydocs/rfr_all_finopers', "PaydocController@rfr_all_finopers")->name('paydocs.rfr_all_finopers');
 
 
 //уведомления пользователей

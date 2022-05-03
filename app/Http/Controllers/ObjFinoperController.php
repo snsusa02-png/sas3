@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\obj_finoper;
+use App\paydoc;
 use App\sysobj;
 use Illuminate\Http\Request;
 
@@ -41,7 +42,7 @@ class ObjFinoperController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -52,7 +53,7 @@ class ObjFinoperController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\obj_finoper  $obj_finoper
+     * @param \App\obj_finoper $obj_finoper
      * @return \Illuminate\Http\Response
      */
     public function show(obj_finoper $obj_finoper)
@@ -63,7 +64,7 @@ class ObjFinoperController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\obj_finoper  $obj_finoper
+     * @param \App\obj_finoper $obj_finoper
      * @return \Illuminate\Http\Response
      */
     public function edit(obj_finoper $obj_finoper)
@@ -74,8 +75,8 @@ class ObjFinoperController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\obj_finoper  $obj_finoper
+     * @param \Illuminate\Http\Request $request
+     * @param \App\obj_finoper $obj_finoper
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, obj_finoper $obj_finoper)
@@ -86,11 +87,29 @@ class ObjFinoperController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\obj_finoper  $obj_finoper
+     * @param \App\obj_finoper $obj_finoper
      * @return \Illuminate\Http\Response
      */
     public function destroy(obj_finoper $obj_finoper)
     {
         //
+    }
+
+    public function refresh_for_obj(Request $request, $sysobjid, $objid)
+    {
+        if (!isset($sysobjid) and !isset($objid))
+            return redirect()->back()->with('error', 'Не задан источник!');
+
+        if ($sysobjid == 520) {
+            //платежи
+            $rec = paydoc::find($objid);
+            if (!isset($rec))
+                return redirect()->back()->with('error', 'Не найден источник!');
+
+            paydoc::rfr_finopers($rec);
+        }
+        //$retURL = $request->get('returl');
+        return redirect()->back()->with('success', 'Обновлены фин. транзакции документа.');
+
     }
 }
