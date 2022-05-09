@@ -241,13 +241,13 @@
                                 <td></td>
                                 <td></td>
                                 <td>
-                                    {!! Form::select('s_orgid', $data->orgs??[]
-                                        , $search_params['s_orgid'],
-                                         [
-                                         'class' => 'form-control',
-                                         'placeholder' => '-все-',
-                                         'onchange' => 'form.submit()',
-                                         ]) !!}
+{{--                                    {!! Form::select('s_orgid', $data->orgs??[]--}}
+{{--                                        , $search_params['s_orgid'],--}}
+{{--                                         [--}}
+{{--                                         'class' => 'form-control',--}}
+{{--                                         'placeholder' => '-все-',--}}
+{{--                                         'onchange' => 'form.submit()',--}}
+{{--                                         ]) !!}--}}
                                     <input type="text" name="s_org_name" list="orgs" class="form-control"
                                            id="s_org_name"
                                            value="{{$search_params['s_org_name']??''}}">
