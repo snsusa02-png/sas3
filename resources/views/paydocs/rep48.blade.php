@@ -53,6 +53,9 @@ $thisTitle = $report->title ?? $report->name;
             @else
 
                 <div class="page p-2 container-fluid">
+                    <div id="_calc_selected_sum"
+                         class="p-3 text-center bg-light  font-weight-bold w-25 border  border-danger rounded-pill"
+                         style="position: sticky; top: 2em; display: none"></div>
 
                     <span class="float-right">
                     <a class="btn btn-warning btn-sm print-window d-print-none "
@@ -198,9 +201,9 @@ $thisTitle = $report->title ?? $report->name;
                                     @endif
                                     <div class="float-right"> {{$rec->org_placename}}</div>
                                 </td>
-                                <td class="text-right small">{{$sh_qty}}</td>
+                                <td class="text-right small calced" data-num="{{$rec->qty}}">{{$sh_qty}}</td>
                                 <td class="text-right small">{{$sh_price}}</td>
-                                <td class="text-right {{$td_class}}">{{number_format($rec->opersum,2)}}</td>
+                                <td class="text-right calced {{$td_class}}" data-num="{{$rec->opersum}}">{{number_format($rec->opersum,2)}}</td>
                                 <td class="text-right small {{$tdс_class}}">{{number_format($curSum,2)}}</td>
                             </tr>
                             <?php
