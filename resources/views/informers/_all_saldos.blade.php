@@ -8,6 +8,7 @@
             padding: 0 .25rem;
             transition: color .3s ease-in-out, box-shadow .3s ease-in-out;
         }
+
         .a-modest:hover {
             box-shadow: inset 100px 0 0 0 yellow;
             color: white;
@@ -18,6 +19,10 @@
             <div class="card-header">
                 <i class="fa fa-balance-scale text-danger" aria-hidden="true"></i>
                 Текущий Баланс
+                <button data-toggle="collapse" data-target="#saldos_data"
+                        class="btn btn-light btn-sm float-right"><i class="fa fa-eye-slash" aria-hidden="true"></i>
+                </button>
+
                 <ul class="nav nav-tabs" role="tablist">
                     <li class="nav-item">
                         <a class="nav-link active" data-toggle="tab" href="#neg_balance">нам должны</a>
@@ -31,7 +36,7 @@
                 </ul>
 
             </div>
-            <div class="card-body" style="">
+            <div class="card-body collapse show" id="saldos_data" style="">
             <?php
             $retURL = Request::url();
 
@@ -73,9 +78,10 @@
                     <div class="row mb-3">
                         <div class="col-md-5"><a
                                 href="{{route('reports.rep48',[$itm->ownorgid,$itm->orgid])}}?returl={{$retURL}}"
-                                class="text-decoration-none" title="показать детализацию по фин. транзакциям">{{$itm->orgname}}</a>
-{{--                            <a href="{{route('reports.rep53',[$itm->ownorgid,$itm->orgid])}}?returl={{$retURL}}"--}}
-{{--                               class="ml-1 text-decoration-none" title="по услугам и платежам">...</a>--}}
+                                class="text-decoration-none"
+                                title="показать детализацию по фин. транзакциям">{{$itm->orgname}}</a>
+                            {{--                            <a href="{{route('reports.rep53',[$itm->ownorgid,$itm->orgid])}}?returl={{$retURL}}"--}}
+                            {{--                               class="ml-1 text-decoration-none" title="по услугам и платежам">...</a>--}}
                             <span class="small text-right ml-1" title="Куратор">{{$itm->org_curators}}</span>
                         </div>
                         <div class="col-md-4 small">{{$itm->ownorgname}}

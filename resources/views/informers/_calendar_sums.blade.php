@@ -5,8 +5,11 @@
             <div class="card-header">
                 <i class="fa " aria-hidden="true"></i>
                 {{$data->calendar_sums_title??''}}
+                <button data-toggle="collapse" data-target="#cal_sums_data"
+                        class="btn btn-light btn-sm float-right"><i class="fa fa-eye-slash" aria-hidden="true"></i>
+                </button>
             </div>
-            <div class="card-body " style="">
+            <div class="card-body collapse show" id="cal_sums_data" style="">
 
                 <table class="table-condensed table-bordered table-striped w-100">
                     <thead>
