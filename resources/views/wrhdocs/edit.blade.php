@@ -319,7 +319,8 @@
                                     </div>
                                 </div>
 
-                                @if (isset($rec->order->id))
+                                @if (false)
+{{--                                @if (isset($rec->order->id))--}}
                                     <div class="form-group row">
                                         <label class="col-md-2" for="ordid">Заказ:</label>
                                         {{ Form::hidden('ordid', $rec->ordid) }}
