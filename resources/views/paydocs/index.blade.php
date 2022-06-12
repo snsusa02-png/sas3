@@ -26,6 +26,7 @@
         <?php
         $breadcrumbs = [
             'Данные' => "/rqsts",
+            'Взаиморасчеты' => "/rqsts?tab=nsi-pays",
             $thisTitle => null,
         ];
         //dd($breadcrumbs);

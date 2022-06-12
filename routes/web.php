@@ -983,6 +983,10 @@ Route::get('/api/contracts/for_/', 'ContractController@list_for');
 Route::get('/api/contractroles/typeid/', 'ContractroleController@list_for_contracttypeid');
 Route::get('/api/regnum_srcs/', 'RegnumSrcController@list_for');
 
+Route::get('/api/wrhs/for_/', 'WrhController@list_for');
+Route::get('/api/wrh_boxes/for_/', 'WrhBoxController@list_for');
+Route::get('/stock/wrhdoctypes/params', 'WrhdoctypeController@params');
+
 
 //Счета на оплату
 Route::match(array('GET', 'POST'), 'invoices', "InvoiceController@index")->name("invoices.index");
@@ -1026,6 +1030,7 @@ Route::match(array('POST', 'GET'), '/reports/rep/51', "MchnRaidReportController@
 Route::match(array('POST', 'GET'), '/reports/rep/52', "MchnRaidReportController@rep52")->name('reports.rep52');
 Route::match(array('POST', 'GET'), '/reports/rep/53/{ownorgid}/{orgid}', "PayDocReportController@rep53")->name('reports.rep53');
 Route::match(array('POST', 'GET'), '/reports/rep/54/{date}', "PayDocReportController@rep54")->name('reports.rep54');
+Route::match(array('POST', 'GET'), '/reports/rep/55/{date}', "WrhDocReportController@rep55")->name('reports.rep55');
 
 //Состав плана платежей
 Route::get('orgplnpay_items/create/{docid}/', "OrgplnpayItemController@create")->name('orgplnpay_items.create');
@@ -1176,6 +1181,86 @@ Route::get('/tasks/create', 'myTaskController@create')->name('tasks.create');
 Route::get('/tasks/edit/{id}', 'myTaskController@edit')->name('tasks.edit');
 Route::match(array('POST', 'PUT'), 'tasks/{id}', "myTaskController@update")->name('tasks.update');
 Route::put('/tasks/delete/{id}', 'myTaskController@destroy')->name('tasks.delete');
+
+
+//Справочник Wrhs - склады предприятия
+Route::get('wrhs', 'WrhController@index')->name('wrhs.index');
+Route::match(array('GET', 'POST'), 'wrhs/search', "WrhController@search")
+    ->name("wrhs.search");
+Route::match(array('GET', 'POST'), 'wrhs/list', "WrhController@list")
+    ->name("wrhs.list");
+Route::get('wrhs/create', "WrhController@create")->name('wrhs.create');
+Route::get('wrhs/{id}/edit', 'WrhController@edit')->name('wrhs.edit');
+Route::match(array('POST'), 'wrhs/getshortinfo', 'WrhController@getshortinfo')
+    ->name('wrhs.getshortinfo');
+Route::match(array('POST', 'PUT'), 'wrhs/{id}', "WrhController@update")->name('wrhs.update');
+Route::put('wrhs/{id}/delete', "WrhController@destroy")->name("wrhs.delete");
+
+Route::get('wrh_boxes', 'WrhBoxController@index')->name('wrh_boxes.index');
+Route::get('wrh_boxes/{wrhid}/create', "WrhBoxController@create")->name('wrh_boxes.create');
+Route::get('wrh_boxes/{id}/edit', 'WrhBoxController@edit')->name('wrh_boxes.edit');
+Route::match(array('POST', 'PUT'), 'wrh_boxes/{id}', "WrhBoxController@update")->name('wrh_boxes.update');
+Route::put('wrh_boxes/{id}/delete', "WrhBoxController@destroy")->name("wrh_boxes.delete");
+
+
+//    Route::get('wrhdocs', 'WrhdocController@index')->name('wrhdocs.index');
+Route::match(array('GET', 'POST'), 'wrhdocs', 'WrhdocController@index')->name('wrhdocs.index');
+Route::match(array('GET', 'POST'), 'wrhdocs/search', "WrhdocController@search")->name("wrhdocs.search");
+
+Route::get('wrhdocs/create', "WrhdocController@create")->name('wrhdocs.create');
+Route::get('wrhdocs/createfromord/{ordid}', "WrhdocController@createFromOrd")->name('wrhdocs.createfromord');
+Route::get('wrhdocs/{id}', 'WrhdocController@edit')->name('wrhdocs.edit');
+Route::match(array('POST', 'PUT'), 'Wrhdocs/{id}', "WrhdocController@update")->name('wrhdocs.update');
+Route::put('wrhdocs/{id}/delete', "WrhdocController@destroy")->name("wrhdocs.delete");
+Route::put('wrhdocs/{id}/sign', "WrhdocController@sign")->name("wrhdocs.sign");
+Route::put('wrhdocs/{id}/unsign', "WrhdocController@unsign")->name("wrhdocs.unsign");
+Route::get('wrhdocs/{id}/makediffdoc', "WrhdocController@make_diffdoc")->name("wrhdocs.make_diffdoc");
+
+//Полный пересчет остатков на складах
+Route::get('wrh_stocks/recalc', "WrhdocController@recalc_stock")->name('recalc_stock');
+
+//Позиции документа склада
+Route::get('wrhdoclst/{docid}/create', 'WrhdoclstController@create')->name('wrhdoclst.create');
+Route::get('wrhdoclst/{id}/edit', "WrhdoclstController@edit")->name('wrhdoclst.edit');
+Route::match(array('POST', 'PUT'), 'wrhdoclst/{id}', "WrhdoclstController@update")
+    ->name('wrhdoclst.update');
+Route::put('wrhdoclst/{id}/delete', "WrhdoclstController@destroy")->name("wrhdoclst.delete");
+Route::get('wrhdoclst/{docid}/load', 'WrhdoclstController@load')->name('wrhdoclst.load.file');
+Route::post('wrhdoclst/load/save', 'orderController@saveload');
+Route::get('wrhdoclst/loadfromord/{docid}/{ordid}', "WrhdoclstController@loadFromOrder")->name('wrhdoclst.load.order');
+
+
+//Склады для обслуживания организации
+Route::get('org_wrhs/{orgid}', "OrgWrhController@index")->name('org_wrhs.index');
+Route::get('org_wrhs/create/{orgid}', "OrgWrhController@create")->name('org_wrhs.create');
+Route::get('org_wrhs/edit/{id}', 'OrgWrhController@edit')->name('org_wrhs.edit');
+Route::match(array('POST', 'PUT'), 'org_wrhs/{id}', "OrgWrhController@update")->name('org_wrhs.update');
+Route::put('org_wrhs/{id}/delete', "OrgWrhController@destroy")->name("org_wrhs.delete");
+
+//Склады для обслуживания строительных объектов
+//Route::get('buildobj_wrhs', "BuildobjWrhController@index")->name('buildobj_wrhs.index');
+Route::get('buildobj_wrhs/create/{buildobjid}/{wrhid}', "BuildobjWrhController@create")->name('buildobj_wrhs.create');
+Route::get('buildobj_wrhs/edit/{id}', 'BuildobjWrhController@edit')->name('buildobj_wrhs.edit');
+Route::match(array('POST', 'PUT'), 'buildobj_wrhs/{id}', "BuildobjWrhController@update")->name('buildobj_wrhs.update');
+Route::put('buildobj_wrhs/{id}/delete', "BuildobjWrhController@destroy")->name("buildobj_wrhs.delete");
+
+//Типы складских документов
+Route::get('wrhdoctypes/params/', 'WrhdoctypeController@params')->name('wrhdoctypes.params');
+//Отчеты по данным склада
+Route::match(array('POST', 'GET'), '/reports/rep/33', "WrhStockController@rep33")->name('reports.rep33');
+
+
+//Документы регистрации получения материалов на "линии"
+Route::match(array('GET', 'POST'), 'dlvrydocs', "DlvrydocController@index")->name("dlvrydocs.index");
+Route::get('dlvrydocs/create', "DlvrydocController@create")->name('dlvrydocs.create');
+Route::get('dlvrydocs/{id}/edit', "DlvrydocController@edit")->name('dlvrydocs.edit');
+Route::match(array('POST', 'PUT'), 'dlvrydocs/{id}', "DlvrydocController@update")->name('dlvrydocs.update');
+Route::get('dlvrydocs/{id}/delete', "DlvrydocController@destroy")->name("dlvrydocs.delete");
+Route::match(array('POST', 'PUT'), 'dlvrydocs/{id}/add_items', "DlvrydocController@add_items")->name('dlvrydocs.add_items');
+//печать в форме накладной
+Route::get('dlvrydocs/{id}/print/1', 'DlvrydocController@print_nakl')->name('dlvrydocs.print_nakl');
+//Формирование документа склада
+Route::get('dlvrydocs/{id}/send2stock', 'DlvrydocController@send2stock')->name('dlvrydocs.send2stock');
 
 
 // Информеры -----------------------------------------------------------------------------------------------------------

@@ -12,6 +12,7 @@ use App\Traits\Result;
 use App\User;
 use Illuminate\Database\Eloquent\Model;
 use DB;
+use Illuminate\Support\Facades\Cache;
 use Log;
 
 use App\Traits\DeleteTrait;
@@ -24,6 +25,9 @@ use VK\Actions\Auth;
 class wrhdoc extends Model
 {
     use DeleteTrait;
+
+    static public $prefix = 'wrhdocs';
+    static public $sysobjid = 204;
 
     //protected $fillable = ['created_by'];
 
@@ -39,6 +43,12 @@ class wrhdoc extends Model
     public function ownorg()
     {
         return $this->hasOne(org::class, 'id', 'ownorgid')
+            ->withDefault();
+    }
+
+    public function org()
+    {
+        return $this->hasOne(org::class, 'id', 'orgid')
             ->withDefault();
     }
 
@@ -205,6 +215,7 @@ class wrhdoc extends Model
         if (isset($doc)) {
 
             $signrightid = $doc->doctype->signrightid ?: 104;
+
             $userid = \Auth::user()->id;
             $may = usrsysright::isUserHasRight_cached($userid, $signrightid);
 
@@ -1041,7 +1052,6 @@ class wrhdoc extends Model
                                             $j->on('iq4.oiid', '=', 'oi.id')
                                                 ->where('iq4.stageid', 4); //этап подготовки/изготовления
                                         })
-
                                         ->where('oi.ordid', $ordid)
                                         ->where('oi.parent_id', $itm->oiid)
                                         ->where('oi.id', $detail->oiid)
@@ -1283,5 +1293,91 @@ class wrhdoc extends Model
         }
     }
 
+    public static function on_sign($rec)
+    {
+        // Доп. действия при подписании/утверждении документа
+        //dd($rec);
+        //сформируем/обновим фин. операции ------
+        self::rfr_finopers($rec);
+
+        //Забудем связанный кэш -----------------
+        self::cache_clear($rec);
+
+    }
+
+    public static function on_unsign($rec)
+    {
+        // Доп. действия при разутверждении документа
+
+        //сформируем/обновим фин. операции ------
+        self::clr_finopers($rec);
+
+        //Забудем связанный кэш -----------------
+        self::cache_clear($rec);
+
+    }
+
+    static public function rfr_finopers($rec)
+    {
+        if (!isset($rec))
+            return;
+
+        $userid = \Auth::user()->id;
+
+        //dd($rec, self::$sysobjid, $rec->id, $rec->doctype->need_org);
+        if ($rec->doctype->need_org == 1) {
+            //сформируем фин. операцию --------------------------------------------------------------
+            obj_finoper::addOrUpdate(
+                ['sysobjid' => self::$sysobjid, 'objid' => $rec->id, 'mark' => 1],
+                ['sysobjid' => self::$sysobjid, 'objid' => $rec->id, 'mark' => 1
+                    , 'operdate' => $rec->docdate
+                    , 'opersum' => $rec->docsum
+                    , 'qty' => 1
+                    , 'price' => $rec->docsum
+                    , 'descript' => 'Отпуск товара' // $rec->refitem->name . ', ' . $rec->refitem->unittype->name
+                    , 'sumtypeid' => 2  //1-деньги, 2-товар
+                    , 'srcorgid' => $rec->ownorgid
+                    , 'tgtorgid' => $rec->orgid
+//                , 'contractid' => $rec->contractid
+//                , 'opertypeid' => $rec->mchn_raid->opertypeid
+                    , 'updated_by' => $userid
+                    , 'updated_at' => now()
+                ]);
+        }
+        //удалим записи из obj_finopers, для которых уже нет соответствующих записей в mr_opers
+        obj_finoper::from('obj_finopers as f')
+            ->where('sysobjid', self::$sysobjid)
+            ->whereRaw("not exists (select 1 from wrhdocs as d where d.id=f.objid)")
+            ->delete();
+    }
+
+    static public function clr_finopers($rec)
+    {
+        if (!isset($rec))
+            return;
+
+        $userid = \Auth::user()->id;
+
+        //удалим записи из obj_finopers, связанные с текущей записью
+        obj_finoper::from('obj_finopers as f')
+            ->where('sysobjid', self::$sysobjid)
+            ->where('objid', $rec->id)
+            ->delete();
+
+        //удалим записи из obj_finopers, для которых уже нет соответствующих записей в mr_opers
+        obj_finoper::from('obj_finopers as f')
+            ->where('sysobjid', self::$sysobjid)
+            ->whereRaw("not exists (select 1 from wrhdocs as d where d.id=f.objid)")
+            ->delete();
+    }
+
+    public static function cache_clear($rec)
+    {
+        //Забудем связанный кэш -------------------------------------
+        if (isset($rec)) {
+        }
+//        Cache::forget('informer_saldos');
+        //-----------------------------------------------------------
+    }
 
 }

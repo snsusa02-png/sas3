@@ -371,26 +371,34 @@ class mchn_raid extends Model
                 $start_ymd = $d->format('Y-m-d');
 
                 $results = DB::select(
-                    DB::raw("select date, weekday(date) as dow, day(date) as day, sum(raid_qty) as raid_qty, sum(inp_paysum) as inp_paysum, sum(out_paysum) as out_paysum
+                    DB::raw("select date, weekday(date) as dow, day(date) as day, sum(raid_qty) as raid_qty
+                                , sum(inp_paysum) as inp_paysum, sum(out_paysum) as out_paysum
+                                , sum(prod_salesum) as prod_salesum
                             from (
-                                SELECT mr.wrkdate as date, sum(mro.raid_qty) as raid_Qty, null inp_paysum, null out_paysum
+                                SELECT mr.wrkdate as date, sum(mro.raid_qty) as raid_Qty, null inp_paysum, null out_paysum, null as prod_salesum
                                     FROM `mchn_raids` as mr
                                     join mr_opers as mro
                                     on mro.mr_id=mr.id
                                     WHERE mr.wrkdate>='{$start_ymd}'
                                     group by mr.wrkdate
-                                UNION
-                                SELECT pd.paydate as date, null as raid_Qty, sum(pd.paysum) as inp_paysum, null out_paysum
+                                UNION ALL
+                                SELECT pd.paydate as date, null as raid_Qty, sum(pd.paysum) as inp_paysum, null out_paysum, null as prod_salesum
                                     FROM `paydocs` as pd
                                     WHERE pd.paydate>='{$start_ymd}'
                                     and pd.paydir=1
                                     group by pd.paydate
-                                UNION
-                                SELECT pd.paydate as date, null as raid_Qty, null as inp_paysum, sum(pd.paysum) as out_paysum
+                                UNION ALL
+                                SELECT pd.paydate as date, null as raid_Qty, null as inp_paysum, sum(pd.paysum) as out_paysum, null as prod_salesum
                                     FROM `paydocs` as pd
                                     WHERE pd.paydate>='{$start_ymd}'
                                     and pd.paydir=-1
                                     group by pd.paydate
+                                UNION ALL
+                                SELECT wd.docdate as date, null as raid_Qty, null as inp_paysum, null as out_paysum, sum(wd.docsum) as prod_salesum
+                                    FROM `wrhdocs` as wd
+                                    join wrhdoctypes as wdt on wdt.id=wd.doctypeid and wdt.forsale=1
+                                    WHERE wd.docsigned=1 and wd.docdate>='{$start_ymd}'
+                                    group by wd.docdate
                             ) as a
                             group by date
                             order by date desc")

@@ -639,14 +639,21 @@ class refitem extends Model
                 $wrhdoctype = wrhdoctype::find($wrhdoc->doctypeid);
 
                 if (isset($wrhdoctype)) {
+
                     if ($wrhdoctype->forstock == -1) {
-                        //ограничены перечнем товаров в остатке склада/ячейки
+                        //Документ снижает запас товара на складе, =>
+                        // мы ограничены перечнем товаров в остатке склада/ячейки/владельца
                         $sc .= " and exists( select 1 from wrh_stocks as ws
-                        where ws.ownorgid={$wrhdoc->ownorgid}
-                            and ws.wrhid={$wrhdoc->wrhid}
-                            and ws.boxid={$wrhdoc->boxid}
-                            and ws.refitmid=ri.id)";
-                        //dd($search);
+                            where   ws.refitmid=ri.id
+                                and ws.wrhid={$wrhdoc->wrhid}
+                                and ws.boxid={$wrhdoc->boxid}";
+
+                        //2022-06-12 Если для данного типа документа не разрешено использовать товар из запасов любой компании,
+                        // то ограничимся товаром из запасов компании по документу
+                        if ($wrhdoctype->any_ownorg == 0) {
+                            $sc .= " and ws.ownorgid={$wrhdoc->ownorgid}";
+                        }
+                        $sc .= ")";
                     }
                 }
             }
@@ -674,11 +681,11 @@ class refitem extends Model
                 , DB::raw("ifnull(ri.bdgtacnttypeid,21) as bdgtacnttypeid")
                 , DB::raw('ifnull(ut.name,ri.unit) as unittypename')
                 , DB::raw('ifnull(ut.decimal_dgts,3) as decimal_dgts')
-                //DB::raw('calc_refitmprice4org (' . $orgid_low . ',ri.id) as price'),
+                //, DB::raw('calc_refitmprice4org (' . $orgid_low . ',ri.id) as price'),
                 //, db::raw("ifnull(ri.price,'н/з') as price")
                 , 'ri.price'
-            //DB::raw('refitm_specinfo (ri.id,"; ") as specinfo')
-//            , DB::raw("(select ifnull(sum(rqst_qty),0) from equiprqst_items as eri
+                //, DB::raw('refitm_specinfo (ri.id,"; ") as specinfo')
+                //, DB::raw("(select ifnull(sum(rqst_qty),0) from equiprqst_items as eri
 //                    join equiprqsts as er on er.id=eri.rqstid
 //                    ) as max_qty"   )
             )
@@ -1460,7 +1467,7 @@ class refitem extends Model
                 $load_placeid = $s_params['load_placeid'];
                 Log::info('load_placeid' . $load_placeid);
 
-                if (1==1 or isset($load_placeid)) {
+                if (1 == 1 or isset($load_placeid)) {
 
                     //цена должна быть актуальна на дату
                     if (isset($s_params['price_on_date']))

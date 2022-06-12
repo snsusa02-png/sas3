@@ -62,6 +62,12 @@
             </a>
         @endif
 
+        @if (\App\usrsysright::isUserHasRightByCode(\Auth::user()->id,'wrhs.read'))
+            <a href="{{route('wrhs.index')}}"
+               class="list-group-item list-group-item-action">Склады предприятия
+            </a>
+        @endif
+
         @if (\App\usrsysright::isUserHasRightByCode(\Auth::user()->id,'reports.read'))
             <a href="{{route('reports.index').'#reports'}}"
                class="list-group-item list-group-item-action">Отчеты

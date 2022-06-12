@@ -18,9 +18,12 @@
         $tabs[] = ['name' => 'Учетчик №1', 'id' => 'nsi-rqsts-tab', 'href' => '#nsi-rqsts'];
 
     if (1==1 or \App\usrsysright::isUserHasRightByCode(\Auth::user()->id, 'paydocs.read'))
-        $tabs[] = ['name' => 'Платежи', 'id' => 'nsi-pays-tab', 'href' => '#nsi-pays'];
+        $tabs[] = ['name' => 'Взаиморасчеты', 'id' => 'nsi-pays-tab', 'href' => '#nsi-pays'];
 
-//    if (\App\usrsysright::isUserHasRightByCode(\Auth::user()->id, 'equiprqsts.read'))
+    if (\App\usrsysright::isUserHasRightByCode(\Auth::user()->id, 'wrhdocs.read'))
+        $tabs[] = ['name' => 'Производство', 'id' => 'nsi-prod-tab', 'href' => '#nsi-prods'];
+
+    //    if (\App\usrsysright::isUserHasRightByCode(\Auth::user()->id, 'equiprqsts.read'))
 //        $tabs[] = ['name' => 'Материалы и оборудование', 'id' => 'nsi-meet-tab', 'href' => '#nsi-meet'];
 
 
@@ -59,6 +62,7 @@
 
 						@includeIf('rqsts.tab_rqsts')
 						@includeIf('rqsts.tab_pays')
+                        @includeIf('rqsts.tab_prods')
 {{--						@includeIf('rqsts.tab_atp')--}}
 {{--						@includeIf('rqsts.tab_equip')--}}
 

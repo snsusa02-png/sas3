@@ -95,9 +95,16 @@ class wrhdoclst extends Model
         }
         //------------------------------------------------------------------------
 
-        //Проверим возможность и повлияем на запас на складе
+        //Проверим возможность и повлияем на запас на складе ---------
+
+        $sc = "1=1";
+        // если для типа документа запрещено брать товар из запасов любой организации, то
+        if ($doc->doctype->any_ownorg == 0) $sc = "ownorgid={$ownorgid}";
+
         $stock = wrh_stock::where('refitmid', $refitmid)
-            ->where(['ownorgid' => $ownorgid, 'wrhid' => $wrhid, 'boxid' => $boxid])
+//            ->where(['ownorgid' => $ownorgid, 'wrhid' => $wrhid, 'boxid' => $boxid])
+            ->where(['wrhid' => $wrhid, 'boxid' => $boxid])
+            ->whereRaw($sc)
             ->first();
         //dd($refitmid, $ownorgid, $wrhid, $stock);
 

@@ -115,7 +115,7 @@ class usrsysright extends Model
     {
         return Cache::remember('userid_' . $UserID . '_SysFuncID_' . $SysFuncID, now()->addMinutes(12)
             , function () use ($UserID, $SysFuncID, $limsysobjid, $limobjid) {
-                return self::isUserHasRightByCode($UserID, $SysFuncID, $limsysobjid, $limobjid);
+                return self::isUserHasRight($UserID, $SysFuncID, $limsysobjid, $limobjid);
             });
     }
 
