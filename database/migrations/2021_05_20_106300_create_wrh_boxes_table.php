@@ -24,10 +24,10 @@ class CreateWrhBoxesTable extends Migration
             $table->string('descript',360)->nullable()->comment('Описание ячейки хранения');
 
             $table->bigInteger('buildobjid')->unsigned()->nullable()->comment('ID строительного объекта');
-	        $table->foreign('buildobjid')->references('id')->on('buildobjs');
+//	        $table->foreign('buildobjid')->references('id')->on('buildobjs');
 
             $table->bigInteger('buildopertypeid')->unsigned()->nullable()->comment('ID вида работ');
-	        $table->foreign('buildopertypeid')->references('id')->on('buildopertypes');
+//	        $table->foreign('buildopertypeid')->references('id')->on('buildopertypes');
 
             $table->bigInteger('contractid')->unsigned()->nullable()->comment('ID договора с подрядчиком');
 	        $table->foreign('contractid')->references('id')->on('contracts');
@@ -36,7 +36,7 @@ class CreateWrhBoxesTable extends Migration
 	        $table->foreign('orgid')->references('id')->on('orgs');
 
  	   $table->biginteger('bdgtitmsumid')->unsigned()->nullable()->index()->comment('источник финансирования');
-		$table->foreign('bdgtitmsumid')->references('id')->on('budget_itmsums');
+//		$table->foreign('bdgtitmsumid')->references('id')->on('budget_itmsums');
 
             $table->boolean('active')->default(1);
 

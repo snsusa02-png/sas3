@@ -33,6 +33,10 @@ class CreateWrhdoctypes extends Migration
 
             $table->unsignedTinyInteger('ordr')->default(254)->comment('порядок вывода в списках');
 
+                $table->boolean('need_org')
+                    ->default(0)
+                    ->comment('1-требуется указание контрагента');
+
                 $table->boolean('need_relwrh')
                     ->default(0)
                     ->comment('1-требуется указание второго (связанного) склада');
