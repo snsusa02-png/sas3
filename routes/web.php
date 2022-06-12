@@ -1144,7 +1144,7 @@ Route::match(array('POST', 'PUT'), '_lockdates/{sysobjid}', "SysobjLockdateContr
 //----------------------------------------------------------------------------------------------------------------------
 
 // Задачи --------------------------------------------------------------------------------------------------------------
-Route::get('/tasks', 'myTaskController@index')->name('tasks.index');
+Route::match(array('GET', 'POST'), '/tasks', "myTaskController@index")->name('tasks.index');
 Route::get('/tasks/create', 'myTaskController@create')->name('tasks.create');
 Route::get('/tasks/edit/{id}', 'myTaskController@edit')->name('tasks.edit');
 Route::match(array('POST', 'PUT'), 'tasks/{id}', "myTaskController@update")->name('tasks.update');
