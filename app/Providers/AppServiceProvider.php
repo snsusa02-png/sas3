@@ -5,7 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 
 use App\Observers\OrderObserver;
-use App\Order;
+use App\order;
 use Illuminate\Support\Facades\Validator;
 
 class AppServiceProvider extends ServiceProvider
@@ -28,7 +28,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         //
-//        Order::observe(OrderObserver::class);
+//        order::observe(OrderObserver::class);
 //        PaymentDeadline::observe(PaymentDeadlineObserver::class);
 
         Validator::extend('equally', function ($attribute, $value, $parameters, $validator)
