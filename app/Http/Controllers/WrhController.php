@@ -190,19 +190,29 @@ class WrhController extends Controller
 //        }
 
 
-        $rec->buildobjs = buildobj_wrh::from('buildobj_wrhs as bow')
+        /*$rec->buildobjs = buildobj_wrh::from('buildobj_wrhs as bow')
             ->join('buildobjs as bo', 'bo.id', 'bow.buildobjid')
             ->where(['bow.wrhid' => $rec->id])
             ->select(['bow.id', 'bo.name as buildobj_name', 'bow.active', 'bow.notes'])
             ->orderBy('buildobj_name')
             ->get();
+        */
 
-        $rec->boxes = wrh_box::from('wrh_boxes as wb')
+        /*$rec->boxes = wrh_box::from('wrh_boxes as wb')
             ->leftJoin('buildopertypes as bot', 'bot.id', 'wb.buildopertypeid')
             ->leftJoin('contracts as c', 'c.id', 'wb.contractid')
             ->leftJoin('orgs as o', 'o.id', 'wb.orgid')
             ->where('wrhid', $rec->id)
             ->select('wb.*', 'bot.name as bot_name', 'o.name as org_name'
+                , db::raw("concat(c.docnum,' ',c.docdate) as contract_info")
+            )
+            ->get();*/
+
+        $rec->boxes = wrh_box::from('wrh_boxes as wb')
+            ->leftJoin('contracts as c', 'c.id', 'wb.contractid')
+            ->leftJoin('orgs as o', 'o.id', 'wb.orgid')
+            ->where('wrhid', $rec->id)
+            ->select('wb.*', 'o.name as org_name'
                 , db::raw("concat(c.docnum,' ',c.docdate) as contract_info")
             )
             ->get();

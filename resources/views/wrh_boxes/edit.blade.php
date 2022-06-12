@@ -9,7 +9,6 @@
         header("Location:" . route('login'));
         die();
 
-
         ?>
     @else
         @if (!isset( $rec ))
@@ -73,12 +72,12 @@
                                     </div>
 
                                     <div class="row">
-{{--                                        <div class="form-group col-md-2">--}}
-{{--                                            <label for="name">Код:</label>--}}
-{{--                                            <input type="text" class="form-control" name="code"--}}
-{{--                                                   value="{{old('code',$rec->code)}}"--}}
-{{--                                                   maxlength="16"/>--}}
-{{--                                        </div>--}}
+                                        {{--                                        <div class="form-group col-md-2">--}}
+                                        {{--                                            <label for="name">Код:</label>--}}
+                                        {{--                                            <input type="text" class="form-control" name="code"--}}
+                                        {{--                                                   value="{{old('code',$rec->code)}}"--}}
+                                        {{--                                                   maxlength="16"/>--}}
+                                        {{--                                        </div>--}}
                                         <div class="form-group col-md-12">
                                             <label for="name">Название:</label>
                                             <input type="text" class="form-control" name="name"
@@ -87,55 +86,63 @@
                                         </div>
                                     </div>
 
-                                    <div class="row">
-                                        <div class="form-group offset-md-4 col-md-8">
-                                            <label for="active" style="color: rgb(73, 80, 87);">Для объекта:</label>
-                                            @if ($usrrights['save'])
-                                                {!! Form::select('buildobjid', $rec->buildobjs??[], $rec->buildobjid,
-                                                 [
-                                                 'id' => 'buildobjid',
-                                                 'class' => 'form-control',
-                                                 'placeholder' => '-выбор-',
-                                                 ]) !!}
-                                            @else
-                                                <div class="font-weight-bold">{{$rec->buildobj->name}}</div>
-                                            @endif
+                                    @if(isset($rec->buildobjs))
+                                        <div class="row">
+                                            <div class="form-group offset-md-4 col-md-8">
+                                                <label for="active" style="color: rgb(73, 80, 87);">Для объекта:</label>
+                                                @if ($usrrights['save'])
+                                                    {!! Form::select('buildobjid', $rec->buildobjs??[], $rec->buildobjid,
+                                                     [
+                                                     'id' => 'buildobjid',
+                                                     'class' => 'form-control',
+                                                     'placeholder' => '-выбор-',
+                                                     ]) !!}
+                                                @else
+                                                    <div class="font-weight-bold">{{$rec->buildobj->name}}</div>
+                                                @endif
+                                            </div>
                                         </div>
-                                    </div>
+                                    @endif
 
-                                    <div class="row">
-                                        <div class="form-group offset-md-4 col-md-8">
-                                            <label for="active" style="color: rgb(73, 80, 87);">Для вида работ:</label>
+                                    @if(isset($rec->buildopertypes))
+                                        <div class="row">
+                                            <div class="form-group offset-md-4 col-md-8">
+                                                <label for="active" style="color: rgb(73, 80, 87);">Для вида
+                                                    работ:</label>
 
-                                            @if ($usrrights['save'])
-                                                {!! Form::select('buildopertypeid', $rec->buildopertypes??[], $rec->buildopertypeid,
-                                                 [
-                                                 'id' => 'buildopertypeid',
-                                                 'class' => 'form-control',
-                                                 'placeholder' => '-выбор-',
-                                                 ]) !!}
-                                            @else
-                                                <div class="font-weight-bold">{{$rec->buildopertype->name}}</div>
-                                            @endif
+                                                @if ($usrrights['save'])
+                                                    {!! Form::select('buildopertypeid', $rec->buildopertypes??[], $rec->buildopertypeid,
+                                                     [
+                                                     'id' => 'buildopertypeid',
+                                                     'class' => 'form-control',
+                                                     'placeholder' => '-выбор-',
+                                                     ]) !!}
+                                                @else
+                                                    <div class="font-weight-bold">{{$rec->buildopertype->name}}</div>
+                                                @endif
+                                            </div>
                                         </div>
-                                    </div>
+                                    @endif
 
-                                    <div class="row">
-                                        <div class="form-group offset-md-4 col-md-8">
-                                            <label for="active" style="color: rgb(73, 80, 87);">Для подрядчика:</label>
-                                            @if ($usrrights['save'])
-                                                {!! Form::select('orgcontractid', $rec->orgcontracts??[], $rec->orgcontractid,
-                                                 [
-                                                 'id' => 'orgcontractid',
-                                                 'class' => 'form-control',
-                                                 'placeholder' => '-выбор-',
-                                                 ]) !!}
-                                            @else
-                                                <div class="font-weight-bold">{{$rec->contract->name}}</div>
-                                            @endif
+                                    @if(isset($rec->buildopertypes))
+                                        <div class="row">
+                                            <div class="form-group offset-md-4 col-md-8">
+                                                <label for="active" style="color: rgb(73, 80, 87);">Для
+                                                    подрядчика:</label>
+                                                @if ($usrrights['save'])
+                                                    {!! Form::select('orgcontractid', $rec->orgcontracts??[], $rec->orgcontractid,
+                                                     [
+                                                     'id' => 'orgcontractid',
+                                                     'class' => 'form-control',
+                                                     'placeholder' => '-выбор-',
+                                                     ]) !!}
+                                                @else
+                                                    <div class="font-weight-bold">{{$rec->contract->name}}</div>
+                                                @endif
 
+                                            </div>
                                         </div>
-                                    </div>
+                                    @endif
 
                                     <div class="row">
                                         <div class="form-group col-md-3">

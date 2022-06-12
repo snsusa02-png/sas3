@@ -49,6 +49,37 @@ class buildobj extends Model
             ->withDefault();
     }
 
+    public function dev_org()
+    {//Застройщик/Заказчик
+        return $this->hasOne(org::class, 'id', 'dev_orgid')
+            ->withDefault();
+    }
+
+    public function gen_org()
+    {//Генподрядчик
+        return $this->hasOne(org::class, 'id', 'gen_orgid')
+            ->withDefault();
+    }
+
+    public function proj_org()
+    {//Проектировщик
+        return $this->hasOne(org::class, 'id', 'proj_orgid')
+            ->withDefault();
+    }
+
+    public function contract()
+    {//Договор Ген-подряда между Застройщиком и Ген-поддрядчиком
+        return $this->hasOne(contract::class, 'id', 'contractid')
+            ->withDefault();
+    }
+
+    public function cc_org()
+    {//Строительный контроль
+        return $this->hasOne(org::class, 'id', 'cc_orgid')
+            ->withDefault();
+    }
+
+
     public function viewpoints()
     {//Точки обзора объекта
         return $this->hasMany(viewpoint::class, 'buildobjid', 'id');
@@ -239,6 +270,11 @@ class buildobj extends Model
                         $sc .= " and " . (($val == 0) ? "not" : "")
                             . " exists(select 1 from wrkreps as wr where wr.buildobjid = bo.id)";
 
+                    } elseif ($key == 'in_estdocs') {
+                        //объект строительства присутствует в Сметах
+                        $sc .= " and " . (($val == 0) ? "not" : "")
+                            . " exists(select 1 from estdocs as ed where ed.buildobjid = bo.id)";
+
                     } elseif ($key == 'in_documents') {
                         //объект строительства связан с документами Архива документов
                         $sc .= " and " . (($val == 0) ? "not" : "")
@@ -252,6 +288,17 @@ class buildobj extends Model
                                 join orgstaff os on os.id=bos.staffid and os.userid={$val} and os.active=1
                                 where bos.buildobjid=bo.id and bos.active=1)";
                         }
+
+                    } elseif ($key == 'in_prodplans') {
+                        //объект строительства есть в ППР
+                        $sc .= " and " . (($val == 0) ? "not" : "")
+                            . " exists( select 1 from prodplans as pp where pp.buildobjid=bo.id)";
+
+                    } elseif ($key == 'in_aosrs') {
+                        //объект строительства есть в Актах скрытых работ
+                        $sc .= " and " . (($val == 0) ? "not" : "")
+                            . " exists( select 1 from aosrs as asr where asr.buildobjid=bo.id)";
+
                     } elseif ($key == 'user_in_stafflist') {
                         //отбираем все объекты строительства где пользователь включен в список сотрудников
                         // - без учета права чтения на Объекты
@@ -343,6 +390,24 @@ class buildobj extends Model
                 ->get()->pluck('name', 'id')->toArray();
             //dd($sc,$lst);
             return $lst;
+        } else
+            return null;
+    }
+
+
+    static public function lstFor_cached($params, $cache_minutes = null)
+    {
+        //2022-01-18 SNS. кэшируемый результат списка
+
+        if (isset($params) and is_countable($params) and count($params) > 0) {
+
+            $hash = md5(serialize($params));
+
+            //Cache::forget('lstFor_' . $hash);
+            return Cache::remember('lstFor_' . $hash, now()->addMinutes($cache_minutes ?? 5)
+                , function () use ($params) {
+                    return self::lstFor($params);
+                });
         } else
             return null;
     }

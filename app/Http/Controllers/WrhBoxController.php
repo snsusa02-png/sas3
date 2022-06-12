@@ -141,21 +141,25 @@ class WrhBoxController extends Controller
 
         $rec->orgcontractid = $rec->orgid . ':' . $rec->contractid;
 
-        $rec->buildobjs = buildobj::lstFor([
-            'link_wrh' => $rec->wrhid,
-        ]);
-
-        if ($rec->id == -1 and count($rec->buildobjs) == 1)
-            $rec->buildobjid = array_key_first($rec->buildobjs);
-
-        if (isset($rec->buildobjid)) {
-            $rec->buildopertypes = buildopertype::lstFor([
-                'buildobjid' => $rec->buildobjid,
+        if (false) {
+            $rec->buildobjs = buildobj::lstFor([
+                'link_wrh' => $rec->wrhid,
             ]);
 
-            if (isset($rec->buildopertypeid))
-                $rec->orgcontracts = contract::list_orgcontracts_for_buildopertypeid($rec->buildopertypeid);
+            if ($rec->id == -1 and count($rec->buildobjs) == 1)
+                $rec->buildobjid = array_key_first($rec->buildobjs);
 
+            if (isset($rec->buildobjid)) {
+                $rec->buildopertypes = buildopertype::lstFor([
+                    'buildobjid' => $rec->buildobjid,
+                ]);
+
+                if (isset($rec->buildopertypeid))
+                    $rec->orgcontracts = contract::list_orgcontracts_for_buildopertypeid($rec->buildopertypeid);
+            }
+        }
+
+        if ($rec->id <> -1) {
             $id = $rec->id;
             Cache::forget('wrh_stocks_' . $id);
             $rec->stocks = Cache::remember('wrh_stocks_' . $id, now()->addMinutes(5)
@@ -170,7 +174,6 @@ class WrhBoxController extends Controller
                         ->get();
                 });
         }
-
 
         return view($this->sysobjcode . '.edit', compact('rec', "usrrights"));
     }
