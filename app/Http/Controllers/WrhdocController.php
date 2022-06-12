@@ -306,6 +306,9 @@ class WrhdocController extends Controller
                 'id' => -1,
                 'docsigned' => 0,
                 'ownorgid' => \Auth::user()->curorgid,
+                //2022-06-12 Пока упрощаем - так как скроем выбор отделения
+                'wrhid'=>1,
+                'boxid'=>1,
                 'created_by' => $userid,
             ]);
             $rec->docdate = date("Y-m-d", strtotime(now()));

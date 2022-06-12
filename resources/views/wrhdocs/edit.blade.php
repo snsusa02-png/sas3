@@ -150,7 +150,7 @@
                                                 />
                                             @else
                                                 {{ Form::hidden('docdate', $rec->docdate) }}
-                                                <p><b>{{$rec->docdate}}</b></p>
+                                                <p><b>{{date_create($rec->docdate)->format('d.m.Y')}}</b></p>
                                             @endif
                                         </div>
                                     </div>
@@ -171,7 +171,7 @@
                                     </div>
                                 </div>
 
-                                <div class="row">
+                                <div class="row" style="">
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="wrhid" id="wrh_label"
@@ -188,7 +188,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-6">
+                                    <div class="col-md-6" style="display:none;">
                                         <div class="form-group">
                                             <label for="boxid"
                                                    id="box_label" class="required">{{'Отделение'}}
