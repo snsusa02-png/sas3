@@ -195,6 +195,91 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                     </tbody>
                     <tfoot>
                 </table>
+
+                @if(isset($recs2))
+                    <h4>По контрагентам</h4>
+                    <table id="results2"
+                           class="table table-sm table-striped rep-data mt-3"
+                           style="background-color: snow; font-size:16px; max-width:960px; align-self: center">
+                        <thead>
+                        <tr class="text-left small" style="vertical-align:middle;">
+                            <td class="text-right small" style="width: 38px">№п/п</td>
+                            <td class="text-left">Контрагент</td>
+                            <td class="text-center">Наименование продукции</td>
+                            <td class="text-center">ЕИ</td>
+                            <td class="text-right">Цена, руб</td>
+                            <td class="text-right">Кол-во, ЕИ</td>
+                            <td class="text-right">Сумма, руб</td>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        <?php
+                        $npp = 0;
+                        $totSum = 0;
+                        $cur_orgid = -1;
+                        ?>
+                        @foreach($recs2 as $rec)
+                            <?php
+
+                            $tr_class = "";
+                            $td_class = "";
+                            $tdс_class = "";
+
+                            $tstyle = '';
+                            ?>
+                            @if($rec->orgid <> $cur_orgid)
+                                <tr>
+                                    <td></td>
+                                    <td colspan="6" class="font-weight-bold font-italic">
+                                        {{$rec->org_name}}
+                                    </td>
+                                </tr>
+                                <?php
+                                $cur_orgid = $rec->orgid;
+                                ?>
+                            @endif
+                            <tr class="text-left {{$tr_class}}" style="{{$tstyle}}">
+                                <td class="text-right small ">
+                                    {{++$npp}}
+                                </td>
+                                <td class="text-left " data-npp="{{$npp}}">
+                                </td>
+                                <td class="text-left " data-npp="{{$npp}}">
+                                    {{$rec->refitm_name}}
+                                </td>
+                                <td class="text-center small">
+                                    {{$rec->refitm_unit}}
+                                </td>
+                                <td class="text-right small calced" data-num="{{$rec->qty}}">
+                                    {{number_format($rec->qty, 0)}}
+                                </td>
+                                <td class="text-right small calced" data-num="{{$rec->price}}">
+                                    {{number_format($rec->price, 2)}}
+                                </td>
+                                <td class="text-right small calced" data-num="{{$rec->itm_sum}}">
+                                    {{number_format($rec->itm_sum, 2)}}
+                                </td>
+                            </tr>
+                            <?php
+                            $totOutSum += $rec->sale_sum;
+                            ?>
+                        @endforeach
+                        @if(1==1)
+                            <?php
+                            $td_class = '';
+                            $tdс_class = '';
+                            ?>
+                            <tr>
+                                <td colspan="6" class="text-right" data-npp="{{$npp++}}">Итого:</td>
+                                <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totOutSum,2)}}</td>
+                            </tr>
+                        @endif
+                        </tbody>
+                        <tfoot>
+                    </table>
+
+                @endif
             </div>
         @endif
 

@@ -34,6 +34,7 @@ use App\Traits\SearchDataTrait;
 use App\User;
 use App\user_template;
 use App\usrsysright;
+use App\wrhdoc;
 use App\wrhdoclst;
 use http\Env\Response;
 use Illuminate\Http\Request;
@@ -156,6 +157,28 @@ class WrhDocReportController extends Controller
 
         //dd($date,$sql,$recs);
 
+        $recs2 = wrhdoc::from('wrhdoclst as dl')
+            //->join('wrhdocs as d', 'd.id', 'dl.docid')
+            ->join('wrhdocs as d', function ($join) {
+                $join->on('d.id', '=', 'dl.docid')
+                    ->where('d.docsigned', 1);
+            })
+            ->join('orgs as o', 'o.id', 'd.orgid')
+            ->join('wrhdoctypes as t', function ($join) {
+                $join->on('t.id', '=', 'd.doctypeid')
+                    ->where('t.forsale', '<>', 0);
+            })
+            ->join('refitems as ri', 'ri.id', 'dl.refitmid')
+            ->where('d.docdate', $date)
+            ->select('d.orgid', 'o.name as org_name'
+                , 'dl.refitmid', 'ri.name as refitm_name', 'ri.unit as refitm_unit'
+                , db::raw("sum(t.forsale * dl.qty) as qty"), 'dl.price', db::raw("sum(t.forsale * dl.qty * dl.price) as itm_sum"))
+            ->groupBy('d.orgid', 'dl.refitmid', 'dl.price')
+            ->orderBy('org_name', 'asc')
+            ->orderBy('d.orgid','asc')
+            ->orderBy('refitm_name','asc')
+            ->get();
+
         //занесем в журнал
         objlog::log_info(855, $report_id, 'запрошен отчет; ' . $date);
 //        if ($export2xls == "1") {
@@ -167,7 +190,7 @@ class WrhDocReportController extends Controller
 //            return $response;
 //        }
 
-        return view('wrhdocs.rep' . $report_id, compact('recs', 'data'));
+        return view('wrhdocs.rep' . $report_id, compact('recs', 'recs2', 'data'));
     }
 
 }
