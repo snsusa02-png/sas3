@@ -46,6 +46,9 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                 <div id="_calc_selected_sum"
                      class="p-3 text-center bg-light  font-weight-bold w-25 border  border-danger rounded-pill"
                      style="position: sticky; top: 2em; display: none"></div>
+                <div id="_calc_selected_qty"
+                     class="p-3 text-center bg-light  font-weight-bold w-25 border  border-danger rounded-pill"
+                     style="position: sticky; top: 2em; display: none"></div>
 
                 <span class="float-right">
                     <a class="btn btn-warning btn-sm print-window d-print-none "
@@ -196,6 +199,7 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                     <tfoot>
                 </table>
 
+
                 @if(isset($recs2))
                     <h4>По контрагентам</h4>
                     <table id="results2"
@@ -218,6 +222,8 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                         $npp = 0;
                         $totSum = 0;
                         $cur_orgid = -1;
+                        $cur_org_name = "";
+                        $org_sum = 0;
                         ?>
                         @foreach($recs2 as $rec)
                             <?php
@@ -229,6 +235,12 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                             $tstyle = '';
                             ?>
                             @if($rec->orgid <> $cur_orgid)
+                                @if($cur_orgid <> -1)
+                                    <tr>
+                                        <td colspan="6" class="text-right">Итого по "{{$cur_org_name}}":</td>
+                                        <td class="text-right font-weight-bold {{$td_class}}">{{number_format($org_sum,2)}}</td>
+                                    </tr>
+                                @endif
                                 <tr>
                                     <td></td>
                                     <td colspan="6" class="font-weight-bold font-italic">
@@ -237,6 +249,8 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                                 </tr>
                                 <?php
                                 $cur_orgid = $rec->orgid;
+                                $cur_org_name = $rec->org_name;
+                                $org_sum = 0;
                                 ?>
                             @endif
                             <tr class="text-left {{$tr_class}}" style="{{$tstyle}}">
@@ -251,20 +265,27 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                                 <td class="text-center small">
                                     {{$rec->refitm_unit}}
                                 </td>
+                                <td class="text-right small">
+                                    {{number_format($rec->price, 2)}}
+                                </td>
                                 <td class="text-right small calced" data-num="{{$rec->qty}}">
                                     {{number_format($rec->qty, 0)}}
-                                </td>
-                                <td class="text-right small calced" data-num="{{$rec->price}}">
-                                    {{number_format($rec->price, 2)}}
                                 </td>
                                 <td class="text-right small calced" data-num="{{$rec->itm_sum}}">
                                     {{number_format($rec->itm_sum, 2)}}
                                 </td>
                             </tr>
                             <?php
-                            $totOutSum += $rec->sale_sum;
+                            $totSum += $rec->itm_sum;
+                            $org_sum += $rec->itm_sum;
                             ?>
                         @endforeach
+                        @if($cur_orgid <> -1)
+                            <tr>
+                                <td colspan="6" class="text-right">Итого по "{{$cur_org_name}}":</td>
+                                <td class="text-right font-weight-bold {{$td_class}}">{{number_format($org_sum,2)}}</td>
+                            </tr>
+                        @endif
                         @if(1==1)
                             <?php
                             $td_class = '';
@@ -272,7 +293,7 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                             ?>
                             <tr>
                                 <td colspan="6" class="text-right" data-npp="{{$npp++}}">Итого:</td>
-                                <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totOutSum,2)}}</td>
+                                <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totSum,2)}}</td>
                             </tr>
                         @endif
                         </tbody>

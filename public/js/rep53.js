@@ -8,7 +8,7 @@ $(document).ready(function () {
 
         let cnt = 0;
         let totSum = 0;
-        $('.clicked').each(function (i, obj) {
+        $('.clicked[data-num]').each(function (i, obj) {
             cnt++
             totSum += parseFloat($(obj).data('num'));
         });
@@ -17,6 +17,25 @@ $(document).ready(function () {
             //$("#_calc_selected_sum").show()
         } else {
             $("#_calc_selected_sum").hide()
+        }
+    });
+
+    $("[data-qty]").click(function () {
+        if ($(this).hasClass('clicked'))
+            $(this).removeClass('bg-warning clicked');
+        else
+            $(this).addClass('bg-warning clicked');
+
+        let cnt = 0;
+        let totQty = 0;
+        $('.clicked[data-qty]').each(function (i, obj) {
+            cnt++
+            totQty += parseFloat($(obj).data('qty'));
+        });
+        if (cnt > 0) {
+            $("#_calc_selected_qty").html('Qty: ' + totQty).show()
+        } else {
+            $("#_calc_selected_qty").hide()
         }
     });
 });
