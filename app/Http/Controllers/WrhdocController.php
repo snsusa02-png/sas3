@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\mr_oper;
 use App\objlog;
 use App\order;
 use App\orditem;
@@ -28,6 +27,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use DateTime;
 
 class WrhdocController extends Controller
 {
@@ -42,6 +42,7 @@ class WrhdocController extends Controller
         $this->sysobjid = 204;
         $this->sysobjcode = 'wrhdocs';
         $this->objcode = $this->sysobjcode;
+        $this->acl_sysobjcode = sysobj::acl_sysobjcode($this->sysobjcode);
 
 //        $userid = \Auth::user()->id;
 //        $this->userid = $userid;
@@ -50,13 +51,16 @@ class WrhdocController extends Controller
     protected function setInterfaceRight($docid)
     {
         //по acl указанного объекта
-        $acl_sysobjcode = sysobj::where('code', $this->sysobjcode)
+        /*$acl_sysobjcode = sysobj::where('code', $this->sysobjcode)
                 ->select(db::raw("ifnull(acl_sysobjcode, code) as acl_sysobjcode"))
                 ->first()->acl_sysobjcode ?? $this->sysobjcode;
+        */
 
         $usrrights = array();
         $usrrights['save'] = false;
+        $usrrights['safe_save'] = false;
         $usrrights['delete'] = false;
+        $usrrights['admindelete'] = false;
         $usrrights['ownorg.edit'] = false;
         $usrrights['doctype.edit'] = false;
         $usrrights['load.items.file'] = false;
@@ -71,15 +75,16 @@ class WrhdocController extends Controller
 
         if ($docid == -1) {
             //Новый документ - можно сохранять
-            $usrrights['save'] = usrsysright::isUserHasRightByCode_cached($userid, $acl_sysobjcode . '.create');;
+            $usrrights['save'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.create');;
             $usrrights['doctype.edit'] = $usrrights['save'];
             $usrrights['ownorg.edit'] = $usrrights['save'];;
 
         } else {
-            $rec = wrhdoc::find($docid);
 
-            $baseUpdateRight = usrsysright::isUserHasRightByCode_cached($userid, $acl_sysobjcode . '.update');
-            $baseDeleteRight = usrsysright::isUserHasRightByCode_cached($userid, $acl_sysobjcode . '.delete');
+            $baseUpdateRight = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.update');
+            $baseDeleteRight = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.delete');
+
+            $rec = wrhdoc::find($docid);
 
             $docsigned = ($rec->docsigned == 1);
             if (!$docsigned) {
@@ -89,6 +94,7 @@ class WrhdocController extends Controller
                     //Еще не имеет состава
 
                     $usrrights['save'] = $baseUpdateRight;
+                    $usrrights['safe_save'] = $usrrights['save'];
                     $usrrights['delete'] = $baseDeleteRight;
 
                     $usrrights['load.items.file'] = ($rec->docsigned != 1 and $usrrights['save']);
@@ -97,6 +103,9 @@ class WrhdocController extends Controller
                     $usrrights['load.items.order'] = ($rec->ordid != "" and $usrrights['save']);
 
                     $usrrights['ownorg.edit'] = (!$rec->ordid and $usrrights['save']);
+                } else {
+                    // Состав уже есть. Но некоторые поля редактировать можно
+                    $usrrights['safe_save'] = $baseUpdateRight;
                 }
 
                 $usrrights['doclst.create'] = ($baseUpdateRight and wrhdoc::mayCreateLst($docid));
@@ -105,11 +114,25 @@ class WrhdocController extends Controller
                 $signrightid = $rec->doctype->signrightid ?: 103;
                 $usrrights['docsign'] = usrsysright::isUserHasRight($userid, $signrightid);
                 //dd($usrrights['docsign']);
+
+                $usrrights['admindelete'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.admindelete');
+
             } else {
-                $usrrights['docunsign'] = true;
-                if (!wrhdoc::mayUnsignDoc($docid)) $usrrights['docunsign'] = false;
+                //Документ утвержден
+
+                //проверим открытость периода
+                $doc_locked = wrhdoc::isLocked($docid);
+                if ($doc_locked) {
+                    $usrrights['docunsign'] = false;
+
+                } else {
+                    // период Открыт - все определяется правами
+                    $usrrights['docunsign'] = true;
+                    if (!wrhdoc::mayUnsignDoc($docid)) $usrrights['docunsign'] = false;
+                }
 
             }
+
         }
 
         $usrrights['edit'] = $usrrights['save'];
@@ -138,6 +161,8 @@ class WrhdocController extends Controller
         // - параметры поиска: массив из имени и значения по-умолчанию -----------------------------------------------
         $param_names = [
             's_pageitmcnt' => 20
+            , 's_timestatuscode' => 2   //вчера
+            , 's_docdate' => ''
             , 's_doctypeid' => ''
             , 's_docnum' => ''
             , 's_wrhid' => ''
@@ -155,6 +180,21 @@ class WrhdocController extends Controller
                 if ($item == 's_doctypeid') {
                     $sc .= " and wd.doctypeid ={$val}";
 
+                } elseif ($item == 's_timestatuscode') {
+                    if ($val == 1) //сегодня
+                        $sc = $sc . " and wd.docdate = curdate()";
+                    elseif ($val == 2) //вчера
+                        $sc = $sc . " and datediff(curdate(), wd.docdate) = 1";
+                    elseif ($val == 3) //за неделю
+                        $sc = $sc . " and datediff(curdate(), wd.docdate) <= 7";
+                    elseif ($val == 4) //с начала текущего месяца
+                        $sc .= " and extract(year_month from wd.docdate) = extract(year_month from curdate())";
+                    elseif ($val == 5
+                        and DateTime::createFromFormat('Y-m-d', $search_params['s_docdate']) !== false) {
+                        //конкретная дата
+                        $sc .= " and wd.docdate = '" . $search_params['s_docdate'] . "'";
+                    }
+
                 } elseif ($item == 's_active') {
                     $sc .= " and ifnull(wd.active,0) = '{$val}'";
 
@@ -169,13 +209,10 @@ class WrhdocController extends Controller
 
                 } elseif ($item == 's_inpout') {
                     $sc .= " and dt.forstock={$val}";
-
                 }
-
             }
         }
         //-------------------------------------------------------------------------------------------------------------
-
 
         //Если параметры поиска не заданы, то уйдем на index
 //        if (strlen($s_doctypeid . $s_docnum . $s_wrhid . $s_statuscode . $s_inpout) == 0)
@@ -203,7 +240,9 @@ class WrhdocController extends Controller
         if (isset($sc))
             $recs = $recs->whereRaw($sc);
 
-        $recs = $recs->orderBy($sort_by, $sort_dir)
+
+        $recs = $recs->orderBy('wd.docdate', 'desc')
+            ->orderBy($sort_by, $sort_dir)
             ->with('wrh')
             ->paginate($search_params['s_pageitmcnt'] ?? 20);
 
@@ -211,6 +250,8 @@ class WrhdocController extends Controller
 
         //варианты кол-ва записей на страницу
         $data->pageitmcnts = $this->pageitmcnts;
+
+        $data->sysobj = sysobj::find($this->sysobjid);
 
         //номер первой записи на странице:
         $data->rec0 = $recs->currentPage() * $recs->perPage() - $recs->perPage() + 1;
@@ -220,6 +261,7 @@ class WrhdocController extends Controller
         $data->s_wrhs = wrh::listUsed();
         $data->s_doctypes = wrhdoctype::listUsed();
 
+        $data->timestatuses = [1 => 'сегодня', 2 => 'вчера', 3 => 'за неделю', 4 => 'за месяц', 5 => 'календарь'];
         $data->s_statuscodes = array('' => '-любой-', '0' => 'не утвержден', '1' => 'утвержден');
         $data->s_inpouts = array('' => '-любой-', '1' => 'приход', '-1' => 'расход', '0' => 'без изм.');
 
@@ -284,9 +326,9 @@ class WrhdocController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
-        return $this->edit(-1);
+        return $this->edit($request, -1);
     }
 
 
@@ -296,23 +338,25 @@ class WrhdocController extends Controller
      * @param \App\wrh $rec
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Request $request, $id)
     {
         $userid = \Auth::user()->id;
 
         if ($id == -1) {
             //Значения "по-умолчанию" для новой записи
+            $docdate = $request->get('docdate');
+            $docdate = (isset($docdate)) ? strftime('%Y-%m-%d', strtotime($docdate)) : date("Y-m-d", strtotime(now()));
+
             $rec = new wrhdoc([
                 'id' => -1,
                 'docsigned' => 0,
                 'ownorgid' => \Auth::user()->curorgid,
                 //2022-06-12 Пока упрощаем - так как скроем выбор отделения
-                'wrhid'=>1,
-                'boxid'=>1,
+                'wrhid' => 1,
+                'boxid' => 1,
+                'docdate' => $docdate,
                 'created_by' => $userid,
             ]);
-            $rec->docdate = date("Y-m-d", strtotime(now()));
-            $rec->created_by = $userid;
 
         } else {
             $rec = wrhdoc::find($id);
@@ -321,13 +365,10 @@ class WrhdocController extends Controller
         if (!isset($rec))
             return redirect($this->sysobjcode . '.index')->with(['error' => 'Документ не найден!']);
 
-
-        //$rec->ownorgs = org::lstOwnOrgs();
         $rec->ownorgs = org::lstFor([
             'flagtypeid' => 12,
             'in_userorgs' => $userid,
         ]);
-
 
         $rec->wrhs = wrh::lstFor([
             'with_boxes' => 1,
@@ -458,6 +499,11 @@ class WrhdocController extends Controller
         //Потенциальное право на создание документа разногласий. Ниже (в blade) будет проверяться необходимость
         $usrrights['make_diffdoc'] = (isset($rec->predocid) and $rec->docsigned == 1);
 
+        if ($usrrights['safe_save']) {
+            //установим минимально-допустимую дату для wrkdate
+            $rec->docdate_min = wrhdoc::min_docdate();
+        }
+
         //Cache::forget('wrhdoctypes');
         $rec->doctypes = Cache::remember('wrhdoctypes', now()->addMinutes(15)
             , function () use ($rec) {
@@ -554,18 +600,23 @@ class WrhdocController extends Controller
             $rec = wrhdoc::find($id);
             $msg = "Обновлена запись о документе";
         }
+
+
+        //Некоторые поля можно изменять, только если док-т еще не имеет состава
+        if ($rec->items()->count() == 0) {
+
+            // поля нельзя менять при сформированном составе
+            $rec->wrhid = $request->get('wrhid');
+            $rec->relwrhid = $request->get('relwrhid');
+
+            $rec->boxid = $request->get('boxid');
+            $rec->relboxid = $request->get('relboxid');
+        }
+
         $rec->docnum = $docnum;
         $rec->docdate = $docdate;
         $rec->ownorgid = $request->get('ownorgid');
-
         $rec->orgid = $request->get('orgid');
-
-        $rec->wrhid = $request->get('wrhid');
-        $rec->relwrhid = $request->get('relwrhid');
-
-        $rec->boxid = $request->get('boxid');
-        $rec->relboxid = $request->get('relboxid');
-
         $rec->respstaffid = $request->get('respstaffid');
         $rec->remarks = $request->get('remarks');
 
@@ -602,7 +653,8 @@ class WrhdocController extends Controller
      * @param \App\wrh $rec
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public
+    function destroy($id)
     {
         $res = wrhdoc::delete_by_id($id);
         $route = "";
@@ -618,7 +670,33 @@ class WrhdocController extends Controller
         return redirect($route)->with($sd);
     }
 
-    public function sign(Request $request, $id)
+    public
+    function admindelete($id)
+    {
+        $rec = wrhdoc::find($id);
+        if ($rec) {
+            $res = $rec->admindelete();
+            $sd = array();
+            if ($res->err == 1) {
+                $route = route($this->sysobjcode . '.edit', $id);
+                $sd["error"] = $res->msg;
+                objlog::log_info($this->sysobjid, $id, $res->msg, 2);
+
+            } else {
+
+                $route = route($this->sysobjcode . '.index') . '?page=' . session('pageno');
+                $sd['success'] = 'Запись удалена административно';
+                objlog::log_info($this->sysobjid, 0, "Административное удаление записи id=" . $id, 2);
+
+            }
+            return redirect($route)->with($sd);
+        }
+        return redirect(route($this->sysobjcode . '.index') . '?page=' . session('pageno'));
+
+    }
+
+    public
+    function sign(Request $request, $id)
     {
         $userid = \Auth::user()->id;
 
@@ -648,8 +726,15 @@ class WrhdocController extends Controller
 
             if (usrsysright::isUserHasRightByCode($userid, 'wrhdocs.sign')) {
 
-                $limit_stock = true; //todo: сделать преференцию "Не снижать запас ниже 0"
+                if (wrhdoc::isLocked($rec->id)) {
+                    $sd["error"] = 'Дата документа находится в заблокированном периоде! Утвердить нельзя.';
+                    $route = route('wrhdocs.edit', $id);
+                    objlog::log_info($this->sysobjid, $id, 'Попытка утверждение(проведения) документа с датой в закрытом периоде', 2);
 
+                    return redirect($route)->with($sd);
+                }
+
+                $limit_stock = true; //todo: сделать преференцию "Не снижать запас ниже 0"
 
                 DB::beginTransaction();
 
@@ -682,7 +767,7 @@ class WrhdocController extends Controller
 
                     //базовое условие отбора товара из запаса на складе
                     $sc = "wrhid={$rec->wrhid} and boxid={$rec->boxid}";
-                    if ($rec->doctype->any_ownorg == 0){
+                    if ($rec->doctype->any_ownorg == 0) {
                         //нельзя брать из запаса любой компании
                         $sc .= " and ownorgid={$rec->ownorgid}";
                     }
@@ -859,11 +944,11 @@ class WrhdocController extends Controller
 
         }
         //dd($route, $sd);
-
         return redirect($route)->with($sd);
     }
 
-    public function unsign($id)
+    public
+    function unsign($id)
     {
         $userid = \Auth::user()->id;
         $route = "";
@@ -1069,4 +1154,26 @@ class WrhdocController extends Controller
         return redirect(route('wrhdocs.index'))->with($sd);
 
     }
+
+    public
+    function clone($id)
+    {
+
+        if (!isset($id))
+            return redirect()->back()->with('error', 'Не задана исходная запись!');
+
+        $userid = \Auth::user()->id;
+        $usrrights['create'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.create');
+
+        if (!$usrrights['create'])
+            return redirect()->back()->with('error', 'У вас нет права на создание записей!');
+
+        $rslt = wrhdoc::clone($id);
+        if ($rslt->err > 0)
+            return redirect()->back()->with(['error' => $rslt->msg]);
+
+        return redirect(route($this->sysobjcode . '.edit', $rslt->obj['id']))
+            ->with(['success' => 'Вы находитесь в созданной копии']);
+    }
+
 }

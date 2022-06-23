@@ -143,10 +143,11 @@
                                         <div class="form-group">
                                             <label for="docdate" class="required">Дата:</label>
                                             @php($v=is_null($rec->docdate)?null:date("Y-m-d",strtotime($rec->docdate)))
-                                            @if ($usrrights['save'])
-                                                <input type="date" class="form-control text-center" name="docdate"
+                                            @if ($usrrights['safe_save'])
+                                                <input type="date" class="form-control text-center"
+                                                       name="docdate"
                                                        value="{{$v}}"
-                                                    {{$inputReadOnly}}
+                                                       min="{{$rec->docdate_min}}"
                                                 />
                                             @else
                                                 {{ Form::hidden('docdate', $rec->docdate) }}
@@ -157,11 +158,10 @@
                                     <div class="col-md-2">
                                         <div class="form-group">
                                             <label for="docnum">№:</label>
-                                            @if ($usrrights['save'])
+                                            @if ($usrrights['safe_save'])
                                                 <input type="text" class="form-control text-center" name="docnum"
                                                        value="{{$rec->docnum}}"
                                                        placeholder="заполнится при сохранении"
-                                                    {{$inputReadOnly}}
                                                 />
                                             @else
                                                 {{ Form::hidden('docnum', $rec->docnum) }}
@@ -296,7 +296,7 @@
 
                                     <div class="col-md-7" id="org" class="" style="{{$t_style}}">
                                         <label for="name" class="required"><span id="lbl_org">Заказчик</span>:</label>
-                                        @if ($usrrights['edit']??false)
+                                        @if ($usrrights['safe_save']??false)
                                             <div class="input-group mb-3 ">
                                                 <input type="text" name="org_name"  id="org_name"
                                                        class="ac_name ac_org_name form-control font-weight-bold"
@@ -348,9 +348,8 @@
                                 <div class="form-group">
                                     <label for="remarks">Примечания:</label>
 
-                                    @if ($usrrights['save'])
+                                    @if ($usrrights['safe_save'])
                                         <textarea class="form-control rounded-0" name="remarks" id="descript"
-                                                  {{$inputReadOnly}}
                                                   rows="2">{{$rec->remarks}}</textarea>
                                     @else
                                         {{ Form::hidden('remarks', $rec->remarks) }}
@@ -387,7 +386,7 @@
                                 @endif
 
                                 <hr size="1">
-                                @if ($usrrights['save'] or (!$isDocSigned and $showRespStaff))
+                                @if ($usrrights['save'] or $usrrights['safe_save'] or (!$isDocSigned and $showRespStaff))
 
                                     <button type="submit" class="btn btn-success">
                                         <i class="fa fa-floppy-o" aria-hidden="true"></i>
@@ -418,7 +417,20 @@
                                     >
                                         <i class="fa fa-trash-o" aria-hidden="true"></i>
                                     </button>
+
+                                @elseif($usrrights['admindelete'])
+                                    <button type="submit"
+                                            class="btn btn-danger btn-sm"
+                                            style="margin-left:24px; margin-right:8px;"
+                                            formaction="{{ route($thisSysObjCode.'.admindelete', $rec->id)}}"
+                                            formmethod="post"
+                                            onclick="return confirm('Документ будет удален административно - без учета ограничений!\n\nПродолжать?')"
+                                            title="Административно удалить документ"
+                                    >
+                                        <i class="fa fa-bomb" aria-hidden="true"></i>
+                                    </button>
                                 @endif
+
 
                                 @if ($usrrights['docsign'])
                                     <button type="submit"

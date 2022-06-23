@@ -19,7 +19,7 @@ class sysobj_lockdate extends Model
 
     public function sysobj()
     {
-        return $this->hasOne(sysobj::class, 'id', 'sysobjid');
+        return $this->hasOne(sysobj::class, 'id', 'sysobjid')->withDefault();
     }
 
     public function whoupd()

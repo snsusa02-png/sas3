@@ -1212,9 +1212,11 @@ Route::get('wrhdocs/createfromord/{ordid}', "WrhdocController@createFromOrd")->n
 Route::get('wrhdocs/{id}', 'WrhdocController@edit')->name('wrhdocs.edit');
 Route::match(array('POST', 'PUT'), 'Wrhdocs/{id}', "WrhdocController@update")->name('wrhdocs.update');
 Route::put('wrhdocs/{id}/delete', "WrhdocController@destroy")->name("wrhdocs.delete");
+Route::put('wrhdocs/{id}/admindelete', "WrhdocController@admindelete")->name("wrhdocs.admindelete");
 Route::put('wrhdocs/{id}/sign', "WrhdocController@sign")->name("wrhdocs.sign");
 Route::put('wrhdocs/{id}/unsign', "WrhdocController@unsign")->name("wrhdocs.unsign");
 Route::get('wrhdocs/{id}/makediffdoc', "WrhdocController@make_diffdoc")->name("wrhdocs.make_diffdoc");
+Route::get('wrhdocs/{id}/clone', "WrhdocController@clone")->name('wrhdocs.clone');
 
 //Полный пересчет остатков на складах
 Route::get('wrh_stocks/recalc', "WrhdocController@recalc_stock")->name('recalc_stock');

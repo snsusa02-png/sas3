@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Cache;
 use Log;
 
 use App\Traits\DeleteTrait;
+use App\Traits\FilesTrait;
+
 
 use App\org;
 use App\objlog;
@@ -25,6 +27,7 @@ use VK\Actions\Auth;
 class wrhdoc extends Model
 {
     use DeleteTrait;
+    use FilesTrait;
 
     static public $prefix = 'wrhdocs';
     static public $sysobjid = 204;
@@ -37,6 +40,12 @@ class wrhdoc extends Model
     public function predoc()
     {
         return $this->hasOne(wrhdoc::class, 'id', 'predocid')
+            ->withDefault();
+    }
+
+    public function sysobj()
+    {
+        return $this->hasOne(sysobj::class, 'id', self::$sysobjid)
             ->withDefault();
     }
 
@@ -100,12 +109,6 @@ class wrhdoc extends Model
             ->withDefault();
     }
 
-    public function sysobj()
-    {
-        return $this->hasOne(sysobj::class, 'id', 'sysobjid')
-            ->withDefault();
-    }
-
     public function src_sysobj()
     {
         return $this->hasOne(sysobj::class, 'id', 'src_sysobjid')
@@ -128,6 +131,15 @@ class wrhdoc extends Model
         return $this->hasOne(User::class, 'id', 'updated_by');
     }
 
+    public static function min_docdate()
+    {
+        //определим минимально-допустимую дату для поля docdate
+        $min_date = sysobj_lockdate::where('sysobjid', self::$sysobjid)->first()->lock_before ?? null;
+        if (isset($min_date)) {
+            return $min_date;
+        }
+        return null;
+    }
 
     public static function auxInfo($wrhid)
     {
@@ -1275,19 +1287,32 @@ class wrhdoc extends Model
         //$doc = self::find($docid);
         Log::debug(" wrhdoc::sign ");
 
+        // если док-т существует
         if (isset($doc)) {
+
+            // если док-т еще не утвержден
             if (($doc->docsigned ?? 0) <> 1) {
 
-                if (!isset($doc->docnum))
-                    $doc->docnum = wrhdocnum::NxtDocNum($doc->doctypeid, $doc->ownorgid, $doc->docdate);
+                //Если дата документа не попадает в заблокирванный период
+                if (!wrhdoc::isLocked($doc->id)) {
 
-                $doc->docsigned = 1;
-                $doc->updated_by = $userid;
-                $doc->save();
-                //Log::debug(" wrhdoc::docsigned = $doc->docsigned ");
+                    if (!isset($doc->docnum))
+                        $doc->docnum = wrhdocnum::NxtDocNum($doc->doctypeid, $doc->ownorgid, $doc->docdate);
 
-                //пересчитаем остатки
-                DB::unprepared('CALL recalc_stock()');
+                    $doc->docsigned = 1;
+                    $doc->updated_by = $userid;
+                    $doc->save();
+                    //Log::debug(" wrhdoc::docsigned = $doc->docsigned ");
+
+                    //пересчитаем остатки
+                    DB::unprepared('CALL recalc_stock()');
+
+                    return true;
+
+                } else {
+                    Log::debug(" wrhdoc::Not signed! Doc`s Date in locked period!");
+                    return false;
+                }
 
             }
         }
@@ -1371,6 +1396,46 @@ class wrhdoc extends Model
             ->delete();
     }
 
+    static public function isLocked($id)
+    {
+        //Попадает ли нужная запись в заблокированный период?
+
+        $lock_before = sysobj_lockdate::where('sysobjid', self::$sysobjid)->select('lock_before')->first()->lock_before ?? null;
+        if (isset($lock_before)) {
+            $rec = self::find($id);
+            if (isset($rec)) {
+                return ($rec->docdate < $lock_before);
+            }
+        }
+        return false;
+    }
+
+
+    public function admindelete()
+    {
+        $result = new Result;
+        //Удаляем себя вместе с дочками
+        try {
+            DB::transaction(function () {
+                $this->items()->delete();
+                $this->files()->delete();  //TODO: ? ->deleteOne() ? Так как не удаляется файл с диска
+
+                //удалим записи из obj_finopers, для которых уже нет соответствующих записей в wrhdocs
+                obj_finoper::from('obj_finopers as f')
+                    ->where('sysobjid', self::$sysobjid)
+                    ->whereRaw("not exists (select 1 from wrhdocs as d where d.id=f.objid)")
+                    ->delete();
+
+                return parent::delete();
+            });
+        } catch (\Exception $e) {
+            $result->err = 1;
+            $result->msg = 'Ошибка удаления записи: ' . $e->getMessage();
+        }
+        return $result;
+    }
+
+
     public static function cache_clear($rec)
     {
         //Забудем связанный кэш -------------------------------------
@@ -1378,6 +1443,66 @@ class wrhdoc extends Model
         }
 //        Cache::forget('informer_saldos');
         //-----------------------------------------------------------
+    }
+
+    public static function clone($id)
+    {
+        // Клонируем указанную запись wrhdocs со всем содержимым
+
+        $result = new Result;
+        $userid = \Auth::user()->id;
+
+        $wrhdoc = self::find($id);
+        if (!isset($wrhdoc)) {
+            $result->err = 1;
+            $result->msg = 'Исходная запись не найдена!';
+            return $result;
+        }
+
+        $new_wrhdoc = $wrhdoc->replicate();
+        //дата записи не может быть ранее sysobj_lockdates.lock_before
+        $new_wrhdoc->docdate = max($new_wrhdoc->docdate, sysobj_lockdate::mindate(self::$sysobjid));
+        $new_wrhdoc->docnum = wrhdocnum::NxtDocNum($new_wrhdoc->doctypeid, $new_wrhdoc->ownorgid, $new_wrhdoc->docdate);;
+        $new_wrhdoc->docsigned = 0;
+        $new_wrhdoc->created_by = $userid;
+        $new_wrhdoc->updated_by = $userid;
+        $new_wrhdoc->save();
+        self::on_update($new_wrhdoc);
+
+        //перенесем операции
+        $items = wrhdoclst::where('docid', $wrhdoc->id)->get();
+        foreach ($items as $item) {
+            $new_item = $item->replicate();
+            $new_item->docid = $new_wrhdoc->id;
+            $new_item->created_by = $userid;
+            $new_item->updated_by = $userid;
+            $new_item->save();
+            wrhdoclst::on_update($new_item);
+        }
+
+        $result->obj = $new_wrhdoc->toArray();
+
+        return $result;
+    }
+
+    public static function on_update($rec)
+    {
+        // Доп. действия при изменении записи
+
+
+        //Забудем связанный кэш -----------------
+        self::cache_clear($rec);
+
+    }
+
+    public static function on_delete($rec = null)
+    {
+        // Доп. действия при удалении записи
+
+
+        //Забудем связанный кэш -----------------
+        self::cache_clear($rec);
+
     }
 
 }

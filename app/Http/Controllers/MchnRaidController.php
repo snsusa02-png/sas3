@@ -163,7 +163,6 @@ class MchnRaidController extends Controller
                         $sc = $sc . " and datediff(curdate(), mr.wrkdate) <= 7";
                     elseif ($val == 4) //с начала текущего месяца
                         $sc .= " and extract(year_month from mr.wrkdate) = extract(year_month from curdate())";
-                    //$sc .= " and year(mr.wrkdate) = year(curdate())";
                     elseif ($val == 5
                         and DateTime::createFromFormat('Y-m-d', $search_params['s_wrkdate']) !== false) {
                         //конкретная дата
@@ -380,7 +379,6 @@ class MchnRaidController extends Controller
 
         if ($id == -1) {
             if ($usrrights['create'] ?? false) {
-
                 //Значения "по-умолчанию" для новой записи ----------------
 
                 $wrkdate = $request->get('wrkdate');
@@ -692,7 +690,7 @@ class MchnRaidController extends Controller
                             ->where('id', '<>', $id)
                             ->count();
                         if ($cnt > 0) {
-                            $fail("Есть другой открытый табель для этой технике/даты!");
+                            $fail("Есть другой открытый табель для этой техники/даты!");
                         }
                     },
                 ],

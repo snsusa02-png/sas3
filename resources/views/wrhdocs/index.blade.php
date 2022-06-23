@@ -4,11 +4,13 @@
 
     <?php
     $thisTitle = "Документы учета склада";
+    $thisSysObjCode = 'wrhdocs';
 
+    $userid = \Auth::user()->id;
     $rec0 = $recs->currentPage() * $recs->perPage() - $recs->perPage() + 1
     ?>
     <link rel="stylesheet" href="/css/subnav.css">
-    <form name="forIndex" id="forIndex" method="post" action="{{ route('itmtypes.index') }}">
+    <form name="forIndex" id="forIndex" method="post" action="{{ route('wrhdocs.index') }}">
         @csrf
 
         <div class="container">
@@ -27,15 +29,22 @@
                     @include('layouts.edit_msgs')
 
                     <h4>{{$thisTitle}}</h4>
+
                     <div class="row mb-2">
                         <div class="offset-md-6 col-md-6 ">
                             <div class="subnav shift text-right">
                                 @if(isset($data->top_right_menu))
                                     <ul>
-                                    @foreach( $data->top_right_menu as $itm)
-                                        <li><a href="{{$itm->url}}?returl={{Request::url()}}"
-                                               title="{{$itm->title}}">{{$itm->name}}</a></li>
-                                    @endforeach
+                                        @foreach( $data->top_right_menu as $itm)
+                                            <li><a href="{{$itm->url}}?returl={{Request::url()}}"
+                                                   title="{{$itm->title}}">{{$itm->name}}</a></li>
+                                        @endforeach
+                                        @if(\App\usrsysright::isUserHasRightByCode_cached($userid,$thisSysObjCode.'.set_lockdate'))
+                                            <li><a href="{{route('sysobj_lockdates.edit',$data->sysobj->id)}}"
+                                                   title="Установка даты блокировки данных"><i class="fa fa-lock "
+                                                                                               aria-hidden="true"></i></a>
+                                            </li>
+                                        @endif
                                     </ul>
                                 @endif
                             </div>
@@ -61,6 +70,23 @@
                             </tr>
                             <tr style="text-align: center;">
                                 <td/>
+                                <td>
+                                    <div class="input-group">
+                                        {!! Form::select('s_timestatuscode', $data->timestatuses??[], $data->search_params['s_timestatuscode']??'',
+                                            [
+                                            'class' => 'form-control small',
+                                            'placeholder' => '-все-',
+                                            'id' => 's_timestatuscode',
+                                            'onchange' => 'form.submit()',
+                                            ])
+                                        !!}
+                                    </div>
+                                    <input type="date" class="form-control c" name="s_docdate"
+                                           id="s_docdate"
+                                           value="{{ $data->search_params['s_docdate'] ?? ''}}"
+                                           placeholder="-название-"
+                                           STYLE="display: none;"/>
+                                </td>
                                 <td>
                                     <div class="input-group">
                                         {!! Form::select('s_inpout',
@@ -109,7 +135,32 @@
                             <tbody>
 
                             @if (count($recs)>0)
+                                <?php
+                                //$curDate = date_format(date_create(), 'Y-m-d');
+                                $cur_wrkdate = -1;
+                                ?>
                                 @foreach($recs as $item)
+                                    @if($item->docdate<>$cur_wrkdate)
+                                        <tr style="background-color: #fffcb1">
+                                            <td colspan="4"><b>{{date_format(date_create($item->docdate),"d.m.Y")}}</b>
+                                            </td>
+                                            <td class="text-right">
+                                                @if ($usrrights['create'])
+                                                    <a href="{{ route($thisSysObjCode.'.create', 0)."&docdate={$item->docdate}"}}"
+                                                       class="btn btn-warning btn-sm"
+                                                       title="Добавить запись">
+                                                        <i class="fa fa-plus"></i>
+                                                    </a>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        <?php
+                                        $cur_wrkdate = $item->docdate;
+                                        $cur_id = -1;
+                                        $cur_opertypeid = -1;
+                                        $npp = 0;
+                                        ?>
+                                    @endif
                                     <?php
                                     $trStyle = "";
                                     if ($item->docsigned == 1) {
@@ -119,7 +170,7 @@
                                     <tr style="{{$trStyle}}">
                                         <td scope="row" class="small text-right">{{$loop->index+1+$rec0}}</td>
                                         <td><a href="{{ route('wrhdocs.edit',$item->id)}}"
-                                               target="_self">№{{$item->docnum}} от {{$item->docdate}}</a>
+                                               target="_self">№{{$item->docnum}} от </a>
                                             <div class="small">{{$item->doctype->name}}</div>
                                             <div class="">{{$item->ownorg_name}}</div>
                                             <div class="">{{$item->org_name}}</div>
@@ -128,7 +179,12 @@
                                         <td class="c">{{$item->wrh->name}}</td>
                                         <td class="text-center">
                                             {{$item->statusname}}
-                                        </td>
+                                            <a href="{{ route($thisSysObjCode.'.clone',$item->id)}}"
+                                               class="btn btn-sm btn-warning ml-1"
+                                               title="Создать копию записи"
+                                               onclick="return confirm('Создать копию записи?')">
+                                                <i class="fa fa-files-o" aria-hidden="true"></i>
+                                            </a></td>
                                         <td class="text-right">
                                             <a href="{{ route('wrhdocs.edit',$item->id)}}"
                                                class="btn btn-sm btn-primary"
@@ -159,6 +215,8 @@
                 </div>
             </div>
         </div>
+        <script src="{{ asset('js/wrhdocs_index.js') }}" defer></script>
+
     </form>
 
 @endsection

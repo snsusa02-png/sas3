@@ -278,7 +278,17 @@ class wrhdoclst extends Model
         DB::commit();
         return true;
 
+    }
+
+    public static function on_update($rec)
+    {
+        // Доп. действия при изменении записи
+
+        //Забудем связанный кэш -----------------
+        //self::cache_clear($rec);
 
     }
+
+
 
 }
