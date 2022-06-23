@@ -44,18 +44,10 @@ class WrhdocController extends Controller
         $this->objcode = $this->sysobjcode;
         $this->acl_sysobjcode = sysobj::acl_sysobjcode($this->sysobjcode);
 
-//        $userid = \Auth::user()->id;
-//        $this->userid = $userid;
     }
 
     protected function setInterfaceRight($docid)
     {
-        //по acl указанного объекта
-        /*$acl_sysobjcode = sysobj::where('code', $this->sysobjcode)
-                ->select(db::raw("ifnull(acl_sysobjcode, code) as acl_sysobjcode"))
-                ->first()->acl_sysobjcode ?? $this->sysobjcode;
-        */
-
         $usrrights = array();
         $usrrights['save'] = false;
         $usrrights['safe_save'] = false;
@@ -76,6 +68,7 @@ class WrhdocController extends Controller
         if ($docid == -1) {
             //Новый документ - можно сохранять
             $usrrights['save'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.create');;
+            $usrrights['safe_save'] = $usrrights['save'];
             $usrrights['doctype.edit'] = $usrrights['save'];
             $usrrights['ownorg.edit'] = $usrrights['save'];;
 

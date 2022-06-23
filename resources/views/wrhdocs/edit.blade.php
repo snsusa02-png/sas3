@@ -298,7 +298,7 @@
                                         <label for="name" class="required"><span id="lbl_org">Заказчик</span>:</label>
                                         @if ($usrrights['safe_save']??false)
                                             <div class="input-group mb-3 ">
-                                                <input type="text" name="org_name"  id="org_name"
+                                                <input type="text" name="org_name" id="org_name"
                                                        class="ac_name ac_org_name form-control font-weight-bold"
                                                        value="{{old('org_name',$rec->org->info)}}">
                                                 <input type="text" class="form-control text-center small ac_status"
@@ -320,7 +320,7 @@
                                 </div>
 
                                 @if (false)
-{{--                                @if (isset($rec->order->id))--}}
+                                    {{--                                @if (isset($rec->order->id))--}}
                                     <div class="form-group row">
                                         <label class="col-md-2" for="ordid">Заказ:</label>
                                         {{ Form::hidden('ordid', $rec->ordid) }}
@@ -458,18 +458,7 @@
                                     </button>
                                 @endif
 
-                                @if ($rec->id!=-1)
-                                    <div class="small" style="margin-top: 8px; color:gray;">
-                                        создан: {{$rec->created_at}} / {{$rec->created_by_name}}
-                                        &nbsp;&nbsp;
-                                        изменен: {{$rec->updated_at}} / {{$rec->updated_by_name}}
-                                        @if($rec->docsigned==1)
-                                            &nbsp;<b>утвержден</b>
-                                        @endif
-                                        <br><a
-                                            href="{{route('objevntlog',['sysobjid'=>$sysobjid, 'objid'=>$rec->id,'route'=>Route::current()->getName()])}}">журнал</a>
-                                    </div>
-                                @endif
+                                @include('layouts._who_when')
                             </form>
                         </div>
                     </div>
