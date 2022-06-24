@@ -85,7 +85,7 @@
                                     $simplename = "--";
                             }
                             ?>
-                            <span class="sm-caps">{{$simplename}}</span> {{$rec->doctype->name . ' '. $rec->docnum}}
+                            <span class="sm-caps">{{$simplename}}</span> {{$rec->doctype->name . ' №'. $rec->docnum}}
 
                             <a class="btn btn-close btn-info btn-sm"
                                style="float:right;"
