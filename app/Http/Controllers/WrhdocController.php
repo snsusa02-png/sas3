@@ -1169,4 +1169,30 @@ class WrhdocController extends Controller
             ->with(['success' => 'Вы находитесь в созданной копии']);
     }
 
+    public
+    function print($id)
+    {
+        if (!isset($id))
+            return redirect()->back()->with('error', 'Не задана исходная запись!');
+
+        $userid = \Auth::user()->id;
+
+        $rec = wrhdoc::find($id);
+
+        if (!isset($rec))
+            return redirect()->back()->with('error', 'Не найдена указанная запись!');
+
+        $rec->items = wrhdoclst::from('wrhdoclst as dl')
+            ->join('refitems as ri', 'ri.id', 'dl.refitmid')
+            ->join('unittypes as ut', 'ut.id', 'ri.unittypeid')
+            ->where('dl.docid', $id)
+            ->select('dl.*', 'ri.name as ri_name', 'ut.name as ut_name', 'ut.decimal_dgts', 'ri.grossweight as ri_grossweight')
+            ->get();
+
+        $data = new \stdClass();
+
+        $view = "wrhdocs.print";
+        return view($view,
+            compact('rec', 'data'));
+    }
 }

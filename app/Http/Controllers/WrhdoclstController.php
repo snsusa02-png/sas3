@@ -204,6 +204,7 @@ class WrhdoclstController extends Controller
         $rec->subtypeid = $usr_rec['subtypeid'] ?? null;
         $rec->price = isset($usr_rec['price']) ? $usr_rec['price'] : null;
         //dd($rec->price);
+        $rec->sum = $rec->price * $rec->qty;
         $rec->updated_by = $userid;
         $rec->updated_at = now();
 
@@ -336,7 +337,6 @@ class WrhdoclstController extends Controller
             $msg = $e->getMessage();
             return redirect()->back()->with($msgType, $msg)->withInput();
         }
-
 
         return redirect(route('wrhdocs.edit', $rec->docid))->with($msgType, $msg);
     }

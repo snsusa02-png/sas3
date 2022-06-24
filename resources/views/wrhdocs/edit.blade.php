@@ -458,6 +458,15 @@
                                     </button>
                                 @endif
 
+                                @if ($rec->id<>-1)
+                                    <a class="btn btn-close btn-warning btn hide_chngd ml-3"
+                                       href="{{ route($thisSysObjCode .'.print', $rec->id) }}"
+                                       target="_blank" id="print_rqst"
+                                       title="Напечатать">
+                                        <i class="fa fa-print" aria-hidden="true"></i>
+                                    </a>
+                                @endif
+
                                 @include('layouts._who_when')
                             </form>
                         </div>
