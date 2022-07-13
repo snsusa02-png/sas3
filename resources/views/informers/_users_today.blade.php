@@ -1,7 +1,7 @@
 <div class="col-lg-3 col-md-6 col-sm-6">
     <div class="card card-stats mt-3">
         <div class="card-header">
-            Сейчас на сайте
+            Посетители сегодня
         </div>
         <div class="card-body ">
             <div class="row">
@@ -17,6 +17,7 @@
                     </div>
 
                     @if(isset($data->now_users) and count($data->now_users))
+                        Сейчас на сайте:
                     <ul class="small">
                         @foreach($data->now_users as $usr)
                             <li>{{$usr->name}}</li>
