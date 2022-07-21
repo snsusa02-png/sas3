@@ -969,6 +969,8 @@ class WrhdocController extends Controller
                     DB::transaction(function () use ($rec) {
                         $forstock = $rec->doctype->forstock;
 
+                        $force_stock_recalc = false;    // признак необходимости полного пересчета товарного запаса
+
                         $lst = wrhdoclst::where('docid', $rec->id)->get();
                         foreach ($lst as $itm) {
 
@@ -977,16 +979,23 @@ class WrhdocController extends Controller
                                 ->where('wrhid', $rec->wrhid)
                                 ->first();
 
-                            if ($forstock < 0) {
-                                $stock->plnoutqty = $stock->plnoutqty + $itm->qty;
-                                $stock->qty = $stock->qty + $itm->qty;
-                            }
-                            if ($forstock > 0) {
-                                $stock->plnincqty = $stock->plnincqty + $itm->qty;
-                                $stock->qty = $stock->qty - $itm->qty;
-                            }
-                            $stock->save();
+                            if (isset($stock)) {
+                                if ($forstock < 0) {
+                                    $stock->plnoutqty = $stock->plnoutqty + $itm->qty;
+                                    $stock->qty = $stock->qty + $itm->qty;
+                                }
+                                if ($forstock > 0) {
+                                    $stock->plnincqty = $stock->plnincqty + $itm->qty;
+                                    $stock->qty = $stock->qty - $itm->qty;
+                                }
+                                $stock->save();
+                            } else {
+                                // если не смогли найти запись с нужным складом/владельцем/товаром,
+                                // то это признак ошибочного состояния wrh_stocks => нужно полностью пересчитать товарный запас
+                                // Установим признак полного пересчета
+                                $force_stock_recalc = true;
 
+                            }
                             if (isset($rec->ordid)) {
                                 //обновим поля OrdItems.plnshipqty и aprvshipqty
                                 //учитывая, что в заказе может быть несколько записей об одном товаре,
@@ -1015,6 +1024,10 @@ class WrhdocController extends Controller
                                     }
                                 }
                             }
+                        }
+
+                        if ($force_stock_recalc){
+                            DB::unprepared('CALL recalc_stock()');
                         }
 
                         $rec->save();
