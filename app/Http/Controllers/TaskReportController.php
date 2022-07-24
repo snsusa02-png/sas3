@@ -79,22 +79,22 @@ class TaskReportController extends Controller
 
         if ($id == -1) {
 
-            //создавать отчет по задаче может только пользователь, который указан исполнителем в task_users - roletypeid=7
-            //$cnt = task_user::where(['taskid' => $taskid, 'userid' => $userid, 'roletypeid' => 7])->count();
-            //if ($cnt == 0)
 
             $task = task::find($taskid);
             if (!isset($task))
                 return redirect(route('tasks.index'))->with(['error' => 'Задача не найдена!']);
 
-            $isExecutor = ($task->exeuserid == $userid);
+            //создавать отчет по задаче может только пользователь, который указан исполнителем в task_users - roletypeid=7
+            $cnt = task_user::where(['taskid' => $taskid, 'userid' => $userid, 'roletypeid' => 7])->count();
+            //$isExecutor = ($task->exeuserid == $userid);  // уже не так
+            $isExecutor = !($cnt == 0);
             if (!$isExecutor)
                 return redirect(route('tasks.edit', $taskid))->with(['error' => 'Вы не можете отчитываться по данной задаче, так как не назначены исполнителем!']);
 
             //определим самый свежий отчет по этой задаче
             $last_rep = task_report::where('taskid', $taskid)->orderBy('wrkenddt', 'desc')->first();
             //начало отчетного периода или равно окончанию отчетного периода предыдущего отчета, либо факт. началу работ по задаче
-            $wrkbegdt = (isset($last_rep)) ? $last_rep->wrkenddt : $task->fctbegdt;
+            $wrkbegdt = (isset($last_rep)) ? $last_rep->wrkenddt : $task->fctbegdt ?? $task->plnbegdt ?? $task->created_at;
             //dd($wrkbegdt);
 
             $rec = new task_report([

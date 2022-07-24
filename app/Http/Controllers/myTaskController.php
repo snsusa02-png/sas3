@@ -18,6 +18,8 @@ use App\objflag;
 use App\objlog;
 use App\objtag;
 use App\contracttype;
+use App\Traits\SearchDataTrait;
+use App\Traits\snsTrait;
 use App\User;
 use App\user_notice;
 use App\usrsysright;
@@ -27,6 +29,9 @@ use Illuminate\Support\Facades\Cache;
 
 class myTaskController extends Controller
 {
+    use SearchDataTrait;
+    use snsTrait;
+
     public function __construct()
     {
         $this->middleware('auth');
@@ -65,6 +70,8 @@ class myTaskController extends Controller
             $usrrights['save'] = usrsysright::isUserHasRightByCode_cached($userid, $this->objcode . '.update');
             $usrrights['delete'] = usrsysright::isUserHasRightByCode_cached($userid, $this->objcode . '.delete');
             $usrrights['link_tasks'] = usrsysright::isUserHasRightByCode_cached($userid, 'tasks.create');
+
+            $usrrights['task_reports.create'] = $usrrights['save'];
         }
 
         return $usrrights;
@@ -94,189 +101,84 @@ class myTaskController extends Controller
 
         session([$this->objcode . '_pageno' => $request->page]);
 
-        // - параметры поиска -------------------------------------------------
-        $s_ownorgid = "";
-        $s_orgname = "";
-        $s_name = "";
-        $s_tag = "";
-        $s_categoryid = "";
-        $s_typeid = "";
-        $s_docnum = "";
-        $s_docdate = "";
-        $s_regnum = "";
-        $s_regnumstatus = "";
-        $s_end_at = "";
-        $s_statusid = "";
-        $s_orggrpid = "";
-        $s_flagtypeid = "";
-        $s_buildobjid = "";
-        $s_file_doctypeid = "";
-
-
-        //dd($request->get("s_tag"));
-        //(null !== $request->getQueryString())
-        //Тэг может задаваться через QueryString
-        $s_tag = $request->get("s_tag");
-        //dd($s_tag,isset($s_tag));
-
-        if ($request->isMethod('post') or isset($s_tag)) {
-            $s_ownorgid = $request->get("s_ownorgid");
-            $s_orgname = $request->get("s_orgname");
-            $s_name = $request->get("s_name");
-            $s_tag = $request->get("s_tag");
-            $s_docnum = $request->get("s_docnum");
-            $s_docdate = $request->get("s_docdate");
-            $s_regnum = $request->get("s_regnum");
-            $s_regnumstatus = $request->get("s_regnumstatus");
-            $s_statusid = $request->get("s_statusid");
-            $s_categoryid = $request->get("s_categoryid");
-            $s_typeid = $request->get("s_typeid");
-            $s_end_at = $request->get("s_end_at");
-            $s_orggrpid = $request->get("s_orggrpid");
-            $s_flagtypeid = $request->get("s_flagtypeid");
-            $s_buildobjid = $request->get("s_buildobjid");
-            $s_file_doctypeid = $request->get("s_file_doctypeid");
-
-            //сохраним параметры поиска в сессии
-            session(['search_setname' => $this->objcode]);
-            session(['search_params' => [
-                's_ownorgid' => $s_ownorgid,
-                's_orgname' => $s_orgname,
-                's_name' => $s_name,
-                's_tag' => $s_tag,
-                's_docnum' => $s_docnum,
-                's_docdate' => $s_docdate,
-                's_regnum' => $s_regnum,
-                's_regnumstatus' => $s_regnumstatus,
-                's_statusid' => $s_statusid,
-                's_categoryid' => $s_categoryid,
-                's_typeid' => $s_typeid,
-                's_end_at' => $s_end_at,
-                's_orggrpid' => $s_orggrpid,
-                's_flagtypeid' => $s_flagtypeid,
-                's_buildobjid' => $s_buildobjid,
-                's_file_doctypeid' => $s_file_doctypeid,
-            ]]);
-        } else {
-
-            if (session('search_setname') == $this->objcode) {
-                if (!empty(session('search_params'))) {
-                    //восстановим параметры поиска из сессии
-                    $params = session('search_params');
-                    $s_name = $params['s_name'] ?? null;
-                    $s_tag = $params['s_tag'] ?? null;
-                    $s_ownorgid = $params['s_ownorgid'] ?? null;
-                    $s_orgname = $params['s_orgname'] ?? null;
-                    $s_docnum = $params['s_docnum'] ?? null;
-                    $s_docdate = $params['s_docdate'] ?? null;
-                    $s_regnum = $params['s_regnum'] ?? null;
-                    $s_regnumstatus = $params['s_regnumstatus'] ?? null;
-                    $s_categoryid = $params['s_categoryid'] ?? null;
-                    $s_typeid = $params['s_typeid'] ?? null;
-                    $s_statusid = $params['s_statusid'] ?? null;
-                    $s_end_at = $params['s_end_at'] ?? null;
-                    $s_orggrpid = $params['s_orggrpid'] ?? null;
-                    $s_flagtypeid = $params['s_flagtypeid'] ?? null;
-                    $s_buildobjid = $params['s_buildobjid'] ?? null;
-                    $s_file_doctypeid = $params['s_file_doctypeid'] ?? null;
-                }
-            } else
-                //зачистим чужие параметры поиска
-                session(['search_params' => []]);
-        }
-
-        $search_params = [
-            "s_ownorgid" => $s_ownorgid,
-            "s_orgname" => $s_orgname,
-            "s_name" => $s_name,
-            "s_tag" => $s_tag,
-            "s_categoryid" => $s_categoryid,
-            "s_typeid" => $s_typeid,
-            "s_docnum" => $s_docnum,
-            "s_docdate" => $s_docdate,
-            "s_regnum" => $s_regnum,
-            "s_regnumstatus" => $s_regnumstatus,
-            "s_statusid" => $s_statusid,
-            "s_end_at" => $s_end_at,
-            "s_orggrpid" => $s_orggrpid,
-            "s_flagtypeid" => $s_flagtypeid,
-            "s_buildobjid" => $s_buildobjid,
-            "s_file_doctypeid" => $s_file_doctypeid,
+        // - параметры поиска: массив из имени и значения по-умолчанию -----------------------------------------------
+        $param_names = [
+            's_pageitmcnt' => 15
+            , 's_statusid' => ''
+            , 's_plnbegdate' => ''
+            , 's_name' => ''
+            , 's_tag' => ''
+            , 's_tag_type' => ''
+            , 's_tag_val' => ''
+            , 's_task_userid' => ''
+            , 's_user_roleid' => ''
         ];
 
-        $needSearch = false;
-        foreach ($search_params as $p) {
-            if (isset($p)) {
-                $needSearch = true;
-                break;
-            }
-        }
-
-        //var_dump($search_params);
+        $search_params = $this->search_params($request, $param_names);
+        //dd($search_params);
 
         $sc = "1=1 ";
-        $usrrights['read'] = false;
+        $need_search = false;
         if (!$usrrights['read']) {
             $sc .= ' and ( e.public_lvl=2 or e.inituserid=' . $userid . '
-            or exists (select 1 from task_users r where r.taskid=e.id and userid=' . $userid . ') )';
+                or exists (select 1 from task_users r where r.taskid=e.id and userid=' . $userid . ') )';
         }
 
-        if ($needSearch) {
-            if (strlen($s_ownorgid) > 0) {
-                $sc = $sc . " and e.ownorgid = '" . $s_ownorgid . "'";
-            }
-            if (strlen($s_orgname) > 0) {
-                // $sc = $sc . " and o.name like '%" . mb_strtoupper($s_orgname) . "%'";
-                $sc = $sc . " and exists (select 1 from contract_orgs as co
-                join orgs as coo on coo.id=co.orgid  where co.contractid=e.id ";
+        foreach ($search_params as $item => $val) {
+            if (isset($val) and strlen($val) > 0) {
 
-                //" and coo.name like '%" . mb_strtoupper($s_orgname) . "%')";
+                if (!in_array($item, ['s_pageitmcnt']))
+                    $need_search = true;
 
-                $find = explode(" ", $s_orgname);
-
-                if (count($find) > 0) {
-                    $sc .= ' and (1=1';
-                    foreach ($find as $f) {
-                        $sc .= " and coo.name like '%" . $f . "%'";
+                if ($item == 's_name') {
+                    $find = explode(" ", $val);
+                    if (count($find) > 0) {
+                        $sc .= ' and (1=1';
+                        foreach ($find as $f) {
+                            $sc .= " and concat(ifnull(e.name,' '),' ', ifnull(e.descript,' ')) like '%" . $f . "%'";
+                        }
+                        $sc .= ')';
                     }
-                    $sc .= ')';
+
+                } elseif ($item == 's_plnbegdate') {
+                    $sc = $sc . " and date(e.plnbegdt) = '" . $val . "'";
+
+                } elseif ($item == 's_statusid') {
+                    if ($val == 0)  //предстоят
+                        $sc = $sc . " and e.plnbegdt >= curdate()";
+                    elseif ($val == 2)  //сегодня
+                        $sc = $sc . " and date(e.plnbegdt) = curdate()";
+                    elseif ($val == 8)  //прошли
+                        $sc = $sc . " and e.plnenddt < now()";
+
+                } elseif ($item == 's_task_userid') {
+                        $sc .= " and exists (select 1 from task_users as tu where tu.taskid = e.id and tu.userid={$val})";
+
+                } elseif ($item == 's_user_roleid') {
+                    if ($val == 1)
+                        $sc .= " and e.inituserid = {$userid}";
+                    else
+                        $sc = $sc . " and exists (select 1 from task_users as tu where tu.taskid = e.id
+                        and tu.roletypeid={$val} and tu.userid={$userid})";
+
+                } elseif ($item == 's_tag') {
+                    $sc = $sc . " and exists (select 1 from objtags as ot where ot.sysobjid={$this->sysobjid}
+                                                and objid=e.id and ot.tag='" . mb_strtoupper($val) . "')";
+
+                } elseif ($item == 's_tag_type') {
+                    $tval = mb_strtoupper($val);
+                    $sc = $sc . " and exists (select 1 from objtags as ot where ot.sysobjid={$this->sysobjid}
+                     and objid=e.id and ( ot.type='{$tval}' or (ot.type is null and ot.tag='{$tval}')))";
+
+                } elseif ($item == 's_tag_val') {
+                    $sc = $sc . " and exists (select 1 from objtags as ot where ot.sysobjid={$this->sysobjid}
+                     and objid=e.id and ot.val like '%" . mb_strtoupper($val) . "%')";
+
                 }
-                $sc .= ')';
             }
-
-            if (strlen($s_name) > 0) {
-                $sc = $sc . " and concat(ifnull(e.title,' '),' ', ifnull(e.descript,' '))  like '%" . mb_strtoupper($s_name) . "%'";
-            }
-            if (strlen($s_tag) > 0) {
-                $sc = $sc . " and exists (select 1 from objtags as ot where ot.sysobjid=$sysobjid and objid=e.id and ot.tag='" . mb_strtoupper($s_tag) . "')";
-            }
-            if (strlen($s_file_doctypeid) > 0) {
-                $sc = $sc . " and exists (select 1 from objfiles as f where f.sysobjid=$sysobjid and f.objid=e.id and f.doctypeid=" . $s_file_doctypeid . ")";
-            }
-
-            if (strlen($s_docdate) > 0) {
-                $sc = $sc . " and date(e.begdt) = '" . $s_docdate . "'";
-            }
-
-
-            if (strlen($s_statusid) > 0) {
-                if ($s_statusid == 0)
-                    $sc = $sc . " and e.begdt >= now()";
-                elseif ($s_statusid == 2)
-                    $sc = $sc . " and date(e.begdt) = curdate()";
-                elseif ($s_statusid == 8)
-                    $sc = $sc . " and e.enddt < now()";
-            }
-
-            if (strlen($s_end_at) > 0) {
-                $sc = $sc . " and date_add(curdate(), interval $s_end_at day)>=ifnull(e.enddate,'3333-01-01')";
-            }
-
-            if (strlen($s_flagtypeid) > 0)
-                $sc .= " and exists(select 1 from objflags f where f.sysobjid=" . $this->sysobjid
-                    . " and f.objid=e.id and f.flagtypeid=" . $s_flagtypeid . ')';
-
         }
+        //var_dump($sc);
+        //var_dump($search_params);
         // --------------------------------------------------------------------
 
 
@@ -309,13 +211,15 @@ class myTaskController extends Controller
         }
         //----------------------------------------------------------------
 
-        $recs = $recs->paginate(30);
+        $recs = $recs->paginate($search_params['s_pageitmcnt'] ?? 15);
         //dd($recs);
 
         $data = new \stdClass();
 
         $data->sysobj = $this->sysobjid;
         $data->exe_statuses = task::exe_statuses();
+        $data->user_roles = task::user_roles($userid);
+        $data->task_users = task::task_users($userid);  //пользователи в задачах, которые доступны текущему пользователю
 
         //номер первой записи на странице:
         $rec0 = $recs->currentPage() * $recs->perPage() - $recs->perPage() + 1;
@@ -324,7 +228,7 @@ class myTaskController extends Controller
 
         $data->regnumstatuses = [0 => 'не присвоен', 1 => 'присвоен'];
 
-        $usedtypes = contracttype::usedTypes();
+//      $usedtypes = contracttype::usedTypes();
 
         $data->usedtags = task::usedTags();
 
@@ -341,8 +245,6 @@ class myTaskController extends Controller
             8 => 'прошли',
         ];
 
-//dd($usrrights);
-
         return view('tasks.index', compact(
             'recs', 'rec0'
             , 'data'
@@ -355,7 +257,8 @@ class myTaskController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create(Request $request)
+    public
+    function create(Request $request)
     {
         //dd($request, $sysobjid,$objid);
         return $this->edit($request, -1);
@@ -368,7 +271,8 @@ class myTaskController extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(Request $request, $id)
+    public
+    function edit(Request $request, $id)
     {
         $userid = \Auth::user()->id;
 
@@ -551,7 +455,7 @@ class myTaskController extends Controller
 
         //защита от действий пользователя без прав
         $usrrights = $this->setInterfaceRight($rec->id);
-        $usrrights['save'] = ($rec->inituserid == $userid);
+        $usrrights['save'] = ($usrrights['save'] and $rec->inituserid == $userid);
         if (!$usrrights['save'] ?? false)
             return redirect(route($this->objcode . ' . index'));
 
@@ -559,7 +463,10 @@ class myTaskController extends Controller
         //Привязка задачи к объекту ИС ------------
         $rec->srcsysobjid = $request->get('srcsysobjid');
         $rec->srcobjid = $request->get('srcobjid');
-        $src_model = sysobj::find($rec->srcsysobjid)->model_class;
+        if (isset($rec->srcsysobjid) and isset($rec->srcobjid))
+            $src_model = sysobj::find($rec->srcsysobjid)->model_class;
+        else
+            $src_model = null;
         if (isset($src_model)) {
             $src_model = "\App\\" . $src_model;
             $rec->srcobjinfo = $src_model::find($rec->srcobjid)->info ?? '';
@@ -600,9 +507,23 @@ class myTaskController extends Controller
 //        obj_link::addOrUpdateSingle($this->sysobjid, $rec->id, 466, $buildobjid);
         //-----------------------------------------------------------------------------------
 
-        // для новой записи, если не указан исполнитель, то сделаем им инициатора -------------------------------------
+        // для новой записи -------------------------------------
         if ($id == -1) {
+            /*
+            //для однообразия (поиска и т.п.), добавим инициатора в список пользователей по задаче
+            task_user::addOrUpdate(
+                ['taskid' => $rec->id,
+                    'userid' => $rec->inituserid,
+                    'roletypeid' => 1   //инициатор
+                ]
+                , [
+                'active' => 1,
+                'updated_by' => $userid,
+                'updated_at' => now(),
+            ]);
+            */
 
+            // если не указан исполнитель, то сделаем им инициатора
             $exeuserid = $request->get('exeuserid');
             task_user::addOrUpdate(
                 ['taskid' => $rec->id,

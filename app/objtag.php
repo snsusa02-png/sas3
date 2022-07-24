@@ -92,7 +92,6 @@ class objtag extends Model
             $tags = explode(',', $tag_list);
             //dd($tags);
             foreach ($tags as $tag) {
-
                 objtag::AddOrUpdate($sysobjid, $objid, $tag);
             }
             //удалим незатронутые теги

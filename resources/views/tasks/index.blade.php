@@ -14,12 +14,13 @@
 
         <?php
         $breadcrumbs = [
-            'Планирование' => route('planning'),
-            'Задачи' => null,
+            'Данные' => "/rqsts",
+            'Планирование' => "/rqsts?tab=nsi-plans",
+            $thisTitle => null,
         ];
-        //dd($breadcrumbs);
         ?>
-        @includeIf('layouts.breadcrumbs')
+        @include('layouts.breadcrumbs')
+
 
         <link rel="stylesheet" href="/css/tags.css">
         <style>
@@ -100,7 +101,7 @@
                                 <td>
                                     Что
                                 </td>
-                                <td>Где</td>
+                                <td>Участник, Моя роль</td>
                                 <td style="text-align: center;">
                                     @if ($usrrights['create'])
                                         <a href="{{ route($thisSysObjCode.'.create')}}"
@@ -121,8 +122,8 @@
                                                                                  'class' => 'form-control',
                                                                                  'placeholder' => '-все-',
                                                                                  ]) !!}
-                                        <input type="date" class="form-control" name="s_docdate"
-                                               value="{{$search_params['s_docdate'] ?? ''}}"
+                                        <input type="date" class="form-control" name="s_plnbegdate"
+                                               value="{{$search_params['s_plnbegdate'] ?? ''}}"
                                                placeholder="Дата"/>
                                     </div>
                                 </td>
@@ -141,9 +142,20 @@
                                 </td>
                                 <td>
                                     <div class="input-group">
-                                        <input type="text" class="form-control" name="s_place"
-                                               value="{{ $search_params['s_place'] ?? ''}}"
-                                               placeholder=""/>
+                                        {{--<input type="text" class="form-control" name="s_place"--}}
+                                        {{--       value="{{ $search_params['s_place'] ?? ''}}"--}}
+                                        {{--       placeholder=""/>--}}
+
+                                        {!! Form::select('s_task_userid', $data->task_users, $search_params['s_task_userid'] ?? '',
+                                                                                     [
+                                                                                     'class' => 'form-control',
+                                                                                     'placeholder' => '-все-',
+                                                                                     ]) !!}
+                                        {!! Form::select('s_user_roleid', $data->user_roles, $search_params['s_user_roleid'] ?? '',
+                                                                                     [
+                                                                                     'class' => 'form-control',
+                                                                                     'placeholder' => '-любая-',
+                                                                                     ]) !!}
                                     </div>
                                 </td>
                                 <td>

@@ -23,6 +23,9 @@
     if (\App\usrsysright::isUserHasRightByCode(\Auth::user()->id, 'wrhdocs.read'))
         $tabs[] = ['name' => 'Производство', 'id' => 'nsi-prod-tab', 'href' => '#nsi-prods'];
 
+    if (1==1 or \App\usrsysright::isUserHasRightByCode(\Auth::user()->id, 'tasks.read'))
+        $tabs[] = ['name' => 'Планирование', 'id' => 'nsi-plan-tab', 'href' => '#nsi-plans'];
+
     //    if (\App\usrsysright::isUserHasRightByCode(\Auth::user()->id, 'equiprqsts.read'))
 //        $tabs[] = ['name' => 'Материалы и оборудование', 'id' => 'nsi-meet-tab', 'href' => '#nsi-meet'];
 
@@ -63,6 +66,7 @@
 						@includeIf('rqsts.tab_rqsts')
 						@includeIf('rqsts.tab_pays')
                         @includeIf('rqsts.tab_prods')
+                        @includeIf('rqsts.tab_plans')
 {{--						@includeIf('rqsts.tab_atp')--}}
 {{--						@includeIf('rqsts.tab_equip')--}}
 

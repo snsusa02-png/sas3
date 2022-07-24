@@ -163,7 +163,6 @@ if (!isset($thisSysObjId) and isset($sysobjid))
 
         $newMsgCnt = $newMsgCnt->count();
         //$newMsgCnt=0;
-        //dd($newMsgCnt);
     }
 
     $rec_msgs = \App\obj_msg::where(['sysobjid' => $thisSysObjId, 'objid' => $rec->id])
@@ -171,13 +170,13 @@ if (!isset($thisSysObjId) and isset($sysobjid))
 
     $badge_cnt = ($newMsgCnt > 0) ? $newMsgCnt : count($rec_msgs);
     ?>
-    @if($allnewMsgCnt>0)
-        <div class="new_senders rounded shadow-sm {{($allnewMsgCnt>0)?'':'_hide'}} d-print-none"
+    @if($newMsgCnt>0)
+        <div class="new_senders rounded shadow-sm {{($newMsgCnt>0)?'':'_hide'}} d-print-none"
              onclick="openNav()" id="myMsgSidenav_opn">
-            <i class="fa fa-envelope {{($allnewMsgCnt>0)?'fa-spin text-success':'text-info'}} "
+            <i class="fa fa-envelope {{($newMsgCnt>0)?'fa-spin text-success':'text-info'}} "
                aria-hidden="true"></i>
-            <sup><span class="badge badge-pill {{($allnewMsgCnt>0)?'badge-warning':'badge-secondary'}}"
-                       style="margin-left: -12px;">{{$allnewMsgCnt}}</span></sup>
+            <sup><span class="badge badge-pill {{($newMsgCnt>0)?'badge-warning':'badge-secondary'}}"
+                       style="margin-left: -12px;">{{$newMsgCnt}}</span></sup>
         </div>
     @endif
 

@@ -321,18 +321,22 @@
                                         <textarea class="form-control rounded-0" name="notes" id="notes"
                                                   rows="2">{{ old('notes',$rec->notes) }}</textarea>
                                     </div>
+                                @endif
 
+                                @if($usrrights['save']??false or ($rec->tags<>''))
                                     <div style="background-color: #ddd7ef" class="p-1">
                                         <div class="form-group">
                                             <label for="descript">Тэги:</label>
-                                            <textarea class="form-control rounded-0" name="tags" id="tags"
-                                                      rows="2">{{ old('tags',$rec->tags) }}</textarea>
+                                            @if($usrrights['save']??false)
+                                                <textarea class="form-control rounded-0" name="tags" id="tags"
+                                                          rows="2">{{ old('tags',$rec->tags) }}</textarea>
+                                            @else
+                                                <div class="font-weight-bold">{{$rec->tags??'-'}}</div>
+                                            @endif
                                         </div>
-
-
                                     </div>
-
                                 @endif
+
 
                                 <hr>
                                 @if ($usrrights['save'])
@@ -429,7 +433,7 @@
                     <div class="col-md-5">
 
                         @include('tasks/_users')
-                        {{--                        @include('tasks/_reports')--}}
+                        @include('tasks/_reports')
 
                         @includeif('tasks/_linked_docs')
 

@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Jobs\SendNotify;
 use Illuminate\Database\Eloquent\Model;
 
 class task_user extends Model
@@ -66,9 +67,60 @@ class task_user extends Model
             $rec->fill($set_params);
             $rec->save();
 
+            self::notify($rec);
+
             return $rec;
         }
         return null;
+    }
+
+    public static function notify($rec)
+    {
+        if (1 == 1) {
+
+            $taskid = $rec->taskid;
+            $info_name = $rec->task->name;
+
+            $subj = 'Новая задача';
+            $msg = $info_name;
+            $ref_url = route("tasks.edit", $taskid);
+
+            //добавление колокольчика
+            user_notice::addOrUpdate(961 * 1000000 + $taskid
+                , $ref_url, $rec->userid
+                , $subj
+                , $msg
+                , now()
+                , null);
+
+            //
+            $rcpt = User::find($rec->userid);
+            if (isset($rcpt) and isset($rcpt->email)) {
+
+                $email = $rcpt->email;
+                if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+
+                    //для журнала сформируем список получателей
+                    $lstrcpts = ' ' . $rcpt->lname
+                        . ' ' . mb_substr($rcpt->fname, 0, 1) . '.'
+                        . mb_substr($rcpt->mname, 0, 1) . '. (' . $email . ');';
+
+                    //$email = 'shevchenko.s@basko.su';
+                    //$email = 'snsusa02@gmail.com';
+
+                    $msg = "Здравствуйте, " . $rcpt->fname . " " . $rcpt->mname . "!"
+                        . "<br>"
+                        . "<br>Вам необходимо ознакомиться с новой задачей"
+                        . "<br><hr>"
+                        . " <a href='" . $ref_url . "'>Перейти к задаче</a>";
+                    //dd($subj, $msg);
+                    dispatch((new SendNotify($email, $subj, $msg))->onQueue('high'));
+                }
+            }
+
+
+        }
+
     }
 
 }

@@ -696,6 +696,12 @@ class User extends Authenticatable
                         //пользователь должен быть читателем записи в Архиве документов
                         $sc .= " and " . (($val == 0) ? "not" : "")
                             . " exists( select 1 from obj_readers as ojr where ojr.sysobjid=1701 and ojr.userid=u.id )";
+
+                    } elseif ($key == 'in_tasks_for_user') {
+                        //пользователи - участники задач, доступных указанному пользователю
+                        $sc .= " and exists(select 1 from task_users as tu where tu.userid=u.id
+				                    and (exists (select 1 from task_users as utu where utu.taskid=tu.taskid and utu.userid = {$val})
+					                    or exists (select 1 from tasks as t where t.id=tu.taskid and t.inituserid = {$val})	) )";
                     }
 
                 }

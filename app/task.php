@@ -54,7 +54,26 @@ class task extends Model
     public static function exe_statuses()
     {
         //return [1 => 'в ожидании', 2 => 'выполняется', 3 => 'выполнено', 4 => 'не выполнено', 5 => 'отменено'];
-        return [3 => 'выполнено', 4 => 'не выполнено'];
+        return [2 => 'выполняется', 3 => 'выполнено', 4 => 'не выполнено'];
+    }
+
+    public static function user_roles($p_userid)
+    {
+        $sc = " exists( select 1 from task_users as tu where tu.roletypeid=rt.id and tu.userid={$p_userid})";
+        $lst = roletype::from('roletypes as rt')
+            ->whereRaw($sc)
+            ->select('rt.id', 'rt.name')
+            ->orderBy('rt.name', 'asc')
+            ->get()->pluck('name', 'id')->toArray();
+        return $lst;
+    }
+
+    public static function task_users($p_userid)
+    {
+        $lst = user::lstFor([
+            'in_tasks_for_user' => $p_userid,
+        ]);
+        return $lst;
     }
 
     public function tags()
