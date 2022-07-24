@@ -75,14 +75,20 @@ class HomeController extends Controller
         //согласование остатка бюджета на материалы - устарело после ввода системы бюджетов
         $data->finconfirms = null;
 
-        $data->now_users = User::from('users as u')
-            ->join('sessions as s', 's.user_id', 'u.id')
-            ->whereRaw(" (unix_timestamp()-s.last_activity)<500")
-            ->select("u.id", 'u.name')
-            ->orderBy('s.last_activity', 'desc')
-            ->get();
+        if (1 == 0) {
+            //Cache::forget('informer_now_users');
+            $data->now_users = Cache::remember('informer_now_users', now()->addMinutes(12)
+                , function () {
+                    return User::from('users as u')
+                        ->join('sessions as s', 's.user_id', 'u.id')
+                        ->whereRaw(" (unix_timestamp()-s.last_activity)<500")
+                        ->select("u.id", 'u.name')
+                        ->orderBy('s.last_activity', 'desc')
+                        ->get();
+                });
+        }
 
-        Cache::forget('informer_today_users');
+        //Cache::forget('informer_today_users');
         $data->today_users = Cache::remember('informer_today_users', now()->addMinutes(12)
             , function () {
                 return User::from('users as u')
