@@ -76,11 +76,28 @@ class HomeController extends Controller
         $data->finconfirms = null;
 
         $data->now_users = User::from('users as u')
-            ->join('sessions as s','s.user_id','u.id')
+            ->join('sessions as s', 's.user_id', 'u.id')
             ->whereRaw(" (unix_timestamp()-s.last_activity)<500")
-            ->select("u.id",'u.name')
-            ->orderBy('s.last_activity','desc')
+            ->select("u.id", 'u.name')
+            ->orderBy('s.last_activity', 'desc')
             ->get();
+
+        Cache::forget('informer_today_users');
+        $data->today_users = Cache::remember('informer_today_users', now()->addMinutes(12)
+            , function () {
+                return User::from('users as u')
+                    ->join('objlogs as l', 'l.write_by', 'u.id')
+                    ->whereRaw("DATE(write_at) = CURDATE()")
+                    ->select('u.id as userid'
+                        , db::raw("concat(u.fname, ' ', u.lname) as name")
+                        , db::raw("min(write_at) as first_dt")
+                        , db::raw("max(write_at) as last_dt")
+                        , db::raw("count(1) as cnt"))
+                    ->groupby('u.id')
+                    ->orderby('first_Dt')
+                    ->get();
+
+            });
 
         //Задачи, ожидающие взятия пользователем ----------------------------------------------
         //$data->user_wait_tasks = task::informer_user_wait_tasks($userid);
@@ -88,6 +105,9 @@ class HomeController extends Controller
         $data->user_active_tasks = task::informer_user_active_tasks($userid);
         //-------------------------------------------------------------------------------------
 
+        //Еще не выполненные задачи по исполнителям -------------------------------------------
+        $data->users_tasks = task::informer_users_tasks();
+        //-------------------------------------------------------------------------------------
 
         //текущий баланс организаций холдинга//------------------------------------------------
         //$data->ownorg_saldos = org_saldo::informer_saldos();

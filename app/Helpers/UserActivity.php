@@ -1,11 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: osetsky
- * Date: 06.04.2019
- * Time: 16:59
- */
-
 
 namespace App\Helpers;
 
@@ -51,10 +44,11 @@ class UserActivity
         return UserActivityModel::whereNotNull('user_id')
                 ->where('last_activity', '>', today()->getTimestamp())
                 ->distinct('user_id')
-                ->count('user_id') +
-            UserActivityModel::whereNull('user_id')
+                ->count('user_id')
+            /*+ UserActivityModel::whereNull('user_id')
                 ->where('last_activity', '>', today()->getTimestamp())
-                ->count();
+                ->count()*/
+            ;
     }
 
     public static function cntManagerOnline()

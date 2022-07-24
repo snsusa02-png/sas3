@@ -97,14 +97,14 @@ class myTaskController extends Controller
 //            return view('home');
 //        }
         //2020-09-28 Меняем концепцию - если у пользователя нет прав на чтение (ВСЕХ записей), то здесь не блокируем,
-        //а смотрим дальше по месту - есть ли он в списке читателей индивидуально для каждого события
+        //а смотрим дальше по месту - есть ли он в списке читателей индивидуально для каждой задачи
 
         session([$this->objcode . '_pageno' => $request->page]);
 
         // - параметры поиска: массив из имени и значения по-умолчанию -----------------------------------------------
         $param_names = [
             's_pageitmcnt' => 15
-            , 's_statusid' => ''
+            , 's_statusid' => 0
             , 's_plnbegdate' => ''
             , 's_name' => ''
             , 's_tag' => ''
@@ -120,8 +120,8 @@ class myTaskController extends Controller
         $sc = "1=1 ";
         $need_search = false;
         if (!$usrrights['read']) {
-            $sc .= ' and ( e.public_lvl=2 or e.inituserid=' . $userid . '
-                or exists (select 1 from task_users r where r.taskid=e.id and userid=' . $userid . ') )';
+            $sc .= ' and ( t.public_lvl=2 or t.inituserid=' . $userid . '
+                or exists (select 1 from task_users r where r.taskid=t.id and userid=' . $userid . ') )';
         }
 
         foreach ($search_params as $item => $val) {
@@ -135,44 +135,44 @@ class myTaskController extends Controller
                     if (count($find) > 0) {
                         $sc .= ' and (1=1';
                         foreach ($find as $f) {
-                            $sc .= " and concat(ifnull(e.name,' '),' ', ifnull(e.descript,' ')) like '%" . $f . "%'";
+                            $sc .= " and concat(ifnull(t.name,' '),' ', ifnull(t.descript,' ')) like '%" . $f . "%'";
                         }
                         $sc .= ')';
                     }
 
                 } elseif ($item == 's_plnbegdate') {
-                    $sc = $sc . " and date(e.plnbegdt) = '" . $val . "'";
+                    $sc = $sc . " and date(t.plnbegdt) = '" . $val . "'";
 
                 } elseif ($item == 's_statusid') {
                     if ($val == 0)  //предстоят
-                        $sc = $sc . " and e.plnbegdt >= curdate()";
+                        $sc = $sc . " and t.plnbegdt >= curdate()";
                     elseif ($val == 2)  //сегодня
-                        $sc = $sc . " and date(e.plnbegdt) = curdate()";
+                        $sc = $sc . " and date(t.plnbegdt) = curdate()";
                     elseif ($val == 8)  //прошли
-                        $sc = $sc . " and e.plnenddt < now()";
+                        $sc = $sc . " and t.plnenddt < now()";
 
                 } elseif ($item == 's_task_userid') {
-                        $sc .= " and exists (select 1 from task_users as tu where tu.taskid = e.id and tu.userid={$val})";
+                        $sc .= " and exists (select 1 from task_users as tu where tu.taskid = t.id and tu.userid={$val})";
 
                 } elseif ($item == 's_user_roleid') {
                     if ($val == 1)
-                        $sc .= " and e.inituserid = {$userid}";
+                        $sc .= " and t.inituserid = {$userid}";
                     else
-                        $sc = $sc . " and exists (select 1 from task_users as tu where tu.taskid = e.id
+                        $sc = $sc . " and exists (select 1 from task_users as tu where tu.taskid = t.id
                         and tu.roletypeid={$val} and tu.userid={$userid})";
 
                 } elseif ($item == 's_tag') {
                     $sc = $sc . " and exists (select 1 from objtags as ot where ot.sysobjid={$this->sysobjid}
-                                                and objid=e.id and ot.tag='" . mb_strtoupper($val) . "')";
+                                                and objid=t.id and ot.tag='" . mb_strtoupper($val) . "')";
 
                 } elseif ($item == 's_tag_type') {
                     $tval = mb_strtoupper($val);
                     $sc = $sc . " and exists (select 1 from objtags as ot where ot.sysobjid={$this->sysobjid}
-                     and objid=e.id and ( ot.type='{$tval}' or (ot.type is null and ot.tag='{$tval}')))";
+                     and objid=t.id and ( ot.type='{$tval}' or (ot.type is null and ot.tag='{$tval}')))";
 
                 } elseif ($item == 's_tag_val') {
                     $sc = $sc . " and exists (select 1 from objtags as ot where ot.sysobjid={$this->sysobjid}
-                     and objid=e.id and ot.val like '%" . mb_strtoupper($val) . "%')";
+                     and objid=t.id and ot.val like '%" . mb_strtoupper($val) . "%')";
 
                 }
             }
@@ -182,23 +182,23 @@ class myTaskController extends Controller
         // --------------------------------------------------------------------
 
 
-        $recs = task::from('tasks as e')
+        $recs = task::from('tasks as t')
             ->Join('users as iu', function ($j) {
-                $j->on('iu.id', 'e.inituserid');
+                $j->on('iu.id', 't.inituserid');
             })
             ->whereraw($sc)
-            ->select('e.id', 'e.name', 'e.descript', 'e.active'
-                , 'e.plnbegdt', 'e.plnenddt' //, 'e.place'
-                , 'e.statusid', 'e.progress'
+            ->select('t.id', 't.name', 't.descript', 't.active'
+                , 't.plnbegdt', 't.plnenddt' //, 't.place'
+                , 't.statusid', 't.progress'
                 , 'iu.name as inituser_name'
                 , db::raw("( select group_concat(concat(u.lname,' ', u.fname) SEPARATOR ', ')
                     from task_users as tu join users as u on u.id=tu.userid
-                    where tu.taskid=e.id and tu.roletypeid=7) as lst_users")
+                    where tu.taskid=t.id and tu.roletypeid=7) as lst_users")
             )
             ->with('tags');
 
         //Базовая сортировка ---------------------------------------------
-        //$recs = $recs->orderBy('e.plnbegdt', 'asc');
+        $recs = $recs->orderBy('t.plnbegdt', 'asc');
         //----------------------------------------------------------------
 
         //Сортировка пользователя ----------------------------------------
@@ -210,7 +210,7 @@ class myTaskController extends Controller
             foreach ($sort_params as $prm)
                 $recs = $recs->orderBy($prm['field'], $prm['dir']);
         } else {
-            $recs = $recs->orderBy('e.plnbegdt', 'desc');
+            $recs = $recs->orderBy('t.plnbegdt', 'desc');
         }
         //----------------------------------------------------------------
 
@@ -603,12 +603,12 @@ class myTaskController extends Controller
             $orgid = $request->orgid;
             $list = task::from("tasks as c")
                 ->join("orgs as oo", 'oo.id', "e . ownorgid")
-                ->where('e.ownorgid', $ownorgid);
+                ->where('t.ownorgid', $ownorgid);
             if (isset($orgid))
-                $list = $list->where('e.orgid', $orgid);
+                $list = $list->where('t.orgid', $orgid);
 
-            $list = $list->where('e.active', 1)
-                ->select('e.id', 'e.name as tname')
+            $list = $list->where('t.active', 1)
+                ->select('t.id', 't.name as tname')
                 ->orderBy('tname')
                 ->get()->pluck('tname', 'id')->toArray();
 

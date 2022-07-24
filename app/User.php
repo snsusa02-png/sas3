@@ -697,6 +697,11 @@ class User extends Authenticatable
                         $sc .= " and " . (($val == 0) ? "not" : "")
                             . " exists( select 1 from obj_readers as ojr where ojr.sysobjid=1701 and ojr.userid=u.id )";
 
+                    } elseif ($key == 'in_tasks') {
+                        //пользователи - участники задач
+                        $sc .= " and " . (($val == 0) ? "not" : "")
+                            . " exists( select 1 from task_users as tu where tu.userid=u.id )";
+
                     } elseif ($key == 'in_tasks_for_user') {
                         //пользователи - участники задач, доступных указанному пользователю
                         $sc .= " and exists(select 1 from task_users as tu where tu.userid=u.id

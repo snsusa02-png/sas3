@@ -8,6 +8,7 @@ use App\Traits\FilesTrait;
 use DateTime;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class task extends Model
 {
@@ -70,9 +71,14 @@ class task extends Model
 
     public static function task_users($p_userid)
     {
-        $lst = user::lstFor([
-            'in_tasks_for_user' => $p_userid,
-        ]);
+        if (usrsysright::isUserHasRightByCode_cached($p_userid, 'tasks.read'))
+            $lst = user::lstFor([
+                'in_tasks' => 1,
+            ]);
+        else
+            $lst = user::lstFor([
+                'in_tasks_for_user' => $p_userid,
+            ]);
         return $lst;
     }
 
@@ -136,7 +142,7 @@ class task extends Model
 
         Cache::forget('informer_user_active_tasks*');
         foreach (task_user::from('task_users as tu')->join('tasks as t', 't.id', 'tu.taskid')->whereNull('t.statusid')->select('tu.userid')->distinct()->get() as $itm) {
-            Cache::forget('informer_user_active_tasks' . $itm->userid );
+            Cache::forget('informer_user_active_tasks' . $itm->userid);
         }
 
         //-----------------------------------------------------------
@@ -284,6 +290,26 @@ class task extends Model
                         , 'tsk.srcobjinfo', 'iu.name as inituser_name')
                     ->orderBy('tsk.priority', 'desc')
                     ->orderBy('tsk.plnbegdt', 'asc')
+                    ->get();
+                return ($lst);
+
+            });
+    }
+
+    static public function informer_users_tasks()
+    {
+        //2022-07-24 SNS кол-во невыполненных задач в разрезе пользователей
+        //Cache::forget('informer_users_tasks');
+        return Cache::remember('informer_users_tasks', now()->addMinutes(12)
+            , function () {
+
+                $lst = self::from('tasks as tsk')
+                    ->join('task_users as tu', 'tu.taskid', 'tsk.id')
+                    ->join('users as u', 'u.id', 'tu.userid')
+                    ->whereRaw("ifnull(tsk.statusid,0)<>3")
+                    ->select('tu.userid', db::raw("concat(u.lname,' ',u.fname) as name"), db::raw("count(1) as cnt"))
+                    ->groupBy('tu.userid')
+                    ->orderBy('cnt', 'desc')
                     ->get();
                 return ($lst);
 
