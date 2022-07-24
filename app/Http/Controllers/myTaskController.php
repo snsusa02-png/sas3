@@ -191,6 +191,9 @@ class myTaskController extends Controller
                 , 'e.plnbegdt', 'e.plnenddt' //, 'e.place'
                 , 'e.statusid', 'e.progress'
                 , 'iu.name as inituser_name'
+                , db::raw("( select group_concat(concat(u.lname,' ', u.fname) SEPARATOR ', ')
+                    from task_users as tu join users as u on u.id=tu.userid
+                    where tu.taskid=e.id and tu.roletypeid=7) as lst_users")
             )
             ->with('tags');
 

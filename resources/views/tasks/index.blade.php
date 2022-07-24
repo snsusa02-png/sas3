@@ -233,13 +233,15 @@
                                             </ul>
                                         </div>
                                     </td>
-                                    <td class="text-center">
-                                        {{$data->exe_statuses[$item->statusid]??$item->statusid}}
-                                        @if($item->progress>0)
-                                            <div class="small">
-                                                {{$item->progress}}%
-                                            </div>
-                                        @endif
+                                    <td class="text-left">
+                                        {{$item->lst_users}}
+                                        <div>{{$data->exe_statuses[$item->statusid]??$item->statusid}}
+                                            @if($item->progress>0)
+                                                <div class="small">
+                                                    {{$item->progress}}%
+                                                </div>
+                                            @endif
+                                        </div>
                                     </td>
                                     <td style="text-align: center;">
                                         <a href="{{ route($thisSysObjCode.'.edit',$item->id)}}"
