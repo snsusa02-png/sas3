@@ -89,7 +89,7 @@ class HomeController extends Controller
         }
 
         //Cache::forget('informer_today_users');
-        $data->today_users = Cache::remember('informer_today_users', now()->addMinutes(12)
+        $data->today_users = Cache::remember('informer_today_users', now()->addMinutes(1)
             , function () {
                 return User::from('users as u')
                     ->join('objlogs as l', 'l.write_by', 'u.id')

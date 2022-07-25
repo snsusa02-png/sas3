@@ -9,6 +9,7 @@ use App\User;
 use App\userorg;
 use App\objlog;
 use DB;
+use Illuminate\Support\Facades\Cache;
 
 class UserLoggedIn
 {
@@ -91,5 +92,7 @@ class UserLoggedIn
         objlog::log_info(3, $event->user->id, ' вход в систему ('
             . env('APP_NAME') . ')', 3);
 
+        //Очистка кэша для информера по сегодняшним посетителям
+        Cache::forget('informer_today_users');
     }
 }
