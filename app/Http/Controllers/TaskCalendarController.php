@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\obj_link;
 use App\objtag;
 use App\task;
+use App\task_user;
 use App\User;
 use App\user_assistant;
 use Illuminate\Http\Request;
@@ -109,8 +110,9 @@ class TaskCalendarController extends Controller
         $isAssistant = false;
         //если смотрим чужой календарь
         if ($inituserid <> $userid) {
+
             //проверим - являемся ли Мы помощником выбранного пользователя
-            $isAssistant = user_assistant::isAssistantFor($inituserid, $userid, 951);
+            $isAssistant = user_assistant::isAssistantFor($inituserid, $userid, 961);
         } elseif ($inituserid == $userid)
             $isAssistant = true;    //Сам себе помощник
 
@@ -192,6 +194,7 @@ class TaskCalendarController extends Controller
         $insertArr = [
             'name' => $request->title,
             'inituserid' => $request->userid ?? $userid,
+            'exeuserid' => $request->exeuserid ?? $request->userid,
             'plnbegdt' => $request->start,
             'plnenddt' => $request->end,
             //'event_place' => $request->event_place,
@@ -212,8 +215,22 @@ class TaskCalendarController extends Controller
         objtag::attach($this->sysobjid, $event->id, $request->tags);
 
         // Привязка к объекту строительства -------------------------------------------------
-        $buildobjid = $request->get('buildobjid');
-        obj_link::addOrUpdateSingle($this->sysobjid, $event->id, 466, $buildobjid);
+//        $buildobjid = $request->get('buildobjid');
+//        obj_link::addOrUpdateSingle($this->sysobjid, $event->id, 466, $buildobjid);
+        //-----------------------------------------------------------------------------------
+
+        // если не указан исполнитель, то сделаем им инициатора
+        $exeuserid = $request->exeuserid ?? $request->userid;
+        task_user::addOrUpdate(
+            ['taskid' => $event->id,
+                'userid' => $exeuserid,
+                'roletypeid' => 7   //исполнитель
+            ]
+            , [
+            'active' => 1,
+            'updated_by' => $userid,
+            'updated_at' => now(),
+        ]);
         //-----------------------------------------------------------------------------------
 
         return Response::json($event);
@@ -222,6 +239,7 @@ class TaskCalendarController extends Controller
     public function update(Request $request)
     {
         $id = $request->id;
+
         if (isset($id)) {
             $userid = \Auth::user()->id;
             $sysobjid = $this->sysobjid;
@@ -233,6 +251,7 @@ class TaskCalendarController extends Controller
                 //, 'event_place' => $request->event_place
                 , 'color' => $request->color
                 , 'inituserid' => $request->userid ?? $userid
+                , 'exeuserid' => $request->exeuserid ?? $userid
                 , 'descript' => $request->descript
                 , 'public_lvl' => $request->public_lvl
                 //, 'buildobjid' => $request->buildobjid
@@ -257,9 +276,24 @@ class TaskCalendarController extends Controller
             objtag::attach($this->sysobjid, $id, $tags);
 
             // Привязка к объекту строительства -------------------------------------------------
-            $buildobjid = $request->get('buildobjid');
-            obj_link::addOrUpdateSingle($this->sysobjid, $id, 466, $buildobjid);
+//            $buildobjid = $request->get('buildobjid');
+//            obj_link::addOrUpdateSingle($this->sysobjid, $id, 466, $buildobjid);
             //-----------------------------------------------------------------------------------
+
+            // если не указан исполнитель, то сделаем им инициатора
+            $exeuserid = $request->exeuserid ?? $request->userid;
+            task_user::addOrUpdate(
+                ['taskid' => $id,
+                    'userid' => $exeuserid,
+                    'roletypeid' => 7   //исполнитель
+                ]
+                , [
+                'active' => 1,
+                'updated_by' => $userid,
+                'updated_at' => now(),
+            ]);
+            //-----------------------------------------------------------------------------------
+
 
             $event = task::find($id);
 

@@ -268,6 +268,7 @@ document.addEventListener('DOMContentLoaded', function () {
             //end = sessionStorage.getItem('end_date');
             allDay = false;
             var userid = $("#userid").val();
+            var exeuserid = $("#userid").val();
             var start = $("#start").val();
             var end = $("#end").val();
             var color = $("#color").val();
@@ -289,6 +290,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             var url = (eventid) ? "/taskcalendar/update" : "/taskcalendar/create";
             //console.log(url);
+            //console.log('exeuserid='+exeuserid);
 
             $.ajax({
                 url: url,
@@ -296,6 +298,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     + '&end=' + ((end) ? end : start)
                     + '&event_place=' + event_place
                     + '&userid=' + userid
+                    + '&exeuserid=' + userid
                     + '&color=' + color
                     + '&public_lvl=' + public_lvl
                     + '&descript=' + descript
