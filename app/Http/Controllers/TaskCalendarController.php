@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\buildobj;
-use App\event;
+//use App\buildobj;
+//use App\event;
 use App\obj_link;
 use App\objtag;
 use App\task;
@@ -30,19 +30,11 @@ class TaskCalendarController extends Controller
             $start = (!empty($_GET["start"])) ? ($_GET["start"]) : ('');
             $end = (!empty($_GET["end"])) ? ($_GET["end"]) : ('');
 
-            if (1 == 0) {
-                $data = event::whereDate('begdt', '>=', $start)->whereDate('enddt', '<=', $end)
-                    ->get(['id', 'name as title'
-                        , 'begdt as start', 'enddt as end'
-                        , 'color']);
-                //->get([ 'begdt as start', 'enddt as end']);
-            } else {
-                $data = task::whereDate('begdt', '>=', $start)
-                    ->whereDate('enddt', '<=', $end)
-                    ->get(['id', 'name as title'
-                        , 'begdt as start', 'enddt as end'
-                        , "'#fff' as color"]);
-            }
+            $data = task::whereDate('begdt', '>=', $start)
+                ->whereDate('enddt', '<=', $end)
+                ->get(['id', 'name as title'
+                    , 'begdt as start', 'enddt as end'
+                    , "'#fff' as color"]);
             //dd(Response::json($data));
             return Response::json($data);
         }
@@ -59,7 +51,7 @@ class TaskCalendarController extends Controller
         $data = new \stdClass();
         $data->userid = \Auth::user()->id;
         $data->username = \Auth::user()->short_fio;
-        $data->buildobjs = buildobj::lstActive();
+        $data->buildobjs = []; //buildobj::lstActive();
         $data->assisted_users = user_assistant::lstOwnUsers($userid);
         $data->public_lvls = [0 => 'личное', 1 => 'показывать только дату/время', 2 => 'публичное'];
 

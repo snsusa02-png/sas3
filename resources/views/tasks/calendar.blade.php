@@ -189,16 +189,16 @@
 							</div>
 
 							<div class="row pl1">
-								<div class="form-group offset-md-0 col-md-7">
-									<div class="pl1">
-										<label class="mb-0">Объект:</label>
-										{!! Form::select('buildobjid', $data->buildobjs, null
-											,['placeholder' => '',
-											'class' => 'form-control form-control-sm',
-											'id' => 'buildobjid',
-											]) !!}
-									</div>
-								</div>
+{{--								<div class="form-group offset-md-0 col-md-7">--}}
+{{--									<div class="pl1">--}}
+{{--										<label class="mb-0">Объект:</label>--}}
+{{--										{!! Form::select('buildobjid', $data->buildobjs, null--}}
+{{--											,['placeholder' => '',--}}
+{{--											'class' => 'form-control form-control-sm',--}}
+{{--											'id' => 'buildobjid',--}}
+{{--											]) !!}--}}
+{{--									</div>--}}
+{{--								</div>--}}
 
 								<div class=" col-md-5">
 									<div class="px-3 py-1 pl1" style="background-color: #eaf2f9; border-radius: 8px;">
