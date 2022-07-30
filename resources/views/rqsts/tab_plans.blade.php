@@ -12,6 +12,12 @@ $userid = \Auth::user()->id;
                 'title' => 'Задачи',
                 'sysobjid' => '961',
             ],
+            [
+                'right' => null,
+                'route' => 'tasks.calendar',
+                'title' => 'Календарь',
+                'sysobjid' => '961',
+            ],
         ];
         ?>
         @foreach($menu_itms as $mnu)

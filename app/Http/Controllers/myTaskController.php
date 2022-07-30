@@ -104,7 +104,8 @@ class myTaskController extends Controller
         // - параметры поиска: массив из имени и значения по-умолчанию -----------------------------------------------
         $param_names = [
             's_pageitmcnt' => 15
-            , 's_statusid' => 0
+            , 's_exe_statusid' => ''
+            , 's_statusid' => ''
             , 's_plnbegdate' => ''
             , 's_name' => ''
             , 's_tag' => ''
@@ -142,6 +143,9 @@ class myTaskController extends Controller
 
                 } elseif ($item == 's_plnbegdate') {
                     $sc = $sc . " and date(t.plnbegdt) = '" . $val . "'";
+
+                } elseif ($item == 's_exe_statusid') {
+                        $sc = $sc . " and ifnull(t.statusid,2) = {$val}";
 
                 } elseif ($item == 's_statusid') {
                     if ($val == 0)  //предстоят
@@ -221,6 +225,7 @@ class myTaskController extends Controller
 
         $data->sysobj = $this->sysobjid;
         $data->exe_statuses = task::exe_statuses();
+        $data->exe_status_colors = task::exe_status_colors();
         $data->user_roles = task::user_roles($userid);
         $data->task_users = task::task_users($userid);  //пользователи в задачах, которые доступны текущему пользователю
 

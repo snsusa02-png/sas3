@@ -57,6 +57,10 @@ class task extends Model
         //return [1 => 'в ожидании', 2 => 'выполняется', 3 => 'выполнено', 4 => 'не выполнено', 5 => 'отменено'];
         return [2 => 'выполняется', 3 => 'выполнено', 4 => 'не выполнено'];
     }
+    public static function exe_status_colors()
+    {
+        return [2 => 'black', 3 => 'green', 4 => 'red'];
+    }
 
     public static function user_roles($p_userid)
     {
@@ -287,7 +291,7 @@ class task extends Model
 
                 $lst = self::from('tasks as tsk')
                     ->join('users as iu', 'iu.id', 'tsk.inituserid')
-                    ->whereNull('tsk.statusid')
+                    ->whereRaw("ifnull(tsk.statusid,2)=2")
                     ->whereRaw("exists(select 1 from task_users as tu where tu.taskid=tsk.id and tu.roletypeid=7 and tu.userid={$userid})")
                     ->select('tsk.id', 'tsk.name', 'tsk.priority', 'tsk.plnbegdt', 'tsk.plnenddt', 'tsk.inituserid'
                         , 'tsk.srcobjinfo', 'iu.name as inituser_name')

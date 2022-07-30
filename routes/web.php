@@ -1167,6 +1167,25 @@ Route::get('/task_reports/edit/{id}', 'TaskReportController@edit')->name('task_r
 Route::match(array('POST', 'PUT'), '/task_reports/update/{id}', "TaskReportController@update")->name('task_reports.update');
 Route::put('/task_reports/delete/{id}', "TaskReportController@destroy")->name("task_reports.delete");
 
+Route::match(array('GET', 'POST', 'PUT'), '/taskcalendar', 'TaskCalendarController@index')->name('tasks.calendar');
+Route::get('/taskcalendar/get', 'TaskCalendarController@get');
+Route::post('/taskcalendar/create', 'TaskCalendarController@create');
+Route::post('/taskcalendar/update', 'TaskCalendarController@update');
+Route::post('/taskcalendar/move', 'TaskCalendarController@move');
+Route::post('/taskcalendar/delete', 'TaskCalendarController@destroy');
+
+
+
+Route::match(array('GET', 'POST'), 'events_index', "EventController@index")->name("events.index");
+
+Route::get('events/{id}/edit', "EventController@edit")->name('events.edit');
+Route::match(array('POST', 'PUT'), 'events/{id}', "EventController@update")->name('events.update');
+Route::get('events/create/{sysobjid}/{objid}', "EventController@create")->name('events.create');
+Route::put('events/{id}/delete', "EventController@destroy")->name("events.delete");
+
+// сформировать уведомления по событиям
+Route::get('events/notify', "EventController@notify")->name('events.notify');
+
 //Route::get('/fullcalendar', 'FullCalendarEventMasterController@index');
 Route::match(array('GET', 'POST', 'PUT'), '/events', 'FullCalendarEventMasterController@index')->name('events.calendar');
 Route::get('/fullcalendar/get', 'FullCalendarEventMasterController@get');

@@ -3,7 +3,7 @@
         <div class="card card-stats mt-3">
             <div class="card-header">
                 <i class="fa fa-clock-o" aria-hidden="true"></i>
-                Задачи к исполнению
+                <a href="{{route('tasks.index')}}?s_exe_statusid=2">Задачи к исполнению</a>
             </div>
             <div class="card-body ">
                 @if(isset($data->users_tasks) and count($data->users_tasks))
@@ -11,7 +11,8 @@
                         @foreach($data->users_tasks as $usr)
                             <tr>
                                 <td class="small">{{$usr->name}}</td>
-                                <td class="text-right font-weight-bold"><a href="{{route('tasks.index')}}?s_task_userid={{$usr->userid}}">{{$usr->cnt}}</a></td>
+                                <td class="text-right font-weight-bold">
+                                    <a href="{{route('tasks.index')}}?s_task_userid={{$usr->userid}}&s_exe_statusid=2">{{$usr->cnt}}</a></td>
                             </tr>
                         @endforeach
                     </table>

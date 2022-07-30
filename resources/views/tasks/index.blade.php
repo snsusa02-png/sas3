@@ -47,7 +47,7 @@
                         @csrf
 
                         <div class="row">
-                            <div class="col-md-9">
+                            <div class="col-md-12">
                                 <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm0">
                                     <div class="container">
                                         <button class="navbar-toggler" type="button" data-toggle="collapse"
@@ -69,8 +69,8 @@
                                                 ?>
 
                                                 @if (isset($userorgid))
-                                                    @if( 1==0)
-                                                        <li>&nbsp;<a href="{{route('events.calendar')}}" class="ml-1">Календарь</a>
+                                                    @if( 1==1 )
+                                                        <li>&nbsp;<a href="{{route('tasks.calendar')}}" class="ml-1">Календарь</a>
                                                         </li>
                                                     @endif
                                                 @endif
@@ -85,7 +85,28 @@
                                     </div>
                                 </nav>
                             </div>
-                            <div class="form-group col-md-3">
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group  col-md-3">
+                                <label for="s_reguserid" class="required">Исполнение:</label>
+                                {!! Form::select('s_exe_statusid', $data->exe_statuses??[]
+                                        , $search_params['s_exe_statusid']??'',
+                                             [
+                                             'class' => 'form-control',
+                                             'placeholder' => '-все-',
+                                             'onchange' => 'form.submit()',
+                                             ]) !!}
+                            </div>
+
+                            <div class="form-group offset-md-6 col-md-3">
+                                <label for="s_reguserid" class="required">Моя роль:</label>
+                                {!! Form::select('s_user_roleid', $data->user_roles, $search_params['s_user_roleid'] ?? '',
+                                         [
+                                         'class' => 'form-control',
+                                         'placeholder' => '-любая-',
+                                         'onchange' => 'form.submit()',
+                                         ]) !!}
                             </div>
                         </div>
 
@@ -101,7 +122,7 @@
                                 <td>
                                     Что
                                 </td>
-                                <td>Участник, Моя роль</td>
+                                <td>Участник</td>
                                 <td style="text-align: center;">
                                     @if ($usrrights['create'])
                                         <a href="{{ route($thisSysObjCode.'.create')}}"
@@ -121,6 +142,7 @@
                                                                                  [
                                                                                  'class' => 'form-control',
                                                                                  'placeholder' => '-все-',
+                                         'onchange' => 'form.submit()',
                                                                                  ]) !!}
                                         <input type="date" class="form-control" name="s_plnbegdate"
                                                value="{{$search_params['s_plnbegdate'] ?? ''}}"
@@ -150,11 +172,7 @@
                                                                                      [
                                                                                      'class' => 'form-control',
                                                                                      'placeholder' => '-все-',
-                                                                                     ]) !!}
-                                        {!! Form::select('s_user_roleid', $data->user_roles, $search_params['s_user_roleid'] ?? '',
-                                                                                     [
-                                                                                     'class' => 'form-control',
-                                                                                     'placeholder' => '-любая-',
+                                         'onchange' => 'form.submit()',
                                                                                      ]) !!}
                                     </div>
                                 </td>
@@ -235,7 +253,9 @@
                                     </td>
                                     <td class="text-left">
                                         {{$item->lst_users}}
-                                        <div>{{$data->exe_statuses[$item->statusid]??$item->statusid}}
+                                        <div><span class="font-weight-bold"
+                                                   style="color: {{$data->exe_status_colors[$item->statusid]??'gray'}};">
+                                                {{$data->exe_statuses[$item->statusid]??$item->statusid}}</span>
                                             @if($item->progress>0)
                                                 <div class="small">
                                                     {{$item->progress}}%

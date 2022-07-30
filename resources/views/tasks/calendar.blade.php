@@ -57,7 +57,7 @@
         <?php
         $breadcrumbs = [
             'Планирование' => route('planning'),
-            'События' => route('events.index'),
+            'Задачи' => route('tasks.index'),
             'Календарь' => null,
         ];
         //dd($breadcrumbs);
@@ -65,7 +65,7 @@
 		@includeIf('layouts.breadcrumbs')
 
 		<form name="forIndex" id="forIndex" method="put" class="form-inline"
-			  action="{{ route('events.calendar') }}">
+			  action="{{ route('tasks.calendar') }}">
 			@csrf
 
 			<div class="form-group mb-2">

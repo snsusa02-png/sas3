@@ -2,7 +2,7 @@
     <div class="card mt-3 d-none d-sm-block">
         <div class="card-header">
 			<span data-toggle="collapse" data-target="#users"><i class="fa fa-users text-danger"
-                                                                 aria-hidden="true"></i> Работники по задаче</span>
+                                                                 aria-hidden="true"></i> Участники</span>
 
             <div class="float-right">
                 @if (count($rec->users)>0)

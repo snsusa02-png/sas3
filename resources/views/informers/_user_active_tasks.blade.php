@@ -5,7 +5,7 @@ or (isset($data->user_active_tasks) and count($data->user_active_tasks)) )
         <div class="card card-stats mb-1 mt-3">
             <div class="card-header">
                 <i class="fa fa-tasks text-danger" aria-hidden="true"></i>
-                Ваши задачи
+                <a href="{{route('tasks.index')}}">Ваши задачи</a>
                 {{--                <a href="{{route("home.refresh")}}"><i class="fa fa-refresh" aria-hidden="true"></i></a>--}}
                 <span class="float-right">
                     <a href="{{route("tasks.create")}}?returl={{Request::url()}}" class="btn btn-sm btn-warning"
