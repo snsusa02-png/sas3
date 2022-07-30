@@ -278,6 +278,7 @@ class myTaskController extends Controller
     function edit(Request $request, $id)
     {
         $userid = \Auth::user()->id;
+        $retURL = $request->get('retURL');
 
         if ($id == -1) {
 

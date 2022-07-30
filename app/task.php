@@ -145,6 +145,9 @@ class task extends Model
             Cache::forget('informer_user_active_tasks' . $itm->userid);
         }
 
+        Cache::forget('informer_user_exec_tasks' . ($itm->userid ?? '*'));
+        Cache::forget('informer_users_tasks');
+
         //-----------------------------------------------------------
     }
 

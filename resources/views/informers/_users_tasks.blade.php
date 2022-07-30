@@ -11,7 +11,7 @@
                         @foreach($data->users_tasks as $usr)
                             <tr>
                                 <td class="small">{{$usr->name}}</td>
-                                <td class="text-right font-weight-bold">{{$usr->cnt}}</td>
+                                <td class="text-right font-weight-bold"><a href="{{route('tasks.index')}}?s_task_userid={{$usr->userid}}">{{$usr->cnt}}</a></td>
                             </tr>
                         @endforeach
                     </table>

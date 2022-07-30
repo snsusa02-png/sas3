@@ -7,17 +7,17 @@ or (isset($data->user_active_tasks) and count($data->user_active_tasks)) )
                 <i class="fa fa-tasks text-danger" aria-hidden="true"></i>
                 Ваши задачи
                 {{--                <a href="{{route("home.refresh")}}"><i class="fa fa-refresh" aria-hidden="true"></i></a>--}}
-{{--                <span class="float-right">--}}
-{{--				<a href="{{route("orgacnt_sums.today_print")}}" class="btn btn-sm btn-warning" target="_blank" title="Печать сводки остатков на р/счетах в сжатой форме"><i class="fa fa-print" aria-hidden="true"></i></a>--}}
-                    {{--				<a href="{{route("orgacnt_sums.today_print_all")}}" class="btn btn-sm btn-warning" target="_blank" title="Печать сводки остатков на р/счетах в развернутой форме"><i class="fa fa-print" aria-hidden="true"></i></a>--}}
-{{--			</span>--}}
+                <span class="float-right">
+                    <a href="{{route("tasks.create")}}?returl={{Request::url()}}" class="btn btn-sm btn-warning"
+                       target="_blank" title="Новая задача"><i class="fa fa-plus" aria-hidden="true"></i></a>
+    			</span>
             </div>
             <div class="card-body "
                  style=""
             >
                 @if( isset($data->user_active_tasks) and count($data->user_active_tasks)>0)
                     <table class="table-striped1 m-2 table-sm w-100">
-{{--                        <tr><td colspan="3" class="font-weight-bold">Ожидают выполнения</td></tr>--}}
+                        {{--                        <tr><td colspan="3" class="font-weight-bold">Ожидают выполнения</td></tr>--}}
                         <tr class="small">
                             <td></td>
                             <td>Задача, инициатор</td>
@@ -33,9 +33,9 @@ or (isset($data->user_active_tasks) and count($data->user_active_tasks)) )
                             @if($itm->priority<>$cur_priority)
                                 <tr>
                                     <td colspan="3" class="clearfix text-right">
-{{--                                        <span class="font-weight-bold font-italic ">--}}
-{{--                        Приоритет: <b>{{$priorities[$itm->priority]??'?'}}</b>--}}
-{{--                        </span>--}}
+                                        {{--                                        <span class="font-weight-bold font-italic ">--}}
+                                        {{--                        Приоритет: <b>{{$priorities[$itm->priority]??'?'}}</b>--}}
+                                        {{--                        </span>--}}
                                     </td>
                                 </tr>
                                 <?php
@@ -63,7 +63,8 @@ or (isset($data->user_active_tasks) and count($data->user_active_tasks)) )
                                 <tr style="height1: 56px; background-color: #ffffc8; border-bottom:1px solid silver;">
                                     <td></td>
                                     <td colspan="3" class="clearfix" style="{{$tr_css}}">
-                                        <span class="font-italic ">{{$days_before}} - {{date_create($itm->drctbegdt)->format('d.m.Y')}}</span>
+                                        <span
+                                            class="font-italic ">{{$days_before}} - {{date_create($itm->drctbegdt)->format('d.m.Y')}}</span>
                                     </td>
                                 </tr>
                                 <?php
@@ -86,7 +87,7 @@ or (isset($data->user_active_tasks) and count($data->user_active_tasks)) )
                                     <div class="text-right">{{$itm->srcobjinfo}}</div>
                                 </td>
                                 <td class="small text-center">
-{{--                                    {{date_create($itm->plnbegdt)->format('d.m.Y')}}--}}
+                                    {{--                                    {{date_create($itm->plnbegdt)->format('d.m.Y')}}--}}
                                     {{date_create($itm->plnenddt)->format('d.m.Y')}}
                                 </td>
                             </tr>
