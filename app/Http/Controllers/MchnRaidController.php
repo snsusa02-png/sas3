@@ -184,6 +184,7 @@ class MchnRaidController extends Controller
                     $sc .= " and mro.orgid={$val}";
 
                 } elseif ($item == 's_org_name') {
+                    $val = str_replace($val,"'","");
                     $sc .= " and exists(select 1 from orgs as o
                             where o.id=mro.orgid and o.name like '%" . mb_strtoupper($val) . "%')";
 
