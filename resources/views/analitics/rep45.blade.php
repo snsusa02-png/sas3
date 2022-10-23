@@ -395,6 +395,18 @@
                                             </div>
                                         @endif
 
+                                        @if (count($data->refitems)>1)
+                                            <div class="form-group col-md-4">
+                                                <label for="s_suporgid">Груз/Услуга:</label>
+                                                {!! Form::select('s_refitmid', $data->refitems, $search_params['s_refitmid'],
+                                                                [
+                                                                'class' => 'form-control',
+                                                                'placeholder' => '',
+                                                                ])
+                                                                !!}
+                                            </div>
+                                        @endif
+
 
                                         @if (1==0 and count($data->buildobjs)>1)
                                             <div class="form-group col-md-6">

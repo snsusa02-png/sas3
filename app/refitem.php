@@ -1371,6 +1371,10 @@ class refitem extends Model
                         $sc .= " and " . (($val == 1) ? '' : 'not') .
                             " exists (select 1 from mchn_raids as mr where ri.id in (mr.load_refitmid, mr.unload_refitmid))";
 
+                    } elseif ($key == 'in_mr_opers') {
+                        $sc .= " and " . (($val == 1) ? '' : 'not') .
+                            " exists (select 1 from mr_opers as mro where ri.id = mro.refitmid)";
+
                     } elseif ($key == 'suporgid') {
 
                         Log::info('params: ' . $params['load_placeid']);

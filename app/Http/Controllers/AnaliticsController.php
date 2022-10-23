@@ -16,6 +16,7 @@ use App\org;
 use App\org_curator;
 use App\org_place;
 use App\orgstaff;
+use App\refitem;
 use App\report;
 use App\saleplan;
 use App\objlog;
@@ -643,6 +644,7 @@ class AnaliticsController extends Controller
             $search_params['s_contractid'] = $request->get("s_contractid");
             $search_params['s_sup_placeid'] = $request->get("s_sup_placeid");
             $search_params['s_org_placeid'] = $request->get("s_org_placeid");
+            $search_params['s_refitmid'] = $request->get("s_refitmid");
 
             $search_params['vTimeSelType'] = $request->get("vTimeSelType");
 
@@ -700,6 +702,7 @@ class AnaliticsController extends Controller
         $s_contractid = null;
         $s_sup_placeid = null;
         $s_org_placeid = null;
+        $s_refitmid = null;
         $vTimeSelType = 1;
         $vYr1 = null;
         $vYr1 = today()->format('Y');
@@ -741,6 +744,7 @@ class AnaliticsController extends Controller
                     $s_contractid = $params['s_contractid'] ?? null;
                     $s_sup_placeid = $params['s_sup_placeid'] ?? null;
                     $s_org_placeid = $params['s_org_placeid'] ?? null;
+                    $s_refitmid = $params['s_refitmid'] ?? null;
 //                    dd($params);
                     $vTimeSelType = $params['vTimeSelType'] ?? 1;
                     $vYr1 = $params['vYr1'] ?? null;
@@ -781,6 +785,7 @@ class AnaliticsController extends Controller
             "s_contractid" => $s_contractid,
             "s_sup_placeid" => $s_sup_placeid,
             "s_org_placeid" => $s_org_placeid,
+            "s_refitmid" => $s_refitmid,
             "vTimeSelType" => $vTimeSelType,
             "vYr1" => $vYr1,
             "vMn1" => $vMn1,
@@ -806,6 +811,7 @@ class AnaliticsController extends Controller
             "ordbyItmSumDesc" => $ordbyItmSumDesc,
             "ordbyDocQtyDesc" => $ordbyDocQtyDesc,
         ];
+        //dd($search_params );
 
         function getStartAndEndDate($week, $year)
         {
@@ -903,6 +909,8 @@ class AnaliticsController extends Controller
         $data->sup_places = org_place::lstFor_cached(['in_mr_opers_sup_placeid' => 1]);  //Места поставщика
         $data->org_places = org_place::lstFor_cached(['in_mr_opers_org_placeid' => 1]);  //Места клиента
 
+        $data->refitems = refitem::lstFor_cached(['in_mr_opers' => 1]);  //Груз/Услуга in_mchn_raids
+
         $data->orggroups = group::lstOrgGroups_cache();
         $data->years = mchn_raid::years();
         $data->monthes = Config::get('constants.monthes');
@@ -937,6 +945,10 @@ class AnaliticsController extends Controller
             if (1 == 1 and isset($s_org_placeid)) {
                 $sc .= " and mro.org_placeid=" . $s_org_placeid;
                 $conditions .= 'Место клиента = "<b>' . $data->org_places[$s_org_placeid] ?? '-' . '</b>"; ';
+            }
+            if (1 == 1 and isset($s_refitmid)) {
+                $sc .= " and mro.refitmid=" . $s_refitmid;
+                $conditions .= 'Груз/Услуга = "<b>' . $data->refitems[$s_refitmid] ?? '-' . '</b>"; ';
             }
 
             if (1 == 1 and isset($s_contractid)) {
@@ -982,7 +994,7 @@ class AnaliticsController extends Controller
             ['title' => 'заказчик', 'jointbl' => 'o', 'fld' => 'mro.orgid', 'lbl' => 'orgid', 'show_val' => 'ifnull(o.name,"-не определен-")'],
             ['title' => 'диспетчер', 'jointbl' => 'ds', 'fld' => 'mro.disp_staffid', 'lbl' => 'disp_staffid', 'show_val' => 'ifnull(ds.name,"-нет-")'],
             ['title' => 'поставщик', 'jointbl' => 'so', 'fld' => 'mro.suporgid', 'lbl' => 'suporgid', 'show_val' => 'ifnull(so.name,"-не известен-")'],
-            ['title' => 'поставленный груз', 'jointbl' => 'ri', 'fld' => 'mro.refitmid', 'lbl' => 'refitmid', 'show_val' => 'ifnull(ri.name,"-не известен-")'],
+            ['title' => 'груз/услуга', 'jointbl' => 'ri', 'fld' => 'mro.refitmid', 'lbl' => 'refitmid', 'show_val' => 'ifnull(ri.name,"-не известен-")'],
             ['title' => 'водитель', 'jointbl' => 'os', 'fld' => 'mr.driverid', 'lbl' => 'driverid', 'show_val' => 'ifnull(os.name,"-не известен-")'],
             ['title' => 'тип оплаты', 'jointbl' => 'pt', 'fld' => 'mro.paytypeid', 'lbl' => 'paytypeid', 'show_val' => 'ifnull(pt.name,"-не известен-")'],
             ['title' => 'место поставщика', 'jointbl' => 'p_l', 'fld' => 'mro.sup_placeid', 'lbl' => 'sup_placeid', 'show_val' => 'ifnull(p_l.name,"-не известно-")'],
