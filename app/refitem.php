@@ -1416,7 +1416,8 @@ class refitem extends Model
             $lst = self::from('refitems as ri')
                 ->whereRaw($sc)
                 //->select('ri.id', DB::raw("concat(ifnull(ri.code,' '),' ',ri.name) as tname"))
-                ->select('ri.id', 'ri.name as tname')
+                //->select('ri.id', 'ri.name as tname')
+                ->select('ri.id', DB::raw("concat(ri.name,', ', ri.unit) as tname"))
                 ->orderBy('tname', 'asc')
                 ->get()->pluck('tname', 'id')->toArray();
             //asort($lst);
