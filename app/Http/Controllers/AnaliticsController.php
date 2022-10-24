@@ -25,13 +25,13 @@ use App\wrkrep;
 use Cache;
 use Config;
 use DateTime;
-use DB;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Modules\mFinDocs\Entities\findoc;
 use Modules\Stock\Entities\wrh;
 use Modules\Stock\Entities\wrh_stock;
+use Illuminate\Support\Facades\DB;
 
 class AnaliticsController extends Controller
 {
@@ -909,7 +909,8 @@ class AnaliticsController extends Controller
         $data->sup_places = org_place::lstFor_cached(['in_mr_opers_sup_placeid' => 1]);  //Места поставщика
         $data->org_places = org_place::lstFor_cached(['in_mr_opers_org_placeid' => 1]);  //Места клиента
 
-        $data->refitems = refitem::lstFor_cached(['in_mr_opers' => 1]);  //Груз/Услуга in_mchn_raids
+        $data->refitems = refitem::lstFor_cached(['in_mr_opers' => 1], null
+            , ['ri.id', DB::raw("concat(ri.name,', ', ri.unit) as tname")]);  //Груз/Услуга in_mchn_raids
 
         $data->orggroups = group::lstOrgGroups_cache();
         $data->years = mchn_raid::years();

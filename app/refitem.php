@@ -684,8 +684,8 @@ class refitem extends Model
                 //, DB::raw('calc_refitmprice4org (' . $orgid_low . ',ri.id) as price'),
                 //, db::raw("ifnull(ri.price,'н/з') as price")
                 , 'ri.price'
-                //, DB::raw('refitm_specinfo (ri.id,"; ") as specinfo')
-                //, DB::raw("(select ifnull(sum(rqst_qty),0) from equiprqst_items as eri
+            //, DB::raw('refitm_specinfo (ri.id,"; ") as specinfo')
+            //, DB::raw("(select ifnull(sum(rqst_qty),0) from equiprqst_items as eri
 //                    join equiprqsts as er on er.id=eri.rqstid
 //                    ) as max_qty"   )
             )
@@ -1404,7 +1404,7 @@ class refitem extends Model
 
     }
 
-    static public function lstFor($params)
+    static public function lstFor($params, $flds = ['ri.id', 'ri.name as tname'])
     {
         //2021-10-27 SNS. универсальный конструктор массива с id, name мест
         // params - массив, содержащий пару "имя параметра"=>"значение параметра"
@@ -1412,12 +1412,13 @@ class refitem extends Model
         if (isset($params) and is_countable($params) and count($params) > 0) {
 
             $sc = self::search_cond($params);
-
+            //$flds = ['ri.id', 'ri.name as tname'];
             $lst = self::from('refitems as ri')
                 ->whereRaw($sc)
                 //->select('ri.id', DB::raw("concat(ifnull(ri.code,' '),' ',ri.name) as tname"))
                 //->select('ri.id', 'ri.name as tname')
-                ->select('ri.id', DB::raw("concat(ri.name,', ', ri.unit) as tname"))
+                //->select('ri.id', DB::raw("concat(ri.name,', ', ri.unit) as tname"))
+                ->select($flds)
                 ->orderBy('tname', 'asc')
                 ->get()->pluck('tname', 'id')->toArray();
             //asort($lst);
@@ -1427,7 +1428,7 @@ class refitem extends Model
             return null;
     }
 
-    static public function lstFor_cached($params, $cache_minutes = null)
+    static public function lstFor_cached($params, $cache_minutes = null, $ret_flds = ['ri.id', 'ri.name as tname'])
     {
         //2021-10-27 SNS. кэшируемый результат списка
 
@@ -1437,8 +1438,8 @@ class refitem extends Model
 
             //Cache::forget('lstFor_' . $hash);
             return Cache::remember(self::$prefix . '_lstFor_' . $hash, now()->addMinutes($cache_minutes ?? 5)
-                , function () use ($params) {
-                    return self::lstFor($params);
+                , function () use ($params, $ret_flds) {
+                    return self::lstFor($params, $ret_flds);
                 });
         } else
             return null;

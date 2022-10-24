@@ -165,13 +165,13 @@
 
                 @includeif("informers._long_wait_bills")
                 @includeif("informers._nofile_invoices")
-                @include('informers._user_active_tasks')
 {{--                @include("informers._users_today")--}}
-                @include("informers._today_users")
-                @include("informers._users_tasks")
-                @include("informers._all_saldos")
                 @include("informers._calendar_sums")
                 @include("informers._calendar_raids")
+                @include("informers._all_saldos")
+                @include('informers._user_active_tasks')
+                @include("informers._today_users")
+                @include("informers._users_tasks")
 
 {{--                @includeif("informers._ownorg_saldos")--}}
 {{--                @includeif("informers._ownorg_saldo_details")--}}
