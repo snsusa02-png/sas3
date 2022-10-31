@@ -342,17 +342,20 @@ class myTaskController extends Controller
         //Право взятия задачи в работу / Отпускания
         if (is_null($rec->exeuserid)) {
             $pln_executors = task_user::pln_executors($rec->id);
-            $usrrights['take'] = in_array($userid, $pln_executors);
-        } else {
-            $usrrights['breakwork'] = ($inWork and $isExecutor); //если текущий исполнитель это текущий пользователь
-            $usrrights['adminbreakwork'] = ($inWork and !$usrrights['breakwork'] and ($isInitiator or $isRegistrator));
-
-            $usrrights['complete'] = ($rec->id <> -1 and !$isComplete and ($rec->exeuserid == $userid or $isInitiator or $isRegistrator));
+            $isExecutor = in_array($userid, $pln_executors);
         }
 
-        if ($isExecutor) {
-            $usrrights['task_reports.create'] = true;
-        }
+        $usrrights['take'] = $isExecutor;
+        $usrrights['task_reports.create'] = $isExecutor;
+        $usrrights['breakwork'] = ($inWork and $isExecutor); //если текущий исполнитель это текущий пользователь
+        $usrrights['adminbreakwork'] = ($inWork and !$usrrights['breakwork'] and ($isInitiator or $isRegistrator));
+
+        // Считать заявку исполненной может Исполнитель и Инициатор и Регистратор
+        //$usrrights['complete'] = ($rec->id <> -1 and !$isComplete and ($isExecutor or $isInitiator or $isRegistrator));
+
+        // Считать заявку исполненной может Инициатор и Регистратор
+        $usrrights['complete'] = ($rec->id <> -1 and !$isComplete and ( $isInitiator or $isRegistrator ));
+
         //-----------------------------------------------------------------------------------------
 
         if ($usrrights['save']) {
