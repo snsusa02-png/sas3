@@ -254,7 +254,7 @@ class TaskReportController extends Controller
         ]);
 
         if ($last_rep->progress == 100)
-            event(new notifyEvent('tasks.complete', 961, $rec->id, $userid));
+            event(new notifyEvent('tasks.complete', 961, $rec->taskid, $userid));
 
         //------------------------------------------------------------------
 

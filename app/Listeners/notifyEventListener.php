@@ -911,10 +911,18 @@ class notifyEventListener implements ShouldQueue
                 $subj = "Задача выполнена ({$task->name})";
                 $msg = "{$executor_name}: {$enddt}";
 
-                //отберем всех активных пользователей с правом на согласование технолога (382), входящих в состав рабочей группы объекта
-                $rcpts = User::from('users as u')
+                //отберем всех активных пользователей, указанных как инициатор или создатель задачи
+                //также уведомим пользователей, с заданной ролью "Инициатор" или "Куратор"
+                $first = User::from('users as u')
                     ->whereIn('id', [$task->inituserid, $task->created_by])
+                    ->where('Active',1)
+                    ->select('email');
+
+                $rcpts = User::from('users as u')
+                    ->whereRaw('exists(select 1 from task_users as tu where tu.taskid=' . $task->id . ' and tu.userid = u.id and tu.RoleTypeid in (1,8))')
+                    ->where('Active',1)
                     ->select('email')
+                    ->union($first)
                     ->get();
 
                 foreach ($rcpts as $rcpt) {
@@ -923,6 +931,7 @@ class notifyEventListener implements ShouldQueue
                     if (filter_var($email, FILTER_VALIDATE_EMAIL))
                         dispatch((new SendNotify($email, $subj, $msg))->onQueue('high'));
                 }
+
             }
 
         } elseif ($event->eventtypeid == 'task_reports.prepared') {
@@ -936,10 +945,18 @@ class notifyEventListener implements ShouldQueue
                 $subj = "Есть отчет по выполнению задачи ({$task->name})";
                 $msg = "{$reporter_name}: {$rep->report}";
 
-                //отберем всех активных пользователей с правом на согласование технолога (382), входящих в состав рабочей группы объекта
-                $rcpts = User::from('users as u')
+                //отберем всех активных пользователей, указанных как инициатор или создатель задачи
+                //также уведомим пользователей, с заданной ролью "Инициатор" или "Куратор"
+                $first = User::from('users as u')
                     ->whereIn('id', [$task->inituserid, $task->created_by])
+                    ->where('Active',1)
+                    ->select('email');
+
+                $rcpts = User::from('users as u')
+                    ->whereRaw('exists(select 1 from task_users as tu where tu.taskid=' . $task->id . ' and tu.userid = u.id and tu.RoleTypeid in (1,8))')
+                    ->where('Active',1)
                     ->select('email')
+                    ->union($first)
                     ->get();
 
                 //User::from('users as u')->whereIn([12,25])->select('email')->get();

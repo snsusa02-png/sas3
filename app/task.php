@@ -173,6 +173,7 @@ class task extends Model
         //Забудем связанный кэш -----------------
         self::cache_clear($rec);
 
+
         // -----------------------------------------------------------
     }
 
@@ -207,7 +208,7 @@ class task extends Model
                     //Добавим уведомление с временем жизни до начала события ($rec->enddt)
                     $subj = 'Уведомление: "' . $rec->title . '" - ' . date_create($rec->begdt)->format('d.m.Y H:i');
 
-                    user_notice::addOrUpdate(951, route("tasks.edit", $rec->id), $rcpt->id
+                    user_notice::addOrUpdate(self::$sysobjid, route("tasks.edit", $rec->id), $rcpt->id
                         , $subj
                         , $rec->descript
                         , now(), max($enddt, date_create($rec->enddt)));
@@ -237,7 +238,7 @@ class task extends Model
                 $rec->save();
             }
         } else {
-            user_notice::removeByEventID(951);
+            user_notice::removeByEventID(self::$sysobjid);
         }
 
         //удалить ззавершенные (по времени отображения) уведомления
