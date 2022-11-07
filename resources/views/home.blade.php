@@ -108,7 +108,7 @@
 
 
     {{--    <div class="container" style="background-color: rgba(244, 243, 239,0.7);">--}}
-    <div class="container">
+    <div class="-fluid">
         <span class="helptags" data="system_about"/>
 
         {{--		Dashboard begin		--}}
@@ -166,9 +166,9 @@
                 @includeif("informers._long_wait_bills")
                 @includeif("informers._nofile_invoices")
 {{--                @include("informers._users_today")--}}
+                @include("informers._all_saldos")
                 @include("informers._calendar_sums")
                 @include("informers._calendar_raids")
-                @include("informers._all_saldos")
                 @include('informers._user_active_tasks')
                 @include("informers._today_users")
                 @include("informers._users_tasks")
