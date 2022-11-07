@@ -14,7 +14,7 @@
             color: white;
         }
     </style>
-    <div class="col-lg-12 col-md-12 col-sm-12">
+    <div class="col-lg-8 col-md-10 col-sm-12">
         <div class="card card-stats mt-3">
             <div class="card-header">
                 <i class="fa fa-balance-scale text-danger" aria-hidden="true"></i>
