@@ -17,7 +17,7 @@
             min-height: 94vh;
             background-color: rgb(244, 243, 239);
             {{--background: url({{env("WELCOME_BG_URI","/images/bgs/sl1.jpg")}}) center;--}}
-                    background: url({{env("WELCOME_BG_URI","/images/bgs/bg1.jpg")}}) no-repeat center center fixed;
+                     background: url({{env("WELCOME_BG_URI","/images/bgs/bg1.jpg")}}) no-repeat center center fixed;
             -webkit-background-size: cover;
             -moz-background-size: cover;
             -o-background-size: cover;
@@ -161,27 +161,30 @@
 
         <div class="row justify-content-center">
             <div class="col-lg-8 col-md-10 col-sm-12">
-                <div class="row justify-content-center">
-                    @includeif("informers._long_wait_bills")
-                    @includeif("informers._nofile_invoices")
-                    {{--                @include("informers._users_today")--}}
-                    @include("informers._all_saldos")
+                <div class="container-fluid">
+                    <div class="row justify-content-center">
+                        @includeif("informers._long_wait_bills")
+                        @includeif("informers._nofile_invoices")
+                        @include("informers._all_saldos")
+                    </div>
                 </div>
             </div>
             <div class="col-lg-4 col-md-12 col-sm-12">
-                <div class="row justify-content-center">
-                    @include("informers._calendar_sums")
-                    @include("informers._calendar_raids")
-                    @include('informers._user_active_tasks')
-                    @include("informers._today_users")
-                    @include("informers._users_tasks")
+                <div class="container-fluid">
+                    <div class="row justify-content-center">
+                        @include("informers._calendar_sums")
+                        @include("informers._calendar_raids")
+                        @include('informers._user_active_tasks')
+                        @include("informers._today_users")
+                        @include("informers._users_tasks")
+                    </div>
                 </div>
             </div>
             @if(isset($userorgid))
 
 
-{{--                @includeif("informers._ownorg_saldos")--}}
-{{--                @includeif("informers._ownorg_saldo_details")--}}
+                {{--                @includeif("informers._ownorg_saldos")--}}
+                {{--                @includeif("informers._ownorg_saldo_details")--}}
 
                 @include("informers._opertypes_sums")
 
