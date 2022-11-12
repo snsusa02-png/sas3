@@ -366,7 +366,7 @@ class mchn_raid extends Model
 
                 //$d = new DateTime('first day of this month');
                 $d = today();
-                $d->modify('-30 day');
+                $d->modify('-90 day');
 
                 $start_ymd = $d->format('Y-m-d');
 

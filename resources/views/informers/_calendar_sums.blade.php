@@ -1,6 +1,7 @@
 @if( isset($data->calendar_sums_items) and count($data->calendar_sums_items)>0)
 
-    <div class="col-lg-4 col-md-4 col-sm-8">
+{{--    <div class="col-lg-4 col-md-4 col-sm-8">--}}
+    <div class="col-md-12">
         <div class="card card-stats mt-3">
             <div class="card-header">
                 <i class="fa " aria-hidden="true"></i>

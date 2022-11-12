@@ -1,5 +1,6 @@
 @if( isset($data->today_users) and count($data->today_users))
-    <div class="col-lg-3 col-md-6 col-sm-6">
+{{--    <div class="col-lg-3 col-md-6 col-sm-6">--}}
+    <div class="col-lg-12">
         <div class="card card-stats mt-3">
             <div class="card-header">
                 <i class="uil uil-user text-success"></i>

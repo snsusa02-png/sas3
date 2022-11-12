@@ -1,7 +1,8 @@
 @if( (isset($data->user_active_tasks) and count($data->user_active_tasks)>0)
 or (isset($data->user_active_tasks) and count($data->user_active_tasks)) )
 
-    <div class="col-lg-6 col-md-6 col-sm-6">
+{{--    <div class="col-lg-6 col-md-6 col-sm-6">--}}
+    <div class="col-lg-12 col-md-12 ">
         <div class="card card-stats mb-1 mt-3">
             <div class="card-header">
                 <i class="fa fa-tasks text-danger" aria-hidden="true"></i>

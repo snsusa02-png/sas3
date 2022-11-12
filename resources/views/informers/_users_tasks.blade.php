@@ -1,5 +1,6 @@
 @if( isset($data->users_tasks))
-    <div class="col-lg-3 col-md-6 col-sm-6">
+{{--    <div class="col-lg-3 col-md-6 col-sm-6">--}}
+    <div class="col-lg-12 col-md-12">
         <div class="card card-stats mt-3">
             <div class="card-header">
                 <i class="fa fa-clock-o" aria-hidden="true"></i>
