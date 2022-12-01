@@ -67,9 +67,15 @@
                             <td class=" text-center">
                                 {{date_create($itm->ondate)->format('d.m.Y')}}
                                 <div class="ml-1">
-                                    <a href="{{route('reports.rep48',['ownorgid'=>$itm->ownorgid,'orgid'=>$rec->id])}}?returl={{$retURL}}">
+                                    <a href="{{route('reports.rep48',['ownorgid'=>$itm->ownorgid,'orgid'=>$rec->id])}}?returl={{$retURL}}" title="Дата крайней операции">
                                         {{date_create($itm->max_operdate)->format('d.m.Y')}}
                                     </a>
+                                    @if (isset($itm->aligmentdate))
+                                        <br>
+                                        <a href="{{route('reports.rep53',['ownorgid'=>$itm->ownorgid,'orgid'=>$rec->id])}}?returl={{$retURL}}" title="Согласовано по">
+                                            {{date_create($itm->aligmentdate)->format('d.m.Y')}}
+                                        </a>
+                                    @endif
                                 </div>
                             </td>
                             <td>

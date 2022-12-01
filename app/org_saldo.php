@@ -76,6 +76,7 @@ class org_saldo extends Model
                 return self::from('org_saldos as s')
                     ->join('orgs as oo', 'oo.id', 's.ownorgid')
                     ->select('s.id', 's.ownorgid', 's.ondate', 's.saldo', 's.active', 'oo.name as ownorgname'
+                    , 's.aligmentdate'
                     , db::raw("(select sum(opersum * if(fo.srcorgid=s.orgid,1,-1))
                         from obj_finopers as fo
                         where fo.operdate>=s.ondate
