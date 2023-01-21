@@ -199,6 +199,9 @@ $thisTitle = $report->title ?? $report->name;
                                     @else
                                         {{$rec->descript}}
                                     @endif
+                                    @if(isset($rec->notes))
+                                        <div class="float-right ml-1">/ {{$rec->notes}}</div>
+                                    @endif
                                     <div class="float-right"> {{$rec->org_placename}}</div>
                                 </td>
                                 <td class="text-right small calced" data-num="{{$rec->qty}}">{{$sh_qty}}</td>

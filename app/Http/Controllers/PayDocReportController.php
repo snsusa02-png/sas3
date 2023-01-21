@@ -305,6 +305,7 @@ class PayDocReportController extends Controller
             ->select('sysobjid', 'fo.objid', 'sumtypeid', 'operdate', 'fo.price', 'descript', 'mro.org_placename'
                 , db::raw("sum(fo.qty) as qty")
                 , db::raw("sum( if(srcorgid = {$ownorgid}, - 1, + 1) * opersum) as opersum")
+                , db::raw("trim(group_concat(mro.name separator ' ')) as notes")
             )
             ->groupBy(['sysobjid', 'fo.objid', 'sumtypeid', 'operdate', 'price', 'descript', 'mro.org_placename'])
             ->get();
@@ -314,7 +315,7 @@ class PayDocReportController extends Controller
         $data->ownorg = org::find($ownorgid);
         $data->org = org::find($orgid);
         $data->org_saldo = $org_saldo;
-        //dd($data);
+//        dd($data);
 
         //обновим счетчик использования отчета
         report::updUseCnt($report_id, $userid, \Auth::user()->name);
@@ -421,6 +422,7 @@ class PayDocReportController extends Controller
                     , 'mro.itm_price'
                     , db::raw("sum(mro.itm_qty) as qty")
                     , db::raw("sum(-mro.itm_sum) as opersum")
+                    , db::raw("trim(group_concat( mro.name SEPARATOR ' ')) as notes")
                 )
                 ->groupBy('operdate', 'sysobjid', 'org_placename', 'mro.refitmid', 'mro.itm_price');
 
@@ -436,6 +438,7 @@ class PayDocReportController extends Controller
                     , 'mro.itm_price'
                     , db::raw("sum(mro.itm_qty) as qty")
                     , db::raw("sum(+mro.itm_sum) as opersum")
+                    , db::raw("trim(group_concat( mro.name SEPARATOR ' ')) as notes")
                 )
                 ->groupBy('operdate', 'sysobjid', 'org_placename', 'mro.refitmid', 'mro.itm_price');
 
@@ -449,6 +452,7 @@ class PayDocReportController extends Controller
                     , db::raw("null as itm_price")
                     , db::raw("null as qty")
                     , db::raw("pd.paydir*pd.paysum as opersum")
+                    , db::raw("null as notes")
                 )
                 ->unionall($sells)
                 ->unionall($buys)
