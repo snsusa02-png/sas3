@@ -135,9 +135,14 @@ class MchnRaidController extends Controller
             if (isset($val) and strlen($val) > 0) {
 
                 if ($item == 's_ri_name') {
+                    /* -- 2023-01-24
                     $sc = $sc . " and exists(select 1 from mr_opers as mro
                         join refitems as ri on ri.id=mro.refitmid
                         where mro.mr_id=mr.id and ri.name like '%" . mb_strtoupper($val) . "%')";
+                    */
+                    // 2023-01-24
+                    $sc = $sc . " and exists(select 1 from refitems as ri
+                        where ri.id=mro.refitmid and ri.name like '%" . mb_strtoupper($val) . "%')";
 
                 } elseif ($item == 's_opertypeid') {
                     $sc = $sc . " and mr.opertypeid = {$val}";
@@ -205,13 +210,6 @@ class MchnRaidController extends Controller
         }
         //var_dump($sc);
         //-------------------------------------------------------------------------------------------------------------
-
-        //по-старому ---------------
-        //для совместимости со старым методом формированя условия отбора - инициализируем переменные поиска
-//        foreach ($search_params as $item => $val) {
-//            $$item = $val;
-//        }
-        // --------------------------------------------------------------------
 
 
         $recs = mchn_raid::from('mchn_raids as mr')
