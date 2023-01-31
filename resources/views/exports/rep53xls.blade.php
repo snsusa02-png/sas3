@@ -57,7 +57,7 @@
             <td width="10">{{ date_create($itm->operdate)->format('d.m.Y') }}</td>
             <td width="40">{{ $itm->descript}}/ {{ $itm->org_placename }}</td>
             <td x:num width="10">{{ $itm->qty }}</td>
-            <td x:num width="10">{{ $itm->price }}</td>
+            <td x:num width="10">{{ $itm->itm_price }}</td>
             <td x:num width="12">{{ $itm->opersum }}</td>
             <td x:num width="15">{{ $curSum }}</td>
         </tr>
