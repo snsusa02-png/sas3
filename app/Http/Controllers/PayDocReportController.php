@@ -298,14 +298,22 @@ class PayDocReportController extends Controller
                 $j->on('mro.id', 'fo.objid')
                     ->where('fo.sysobjid', 1107);
             })
+            // 2023-01-31 Добавим название авто
+            ->leftJoin('mchn_raids as mr', function ($j) {
+                $j->on('mr.id', 'mro.mr_id');
+            })
+            ->leftJoin('machines as m', function ($j) {
+                $j->on('m.id', 'mr.machineid');
+            })
             ->whereRaw($sc)
             ->orderBy('operdate')
 //            ->select('fo.*'
 //                , db::raw("if(srcorgid = {$ownorgid}, - 1, + 1) * opersum as opersum")
-            ->select('sysobjid', 'fo.objid', 'sumtypeid', 'operdate', 'fo.price', 'descript', 'mro.org_placename'
+            ->select('sysobjid', 'fo.objid', 'sumtypeid', 'operdate', 'fo.price', 'fo.descript', 'mro.org_placename'
                 , db::raw("sum(fo.qty) as qty")
                 , db::raw("sum( if(srcorgid = {$ownorgid}, - 1, + 1) * opersum) as opersum")
                 , db::raw("trim(group_concat(mro.name separator ' ')) as notes")
+                , db::raw("trim(group_concat(m.regnum separator ' ')) as mchn_regnums")
             )
             ->groupBy(['sysobjid', 'fo.objid', 'sumtypeid', 'operdate', 'price', 'descript', 'mro.org_placename'])
             ->get();
