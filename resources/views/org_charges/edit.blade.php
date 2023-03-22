@@ -12,15 +12,16 @@
     @else
         @if (!isset( $rec))
             <?php
-            redirect()->route('orgstaff.index');
-            header("Location:" . route('orgstaff.index'));
+            redirect()->route('org_charges.index');
+            header("Location:" . route('org_charges.index'));
             die();
             ?>
         @else
 
             <?php
-            $sysobjid = 121;
-            $thisSysObjCode = 'orgstaff';
+            $sysobjid = 1211;
+            $thisSysObjCode = 'org_charges';
+            $title = 'Карточка';
             $orgid = $rec->orgid;
 
             $retURL = \Request::get('returl') ?? $rec->retURL ?? (route($thisSysObjCode . '.index') . "?page=" . session($thisSysObjCode . '_pageno') . '#' . $rec->id);
@@ -48,11 +49,11 @@
                     <div class="col-md-8">
                         <div class="card mt-3">
                             <div class="card-header">
-                                Сотрудник
+                                {{$title}}
                                 <a class="btn btn-close btn-info btn-sm"
                                    style="float:right;"
                                    href="{{ $retURL }}"
-                                   title="Вернуться в список сотрудников">
+                                   title="Вернуться в список видов начислений/удержаний организации">
                                     <i class="fa fa-times" aria-hidden="true"></i>
                                 </a>
                             </div>
@@ -61,7 +62,7 @@
                                 @include('layouts.edit_msgs')
 
                                 <form name="forEdit" id="forEdit" method="post"
-                                      action="{{ route('orgstaff.update', $rec->id) }}">
+                                      action="{{ route('org_charges.update', $rec->id) }}">
                                     @method('PUT')
                                     @csrf
                                     {!! Form::hidden('id', $rec->id,['id'=>'id']) !!}
@@ -72,7 +73,7 @@
                                             <a class="nav-link active" data-toggle="tab" href="#home">Основное</a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" data-toggle="tab" href="#menu1">Обязанности</a>
+                                            <a class="nav-link" data-toggle="tab" href="#menu1">История</a>
                                         </li>
                                         @if($usrrights['private_acs']??false)
                                             <li class="nav-item">
@@ -97,86 +98,8 @@
                                             {{--                                            <h3>HOME</h3>--}}
 
                                             <div class="row">
-
-                                                <div class="col-md-3">
-                                                    <?php
-                                                    //dd($rec->photo);
-                                                    $photo = '<img src="/images/signs/user-no-photo.jpg" class="photo">';
-                                                    if ($rec->id != -1)
-                                                        //$photo = '<a href="' . route('ri_images.load', $rec->id) . '" title="Добавить фото">' . $photo . '</a>';
-
-                                                        if (isset($rec->photo)) {
-                                                            $url = Storage::disk('local')->url($rec->photo->systemfilename);
-
-                                                            if (isset($url)) {
-                                                                $photo = '<img src=' . $url . ' class="photo">';
-                                                                $photo = '<a href=' . $url . ' class="popup-image" title="' . $rec->name . '">' . $photo . '</a>';
-                                                            }
-                                                        }
-                                                    ?>
-                                                    {!! $photo!!}
-                                                </div>
-                                                <div class="col-md-9">
-                                                    <div class="container">
-                                                        <div class="row">
-                                                            <div class="col-md-5">
-                                                                <div
-                                                                    class="form-group {{ ($errors->has('lname')) ? ' has-error' : '' }}">
-                                                                    <label for="lname" class="required">Фамилия:</label>
-                                                                    <input type="text" required
-                                                                           class="form-control font-weight-bold"
-                                                                           name="lname"
-                                                                           value="{{ old('lname',$rec->lname) }}"/>
-                                                                    @if ($errors->has('lname'))
-                                                                        <span class="help-block text-danger">
-                                                                        <strong>{{ $errors->first('lname') }}</strong>
-                                                                        </span>
-                                                                    @endif
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-md-3">
-                                                                <div class="form-group">
-                                                                    <label for="fname" class="required">Имя:</label>
-                                                                    <input type="text"
-                                                                           class="form-control font-weight-bold"
-                                                                           name="fname"
-                                                                           required
-                                                                           value="{{ old('fname',$rec->fname) }}"/>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-md-4">
-                                                                <div class="form-group">
-                                                                    <label for="mname">Отчество:</label>
-                                                                    <input type="text"
-                                                                           class="form-control font-weight-bold"
-                                                                           name="mname"
-                                                                           value="{{ old('mname',$rec->mname) }}"/>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="row">
-                                                            <div class="form-group col-md-6">
-                                                                <label for="inn">ИНН:</label>
-                                                                <input type="text" class="form-control" name="inn"
-                                                                       maxlength="12"
-                                                                       value="{{ old('inn',$rec->inn) }}"/>
-                                                            </div>
-                                                            <div class="form-group col-md-6">
-                                                                <label for="snils">СНИЛС:</label>
-                                                                <input type="text" class="form-control" name="snils"
-                                                                       maxlength="14"
-                                                                       value="{{ old('snils',$rec->snils) }}"/>
-                                                            </div>
-                                                        </div>
-
-                                                    </div>
-
-                                                </div>
-                                            </div>
-
-                                            <div class="row">
                                                 <div class="form-group col-md-6">
-                                                    <label for="orgid">Организация:</label>
+                                                    <label for="orgid" class="required">Организация:</label>
                                                     <div>
                                                         @if (isset($orgid))
                                                             <input type="hidden" name="orgid" value="{{$orgid}}">
@@ -191,101 +114,74 @@
                                                         @endif
                                                     </div>
                                                 </div>
+                                            </div>
 
+                                            <div class="row">
                                                 <div class="form-group col-md-6">
-                                                    <label for="depname" class="required">Подразделение:</label>
+                                                    <label for="chargetype_name" class="required">Тип
+                                                        начисления/удержания:</label>
                                                     <div class="input-group">
 
-                                                        {!! Form::select('depid', $rec->orgdeps??[], $rec->depid,
+                                                        {!! Form::select('chargetypeid', $rec->chargetypes??[], $rec->chargetypeid,
                                                          [
-                                                         'id' => 'depid',
+                                                         'id' => 'chargetypeid',
                                                          'class' => 'form-control',
                                                          'placeholder' => '',
                                                          ]) !!}
-
-                                                        <input type="text" class="form-control" name="depname"
-                                                               id="depname"
-                                                               maxlength="60"
-                                                               value="{{ old('depname',$rec->depname) }}"/>
-
-                                                        <a class="btn btn-light" id="depid_lnk"
+                                                        <a class="btn btn-light" id="chargetype_lnk"
                                                            target="_blank">
                                                             <i class="fa fa-info text-info" aria-hidden="true"></i>
                                                         </a>
                                                     </div>
                                                 </div>
 
-                                            </div>
+                                                <div class="form-group offset-md-0 col-md-3" id="charge_sum_div">
+                                                    <label for="charge_sum">Ставка:</label>
+                                                    <input type="number" class="form-control text-right"
+                                                           name="charge_sum" id="charge_sum"
+                                                           min="0" step="0.25"
+                                                           value="{{ old('charge_sum',$rec->charge_sum) }}"/>
+                                                </div>
 
-                                            <div class="row">
-
-                                                <div class="form-group col-md-7">
-                                                    <label for="postid" class="required">Должность:</label>
+                                                <div class="form-group col-md-3">
+                                                    <label for="charge_period" class="">Периодичность:</label>
                                                     <div class="input-group">
-                                                        {!! Form::select('postid', $rec->orgposts??[], $rec->postid,
+
+                                                        {!! Form::select('charge_period', $rec->charge_periods??[], $rec->charge_period,
                                                          [
-                                                         'id' => 'postid',
+                                                         'id' => 'charge_period',
                                                          'class' => 'form-control',
                                                          'placeholder' => '',
+                                                         'title' => 'Периодичность применения',
                                                          ]) !!}
-
-                                                        <input type="text" class="form-control" name="postname"
-                                                               id="postname" maxlength="160"
-                                                               value="{{ old('postname',$rec->postname) }}"/>
-
-                                                        <a id="postid_lnk" class="btn btn-light">
-                                                            <i class="fa fa-info text-info" aria-hidden="true"></i>
-                                                        </a>
-
                                                     </div>
                                                 </div>
-
-                                                <div class="form-group offset-md-0 col-md-2" id="stdpostunit_div">
-                                                    <label for="stdpostunit">Ставка:</label>
-                                                    <input type="number" class="form-control text-right"
-                                                           name="stdpostunit" id="stdpostunit"
-                                                           min="0" step="0.25" max="1.75"
-                                                           value="{{ old('stdpostunit',$rec->stdpostunit) }}"/>
-                                                </div>
-
                                             </div>
-
-
                                             <div class="row">
-                                                <div class="form-group offset-md-0 col-md-5">
-                                                    <label for="stdpostunit">Дата вступления в должность:</label>
+                                                <div class="form-group offset-md-6 col-md-3">
+                                                    <label for="stdpostunit" class="required">Начало
+                                                        действия:</label>
                                                     <input type="date" class="form-control"
-                                                           name="postbegdate" id="postbegdate"
-                                                           value="{{ old('postbegdate',$rec->postbegdate) }}"/>
+                                                           name="begdate" id="begdate"
+                                                           value="{{ old('begdate',$rec->begdate) }}"/>
                                                 </div>
 
-                                                <div class="form-group offset-md-0 col-md-5">
-                                                    <label for="post">Руководитель сотрудника:</label>
-                                                    <input type="text" class="form-control" name="bossname"
-                                                           value="{{ old('bossname',$rec->bossname) }}"/>
-                                                </div>
-                                            </div>
-
-                                            <div class="row" id="outofoffice_div">
-                                                <?php
-                                                $ooo_statuses = [0 => 'на рабочем месте', 1 => 'отсутствует', 2 => 'не известно'];
-                                                $ooo_status = 'на рабочем месте';
-                                                if ($rec->outofoffice == 1) {
-                                                    $ooo_status = "отсутствует";
-                                                    if (isset($rec->ooo_reason))
-                                                        $ooo_status .= " по причине: '{$rec->ooo_reason}'";
-                                                    if (isset($rec->ooo_tilldate))
-                                                        $ooo_status .= ". До " . date_create($rec->ooo_tilldate)->format('d.m.Y') . " включительно";
-                                                }
-                                                ?>
-                                                <div class="form-group offset-md-0 col-md-9">
-                                                    <label for="post">Нахождение на рабочем месте:</label>
-                                                    <input type="text" class="form-control" name="outofoffice" readonly
-                                                           value="{{ old('outofoffice',$ooo_status) }}"/>
+                                                <div class="form-group offset-md-0 col-md-3">
+                                                    <label for="stdpostunit">Окончание:</label>
+                                                    <input type="date" class="form-control"
+                                                           name="enddate" id="enddate"
+                                                           value="{{ old('enddate',$rec->enddate) }}"/>
                                                 </div>
                                             </div>
+                                        </div>
 
-
+                                        <div class="row">
+                                            <div class="form-group offset-md-0 col-md-12" id="notes_div">
+                                                <label for="notes">Примечание:</label>
+                                                <input type="text" class="form-control"
+                                                       name="notes" id="notes"
+                                                       value="{{ old('notes',$rec->notes) }}"/>
+                                            </div>
                                         </div>
 
                                         <div id="menu1" class="container tab-pane fade"><br>
@@ -591,7 +487,7 @@
                                         <button type="submit"
                                                 class="btn btn-danger"
                                                 style="margin-left:24px"
-                                                formaction="{{ route('orgstaff.del', $rec->id)}}"
+                                                formaction="{{ route('org_charges.delete', $rec->id)}}"
                                                 formmethod="post"
                                                 onclick="return confirm('Вы действительно хотите удалить запись?')"
                                                 title="Удалить"
@@ -615,10 +511,8 @@
                             @include('objfiles.obj_files')
                             @include('obj_contacts._contacts')
                             @include('obj_addresses._list')
-{{--                            @include('stf_charges._list')--}}
-                            @include('stf_chrg_calcs._list')
                             @include('stf_salaries._list')
-{{--                            @include('objflags._flags')--}}
+                            {{--                            @include('objflags._flags')--}}
 
                             @if (count($rec->userrights)>0)
                                 <div class="card ">
@@ -653,7 +547,7 @@
 
                 </div>
             </div>
-            <script src="{{ asset('js/orgstaff_edit.js') }}" defer></script>
+            <script src="{{ asset('js/org_charges_edit.js') }}" defer></script>
 
         @endif
     @endguest

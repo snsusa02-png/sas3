@@ -12,21 +12,21 @@
         ?>
     @else
         <?php
-        $thisSysObjCode = 'orgstaff';
+        $thisSysObjCode = 'org_charges';
 
         ?>
         <link rel="stylesheet" href="/css/subnav.css">
 
-        <form name="forIndex" id="forIndex" method="post" action="{{ route('orgstaff.index') }}">
+        <form name="forIndex" id="forIndex" method="post" action="{{ route($thisSysObjCode.'.index') }}">
             @csrf
             <div class="container">
 
                 <?php
-                $thisTitle = "Сотрудники";
+                $thisTitle = "Виды начислений/удержаний, применяемые в организациях холдинга";
 
                 $breadcrumbs = [
                     'Сервис' => "/admin",
-                    'Справочники' => "/admin?tab=nsi-dic",
+                    'ЗП' => "/admin?tab=nsi-salary",
                     $thisTitle => null,
                 ];
                 ?>
@@ -40,17 +40,15 @@
                             <div class="col-md-9 ">
                                 <div class="subnav shift">
                                     <ul>
-                                        <li><a href="{{route('orgs.index')}}"
-                                               title="Организации">Организации</a>
+                                        <li><a href="{{route('chargetypes.index')}}"
+                                               title="Виды начислений/удержаний">Виды начислений</a>
+                                        </li>
+                                        <li><a href="{{route('orgstaff.index')}}"
+                                               title="Персонал организаций">Персонал</a>
                                         </li>
                                         @if(1==0)
                                             <li><a href="{{route('jobtimesheets.index')}}"
                                                    title="Учет рабочего времени">Учет времени</a>
-                                            </li>
-                                        @endif
-                                        @if(1==1)
-                                            <li><a href="{{route('reports.rep56')}}"
-                                                   title="Учет рабочего времени">Начисления</a>
                                             </li>
                                         @endif
                                     </ul>
@@ -77,9 +75,10 @@
                             <tr>
                                 <td>#</td>
                                 <td>Организация</td>
-                                <td>ФИО</td>
-                                <td>Должность</td>
-                                <td>Статус</td>
+                                <td>Наименование</td>
+                                <td>Вид</td>
+                                <td>Период действия</td>
+                                <td>Ставка, руб</td>
                                 <td style="text-align: center;">
                                     @if($usrrights['create']??false)
 
@@ -88,27 +87,27 @@
                                             <i class="fa fa-plus"></i>
                                         </a>
                                     @endif
-                                    @if ($usrrights['load']??false)
-                                        <a href="{{ route($thisSysObjCode.'.load')}}"
-                                           class="btn btn-success btn-sm"
-                                           title="Загрузить записи о технике в формате файла XLS">
-                                            <i class="fa fa-upload" aria-hidden="true"></i>
-                                        </a>
-                                    @endif
+{{--                                    @if ($usrrights['load']??false)--}}
+{{--                                        <a href="{{ route($thisSysObjCode.'.load')}}"--}}
+{{--                                           class="btn btn-success btn-sm"--}}
+{{--                                           title="Загрузить записи о технике в формате файла XLS">--}}
+{{--                                            <i class="fa fa-upload" aria-hidden="true"></i>--}}
+{{--                                        </a>--}}
+{{--                                    @endif--}}
 
                                 </td>
                             </tr>
                             <tr style="text-align: center;">
                                 <td colspan="2">
                                     <div class="input-group">
-                                        {!! Form::select('s_orgflagid', [12=>'ГК '], $data->search_params['s_orgflagid']??'',
-[
-                                                        'class' => 'form-control small',
-                                                        'style' => 'max-width:108px',
-                                                        'placeholder' => '-',
-                                                        'onChange' => 'this.form.submit()',
-                                                        ])
-                                                        !!}
+{{--                                        {!! Form::select('s_orgflagid', [12=>'ГК '], $data->search_params['s_orgflagid']??'',--}}
+{{--[--}}
+{{--                                                        'class' => 'form-control small',--}}
+{{--                                                        'style' => 'max-width:108px',--}}
+{{--                                                        'placeholder' => '-',--}}
+{{--                                                        'onChange' => 'this.form.submit()',--}}
+{{--                                                        ])--}}
+{{--                                                        !!}--}}
                                         {!! Form::select('s_orgid', $data->ownorgs, $data->search_params['s_orgid']??'',
                                                         [
                                                         'class' => 'form-control small',
@@ -126,8 +125,13 @@
                                 </td>
                                 <td>
                                     <div class="input-group">
-                                        <input type="text" class="form-control" name="s_postname"
-                                               value="{{$data->search_params['s_postname']??''}}"/>
+                                        {!! Form::select('s_dir', $data->dirs, $data->search_params['s_dir']??'',
+                                                        [
+                                                        'class' => 'form-control small',
+                                                        'placeholder' => '-',
+                                                        'onChange' => 'this.form.submit()',
+                                                        ])
+                                                        !!}
                                     </div>
                                 </td>
                                 <td>
@@ -141,10 +145,11 @@
                                                         !!}
                                     </div>
                                 </td>
+                                <Td></Td>
                                 <td>
                                     <div class="input-group-btn">
                                         <button type="submit" class="btn btn-sm btn-success"
-                                                formaction="{{ route('orgstaff.index') }}"
+                                                formaction="{{ route('org_charges.index') }}"
                                                 formmethod="post">
                                             <i class="fa fa-search" aria-hidden="true"></i>
                                         </button>
@@ -161,11 +166,11 @@
                             @foreach($recs as $rec)
                                 @if($rec->orgid<>$curOrgId)
                                     <tr>
-                                        <td colspan="6" class="font-weight-bold"><a
+                                        <td colspan="7" class="font-weight-bold"><a
                                                 href="{{route('orgs.edit',$rec->orgid)}}">{{$rec->org_name}}</a>
                                             @if($usrrights['create']??false)
                                                 <div class="float-right">
-                                                    <a href="{{ route('orgstaff.create',$rec->orgid)}}"
+                                                    <a href="{{ route('org_charges.create',$rec->orgid)}}"
                                                        class="btn btn-warning btn-sm">
                                                         <i class="fa fa-plus"></i>
                                                     </a>
@@ -192,13 +197,15 @@
                                     </td>
                                     <td></td>
                                     <td>
-                                        <a href="{{route('orgstaff.edit',$rec->id)}}">{{$rec->lname}} {{$rec->fname}} {{$rec->mname}}</a>
+                                        <a href="{{route('org_charges.edit',$rec->id)}}">{{$rec->name}}</a>
                                     </td>
-                                    <td>{{$rec->post_name??$rec->postname}}</td>
-                                    <td style="{{$status_css}}">{{$status_name}}</td>
+                                    <td>{{$data->dirs[$rec->charge_dir]??'-'}}</td>
+                                    <td class="small">{{date_format(date_create($rec->begdate), 'd.m.Y')}}
+                                            - {{isset($rec->enddate)?date_format(date_create($rec->enddate), 'd.m.Y'):'...'}}</td>
+                                    <td class="text-right" style="{{$status_css}}">{{$rec->charge_sum}}</td>
 
                                     <td style="text-align: center;">
-                                        <a href="{{ route('orgstaff.edit',$rec->id)}}?returl={{$retURL}}"
+                                        <a href="{{ route('org_charges.edit',$rec->id)}}?returl={{$retURL}}"
                                            class="btn btn-sm btn-primary">
                                             <i class="fa fa-pencil"></i>
                                         </a>

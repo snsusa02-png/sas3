@@ -3,19 +3,15 @@
 namespace App;
 
 use App\Imports\invoiceImport;
+use App\Traits\DeleteTrait;
 use App\Traits\FilesTrait;
 use App\Traits\Result;
-use DB;
-use App\org;
-use App\orgdep;
-use App\Traits\DeleteTrait;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\DB;
 
-
-class orgstaff extends Model
+class org_charge extends Model
 {
     //
     use DeleteTrait;
@@ -24,10 +20,10 @@ class orgstaff extends Model
     //protected $fillable = ["orgid"];
     protected $guarded = [];
 
-    protected $table = 'orgstaff';
+    protected $table = 'org_charges';
 
-    static public $prefix = 'orgstaff';
-    static public $sysobjid = 121;
+    static public $prefix = 'org_charges';
+    static public $sysobjid = 1211;
 
     public function whocrt()
     {
@@ -45,21 +41,9 @@ class orgstaff extends Model
             ->withDefault();
     }
 
-    public function orgdep()
+    public function chargetype()
     {
-        return $this->hasOne(orgdep::class, 'id', 'depid')
-            ->withDefault();
-    }
-
-    public function post()
-    {
-        return $this->hasOne(orgpost::class, 'id', 'postid')
-            ->withDefault();
-    }
-
-    public function user()
-    {
-        return $this->hasOne(User::class, 'id', 'userid')
+        return $this->hasOne(chargetype::class, 'id', 'chargetypeid')
             ->withDefault();
     }
 
@@ -73,18 +57,6 @@ class orgstaff extends Model
     {
         return $this->hasMany(stf_salary::class, 'staffid', 'id')
             ->orderby('wrkbegdate', 'desc');
-    }
-
-    public function charges()
-    {
-        return $this->hasMany(stf_charge::class, 'staffid', 'id')
-            ->orderby('begdate', 'asc');
-    }
-
-    public function chrg_calcs()
-    {
-        return $this->hasMany(stf_chrg_calc::class, 'staffid', 'id')
-            ->orderby('docdate', 'desc');
     }
 
     public function getNamePostAttribute()
@@ -143,7 +115,7 @@ class orgstaff extends Model
     {
         $rslt = null;
         if (isset($this->id)) {
-            $rslt = $this->name . ', ' . $this->postname . ' / ' . $this->org->name;
+            $rslt = $this->name . ', ' . $this->postname;
         }
         return $rslt;
     }
@@ -269,72 +241,6 @@ class orgstaff extends Model
         return $fio;
     }
 
-    public static function birthdays_soon($days)
-    {
-        //Cache::forget('birthdays_soon');
-        $days = isset($days) ? $days : 1;
-        return Cache::remember('birthdays_soon', now()->addMinutes(25)
-            , function () use ($days) {
-                return orgstaff::from('orgstaff as os')
-                    ->where('os.active', 1)
-                    ->where('os.bd_private', 0)//не учитываем скрытных персон
-                    ->wherenotnull('os.birthdate')
-                    ->whereRaw('dayofyear(birthdate)-dayofyear(curdate()) between -1 and ' . $days)
-                    ->select('os.id', 'os.userid', 'os.lname', 'os.fname'
-                        , db::raw("dayofyear(birthdate)-dayofyear(curdate()) as left_days")
-                        , db::raw("date(concat(year(curdate()),'-',month(birthdate),'-',day(birthdate))) as anniversary")
-                    )
-                    ->orderby('left_days')
-                    ->get();
-            });
-    }
-
-    public static function birthdays_now()
-    {
-        //Cache::forget('birthdays_now');
-        return Cache::remember('birthdays_now', now()->addMinutes(60)
-            , function () {
-                return orgstaff::from('orgstaff as os')
-                    ->where('os.active', 1)
-                    ->where('os.bd_private', 0)//не учитываем скрытных персон
-                    ->wherenotnull('os.birthdate')
-                    ->whereRaw("DATE_FORMAT(birthdate, '%m-%d')=DATE_FORMAT(curdate(), '%m-%d')")
-                    ->select('os.id', 'os.userid', 'os.lname', 'os.fname', 'os.mname'
-                        , db::raw("date(concat(year(curdate()),'-',month(birthdate),'-',day(birthdate))) as anniversary")
-                    )
-                    ->orderby('os.name')
-                    ->get();
-            });
-    }
-
-    public static function staff_wo_di()
-    {
-        Cache::forget('staff_wo_di');
-        return Cache::remember('staff_wo_di', now()->addMinutes(60)
-            , function () {
-                /*select o.name, os.orgid,os.id,os.lname,os.fname
-                from orgstaff as os
-                join orgs as o on o.id=os.orgid
-                where 1=1 and os.active=1
-                and exists(select 1 from objflags as f where f.objid=o.id and f.sysobjid=111 and flagtypeid=12)
-                and not exists(SELECT 1 FROM `objfiles` WHERE sysobjid=121 and doctypeid=226 and objid=os.id)
-                order by o.name, os.name
-                */
-                return orgstaff::from('orgstaff as os')
-                    ->join('orgs as o', 'o.id', 'os.orgid')
-                    ->where('os.active', 1)
-                    ->whereRaw("exists(select 1 from objflags as f where f.objid=o.id and f.sysobjid=111 and flagtypeid=12)")
-                    ->whereRaw("not exists(SELECT 1 FROM `objfiles` WHERE sysobjid=121 and doctypeid=226 and objid=os.id)")
-                    ->select('os.id', 'os.userid', 'os.name', 'os.postname', 'os.orgid', 'o.name as orgname'
-                    )
-                    ->orderby('o.name')
-                    ->orderby('o.id')
-                    ->orderby('os.name')
-                    ->get();
-            });
-    }
-
-
     static public function search_cond($params)
     {
         $sc = "1=1";
@@ -351,35 +257,31 @@ class orgstaff extends Model
                 if (array_search($key, $used_params) == 0) {
                     $used_params[] = $key;
 
-
                     if ($key == 's_name' or $key == 'name') {
-                        $sc = $sc . " and concat(os.lname,' ',os.fname,' ',os.mname) like '%" . mb_strtoupper($val) . "%'";
+                        $sc = $sc . " and concat(ct.name,' ',oc.notes) like '%" . mb_strtoupper($val) . "%'";
 
                     } elseif ($key == 's_orgflagid') {
                         $sc .= " and exists(select 1 from objflags f where f.sysobjid=111 and f.objid=os.orgid and f.flagtypeid={$val})";
-
-
-                    } elseif ($key == 's_postname') {
-                        $sc = $sc . " and ( os.postname like '%{$val}%'
-                    or exists (select 1 from orgposts as op where op.id=os.postid and op.name like '%{$val}%')
-                    ) ";
 
                     } elseif ($key == 's_file_doctypeid') {
                         $tsysobjid = self::sysobjid;
                         $sc = $sc . " and exists (select 1 from objfiles as f where f.sysobjid={$tsysobjid}
                                         and f.objid=os.id and f.doctypeid={$val})";
 
-                    } elseif ($key == 's_orgid') {
-                        $sc .= " and os.orgid={$val}";
-
-                    } elseif ($key == 'depid') {
-                        $sc .= " and os.depid={$val}";
-
-                    } elseif ($key == 'postid') {
-                        $sc .= " and os.postid={$val}";
+                    } elseif ($key == 'orgid') {
+                        $sc .= " and oc.orgid={$val}";
 
                     } elseif ($key == 'active' or $key == 's_active') {
-                        $sc .= " and ifnull(os.active,0) = '{$val}'";
+                        $sc .= " and ifnull(oc.active,0) = '{$val}'";
+
+                    } elseif ($key == 'active_or_current') {
+                        if (isset($val))
+                            $sc .= " and (oc.active=1 or oc.id={$val})";
+                        else
+                            $sc .= " and oc.active=1";
+
+                    } elseif ($key == 'period_not_once') {
+                        $sc .= " and if(oc.charge_period,'1',oc.charge_period) <> '1'";
 
                     } elseif ($key == 'in_cursias') {
                         $sc .= " and " . (($val == 1) ? '' : 'not') . " exists(select 1 from cursias as crs where crs.staffid=os.id)";
@@ -428,10 +330,11 @@ class orgstaff extends Model
 
             $sc = self::search_cond($params);
 
-            $lst = self::from('orgstaff as os')
+            $lst = self::from('org_charges as oc')
+                ->join('chargetypes as ct', 'ct.id', 'oc.chargetypeid')
                 ->whereRaw($sc)
-                ->select('os.id', db::raw("trim(concat(os.lname,' ',ifnull(os.fname,''),' ',ifnull(os.mname,''))) as tname"))
-                ->orderBy('tname', 'asc')
+                ->select('oc.id', db::raw("trim(concat('[', if((ct.dir<0), '-', '+'), '] ', ct.name, ', 1/' ,  if(oc.charge_period is null, '1', oc.charge_period), ' =' , oc.charge_sum, ' руб')) as tname"))
+                ->orderBy('tname', 'desc')
                 ->get()->pluck('tname', 'id')->toArray();
             asort($lst);
             //dd($sc,$lst);
@@ -471,11 +374,11 @@ class orgstaff extends Model
             $fields = (isset($fields) and count($fields) > 0) ? $fields : 'os.*';
             //Log::info(json_encode($fields));
 
-            $sorts = $sorts ?? [['os.lname', 'asc'], ['os.fname', 'asc']];
+            $sorts = $sorts ?? [['ct.dir', 'desc'], ['ct.name', 'asc']];
 
-            $recs = self::from('orgstaff as os')
-                ->Join('orgs as o', 'o.id', 'os.orgid')
-                ->leftJoin('orgposts as op', 'op.id', 'os.postid')
+            $recs = self::from('org_charges as oc')
+                ->Join('chargetypes as ct', 'ct.id', 'oc.chargetypeid')
+//                ->leftJoin('orgposts as op', 'op.id', 'os.postid')
                 ->whereRaw($sc)
                 ->select($fields);
 

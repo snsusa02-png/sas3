@@ -1161,6 +1161,11 @@ class org extends Model
                                 and uo.userid={$val} and uo.active=1 and uo.acs_orgplnpays=1
                                 and now() between uo.begdt and ifnull(uo.enddt,now()) )";
 
+                    } elseif ($key == 'in_org_charge') {
+                        //для организации определены виды начислений/удержаний
+                        $sc .= " and " . (($val == 0) ? "not" : "")
+                            . " exists (select 1 from org_charges as oc where oc.orgid=o.id)";
+
                     } elseif ($key == 'ownorg_in_bills') {
                         // использовалась в счетах как плательщик
                         $sc .= " and " . (($val == 0) ? "not" : "")

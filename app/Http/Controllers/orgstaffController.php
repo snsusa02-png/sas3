@@ -69,6 +69,8 @@ class orgstaffController extends Controller
         //$usrrights['regpay'] = usrsysright::isUserHasRightByCode_cached($userid, $this->sysobjcode . '.regpay');
 
         $usrrights['stf_salaries.read'] = usrsysright::isUserHasRightByCode_cached($userid,  'stf_salaries.read');
+        $usrrights['stf_charges.read'] = usrsysright::isUserHasRightByCode_cached($userid,  'stf_charges.read');
+        $usrrights['stf_chrg_calcs.read'] = usrsysright::isUserHasRightByCode($userid,  'stf_chrg_calcs.read');
 
         $this->sysobjcode = $tmp_sysobjcode;
 

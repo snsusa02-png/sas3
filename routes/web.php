@@ -940,6 +940,28 @@ Route::put('reports/del/{id}/delete', "ReportController@destroy")->name("reports
 
 Route::match(array('GET', 'POST'), '/reports', "ReportController@pub_index")->name("reports.pub_index");
 
+Route::match(array('GET', 'POST'), '/salary', "ReportController@pub_index")->name("salary.tab_index");
+
+//chargetypes - Справочник типов начислений/удержаний
+Route::match(array('GET', 'POST'), '/chargetypes', "ChargetypeController@index")->name("chargetypes.index");
+Route::get('/chargetypes/create/{parid}', "ChargetypeController@create")->name('chargetypes.create');
+Route::get('chargetypes/{id}', 'ChargetypeController@edit')->name('chargetypes.edit');
+Route::match(array('POST', 'PUT'), 'chargetypes/{id}', "ChargetypeController@update")
+    ->name('chargetypes.update');
+Route::put('chargetypes/{id}/delete', "ChargetypeController@destroy")->name("chargetypes.delete");
+//Route::put('chargetypes/{id}/admindelete', "ChargetypeController@admindelete")->name("chargetypes.admindelete");
+
+//org_charges - ставки Начислений/удержаний организаций
+Route::match(array('GET', 'POST'), '/org_charges', "OrgChargeController@index")->name("org_charges.index");
+Route::get('/org_charges/create/{parid}', "OrgChargeController@create")->name('org_charges.create');
+Route::get('org_charges/{id}', 'OrgChargeController@edit')->name('org_charges.edit');
+Route::match(array('POST', 'PUT'), 'chargetypes/{id}', "OrgChargeController@update")
+    ->name('org_charges.update');
+Route::put('org_charges/{id}/delete', "OrgChargeController@destroy")->name("org_charges.delete");
+//Route::put('org_charges/{id}/admindelete', "OrgChargeController@admindelete")->name("org_charges.admindelete");
+Route::get('/api/org_charges/for_ac/', 'OrgChargeController@list_for_ac');
+
+
 //doctypes - Справочник типов документов, загружаемых в систему
 Route::get('/doctypes/create/{parent_id}', "DoctypeController@create")->name('doctypes.create');
 Route::match(array('GET', 'POST'), '/doctypes', "DoctypeController@index")->name("doctypes.index");
@@ -1025,12 +1047,13 @@ Route::match(array('POST', 'GET'), '/orgplnpays/rep/43', "OrgplnpayReportControl
 Route::match(array('POST', 'GET'), '/orgplnpays/rep/43_xls', "OrgplnpayReportController@rep43_excel")->name('reports.rep43_excel');
 Route::match(array('POST', 'GET'), '/reports/rep/46', "MchnRaidReportController@rep46")->name('reports.rep46');
 Route::match(array('POST', 'GET'), '/reports/rep/47', "PayDocReportController@rep47")->name('reports.rep47');
-Route::match(array('POST', 'GET'), '/reports/rep/48/{ownorgid}/{orgid}', "PayDocReportController@rep48")->name('reports.rep48');
+Route::match(array('POST', 'GET'), '/reports/rep/48/{ownorgid}/{orgid}', "org_curator@rep48")->name('reports.rep48');
 Route::match(array('POST', 'GET'), '/reports/rep/51', "MchnRaidReportController@rep51")->name('reports.rep51');
 Route::match(array('POST', 'GET'), '/reports/rep/52', "MchnRaidReportController@rep52")->name('reports.rep52');
 Route::match(array('POST', 'GET'), '/reports/rep/53/{ownorgid}/{orgid}', "PayDocReportController@rep53")->name('reports.rep53');
 Route::match(array('POST', 'GET'), '/reports/rep/54/{date}', "PayDocReportController@rep54")->name('reports.rep54');
 Route::match(array('POST', 'GET'), '/reports/rep/55/{date}', "WrhDocReportController@rep55")->name('reports.rep55');
+Route::match(array('POST', 'GET'), '/reports/rep/56', "OrgChargeController@rep56")->name('reports.rep56');
 
 //Состав плана платежей
 Route::get('orgplnpay_items/create/{docid}/', "OrgplnpayItemController@create")->name('orgplnpay_items.create');
@@ -1129,6 +1152,18 @@ Route::match(array('GET', 'POST'), '/user_templates', "UserTemplateController@in
 Route::get('user_templates/{id}/edit', "UserTemplateController@edit")->name('user_templates.edit');
 Route::match(array('POST', 'PUT'), 'user_templates/{id}', "UserTemplateController@update")->name('user_templates.update');
 Route::get('user_templates/{id}/delete', "UserTemplateController@destroy")->name("user_templates.delete");
+
+// stf_charges - в каких начислениях/удержания участвует сотрудник
+Route::get('stf_charges/{staffid}/create', "StfChargeController@create")->name('stf_charges.create');
+Route::get('stf_charges/{id}/edit', "StfChargeController@edit")->name('stf_charges.edit');
+Route::match(array('POST', 'PUT'), 'stf_charges/{id}', "StfChargeController@update")->name('stf_charges.update');
+Route::get('stf_charges/{id}/delete', "StfChargeController@destroy")->name("stf_charges.delete");
+
+// stf_chrg_calcs - фактические начисления/удержания сотрудника
+Route::get('stf_chrg_calcs/{staffid}/create', "StfChrgCalcController@create")->name('stf_chrg_calcs.create');
+Route::get('stf_chrg_calcs/{id}/edit', "StfChrgCalcController@edit")->name('stf_chrg_calcs.edit');
+Route::match(array('POST', 'PUT'), 'stf_chrg_calcs/{id}', "StfChrgCalcController@update")->name('stf_chrg_calcs.update');
+Route::get('stf_chrg_calcs/{id}/delete', "StfChrgCalcController@destroy")->name("stf_chrg_calcs.delete");
 
 //stf_salaries - ЗП сотрудников
 Route::get('stf_salaries/{staffid}/create', "StfSalaryController@create")->name('stf_salaries.create');

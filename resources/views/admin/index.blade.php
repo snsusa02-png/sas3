@@ -17,6 +17,8 @@
 
     $tabs[] = ['name' => 'Справочники', 'id' => 'nsi-dic-tab', 'href' => '#nsi-dic', 'toggle'=>'pill'];
 
+    $tabs[] = ['name' => 'ЗП', 'id' => 'nsi-salary-tab', 'href' => '#nsi-salary', 'toggle'=>'pill'];
+
     if (1==0 and \App\usrsysright::isUserHasRightByCode(\Auth::user()->id, 'wrhdocs.read'))
         $tabs[] = ['name' => 'Учет склада', 'id' => 'nsi-stock-tab', 'href' => '#nsi-stock', 'toggle'=>'pill'];
 
@@ -66,6 +68,7 @@
                         @include('admin.tab_rep')
                         @includeIf('admin.tab_mchnrqsts')
                         @includeIf('admin.tab_dic')
+                        @includeIf('admin.tab_salary')
                         @includeIf('admin.tab_stock')
                         @includeIf('admin0.tab_aux')
                         @includeIf('admin.tab_admin')
