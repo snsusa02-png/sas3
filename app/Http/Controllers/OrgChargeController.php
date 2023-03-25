@@ -345,7 +345,7 @@ class OrgChargeController extends Controller
 
         $os->notes = mb_substr($request->get('notes'), 0, 300);
 
-        $os->active = $request->get('active') ?? 0;
+        $os->active = $request->get('active') ?? 1;
         $os->updated_by = $userid;
         $os->save();
 
