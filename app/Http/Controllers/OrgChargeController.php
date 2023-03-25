@@ -112,37 +112,10 @@ class OrgChargeController extends Controller
         ];
 
         $search_params = $this->search_params($request, $param_names);
-
-        //сформируем условие запроса в БД -----
-        $sc = "1=1";
-        //$sc .= " and exists(select 1 from objflags f where f.sysobjid=111 and f.objid=oc.orgid and f.flagtypeid=12)";
-        foreach ($search_params as $item => $val) {
-            if (isset($val) and strlen($val) > 0) {
-
-                if ($item == 's_name') {
-                    $sc = $sc . " and concat(oc.lname,' ',oc.fname,' ',ifnull(oc.mname,'')) like '%" . mb_strtoupper($val) . "%'";
-
-                } elseif ($item == 's_orgflagid') {
-                    $sc .= " and exists(select 1 from objflags f where f.sysobjid=111 and f.objid=oc.orgid and f.flagtypeid={$val})";
-
-                } elseif ($item == 's_orgid') {
-                    $sc = $sc . " and oc.orgid = '{$val}'";
-
-                } elseif ($item == 's_active') {
-//                    $sc = $sc . " and ifnull(oc.active,0) = '{$val}'";
-                    $sc = $sc . " and " . (($val == 0) ? "not" : "") . " curdate() between oc.begdate and ifnull(oc.enddate, curdate())";
-
-                } elseif ($item == 's_dir') {
-                    $sc = $sc . " and ct.dir = {$val}";
-
-                } elseif ($item == 's_file_doctypeid') {
-                    $sc = $sc . " and exists (select 1 from objfiles as f where f.sysobjid={$this->sysobjid} and f.objid=oc.id and f.doctypeid={$val})";
-
-                }
-            }
-        }
-        //-------------------------------------------------------------------------------------------------------------
-
+        //сформируем условие запроса в БД -----------------------
+        $sc = org_charge::search_cond($search_params);
+        //dd($sc);
+        //-------------------------------------------------------
 
         $recs = org_charge::from('org_charges as oc')
             ->join('orgs as o', 'o.id', 'oc.orgid')
@@ -576,7 +549,7 @@ class OrgChargeController extends Controller
 
         $data->returl = $returl;
 
-        if ($s_ym <> '' ) {
+        if ($s_ym <> '') {
             //dd( $s_ym . '-01', date_create($s_ym . '-01' ) );
             $date = date_create($s_ym . '-01')->format('Y-m-d');
             //dd($date);
@@ -593,7 +566,7 @@ class OrgChargeController extends Controller
                     join org_charges as oc 	on oc.id=scc.orgchargeid
                     join chargetypes as ct on ct.id=oc.chargetypeid
                     where forbegdate <= '" . date_create($data->enddate)->format('Y-m-d') . "'"
-                    . " and forEndDate >= '" . date_create($data->begdate)->format('Y-m-d') . "'
+                . " and forEndDate >= '" . date_create($data->begdate)->format('Y-m-d') . "'
                     group by ct.id
                     order by ct.dir desc, ct.ordr";
             $data->cols = DB::select(DB::raw($sql));
@@ -607,13 +580,12 @@ class OrgChargeController extends Controller
                     join org_charges as oc 	on oc.id=scc.orgchargeid
                     join chargetypes as ct on ct.id=oc.chargetypeid
                     where forbegdate <= '" . date_create($data->enddate)->format('Y-m-d') . "'"
-                    . " and forEndDate >= '" . date_create($data->begdate)->format('Y-m-d') . "'
+                . " and forEndDate >= '" . date_create($data->begdate)->format('Y-m-d') . "'
                      group by scc.staffid, oc.chargetypeid
                     order by o.name, os.lname, os.fname, os.id, ct.dir desc, ct.ordr";
 
             $recs = DB::select(DB::raw($sql));
-        }
-        else {
+        } else {
             $recs = null;
         }
 
@@ -622,15 +594,15 @@ class OrgChargeController extends Controller
         Cache::forget('stf_chrg_calc_monthes');
         $data->yms = Cache::remember('stf_chrg_calc_monthes', now()->addMinutes(15)
             , function () {
-                return stf_chrg_calc::selectRaw("date_format(forbegdate, '%Y-%m') as ym")->distinct()->orderby('ym','desc')
+                return stf_chrg_calc::selectRaw("date_format(forbegdate, '%Y-%m') as ym")->distinct()->orderby('ym', 'desc')
                     ->get()->pluck('ym', 'ym')->toArray();
             });
         //dd($data->monthes);
         foreach ($data->yms as $key => $val) {
             $y = substr($val, 0, 4);
-            $m = 0+substr($val, 5);
+            $m = 0 + substr($val, 5);
 
-            $data->yms[$val] = $month_names[$m] . ' '. $y;
+            $data->yms[$val] = $month_names[$m] . ' ' . $y;
             //dd($key,$val, $m, $y, $data->yms[$val]);
         }
         //dd($data->yms);
