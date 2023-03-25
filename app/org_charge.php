@@ -258,7 +258,7 @@ class org_charge extends Model
                     $used_params[] = $key;
 
                     if ($key == 's_name' or $key == 'name') {
-                        $sc = $sc . " and concat(ct.name,' ',oc.notes) like '%" . mb_strtoupper($val) . "%'";
+                        $sc = $sc . " and concat(ct.name,' ',ifnull(oc.notes,' ')) like '%" . mb_strtoupper($val) . "%'";
 
                     } elseif ($key == 's_orgflagid') {
                         $sc .= " and exists(select 1 from objflags f where f.sysobjid=111 and f.objid=os.orgid and f.flagtypeid={$val})";
@@ -363,7 +363,7 @@ class org_charge extends Model
 
     static public function getFor($s_params, $fields = null, $sorts = null)
     {
-        //2021-04-30 SNS. универсальный конструктор коллекции из записей orgdeps
+        //2021-04-30 SNS. универсальный конструктор коллекции из записей org_charges
         // params - массив, содержащий пару "имя параметра"=>"значение параметра"
         // fields - массив со списком возвращаемых полей таблицы
 
@@ -371,14 +371,14 @@ class org_charge extends Model
 
             $sc = self::search_cond($s_params);
             //Log::info($sc);
-            $fields = (isset($fields) and count($fields) > 0) ? $fields : 'os.*';
+            //dd($s_params, $sc);
+            $fields = (isset($fields) and count($fields) > 0) ? $fields : 'oс.*';
             //Log::info(json_encode($fields));
 
             $sorts = $sorts ?? [['ct.dir', 'desc'], ['ct.name', 'asc']];
 
             $recs = self::from('org_charges as oc')
                 ->Join('chargetypes as ct', 'ct.id', 'oc.chargetypeid')
-//                ->leftJoin('orgposts as op', 'op.id', 'os.postid')
                 ->whereRaw($sc)
                 ->select($fields);
 

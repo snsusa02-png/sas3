@@ -60,7 +60,8 @@
                                       action="{{ route($sysobjcode.'.update', $rec->id) }}">
                                     @method('PUT')
                                     @csrf
-                                    {{ Form::hidden('id', $rec->id,['id'=>'id']) }}
+                                    {{ Form::hidden('id', $rec->id, ['id'=>'id']) }}
+                                    {{ Form::hidden('retURL', $rec->retURL, ['id'=>'retURL']) }}
 
                                     <div class="row">
                                         <div class="form-group col-md-12 driver_info" style="">

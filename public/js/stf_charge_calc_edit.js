@@ -236,8 +236,8 @@ $(document).ready(function () {
                     // console.log($(this).parent().find('.staffid').val());
                     var ac_id = $(this).parent().find('.ac_id');
                     ac_id.val(ui.item.id);
-                    // var orgid = $(this).parent().find('.orgid');
-                    // orgid.val(ui.item.orgid);
+                    var orgid = $(this).parent().parent().find('#orgid');
+                    orgid.val(ui.item.orgid);
                     $(this).val(ui.item.label);
 
                     var ac_status = $(this).parent().find('.ac_status');

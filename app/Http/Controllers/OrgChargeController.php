@@ -539,6 +539,7 @@ class OrgChargeController extends Controller
 
             $list = org_charge::getFor([
                 'name' => $request->name,
+                'orgid' => $request->orgid,
             ],
                 ['oc.id', 'ct.name', 'ct.dir', 'oc.charge_sum']);
 
@@ -591,8 +592,8 @@ class OrgChargeController extends Controller
                     join orgstaff os on os.id=scc.staffid
                     join org_charges as oc 	on oc.id=scc.orgchargeid
                     join chargetypes as ct on ct.id=oc.chargetypeid
-                    where forbegdate <= '" . date_create($data->enddate)->format('d.m.Y') . "'"
-                . " and forEndDate > '" . date_create($data->begdate)->format('d.m.Y') . "'
+                    where forbegdate <= '" . date_create($data->enddate)->format('Y-m-d') . "'"
+                    . " and forEndDate >= '" . date_create($data->begdate)->format('Y-m-d') . "'
                     group by ct.id
                     order by ct.dir desc, ct.ordr";
             $data->cols = DB::select(DB::raw($sql));
@@ -605,7 +606,8 @@ class OrgChargeController extends Controller
                     join orgs o on o.id=os.orgid
                     join org_charges as oc 	on oc.id=scc.orgchargeid
                     join chargetypes as ct on ct.id=oc.chargetypeid
-                    where forbegdate <= '2023-03-31' and forEndDate > '2023-03-01'
+                    where forbegdate <= '" . date_create($data->enddate)->format('Y-m-d') . "'"
+                    . " and forEndDate >= '" . date_create($data->begdate)->format('Y-m-d') . "'
                      group by scc.staffid, oc.chargetypeid
                     order by o.name, os.lname, os.fname, os.id, ct.dir desc, ct.ordr";
 

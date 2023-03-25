@@ -198,7 +198,6 @@ class StfChrgCalcController extends Controller
         //Cache::forget("user_{$usrid}_has_acs_{$rec->acsid}");
 
         $retURL = $request->get('retURL') ?? route('orgstaff.edit', $rec->staffid) . '?#chrg_calcs';
-
         return redirect($retURL)->with('success', $mess);
 
     }
