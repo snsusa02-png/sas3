@@ -125,6 +125,11 @@ $first_col_id = null;
 
                 <span class="float-right">
                     <a class="btn btn-warning btn-sm print-window d-print-none "
+                       href="{{ route('stf_chrg_calcs.create', -1) }}"
+                       title="Добавить запись">
+                        <i class="fa fa-plus" aria-hidden="true"></i>
+                    </a>
+                    <a class="btn btn-warning btn-sm print-window d-print-none "
                        onclick="window.print();"
                        title="печать">
                         <i class="fa fa-print" aria-hidden="true"></i>

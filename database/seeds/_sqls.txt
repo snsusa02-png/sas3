@@ -1,4 +1,19 @@
 ﻿--------------------------------------------------------------------------------------------------
+2023.03.22
+--------------------------------------------------------------------------------------------------
+
+insert into org_charges (orgid, chargetypeid, begdate, charge_sum, charge_period)
+		select o.id as orgid
+			, ct.id as chargetypeid
+			, '01.01.2023' as begdate
+			, 0 as charge_sum
+			, 'M' as charge_period
+		 from orgs o
+		 join chargetypes ct
+			on o.id in (31,32,33,35)
+            where not exists (select 1 from org_charges oc where oc.orgid=o.id and oc.chargetypeid=ct.id)
+
+--------------------------------------------------------------------------------------------------
 2022.07.30
 --------------------------------------------------------------------------------------------------
 
