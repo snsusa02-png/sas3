@@ -268,8 +268,11 @@ class org_charge extends Model
                         $sc = $sc . " and exists (select 1 from objfiles as f where f.sysobjid={$tsysobjid}
                                         and f.objid=os.id and f.doctypeid={$val})";
 
-                    } elseif ($key == 'orgid') {
+                    } elseif ($key == 'orgid' or $key == 's_orgid') {
                         $sc .= " and oc.orgid={$val}";
+
+                    } elseif ($key == 's_dir') {
+                        $sc .= " and ct.dir={$val}";
 
                     } elseif ($key == 'active' or $key == 's_active') {
                         $sc .= " and ifnull(oc.active,0) = '{$val}'";
@@ -283,11 +286,6 @@ class org_charge extends Model
                     } elseif ($key == 'period_not_once') {
                         $sc .= " and if(oc.charge_period,'1',oc.charge_period) <> '1'";
 
-                    } elseif ($key == 'in_cursias') {
-                        $sc .= " and " . (($val == 1) ? '' : 'not') . " exists(select 1 from cursias as crs where crs.staffid=os.id)";
-
-                    } elseif ($key == 'in_documents') {
-                        $sc .= " and " . (($val == 1) ? '' : 'not') . " exists(select 1 from obj_staffs as ojs where ojs.sysobjid=1701 and ojs.staffid=os.id)";
 
                     } elseif ($key == 'driver_in_mchn_raids') {
                         $sc .= " and " . (($val == 1) ? '' : 'not') . " exists(select 1 from mchn_raids as mr where mr.driverid=os.id)";
