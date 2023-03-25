@@ -587,7 +587,7 @@ class OrgChargeController extends Controller
 
             // Какие виды начислений/Удержаний попали в рассматриваемый месяц
             $sql = "SELECT ct.id as id, ct.name, sum(scc.charge_sum) charge_sum
-                    FROM sasdv_w.stf_chrg_calcs as scc
+                    FROM stf_chrg_calcs as scc
                     join orgstaff os on os.id=scc.staffid
                     join org_charges as oc 	on oc.id=scc.orgchargeid
                     join chargetypes as ct on ct.id=oc.chargetypeid
@@ -600,7 +600,7 @@ class OrgChargeController extends Controller
 
             $sql = "SELECT scc.staffid, os.lname, os.fname, os.orgid, o.name as org_name, ct.dir, oc.chargetypeid, ct.name as chargetype_name
                     , sum(scc.charge_sum) charge_sum
-                    FROM sasdv_w.stf_chrg_calcs as scc
+                    FROM stf_chrg_calcs as scc
                     join orgstaff os on os.id=scc.staffid
                     join orgs o on o.id=os.orgid
                     join org_charges as oc 	on oc.id=scc.orgchargeid
