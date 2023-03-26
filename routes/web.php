@@ -1160,6 +1160,7 @@ Route::match(array('POST', 'PUT'), 'stf_charges/{id}', "StfChargeController@upda
 Route::get('stf_charges/{id}/delete', "StfChargeController@destroy")->name("stf_charges.delete");
 
 // stf_chrg_calcs - фактические начисления/удержания сотрудника
+Route::match(array('GET', 'POST'), '/stf_chrg_calcs', "StfChrgCalcController@index")->name('stf_chrg_calcs.index');
 Route::get('stf_chrg_calcs/{staffid}/create', "StfChrgCalcController@create")->name('stf_chrg_calcs.create');
 Route::get('stf_chrg_calcs/{id}/edit', "StfChrgCalcController@edit")->name('stf_chrg_calcs.edit');
 Route::match(array('POST', 'PUT'), 'stf_chrg_calcs/{id}', "StfChrgCalcController@update")->name('stf_chrg_calcs.update');

@@ -572,7 +572,8 @@ class OrgChargeController extends Controller
             $data->cols = DB::select(DB::raw($sql));
 //dd($sql, $data->cols);
 
-            $sql = "SELECT scc.staffid, os.lname, os.fname, os.orgid, o.name as org_name, ct.dir, oc.chargetypeid, ct.name as chargetype_name
+            $sql = "SELECT scc.staffid, os.lname, os.fname, os.mname
+                    , os.orgid, o.name as org_name, ct.dir, oc.chargetypeid, ct.name as chargetype_name
                     , sum(scc.charge_sum) charge_sum
                     FROM stf_chrg_calcs as scc
                     join orgstaff os on os.id=scc.staffid

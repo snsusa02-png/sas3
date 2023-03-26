@@ -231,7 +231,7 @@ $first_col_id = null;
                                     {{++$npp}}
                                 </td>
                                 <td class="text-left " data-npp="{{$npp}}">
-                                    <a href="{{route('orgstaff.edit', $rec->staffid)}}" target="_blank"> {{$rec->lname}} {{$rec->fname}}</a>
+                                    {{$rec->lname}} {{$rec->fname}} {{$rec->mname}}
                                     <a class="d-print-none "
                                        href="{{ route('stf_chrg_calcs.create', $rec->staffid)}}?returl={{Request::url()}}"
                                        title="Добавить запись">+</a>

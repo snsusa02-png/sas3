@@ -52,4 +52,54 @@ class stf_chrg_calc extends Model
         return false;
     }
 
+    static public function search_cond($params)
+    {
+        $sc = "1=1";
+
+        //для оптимизации запроса некоторые параметры обрабатываются группой.
+        // Чтобы избежать повторного применения, используем добавление отработанных параметров
+        // в массив $used_params
+        $used_params = [];
+
+        foreach ($params as $key => $val) {
+
+            if (isset($val) and $val !== '') {
+
+                if (array_search($key, $used_params) == 0) {
+                    $used_params[] = $key;
+
+                    if ($key == 'stf_name') {
+                        $sc = $sc . " and concat(os.lname,' ',ifnull(os.fname,''),' ',ifnull(os.mname,'')) like '%" . mb_strtoupper($val) . "%'";
+
+                    } elseif ($key == 'chargetype_name') {
+                        $sc = $sc . " and concat(ct.name,' ',ifnull(oc.notes,' ')) like '%" . mb_strtoupper($val) . "%'";
+
+                    } elseif ($key == 'charge_dir') {
+                        $sc = $sc . " and ct.dir=$val";
+
+                    } elseif ($key == 'orgid' or $key == 's_orgid') {
+                        $sc .= " and os.orgid={$val}";
+
+                    } elseif ($key == 's_dir') {
+                        $sc .= " and ct.dir={$val}";
+
+                    } elseif ($key == 's_ym') {
+                        $date = date_create($val . '-01')->format('Y-m-d');
+                        //dd($date);
+
+                        $date = $date ?? date_create()->format('d-m-Y');
+                        $begdate = date_create($date)->format('Y-m-01');   //Первый день месяца
+                        $enddate = date_create($date)->format('Y-m-t');    //Последний день месяца
+
+                        $sc .= " and scc.forbegdate <= '" . date_create($enddate)->format('Y-m-d') . "'"
+                             . " and scc.forEndDate >= '" . date_create($begdate)->format('Y-m-d') . "'";
+                    }
+                }
+
+            }
+        }
+        //Log::info($sc);
+        return $sc;
+    }
+
 }

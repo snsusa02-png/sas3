@@ -2,16 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\doctype;
 use App\objlog;
+use App\org;
 use App\org_charge;
 use App\stf_chrg_calc;
 use App\sysobj;
+use App\Traits\SearchDataTrait;
+use App\Traits\snsTrait;
 use App\usrsysright;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class StfChrgCalcController extends Controller
 {
+    use SearchDataTrait;
+    use snsTrait;
+
     public function __construct()
     {
         $this->middleware('auth');
@@ -57,6 +66,100 @@ class StfChrgCalcController extends Controller
         $usrrights['edit'] = $usrrights['save'];
 
         return $usrrights;
+    }
+
+
+    public function index(Request $request)
+    {
+
+        $userid = \Auth::user()->id;
+
+        $usrrights = $this->setInterfaceRight(-1);
+        if (!$usrrights['read']) {
+            return view('home');
+        }
+
+
+        session([$this->sysobjcode . '_pageno' => $request->page ?? 1]);
+
+        // - параметры поиска: массив из имени и значения по-умолчанию -----------------------------------------------
+        $param_names = [
+            's_pageitmcnt' => 10
+            , 's_orgid' => ''
+            , 'stf_name' => ''
+            , 'charge_dir' => ''
+            , 'chargetype_name' => ''
+            , 's_ym' => ''
+        ];
+
+        $search_params = $this->search_params($request, $param_names);
+        //сформируем условие запроса в БД -----------------------
+        $sc = stf_chrg_calc::search_cond($search_params);
+        //dd($search_params, $sc);
+        //-------------------------------------------------------
+
+        $recs = stf_chrg_calc::from('stf_chrg_calcs as scc')
+            ->join('orgstaff as os', 'os.id', 'scc.staffid')
+            ->join('orgs as o', 'o.id', 'os.orgid')
+            ->join('org_charges as oc', 'oc.id', 'scc.orgchargeid')
+            ->join('chargetypes as ct', 'ct.id', 'oc.chargetypeid')
+            ->whereraw($sc)
+            ->select('scc.id', 'scc.staffid', 'scc.charge_sum', 'scc.docdate', 'scc.forbegdate'
+                , db::raw("concat(os.lname, ' ', ifnull(os.fname,''), ' ', ifnull(os.mname,'')) as stf_name")
+                , 'oc.chargetypeid', 'ct.name as chargetype_name', 'ct.dir as charge_dir'
+                , 'os.orgid', 'o.name as org_name'
+            );
+
+        //Сортировка пользователя ----------------------------------------
+        $sort_params = session('sort_params_' . $this->sysobjcode . '.index');
+
+        $recs = $recs->orderBy('org_name', 'asc');
+        $recs = $recs->orderBy('os.orgid', 'asc');
+        $recs = $recs->orderBy('stf_name', 'asc');
+        $recs = $recs->orderBy('scc.staffid', 'asc');
+        $recs = $recs->orderBy('scc.docdate', 'desc');
+        if (isset($sort_params)) {
+            foreach ($sort_params as $prm)
+                $recs = $recs->orderBy($prm['field'], $prm['dir']);
+        } else {
+            $recs = $recs->orderBy('ct.name', 'asc');
+        }
+        //----------------------------------------------------------------
+
+        $recs = $recs->paginate($search_params['s_pageitmcnt'] ?? 20);
+        //--------------------------------------------------------------
+
+
+        $data = new \stdClass();
+
+        //варианты кол-ва записей на страницу
+        $data->pageitmcnts = $this->pageitmcnts;
+
+        $data->sysobj = sysobj::find($this->sysobjid);
+
+        //номер первой записи на странице:
+        $data->rec0 = $recs->currentPage() * $recs->perPage() - $recs->perPage() + 1;
+
+        $data->search_params = $search_params;
+
+        $data->ownorgs = org::lstFor([
+            'in_org_charge' => 1,
+            //'flagtypeid' => $search_params['s_orgflagid'] ?? '',
+        ]);
+
+        $data->dirs = [1 => 'начисление', -1 => 'удержание'];
+
+        $data->yms = stf_chrg_calc::selectRaw("date_format(forbegdate, '%Y-%m') as ym")->distinct()->orderby('ym', 'desc')
+            ->get()->pluck('ym', 'ym')->toArray();
+        $month_names = Config::get('constants.monthes');
+        foreach ($data->yms as $key => $val) {
+            $y = substr($val, 0, 4);
+            $m = 0 + substr($val, 5);
+            $data->yms[$val] = $month_names[$m] . ' ' . $y;
+        }
+        //dd($data->yms);
+
+        return view($this->sysobjcode . '.index', compact(['recs', 'data', 'usrrights']));
     }
 
 
@@ -115,7 +218,7 @@ class StfChrgCalcController extends Controller
         $rec->orgcharges = org_charge::lstFor([
             'orgid' => $rec->orgid,
 //            'period_not_once' => 1,
-            'active_or_current' => $rec->orgchargeid??-1,
+            'active_or_current' => $rec->orgchargeid ?? -1,
         ]);
 
         if (!isset($rec))
@@ -177,14 +280,14 @@ class StfChrgCalcController extends Controller
         $rec->orgchargeid = $request->get('orgchargeid');
         $rec->charge_dir = $rec->org_charge->chargetype->dir;
         $rec->charge_sum = $request->get('charge_sum');
-        $rec->docdate = $request->get('docdate')??date_create()->format('Y-m-d');
+        $rec->docdate = $request->get('docdate') ?? date_create()->format('Y-m-d');
         $rec->docnum = $request->get('docnum');
 
         //$rec->forbegdate = $request->get('forbegdate');
         //$rec->forenddate = $request->get('forenddate');
         //ЦУУпрощенный вариант, вычислим  от даты начисления/удержания
-        $rec->forbegdate = ''.date_create($rec->docdate)->format('Y-m-01');
-        $rec->forenddate = ''.date_create($rec->docdate)->format('Y-m-t');
+        $rec->forbegdate = '' . date_create($rec->docdate)->format('Y-m-01');
+        $rec->forenddate = '' . date_create($rec->docdate)->format('Y-m-t');
         //$rec->forenddate = $request->get('forenddate');
 
         $rec->active = $request->get('active') ?? 1;

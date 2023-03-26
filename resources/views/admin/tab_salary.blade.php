@@ -20,7 +20,7 @@
         @endif
 
         @if (\App\usrsysright::isUserHasRightByCode(\Auth::user()->id,'stf_charges.read'))
-            <a href="{{route('contracts.index')}}"
+            <a href="{{route('stf_chrg_calcs.index')}}"
                class="list-group-item list-group-item-action">Начисления/Удержания сотрудников
                 <div class="description small font-italic" style="margin-left:2em;">
                 </div>
