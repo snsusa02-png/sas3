@@ -1047,7 +1047,7 @@ Route::match(array('POST', 'GET'), '/orgplnpays/rep/43', "OrgplnpayReportControl
 Route::match(array('POST', 'GET'), '/orgplnpays/rep/43_xls', "OrgplnpayReportController@rep43_excel")->name('reports.rep43_excel');
 Route::match(array('POST', 'GET'), '/reports/rep/46', "MchnRaidReportController@rep46")->name('reports.rep46');
 Route::match(array('POST', 'GET'), '/reports/rep/47', "PayDocReportController@rep47")->name('reports.rep47');
-Route::match(array('POST', 'GET'), '/reports/rep/48/{ownorgid}/{orgid}', "org_curator@rep48")->name('reports.rep48');
+Route::match(array('POST', 'GET'), '/reports/rep/48/{ownorgid}/{orgid}', "PayDocReportController@rep48")->name('reports.rep48');
 Route::match(array('POST', 'GET'), '/reports/rep/51', "MchnRaidReportController@rep51")->name('reports.rep51');
 Route::match(array('POST', 'GET'), '/reports/rep/52', "MchnRaidReportController@rep52")->name('reports.rep52');
 Route::match(array('POST', 'GET'), '/reports/rep/53/{ownorgid}/{orgid}', "PayDocReportController@rep53")->name('reports.rep53');
