@@ -209,9 +209,9 @@ $action_url = route('reports.rep' . $thisObjId);
                        title="печать">
                         <i class="fa fa-print" aria-hidden="true"></i>
                     </a>
-                        @if(1==0)
+                        @if(1==1)
                             <a class="btn btn-success btn-sm mr-3"
-                               href="{{ route('reports.rep43_excel')  }}" title="Выгрузить результаты в Excel">
+                               href="{{ route('reports.rep46')  }}?xls=1" title="Выгрузить результаты в Excel">
                                         <i class="fa fa-file-excel-o" aria-hidden="true"></i>
                                     </a>
                         @endif
@@ -224,20 +224,7 @@ $action_url = route('reports.rep' . $thisObjId);
                     <div class="font-weight-bold mt-2" align="center"
                          style="font-size: 18px;">
                         <h4>{{$thisTitle}}</h4>
-                        {{--                        <b>{{$data->ownorgs[$search_params['s_ownorgid']]??''}}</b><br>--}}
-                        @if($s_period_type==1)
-                            {{$data->monthes[$search_params['s_month']]??''}} {{$search_params['s_year']??''}}<br>
-                        @elseif($s_period_type==2)
-                            {{$search_params['s_quarter']}} квартал {{$search_params['s_year']??''}}<br>
-                        @elseif($s_period_type==3)
-                            {{$search_params['s_year']??''}} год<br>
-                        @endif
-                        @if(isset($s_begdate) and $s_begdate<>'')
-                            с {{date_format(date_create($s_begdate),'d.m.Y')}}
-                        @endif
-                        @if(isset($s_enddate) and $s_enddate<>'')
-                            по {{date_format(date_create($s_enddate),'d.m.Y')}}
-                        @endif
+                        {{$data->period_title}}
 
                         <span class="small ml-3 d-print-none"><br>по состоянию на {{now()}}</span>
 

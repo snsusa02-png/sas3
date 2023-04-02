@@ -58,7 +58,6 @@ class PayDocReportController extends Controller
         $this->objcode = 'paydocs';
     }
 
-
     protected function setInterfaceRight($id)
     {
         /*
@@ -241,7 +240,6 @@ class PayDocReportController extends Controller
         $export2xls = $request->get('xls') ?? 0;
 
         $userid = Auth::user()->id;
-
         if (!(isset($ownorgid) and isset($orgid)))
             return redirect($returl)
                 ->with(['error' => 'Запрос ожидал две компании!']);

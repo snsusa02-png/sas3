@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\buildobj;
 use App\driver_work;
+use App\Exports\rep46Export;
 use App\mr_oper;
 use App\Exports\InvoicesExport;
 use App\Exports\PayPlanExport;
@@ -300,6 +301,8 @@ class MchnRaidReportController extends Controller
             return redirect(route('home'))
                 ->with(['error' => 'У вас нет полномочий для работы с платежами для этой организации!']);
 
+        $export2xls = $request->get('xls') ?? 0;
+
         // - параметры поиска: массив из имени и значения по-умолчанию -----------------------------------------------
         $fdom = new DateTime('first day of this month');
         $fdomc = $fdom->format('Y-m-d');
@@ -529,6 +532,36 @@ class MchnRaidReportController extends Controller
             'in_mr_opers' => 1,
             'not_flagtypeid' => 12,
         ]);
+
+        $s_period_type = $search_params['s_period_type'] ?? '';
+        $ownorgid = $search_params['s_ownorgid'] ?? '';
+        $s_begdate = $search_params['s_begdate'] ?? '';
+        $s_enddate = $search_params['s_enddate'] ?? '';
+
+        //dd($search_params['s_year']);
+        $data->period_title = '';
+        if ($s_period_type == 1) {
+            if (isset($s_begdate) and $s_begdate <> '')
+                $data->period_title .= ' с ' || date_format(date_create($s_begdate), 'd.m.Y');
+            if (isset($s_enddate) and $s_enddate <> '')
+                $data->period_title .= ' по ' || date_format(date_create($s_enddate), 'd.m.Y');
+        } elseif ($s_period_type == 2)
+            $data->period_title = ($data->monthes[$search_params['s_month']] ?? '') . ' ' . ($search_params['s_year'] ?? '');
+        elseif ($s_period_type == 3)
+            $data->period_title = $search_params['s_quarter'] . ' квартал ' . ($search_params['s_year'] ?? '');
+        elseif ($s_period_type == 4)
+            $data->period_title = ($search_params['s_year'] ?? '') . ' год';
+
+
+        if ($export2xls == "1") {
+
+            $response = Excel::download(new rep46Export($data, $recs, $recs2, $recs3), "rep_daily.xlsx", \Maatwebsite\Excel\Excel::XLSX);
+
+            //$response= Excel::download(new InvoicesExport, 'invoices.xls', \Maatwebsite\Excel\Excel::XLS);
+            //HERE IS THE MAGIC FOLKS
+            ob_end_clean();
+            return $response;
+        }
 
         return view('mchn_raids.rep' . $report_id, compact('recs', 'recs2', 'recs3', 'search_params', 'data'));
     }
