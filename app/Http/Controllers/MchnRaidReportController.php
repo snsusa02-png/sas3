@@ -540,21 +540,25 @@ class MchnRaidReportController extends Controller
 
         //dd($search_params['s_year']);
         $data->period_title = '';
+
         if ($s_period_type == 1) {
-            if (isset($s_begdate) and $s_begdate <> '')
-                $data->period_title .= ' с ' || date_format(date_create($s_begdate), 'd.m.Y');
-            if (isset($s_enddate) and $s_enddate <> '')
-                $data->period_title .= ' по ' || date_format(date_create($s_enddate), 'd.m.Y');
+                $data->period_title = 'за ' . date_format(date_create($s_begdate), 'd.m.Y');
         } elseif ($s_period_type == 2)
             $data->period_title = ($data->monthes[$search_params['s_month']] ?? '') . ' ' . ($search_params['s_year'] ?? '');
         elseif ($s_period_type == 3)
             $data->period_title = $search_params['s_quarter'] . ' квартал ' . ($search_params['s_year'] ?? '');
         elseif ($s_period_type == 4)
             $data->period_title = ($search_params['s_year'] ?? '') . ' год';
-
+        else{
+            if (isset($s_begdate) and $s_begdate <> '')
+                $data->period_title .= ' с ' . date_format(date_create($s_begdate), 'd.m.Y');
+            if (isset($s_enddate) and $s_enddate <> '')
+                $data->period_title .= ' по ' . date_format(date_create($s_enddate), 'd.m.Y');
+        }
+        //dd($s_period_type,$s_begdate, $s_enddate, $data->period_title,  date_format(date_create($s_begdate), 'd.m.Y'));
 
         if ($export2xls == "1") {
-
+            $recs2=null;
             $response = Excel::download(new rep46Export($data, $recs, $recs2, $recs3), "rep_daily.xlsx", \Maatwebsite\Excel\Excel::XLSX);
 
             //$response= Excel::download(new InvoicesExport, 'invoices.xls', \Maatwebsite\Excel\Excel::XLS);

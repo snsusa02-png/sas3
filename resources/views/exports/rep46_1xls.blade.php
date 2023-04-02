@@ -131,5 +131,9 @@
 
         </tbody>
     </table>
+@else
+    <table>
+        <tr><td width="20" style="background-color: #ffcdcd;">Нет данных!</td></tr>
+    </table>
 @endif
 

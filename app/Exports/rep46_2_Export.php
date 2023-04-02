@@ -24,8 +24,6 @@ class rep46_2_Export implements FromView, WithTitle
     {
         $this->data = $data;
         $this->recs = $recs;
-        //$this->recs2 = $recs2;
-        //$this->recs3 = $recs3;
     }
 
 
