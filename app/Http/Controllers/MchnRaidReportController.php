@@ -558,7 +558,6 @@ class MchnRaidReportController extends Controller
         //dd($s_period_type,$s_begdate, $s_enddate, $data->period_title,  date_format(date_create($s_begdate), 'd.m.Y'));
 
         if ($export2xls == "1") {
-            $recs2=null;
             $response = Excel::download(new rep46Export($data, $recs, $recs2, $recs3), "rep_daily.xlsx", \Maatwebsite\Excel\Excel::XLSX);
 
             //$response= Excel::download(new InvoicesExport, 'invoices.xls', \Maatwebsite\Excel\Excel::XLS);
