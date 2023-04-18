@@ -104,7 +104,7 @@ class RiSupPriceController extends Controller
                 $j->on('op.id', 'rop.placeid');
             })
             ->whereraw($sc)
-            ->select('rop.id', 'rop.price', 'rop.begdate', 'rop.enddate'
+            ->select('rop.id', 'rop.refitmid', 'rop.price', 'rop.begdate', 'rop.enddate'
                 , 'o.name as org_name', 'rop.orgid'
                 , 'op.name as place_name', 'rop.placeid'
                 , 'it.name as itmtype_name', 'ri.itmtypeid'
@@ -194,6 +194,7 @@ class RiSupPriceController extends Controller
                 'orgid' => $orgid,
                 'begdate' => today()->format('Y-m-d'),
                 'placeid' => $request->get('placeid'),
+                'refitmid' => $request->get('refitmid'),
                 'active' => 1,
                 'created_by' => $userid,
             ]);
@@ -281,7 +282,7 @@ class RiSupPriceController extends Controller
         $enddate = $rec->enddate ?? today()->format('Y-m-d');
 
         //1-й вариант
-        ri_sup_price::where(['refitmid' => $rec->refitmid, 'orgid' => $rec->orgid, 'active' => 1])
+        ri_sup_price::where(['refitmid' => $rec->refitmid, 'orgid' => $rec->orgid, 'placeid' => $rec->placeid, 'active' => 1])
             ->where('id', '<>', $rec->id)
             ->whereRaw("begdate >= '{$begdate}' and enddate <= '{$enddate}'")
             ->update(['active' => 0]);
@@ -291,13 +292,13 @@ class RiSupPriceController extends Controller
         //dd($begdate, $enddate, $set_begdate, $set_enddate);
 
         //2-й вариант
-        ri_sup_price::where(['refitmid' => $rec->refitmid, 'orgid' => $rec->orgid, 'active' => 1])
+        ri_sup_price::where(['refitmid' => $rec->refitmid, 'orgid' => $rec->orgid, 'placeid' => $rec->placeid, 'active' => 1])
             ->where('id', '<>', $rec->id)
             ->whereRaw("begdate < '{$begdate}' and ifnull(enddate,'{$begdate}') >= '{$begdate}'")
             ->update(['enddate' => $set_enddate]);
 
         //3-й вариант
-        ri_sup_price::where(['refitmid' => $rec->refitmid, 'orgid' => $rec->orgid, 'active' => 1])
+        ri_sup_price::where(['refitmid' => $rec->refitmid, 'orgid' => $rec->orgid, 'placeid' => $rec->placeid, 'active' => 1])
             ->where('id', '<>', $rec->id)
             ->whereRaw("begdate > '{$begdate}' and ifnull(enddate,'{$begdate}') >= '{$begdate}'")
             ->update(['begdate' => $set_begdate]);

@@ -171,7 +171,7 @@
                                     <td>
                                         <a name="{{$item->id}}"></a>
 
-                                        <a href="{{route('refitems.edit',$item->id)}}"
+                                        <a href="{{route('refitems.edit',$item->refitmid)}}"
                                            target="_self">{{$item->refitm_name}}</a>
                                         <div class="small ml-3">{{$item->code}}</div>
                                         @if($bShowDescript)
@@ -189,7 +189,12 @@
                                     </td>
                                     <td class="text-center small">
                                         {{$item->place_name}}
-                                        <div>{{$item->active_period}}</div>
+                                        <div>{{$item->active_period}}
+                                            <a href="{{ route('ri_sup_prices.create',$item->orgid)}}?returl={{$retURL}}&refitmid={{$item->refitmid}}&placeid={{$item->placeid}}"
+                                               class="btn btn-sm btn-warning"
+                                               title="Добавить запись">
+                                                <i class="fa fa-plus"></i></a>
+                                        </div>
                                     </td>
                                     <td style="text-align: center;">
                                         <a href="{{ route('ri_sup_prices.edit',$item->id)}}?returl={{$retURL}}"
