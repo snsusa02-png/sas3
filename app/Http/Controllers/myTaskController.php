@@ -49,7 +49,7 @@ class myTaskController extends Controller
         $userid = \Auth::user()->id;
 
         $usrrights = array();
-        $usrrights['read'] = true; //usrsysright::isUserHasRightByCode_cached($userid, $this->objcode . '.read');
+        $usrrights['read'] = usrsysright::isUserHasRightByCode_cached($userid, $this->objcode . '.read');
         $usrrights['create'] = true; //usrsysright::isUserHasRightByCode_cached($userid, $this->objcode . '.create');
         $usrrights['save'] = false;
         $usrrights['delete'] = false;
@@ -61,7 +61,6 @@ class myTaskController extends Controller
         $usrrights['back2work'] = false;
         $usrrights['task_reports.create'] = false;
         $usrrights['link_tasks'] = false;
-
 
         if ($id == -1) {
             $usrrights['save'] = $usrrights['create'];
@@ -88,7 +87,7 @@ class myTaskController extends Controller
         $sysobjid = $this->sysobjid;
 
         $usrrights = array(
-            'read' => true,
+            'read' => usrsysright::isUserHasRightByCode_cached($userid, $this->objcode . '.read'),
             'create' => true,
             'save' => usrsysright::isUserHasRightByCode_cached($userid, $this->objcode . '.save'),
         );
