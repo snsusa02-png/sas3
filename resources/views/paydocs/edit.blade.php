@@ -211,7 +211,7 @@
                                     </div>
 
                                     <div class="form-group offset-md-0 col-md-6">
-                                        <label for="name" class="">Вид работ:</label>
+                                        <label for="name" class="required">Вид работ:</label>
                                         @if ($usrrights['save'])
                                             {!! Form::select('opertypeid', $rec->opertypes??[], old('opertypeid',$rec->opertypeid),
                                              [
@@ -237,7 +237,7 @@
                                     </div>
                                     <div class="form-group col-md-4 col-sm-6">
                                         <label for="docnum" class="">Дата док-та:</label>
-                                        <input type="date" class="form-control" name="docdate" id="docdate" {{$ro_mode}}
+                                        <input type="date" class="form-control" name="docdate" id="docdate" {{$ro_mode}} min="{{$rec->paydate_min}}"
                                         value="{{old('docdate',$rec->docdate)}}"/>
                                     </div>
 

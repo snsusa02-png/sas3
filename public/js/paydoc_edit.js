@@ -325,7 +325,7 @@ $(document).ready(function () {
         if ($(this).val())
             $("#paydate").attr('min', $(this).val());
         else
-            $("#paydate").attr('min', '');
+            $("#paydate").attr('min', $(this).attr('min'));
 
     });
 
