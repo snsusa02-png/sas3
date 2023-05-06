@@ -708,6 +708,7 @@
                                     $lbl = $grps[$g]['lbl'];
                                     $v = $itm->$lbl;
                                     $grpCurVal[$g] = $v;
+                                    //var_dump($lbl, $grpCurVal[$g]);
                                 }
 
                                 // суммы
@@ -744,6 +745,7 @@
                                 for ($g = 0; $g < $grpCnt; $g++) {
 
                                     $lbl = $grps[$g]['lbl'];
+//                                     var_dump($lbl);
                                     $v = $itm->$lbl;
 
                                     if ($v <> $grpCurVal[$g]) {

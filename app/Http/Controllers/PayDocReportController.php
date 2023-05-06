@@ -312,6 +312,7 @@ class PayDocReportController extends Controller
                 , db::raw("sum( if(srcorgid = {$ownorgid}, - 1, + 1) * opersum) as opersum")
                 , db::raw("trim(group_concat(mro.name separator ' ')) as notes")
                 , db::raw("trim(group_concat(m.regnum separator ' ')) as mchn_regnums")
+                , db::raw("sum(mro.raid_qty) as raid_qty")
             )
             ->groupBy(['sysobjid', 'fo.objid', 'sumtypeid', 'operdate', 'price', 'descript', 'mro.org_placename'])
             ->get();
@@ -429,6 +430,7 @@ class PayDocReportController extends Controller
                     , db::raw("sum(mro.itm_qty) as qty")
                     , db::raw("sum(-mro.itm_sum) as opersum")
                     , db::raw("trim(group_concat( mro.name SEPARATOR ' ')) as notes")
+                    , db::raw("sum(mro.raid_qty) as raid_qty")
                 )
                 ->groupBy('operdate', 'sysobjid', 'org_placename', 'mro.refitmid', 'mro.itm_price');
 
@@ -445,6 +447,7 @@ class PayDocReportController extends Controller
                     , db::raw("sum(mro.itm_qty) as qty")
                     , db::raw("sum(+mro.itm_sum) as opersum")
                     , db::raw("trim(group_concat( mro.name SEPARATOR ' ')) as notes")
+                    , db::raw("sum(mro.raid_qty) as raid_qty")
                 )
                 ->groupBy('operdate', 'sysobjid', 'org_placename', 'mro.refitmid', 'mro.itm_price');
 
@@ -459,6 +462,7 @@ class PayDocReportController extends Controller
                     , db::raw("null as qty")
                     , db::raw("pd.paydir*pd.paysum as opersum")
                     , db::raw("null as notes")
+                    , db::raw("null as raid_qty")
                 )
                 ->unionall($sells)
                 ->unionall($buys)
