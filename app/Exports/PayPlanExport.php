@@ -13,9 +13,10 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 
 use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
+use Maatwebsite\Excel\Concerns\WithTitle;
 
 //class PayPlanExport implements FromQuery, WithHeadings
-class PayPlanExport implements FromView
+class PayPlanExport implements FromView, WithTitle
 {
     use SearchDataTrait;
 
@@ -23,6 +24,14 @@ class PayPlanExport implements FromView
     {
         $this->recs = $recs;
         $this->data = $data;
+    }
+
+    /**
+     * @return string
+     */
+    public function title(): string
+    {
+        return 'Детализация';
     }
 
     /**
