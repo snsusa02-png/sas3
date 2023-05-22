@@ -104,95 +104,100 @@
 
     <div class="container">
         <div class="sheet">
+            @for ($i = 0; $i < 2; $i++)
 
-            <table class="table table-bordered text-center" style="width:100%" border="1" cellspacing="0">
-                <tr class="align-middle">
-                    <td class="w-50 doc_title font-weight-bold text-center"
-                        style="vertical-align: middle">{{$rec->doctype->name}}</td>
-                    <td class="w-25">
-                        <span class=""> Дата</span>
-                        <div class="font-weight-bold doc_title">{{date_create($rec->docdate)->format('d.m.Y')}}</div>
-                    </td>
-                    <td class="w-25">
-                        <span class=""> №</span>
-                        <div class="font-weight-bold doc_title">{{$rec->docnum}}</div>
-                    </td>
-                </tr>
-            </table>
-
-            <table class="table table-bordered text-center" style="width:100%" border="1" cellspacing="0">
-                <tr>
-                    <td>{{$rec->doctype->ownorg_label}}:</td>
-                    <td><b>{{$rec->ownorg->name}}</b></td>
-                    <td class="text-left">
-                        <span class="sm-caps">ИНН:{{$rec->ownorg->inn}} КПП:{{$rec->ownorg->kpp}}</span>
-                        <br>{{$rec->ownorg->address}}
-                    </td>
-                </tr>
-                <tr>
-                    <td>{{$rec->doctype->wrh_label}}:</td>
-                    <td><b>{{$rec->wrh->name}}</b></td>
-                    <td class="text-left">{{$rec->wrh->address}}</td>
-                </tr>
-                @if(isset($rec->orgid))
-                    <tr>
-                        <td>{{$rec->doctype->org_label}}:</td>
-                        <td><b>{{$rec->org->name}}</b></td>
-                        <td class="text-left">
-                            <span class="sm-caps">ИНН:{{$rec->org->inn}} КПП:{{$rec->org->kpp}}</span>
-                            <br>{{$rec->org->address}}
+                <table class="table table-bordered text-center" style="width:100%" border="1" cellspacing="0">
+                    <tr class="align-middle">
+                        <td class="w-50 doc_title font-weight-bold text-center"
+                            style="vertical-align: middle">{{$rec->doctype->name}}</td>
+                        <td class="w-25">
+                            <span class=""> Дата</span>
+                            <div
+                                class="font-weight-bold doc_title">{{date_create($rec->docdate)->format('d.m.Y')}}</div>
+                        </td>
+                        <td class="w-25">
+                            <span class=""> №</span>
+                            <div class="font-weight-bold doc_title">{{$rec->docnum}}</div>
                         </td>
                     </tr>
-                @endif
-            </table>
+                </table>
 
-            <table cellpadding="5" class="table-bordered w-100">
-                <tr class="text-center">
-                    <td class="small" style="width:36px;">№п/п</td>
-                    <td>Товар</td>
-                    <td class="small">ЕИ</td>
-                    <td>Кол-во, еи</td>
-                    <td>Цена за еи, &#x20bd;</td>
-                    <td>Сумма, &#x20bd;</td>
-                    <td>Вес, кг</td>
-                </tr>
-                <?php
-                $npp = 0;
-                $totalsum = 0;
-                $ri_grossweight = 0;
-                ?>
-                @foreach($rec->items as $itm)
+                <table class="table table-bordered text-center" style="width:100%" border="1" cellspacing="0">
                     <tr>
-                        <td class="small text-right">{{++$npp}}</td>
-                        <td class="l">
-                            {{$itm->refitem->name}}
+                        <td>{{$rec->doctype->ownorg_label}}:</td>
+                        <td><b>{{$rec->ownorg->name}}</b></td>
+                        <td class="text-left">
+                            <span class="sm-caps">ИНН:{{$rec->ownorg->inn}} КПП:{{$rec->ownorg->kpp}}</span>
+                            <br>{{$rec->ownorg->address}}
                         </td>
-                        <td class="text-center small">{{$itm->refitem->unit?:'шт'}}</td>
-                        <td class="text-right">{{number_format($itm->qty, $itm->decimal_dgts)}}</td>
-                        <td class="text-right">{{number_format($itm->price,2)}}</td>
-                        <td class="text-right">{{number_format($itm->price * $itm->qty,2)}}</td>
-                        <td class="text-right">{{trim(number_format($itm->ri_grossweight*$itm->qty,3),'0')}}</td>
+                    </tr>
+                    <tr>
+                        <td>{{$rec->doctype->wrh_label}}:</td>
+                        <td><b>{{$rec->wrh->name}}</b></td>
+                        <td class="text-left">{{$rec->wrh->address}}</td>
+                    </tr>
+                    @if(isset($rec->orgid))
+                        <tr>
+                            <td>{{$rec->doctype->org_label}}:</td>
+                            <td><b>{{$rec->org->name}}</b></td>
+                            <td class="text-left">
+                                <span class="sm-caps">ИНН:{{$rec->org->inn}} КПП:{{$rec->org->kpp}}</span>
+                                <br>{{$rec->org->address}}
+                            </td>
+                        </tr>
+                    @endif
+                </table>
+
+                <table cellpadding="5" class="table-bordered w-100">
+                    <tr class="text-center">
+                        <td class="small" style="width:36px;">№п/п</td>
+                        <td>Товар</td>
+                        <td class="small">ЕИ</td>
+                        <td>Кол-во, еи</td>
+                        <td>Цена за еи, &#x20bd;</td>
+                        <td>Сумма, &#x20bd;</td>
+                        <td>Вес, кг</td>
                     </tr>
                     <?php
-                    $totalsum += $itm->price * $itm->qty;
-                    $ri_grossweight += $itm->ri_grossweight * $itm->qty;
+                    $npp = 0;
+                    $totalsum = 0;
+                    $ri_grossweight = 0;
                     ?>
-                @endforeach
-                <tr>
-                    <td class="text-right" colspan="5">Итого:</td>
-                    <td class="text-right"><b>{{number_format($totalsum, 2, ".","") }}</b></td>
-                    <td class="text-right">{{trim(number_format($ri_grossweight,1),'0')}}</td>
-                </tr>
-            </table>
+                    @foreach($rec->items as $itm)
+                        <tr>
+                            <td class="small text-right">{{++$npp}}</td>
+                            <td class="l">
+                                {{$itm->refitem->name}}
+                            </td>
+                            <td class="text-center small">{{$itm->refitem->unit?:'шт'}}</td>
+                            <td class="text-right">{{number_format($itm->qty, $itm->decimal_dgts)}}</td>
+                            <td class="text-right">{{number_format($itm->price,2)}}</td>
+                            <td class="text-right">{{number_format($itm->price * $itm->qty,2)}}</td>
+                            <td class="text-right">{{trim(number_format($itm->ri_grossweight*$itm->qty,3),'0')}}</td>
+                        </tr>
+                        <?php
+                        $totalsum += $itm->price * $itm->qty;
+                        $ri_grossweight += $itm->ri_grossweight * $itm->qty;
+                        ?>
+                    @endforeach
+                    <tr>
+                        <td class="text-right" colspan="5">Итого:</td>
+                        <td class="text-right"><b>{{number_format($totalsum, 2, ".","") }}</b></td>
+                        <td class="text-right">{{trim(number_format($ri_grossweight,1),'0')}}</td>
+                    </tr>
+                </table>
 
-            <table class="table table-borderless text-center" style="width:100%" border="0" cellspacing="0">
-                <tr>
-                    <td class="w-25 text-right">&nbsp;</td>
-                    <td style="border-bottom: 1px solid silver"></td>
-                    <td class="w-25 text-right"></td>
-                    <td style="border-bottom: 1px solid silver"></td>
-                </tr>
-            </table>
+                <table class="table table-borderless text-center" style="width:100%" border="0" cellspacing="0">
+                    <tr>
+                        <td class="w-25 text-right">&nbsp;</td>
+                        <td style="border-bottom: 1px solid silver"></td>
+                        <td class="w-25 text-right"></td>
+                        <td style="border-bottom: 1px solid silver"></td>
+                    </tr>
+                </table>
+                <br>
+
+            @endfor
         </div>
 
         <div class="buttons no-print">
