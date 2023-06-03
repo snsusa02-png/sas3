@@ -128,6 +128,7 @@ class WrhStockController extends Controller
                 ->orderby('itmtype_ordr')
                 ->orderby('itmtype_name')
                 ->orderby('ri.itmtypeid')
+                ->orderby('ri.name')
                 ->get();
             //dd($recs);
 
