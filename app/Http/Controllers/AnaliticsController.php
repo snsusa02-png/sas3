@@ -836,7 +836,7 @@ class AnaliticsController extends Controller
                     $begdate1 = $week_array['week_start'];
                     $enddate1 = $week_array['week_end'];
                 } elseif (isset($vMn1)) {
-                    $begdate1 = $vYr1 . '-' . $vMn1 . '-01';
+                    $begdate1 = $vYr1 . '-' . str_pad($vMn1, 2, '0', STR_PAD_LEFT) . '-01';
                     $enddate1 = date('Y-m-d', strtotime($begdate1 . ' + 1 month - 1 day'));
 
                 } else {
@@ -845,6 +845,7 @@ class AnaliticsController extends Controller
                 }
 
 
+            //var_dump($vMn1, str_pad($vMn1, 2, '0', STR_PAD_LEFT));
             $begdate2 = null;
             $enddate2 = null;
             if (isset($vYr2)) {
@@ -855,7 +856,7 @@ class AnaliticsController extends Controller
                     $begdate2 = $week_array['week_start'];
                     $enddate2 = $week_array['week_end'];
                 } elseif (isset($vMn2)) {
-                    $begdate2 = $vYr2 . '-' . $vMn2 . '-01';
+                    $begdate2 = $vYr2 . '-' . str_pad($vMn2, 2, '0', STR_PAD_LEFT) . '-01';
                     $enddate2 = date('Y-m-d', strtotime($begdate2 . ' + 1 month - 1 day'));
 
                 } else {
@@ -876,6 +877,7 @@ class AnaliticsController extends Controller
 
         if (isset($begdate1) and isset($begdate2)) {
             if ($begdate2 < $begdate1) {
+                //dd($begdate1, $begdate2);
                 $d = $begdate1;
                 $begdate1 = $begdate2;
                 $begdate2 = $d;
@@ -883,8 +885,8 @@ class AnaliticsController extends Controller
                 $d = $enddate1;
                 $enddate1 = $enddate2;
                 $enddate2 = $d;
+                //dd($begdate1, $enddate1, $begdate2, $enddate2);
             }
-//            dd($begdate1, $enddate1, $begdate2, $enddate2);
         }
 
 
@@ -921,6 +923,12 @@ class AnaliticsController extends Controller
         //Диспетчеры
         $data->dispatchers = orgstaff::lstFor_cached(['dispatcher_in_mchn_raids' => 1]);
 
+        // Список аггрегируемых полей
+        $agg_fields = 'sum(mr.mchnwrkhrs*1) as itmqty'
+            . ', sum(mro.itm_sum) itmsum'
+            . ', sum(mr.raid_qty) raid_qty'
+            . ', count(distinct mr.id) as docqty';
+
         $conditions = '';
         $sc = null;
         if ($needSearch) {
@@ -950,7 +958,8 @@ class AnaliticsController extends Controller
             if (1 == 1 and isset($s_refitmid)) {
                 $sc .= " and mro.refitmid=" . $s_refitmid;
                 $conditions .= 'Груз/Услуга = "<b>' . $data->refitems[$s_refitmid] ?? '-' . '</b>"; ';
-            }
+                $agg_fields .= ', sum(mro.itm_qty) as ri_qty';
+            }else $agg_fields .= ', 0 as ri_qty';
 
             if (1 == 1 and isset($s_contractid)) {
                 $sc .= " and di.contractid=" . $s_contractid;
@@ -981,6 +990,7 @@ class AnaliticsController extends Controller
         // --------------------------------------------------------------------
         //var_dump($sc);
 //        var_dump($GrpLst);
+//        var_dump($agg_fields);
         //dd($sc);
 
 
@@ -1052,6 +1062,7 @@ class AnaliticsController extends Controller
                 }
                 return $add;
             }
+
 
             $dataset = [];
             $dataset[1] = [$begdate1, $enddate1];
@@ -1130,10 +1141,8 @@ class AnaliticsController extends Controller
                             });
                 }
 
-                $recs2 = $recs2->selectRaw('2 as dataset, sum(mr.mchnwrkhrs*1) as itmqty
-                , sum(mro.itm_sum) itmsum
-                , sum(mr.raid_qty) raid_qty
-                , count(distinct mr.id) as docqty');
+                // Агрегируемые поля запроса
+                $recs2 = $recs2->selectRaw('2 as dataset,' . $agg_fields);
 
 
                 foreach ($grps as $grp) {
@@ -1210,12 +1219,8 @@ class AnaliticsController extends Controller
                         });
             }
 
-//            $recs = $recs->selectRaw('1 as dataset, sum(di.qty*ft.forsale) as itmqty, sum(di.qty*di.price*ft.forsale) itmsum
-//                , count(distinct fd.id) as docqty');
-            $recs = $recs->selectRaw('1 as dataset, sum(mr.mchnwrkhrs*1) as itmqty
-                , sum(mro.itm_sum) itmsum
-                , sum(mr.raid_qty) raid_qty
-                , count(distinct mr.id) as docqty');
+
+            $recs = $recs->selectRaw('1 as dataset,' . $agg_fields);
 
             foreach ($grps as $grp) {
                 if (isset($grp['show_val']))

@@ -608,14 +608,14 @@
                             for($ds = 1;$ds <= $datasetCnt;$ds++){
                             ?>
                             {{--                            <td colspan="4" class="font-weight-bold brg">--}}
-                            <td colspan="3" class="font-weight-bold brg">
+                            <td colspan="4" class="font-weight-bold brg">
                                 {{$dataset[$ds][0]}} - {{$dataset[$ds][1]}}
                             </td>
                             <?php
                             }?>
                             @if( $datasetCnt > 1)
                                 {{--                                <td colspan="3">Прирост, %</td>--}}
-                                <td colspan="2">Прирост, %</td>
+                                <td colspan="4">Прирост, %</td>
                             @endif
                         </tr>
                         <tr class="text-center">
@@ -625,13 +625,16 @@
                             {{--                            <td>Часов</td>--}}
                             <td>Сумма, руб</td>
                             <td>Кол-во рейсов</td>
-                            <td class="brg">В среднем за рейс, руб</td>
+                            <td>В среднем за рейс, руб</td>
+                            <td class="brg">Кол-во товара, ЕИ</td>
                             <?php
                             }?>
                             @if($datasetCnt>1)
                                 {{--                                <td>Часы</td>--}}
                                 <td>Сумма</td>
                                 <td>Кол-во рейсов</td>
+                                    <td>В среднем за рейс</td>
+                                <td>Кол-во товара</td>
                             @endif
 
                         </tr>
@@ -662,6 +665,7 @@
                         $grpItmQty = [];
                         $grpItmSum = [];
                         $grpDocQty = [];
+                        $grpRIQty = [];
 
                         $grandTotal = [];
 
@@ -671,22 +675,24 @@
 
                         for ($ds = 1; $ds <= $datasetCnt; $ds++) {
 
-                            $lineData[$ds] = array_fill(0, 4, 0.00);
+                            //$lineData[$ds] = array_fill(0, 4, 0.00);
+                            $lineData[$ds] = array_fill(0, 5, 0.00);
 
                             if ($grpCnt > 0) {
                                 $grpItmQty[$ds] = array_fill(0, $grpCnt - 1, 0);
                                 $grpItmSum[$ds] = array_fill(0, $grpCnt - 1, 0.00);
                                 $grpDocQty[$ds] = array_fill(0, $grpCnt - 1, 0);
+                                $grpRIQty[$ds] = array_fill(0, $grpCnt - 1, 0);
                             }
 
-                            $grandTotal[$ds] = array_fill(0, 4, 0.00);
+                            //$grandTotal[$ds] = array_fill(0, 4, 0.00);
+                            $grandTotal[$ds] = array_fill(0, 5, 0.00);
                         }
 
                         $npp = 0;
                         $isFirstCycle = true;
 
                         foreach ($recs as $itm) {
-
 
                             if (1 == 0)
                                 echo('<tr>'
@@ -718,6 +724,7 @@
                                         $itm->itmsum,
                                         $itm->raid_qty,
                                         ($itm->raid_qty > 0) ? round($itm->itmsum / $itm->raid_qty, 2) : 0,
+                                        $itm->ri_qty??0,
                                     ];
 
                                     $ds = $itm->dataset;
@@ -728,11 +735,12 @@
                                             $grpItmQty[$ds][$g] += $lineData[$ds][0];
                                             $grpItmSum[$ds][$g] += $lineData[$ds][1];
                                             $grpDocQty[$ds][$g] += $lineData[$ds][2];
+                                            $grpRIQty[$ds][$g] += $lineData[$ds][4];
                                         }
                                     }
 
                                     //GrandTotal
-                                    for ($i = 0; $i < 4; $i++)
+                                    for ($i = 0; $i < 5; $i++)
                                         $grandTotal[$ds][$i] += $lineData[$ds][$i];
                                 }
 
@@ -777,14 +785,16 @@
                                         //echo('<td class="text-right">' . $lineData[$ds][0] . '</td>');
                                         echo('<td class="text-right">' . number_format($lineData[$ds][1], 2) . '</td>');
                                         echo('<td class="text-right">' . $lineData[$ds][2] . '</td>');
-                                        echo('<td class="text-right brg">' . number_format($lineData[$ds][3], 2) . '</td>');
+                                        echo('<td class="text-right">' . number_format($lineData[$ds][3], 2) . '</td>');
+
+                                        echo('<td class="text-right brg">' . number_format($lineData[$ds][4], 3) . '</td>');
                                     }
 
                                     //Прирост ------------------------------------------------------------------------
                                     if ($datasetCnt > 1) {
 
                                         //for ($i = 0; $i < 3; $i++) {
-                                        for ($i = 1; $i < 3; $i++) {
+                                        for ($i = 1; $i < 5; $i++) {
                                             if ($lineData[1][$i] == 0) {
                                                 if ($lineData[2][$i] == 0) {
                                                     $dif = "";
@@ -811,7 +821,7 @@
 
                                     // обнулим ---------------------------------------------------------
                                     for ($ds = 1; $ds <= $datasetCnt; $ds++)
-                                        $lineData[$ds] = array_fill(0, 4, 0.00);
+                                        $lineData[$ds] = array_fill(0, 5, 0.00);
                                 }
 
 
@@ -834,6 +844,10 @@
 
                                                 //echo('<td>' . number_format($grpItmQty[$ds][$g], 0) . '</td>');
                                                 echo('<td>' . number_format($grpItmSum[$ds][$g], 2) . '</td>');
+
+
+                                                echo('<td>****' . number_format($grpRIQty[$ds][$g], 3) . '</td>');
+
                                                 echo('<td>' . number_format($grpDocQty[$ds][$g], 0) . '</td>');
                                                 if ($grpDocQty[$ds][$g] == 0)
                                                     $avgDealSum = "-";
@@ -908,6 +922,7 @@
                                                 $grpItmQty[$ds][$g] = 0;
                                                 $grpItmSum[$ds][$g] = 0;
                                                 $grpDocQty[$ds][$g] = 0;
+                                                $grpRIQty[$ds][$g] = 0;
 
                                             }
                                         }
@@ -927,6 +942,7 @@
                                     $itm->itmsum,
                                     $itm->raid_qty,
                                     ($itm->raid_qty > 0) ? round($itm->itmsum / $itm->raid_qty, 2) : 0,
+                                    $itm->ri_qty,
                                 ];
                                 //подитоги групп
                                 $ds = $itm->dataset;
@@ -934,9 +950,10 @@
                                     $grpItmQty[$ds][$g] += $lineData[$ds][0];
                                     $grpItmSum[$ds][$g] += $lineData[$ds][1];
                                     $grpDocQty[$ds][$g] += $lineData[$ds][2];
+                                    $grpRIQty[$ds][$g] += $lineData[$ds][4];
                                 }
                                 //GrandTotal
-                                for ($i = 0; $i < 4; $i++)
+                                for ($i = 0; $i < 5; $i++)
                                     $grandTotal[$ds][$i] += $lineData[$ds][$i];
 
                             }
@@ -961,14 +978,16 @@
                                 //echo('<td class="text-right">' . $lineData[$ds][0] . '</td>');
                                 echo('<td class="text-right">' . number_format($lineData[$ds][1], 2) . '</td>');
                                 echo('<td class="text-right">' . $lineData[$ds][2] . '</td>');
-                                echo('<td class="text-right brg">' . number_format($lineData[$ds][3], 2) . '</td>');
+                                echo('<td class="text-right">' . number_format($lineData[$ds][3], 2) . '</td>');
+                                //2023-06-03
+                                echo('<td class="text-right brg">' . number_format($lineData[$ds][4], 3) . '</td>');
                             }
                             //--------------------------------------------------------------------
 
                             //Прирост ------------------------------------------------------------------------
-                            if ($datasetCnt > 1) {
+                            if ( $datasetCnt > 1) {
 //                                for ($i = 0; $i < 3; $i++) {
-                                for ($i = 1; $i < 3; $i++) {
+                                for ($i = 1; $i < 5; $i++) {
                                     if ($lineData[1][$i] == 0) {
                                         if ($lineData[2][$i] == 0) {
                                             $dif = "";
@@ -979,7 +998,11 @@
                                             $bg = "#daffda";
                                         }
                                     } else {
-                                        $dif = number_format(($lineData[2][$i] - $lineData[1][$i]) / $lineData[1][$i] * 100, 1);
+                                        $dif = number_format(($lineData[2][$i] - $lineData[1][$i]) / $lineData[1][$i] * 100, 1)
+                                            //. ' ---' .$lineData[1][$i]
+                                            //. ' ///' .$lineData[2][$i]
+                                            ;
+
                                         $bg = ($dif <= 0) ? "#ffeee8" : "#daffda";
                                     }
                                     echo('<td class="text-right" style="background-color:' . $bg . '">' . $dif . '</td>');
@@ -1062,7 +1085,6 @@
                         //--------------------------------------------------------------------------------------------------
 
 
-
                         //GrandTotal
                         if (!$isFirstCycle) {
                             echo('<tr class="text-right grandTotal">');
@@ -1077,7 +1099,9 @@
                                     $avgDealSum = "-";
                                 else
                                     $avgDealSum = number_format($grandTotal[$ds][1] / $grandTotal[$ds][2], 2);
-                                echo('<td class="text-right brg">' . $avgDealSum . '</td>');
+                                echo('<td>' . $avgDealSum . '</td>');
+
+                                echo('<td class="brg"> ' . number_format($grandTotal[$ds][4], 3) . '</td>');
                             }
                             //Прирост ------------------------------------------------------------------------
                             if ($datasetCnt > 1) {
@@ -1109,6 +1133,25 @@
                                     $bg = ($dif <= 0) ? "#ff9871" : "limegreen";
                                 }
                                 echo('<td class="text-right" style="background-color:' . $bg . '">' . $dif . '</td>');
+
+                                if ($grandTotal[1][3] == 0) {
+                                    $dif = "";
+                                    $bg = "yellow";
+                                } else {
+                                    $dif = number_format(($grandTotal[2][3] - $grandTotal[1][3]) / $grandTotal[1][3] * 100, 1);
+                                    $bg = ($dif <= 0) ? "#ff9871" : "limegreen";
+                                }
+                                echo('<td class="text-right" style="background-color:' . $bg . '">' . $dif . '</td>');
+
+                                if ($grandTotal[1][4] == 0) {
+                                    $dif = "";
+                                    $bg = "yellow";
+                                } else {
+                                    $dif = number_format(($grandTotal[2][4] - $grandTotal[1][4]) / $grandTotal[1][4] * 100, 1);
+                                    $bg = ($dif <= 0) ? "#ff9871" : "limegreen";
+                                }
+                                echo('<td class="text-right" style="background-color:' . $bg . '">' . $dif . '</td>');
+
                             }
                             //----------------------------------------------------------------------------------
                             echo('</tr>');
@@ -1128,6 +1171,7 @@
                                 else
                                     $avgDealSum = number_format($grandTotal[$ds][1] / $grandTotal[$ds][2], 2);
                                 echo('<td class="text-right brg">' . $avgDealSum . '</td>');
+                                echo('<td>' . number_format($grandTotal[$ds][4] / $npp, 3) . '</td>');
                             }
                             //Прирост ------------------------------------------------------------------------
                             if (1 == 0 and $datasetCnt > 1) {
