@@ -1204,6 +1204,21 @@ class WrhdocController extends Controller
 
         $data = new \stdClass();
 
+        if ($rec->doctype->forstock == -1){
+            $data->src_signer_label = 'Отпустил';
+            $data->src_signer_name = \Auth::user()->short_fio;
+
+            $data->tgt_signer_label = 'Получил';
+            $data->tgt_signer_name = '';
+
+        }else{
+            $data->src_signer_label = '';
+            $data->src_signer_name = '';
+
+            $data->tgt_signer_label = 'Получил';
+            $data->tgt_signer_name = \Auth::user()->short_fio;
+        }
+
         $view = "wrhdocs.print";
         return view($view,
             compact('rec', 'data'));

@@ -104,7 +104,7 @@
 
     <div class="container">
         <div class="sheet">
-            @for ($i = 0; $i < 2; $i++)
+            @for ($i = 0; $i < 1; $i++)
 
                 <table class="table table-bordered text-center" style="width:100%" border="1" cellspacing="0">
                     <tr class="align-middle">
@@ -190,9 +190,13 @@
                 <table class="table table-borderless text-center" style="width:100%" border="0" cellspacing="0">
                     <tr>
                         <td class="w-25 text-right">&nbsp;</td>
-                        <td style="border-bottom: 1px solid silver"></td>
-                        <td class="w-25 text-right"></td>
-                        <td style="border-bottom: 1px solid silver"></td>
+                        <td class="text-right">{{$data->src_signer_label}}</td>
+                        <td style="width:100px; border-bottom: 1px solid silver"></td>
+                        <td style="border-bottom: 1px solid silver">{{$data->src_signer_name}}</td>
+                        <td class="w-25 text-right">&nbsp;</td>
+                        <td class="text-right">{{$data->tgt_signer_label}}</td>
+                        <td style="width:100px; border-bottom: 1px solid silver"></td>
+                        <td style="border-bottom: 1px solid silver">{{$data->tgt_signer_name}}</td>
                     </tr>
                 </table>
                 <br>
