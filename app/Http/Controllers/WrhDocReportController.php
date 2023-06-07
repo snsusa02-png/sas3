@@ -175,8 +175,8 @@ class WrhDocReportController extends Controller
                 , db::raw("sum(t.forsale * dl.qty) as qty"), 'dl.price', db::raw("sum(t.forsale * dl.qty * dl.price) as itm_sum"))
             ->groupBy('d.orgid', 'dl.refitmid', 'dl.price')
             ->orderBy('org_name', 'asc')
-            ->orderBy('d.orgid','asc')
-            ->orderBy('refitm_name','asc')
+            ->orderBy('d.orgid', 'asc')
+            ->orderBy('refitm_name', 'asc')
             ->get();
 
         //занесем в журнал
@@ -191,6 +191,106 @@ class WrhDocReportController extends Controller
 //        }
 
         return view('wrhdocs.rep' . $report_id, compact('recs', 'recs2', 'data'));
+    }
+
+    function rep57(Request $request)
+    {
+        //Детализация производства и отгрузки продукции за период
+
+        $report_id = 57;
+
+        $returl = $request->get('returl') ?? route('home');
+        $userid = Auth::user()->id;
+        $export2xls = $request->get('xls') ?? 0;
+
+        $param_names = [
+            's_begdate' => null,
+            's_enddate' => null,
+        ];
+
+        $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);
+
+        $s_begdate = $search_params['s_begdate'];
+        $s_enddate = $search_params['s_enddate'];
+
+//        dd($s_begdate, isset($s_begdate), is_null($s_begdate));
+        $data = new \stdClass();
+        $data->returl = $returl;
+
+        //dd($search_params, $data);
+
+        if ($s_begdate <> '') {
+            $sql = "select a.refitmid, ri.name as refitm_name, ri.unit as refitm_unit
+	            , sum(a.pre_qty) as pre_qty, sum(a.inp_qty) as inp_qty
+	            , sum(a.out_qty) as out_qty, sum(a.sale_sum) as sale_sum
+                from (
+                    SELECT i.refitmid
+                        , SUM(IF(t.forStock=1, i.qty, 0) - IF(t.forStock=-1, i.qty, 0)) as pre_qty
+                        , null as inp_qty, null as out_qty, null as sale_sum
+                    FROM wrhdoclst as i
+                    INNER JOIN wrhdocs as d ON d.id = i.docid
+                    INNER JOIN wrhdoctypes as t ON t.id = d.doctypeid AND t.forstock <> 0
+                    WHERE d.docsigned=1 and  d.docdate < '{$s_begdate}'
+                    GROUP BY refitmid
+                    union all
+                    SELECT     i.refitmid, null as pre_qty
+                        , SUM(IF(t.forStock= 1, i.qty, null )) as inp_qty
+                        , SUM(IF(t.forStock=-1, i.qty, null)) as out_qty
+                        , SUM(IF(t.forSale= 1, i.qty*i.price, null)) as sale_sum
+                    FROM wrhdoclst as i
+                    INNER JOIN wrhdocs as d ON d.id = i.docid
+                    INNER JOIN wrhdoctypes as t ON t.id = d.doctypeid AND t.forstock <> 0
+                    WHERE d.docsigned=1
+                    and d.docdate between '{$s_begdate}' and '{$s_enddate}'
+                    GROUP BY refitmid
+                    ) as a
+                INNER JOIN  refitems as ri ON ri.id = a.refitmid
+                GROUP BY refitmid
+                order by refitm_name";
+
+            $recs = DB::select(DB::raw($sql));
+
+            //dd($date,$sql,$recs);
+
+            if (1 == 0) {
+                $recs2 = wrhdoc::from('wrhdoclst as dl')
+                    //->join('wrhdocs as d', 'd.id', 'dl.docid')
+                    ->join('wrhdocs as d', function ($join) {
+                        $join->on('d.id', '=', 'dl.docid')
+                            ->where('d.docsigned', 1);
+                    })
+                    ->join('orgs as o', 'o.id', 'd.orgid')
+                    ->join('wrhdoctypes as t', function ($join) {
+                        $join->on('t.id', '=', 'd.doctypeid')
+                            ->where('t.forsale', '<>', 0);
+                    })
+                    ->join('refitems as ri', 'ri.id', 'dl.refitmid')
+                    ->where('d.docdate', $s_begdate)
+                    ->select('d.orgid', 'o.name as org_name'
+                        , 'dl.refitmid', 'ri.name as refitm_name', 'ri.unit as refitm_unit'
+                        , db::raw("sum(t.forsale * dl.qty) as qty"), 'dl.price', db::raw("sum(t.forsale * dl.qty * dl.price) as itm_sum"))
+                    ->groupBy('d.orgid', 'dl.refitmid', 'dl.price')
+                    ->orderBy('org_name', 'asc')
+                    ->orderBy('d.orgid', 'asc')
+                    ->orderBy('refitm_name', 'asc')
+                    ->get();
+            } else
+                $recs2 = null;
+            //занесем в журнал
+            objlog::log_info(855, $report_id, 'запрошен отчет; ' . $s_begdate);
+//        if ($export2xls == "1") {
+//            $response = Excel::download(new rep54Export($recs, $data), "Платежи за " . Str::slug($data->$date) . ".xlsx", \Maatwebsite\Excel\Excel::XLSX);
+//
+//            //$response= Excel::download(new InvoicesExport, 'invoices.xls', \Maatwebsite\Excel\Excel::XLS);
+//            //HERE IS THE MAGIC FOLKS
+//            ob_end_clean();
+//            return $response;
+//        }
+        } else {
+            $recs = null;
+            $recs2 = null;
+        }
+        return view('wrhdocs.rep' . $report_id, compact('search_params', 'recs', 'recs2', 'data'));
     }
 
 }
