@@ -4,6 +4,7 @@ systblrels,U,id
 acs,U,id
 preftypes,U,id
 extsystems,U,id
+flagtypes,U,id
 mimetypes,U,id
 sysfiletypes,U,id
 obj_stages,U,id

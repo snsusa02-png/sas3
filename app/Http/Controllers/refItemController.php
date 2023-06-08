@@ -1191,14 +1191,19 @@ class refItemController extends Controller
         $suporgid = $request->get('suporgid');
         if (isset($suporgid)) {
             //Если поставщик - "Наша" организация, то не ограничивать товарами в месте продажи
-            $flag12 = objflag::IsSetObjFlag(111, $suporgid, 12);
+            //$flag12 = objflag::IsSetObjFlag(111, $suporgid, 12);
             //Log::info('flag12:' . $flag12);
-            if ($flag12 == 0)
-                $fields[] = 'rop.price';
-            else {
+            //dd($suporgid,$flag12);
+
+            $flag_all_RI = objflag::IsSetObjFlag(111, $suporgid, 189);
+            if ( $flag_all_RI ){
                 $price_on_date = null;
                 $load_placeid = '';
             }
+            else {
+                $fields[] = 'rop.price';
+            }
+//            dd($fields);
         }
         //Log::info('refitem::list_for_ac:fields=' . implode(';', $fields));
 
