@@ -636,7 +636,7 @@ class MchnRaidController extends Controller
                 'machineid' => 'required',
                 'driverid' => 'required',
                 'wrkdate' => 'required',
-                'stfwrkhrs' => 'gt:0',
+                //'stfwrkhrs' => 'gt:0',
             ];
         } else {
             $messages = [
@@ -654,8 +654,8 @@ class MchnRaidController extends Controller
             //перевод табеля из "Черновик" в "Подготовлено работником для утверждения руководителем"
 
             $rules = [
-                'begtime' => 'required',
-                'endtime' => 'required',
+//                'begtime' => 'required',
+//                'endtime' => 'required',
                 'meter_begqty' => 'required',
                 'meter_endqty' => 'required',
                 'fuel_begqty' => 'required',

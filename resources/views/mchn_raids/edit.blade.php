@@ -151,9 +151,9 @@
 
                                     @if(1==1)
                                         <div class="form-group offset-md-0 col-md-2">
-                                            <label class="required">время:</label>
+                                            <label class="">время:</label>
                                             @if ($usrrights['edit'])
-                                                <input type="time" name="begtime" id="begtime" required
+                                                <input type="time" name="begtime" id="begtime" required0
                                                        class="form-control text-center font-weight-bold"
                                                        {{--                                                   max="{{$rec->maxtime}}"--}}
                                                        value="{{old('begtime',$rec->begtime)}}">
@@ -163,10 +163,10 @@
                                         </div>
 
                                         <div class="form-group offset-md-0 col-md-3">
-                                            <label for="name" class="required">Окончание:</label>
+                                            <label for="name" class="required0">Окончание:</label>
                                             @if ($usrrights['edit'])
                                                 <input type="date" class="form-control text-center font-weight-bold"
-                                                       name="wrkenddate" id="wrkenddate" required
+                                                       name="wrkenddate" id="wrkenddate" required0
                                                        min="{{$rec->wrkdate_min}}"
                                                        max="{{today()->format('Y-m-d')}}"
                                                        value="{{old('wrkenddate',$rec->wrkenddate)}}"/>
@@ -178,10 +178,10 @@
                                             @endif
                                         </div>
                                         <div class="form-group col-md-2">
-                                            <label class="required">время:</label>
+                                            <label class="">время:</label>
                                             @if ($usrrights['edit'])
 
-                                                <input type="time" name="endtime" id="endtime" required
+                                                <input type="time" name="endtime" id="endtime" required0
                                                        class="form-control text-center font-weight-bold"
                                                        {{--                                                   max="{{$rec->maxtime}}"--}}
                                                        value="{{old('endtime',$rec->endtime)}}">
