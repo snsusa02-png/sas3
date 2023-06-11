@@ -189,7 +189,7 @@ class MchnRaidController extends Controller
                     $sc .= " and mro.orgid={$val}";
 
                 } elseif ($item == 's_org_name') {
-                    $val = str_replace("'","", $val);
+                    $val = str_replace("'", "", $val);
                     $sc .= " and exists(select 1 from orgs as o
                             where o.id=mro.orgid and o.name like '%" . mb_strtoupper($val) . "%')";
 
@@ -439,6 +439,7 @@ class MchnRaidController extends Controller
         //dd($rec->in_gk);
 
         $rec->begtime = (isset($rec->wrkbegdt)) ? strftime('%H:%M', strtotime($rec->wrkbegdt)) : '';
+        $rec->wrkenddate = (isset($rec->wrkenddt)) ? date_create($rec->wrkenddt)->format('Y-m-d') : '';
         $rec->endtime = (isset($rec->wrkenddt)) ? strftime('%H:%M', strtotime($rec->wrkenddt)) : '';
 
         //сформируем комплексный идентификатор организации/контракта субподряда
@@ -598,7 +599,6 @@ class MchnRaidController extends Controller
             //установим минимально-допустимую дату для wrkdate
             $rec->wrkdate_min = mchn_raid::min_wrkdate();
         }
-
         return view('mchn_raids.edit', compact('rec', "usrrights"));
     }
 
@@ -628,6 +628,7 @@ class MchnRaidController extends Controller
                 'driverid.required' => 'Не указан водитель',
                 'wrkdate.required' => 'Укажите дату проведения работ',
                 'statusid.required' => 'Укажите статус готовности документа',
+                'stfwrkhrs.gt' => 'Дата/время окончания работы должны быть не менее даты/времени начала работ',
             ];
 
             $rules = [
@@ -635,6 +636,7 @@ class MchnRaidController extends Controller
                 'machineid' => 'required',
                 'driverid' => 'required',
                 'wrkdate' => 'required',
+                'stfwrkhrs' => 'gt:0',
             ];
         } else {
             $messages = [
@@ -789,60 +791,64 @@ class MchnRaidController extends Controller
 //            $rec->exe_contractid = ($rec->exe_contractid == '') ? null : $rec->exe_contractid;
 
 
-            $rec->raid_salary = $request->get('raid_salary');
-            $rec->notes = mb_substr($request->get('notes'), 0, 300);
+            $rec->wrkbegdt = date_create($rec->wrkdate)->format('Y-m-d') . ' ' . $request->get('begtime');
+            $rec->wrkenddt = date_create($request->get('wrkenddate'))->format('Y-m-d') . ' ' . $request->get('endtime');
 
-            if (1 == 0) {
-                //2022-02-08 Оставляем в mchn_raids минимум полей
+            $begdt = new DateTime($rec->wrkbegdt);
+            $enddt = new DateTime($rec->wrkenddt);
+            $diff = $begdt->diff($enddt);
 
-                //            $rec->break_hrs = $request->get('break_hrs', 0);    //Продолжительность перерыва
-                $rec->wrkbegdt = date_create($rec->wrkdate)->format('Y-m-d') . ' ' . $request->get('begtime');
-                $endtime = $request->get('endtime');
-                if ($endtime != '') {
-                    $rec->wrkenddt = date_create($rec->wrkdate)->format('Y-m-d') . ' ' . $endtime;
-                    $rec->mchnwrkhrs = round((date_create($rec->wrkenddt)->getTimestamp() - date_create($rec->wrkbegdt)->getTimestamp()) / 3600, 1);
+            // Getting the difference between two given DateTime objects
+            //dd($diff->d, $diff->h, $diff->i, $diff->d*24 + $diff->h + $diff->i/60  );
+            $rec->stfwrkhrs = round($diff->d * 24 + $diff->h + $diff->i / 60, 1);
+
+            $pre_dt = clone $begdt;
+            $cur_dt = clone $begdt;
+            $minutes_to_add = 60 - $cur_dt->format('i');
+//            dd($minutes_to_add);
+            $day_hrs = 0;
+            $night_hrs = 0;
+            while ($cur_dt < $enddt) {
+                //$cur_dt->add(new DateInterval('PT' . $minutes_to_add . 'M'));
+                $cur_dt->modify('+' . $minutes_to_add . ' minutes');
+                if ($cur_dt > $enddt)
+                    $cur_dt = clone $enddt;
+
+                //var_dump($cur_dt, '<hr>');
+                $diff = $cur_dt->diff($pre_dt);
+                $diff_hrs = $diff->d*24 + $diff->h + $diff->i/60;
+                //dd($diff, $diff_hrs);
+                if ($pre_dt->format('H:i') >= '07:00' and $pre_dt->format('H:i') <= '20:00'
+                    and $cur_dt->format('H:i') >= '07:00' and $cur_dt->format('H:i') <= '20:00') {
+                    // День
+                    $day_hrs += $diff_hrs;
                 } else {
-                    $rec->wrkenddt = null;
-                    $rec->mchnwrkhrs = null;
+                    $night_hrs += $diff_hrs;
                 }
 
-                $rec->stfwrkhrs = $request->get('stfwrkhrs');
-
-                $rec->load_refitmid = $request->get('load_refitmid');
-                $rec->unload_refitmid = $request->get('unload_refitmid');
-                //$rec->cargo_name = mb_substr($request->get('cargo_name'), 0, 60);
-
-                $rec->suporgid = $request->get('suporgid');
-                $rec->load_ownorgid = $request->get('load_ownorgid');
-                $rec->load_placeid = $request->get('load_placeid');
-                //$rec->load_placename = $request->get('load_placename');
-                //$rec->load_placename = $rec->load_place->name;
-
-                $rec->load_qty = $request->get('load_qty');
-                $rec->qty_unittypeid = $request->get('qty_unittypeid');
-                $rec->qty_unit = unittype::find($rec->qty_unittypeid)->name ?? '';
-                $rec->load_price = $request->get('load_price');
-                $rec->load_sum = $rec->load_qty * $rec->load_price;
-
-                $rec->unload_ownorgid = $request->get('unload_ownorgid');
-                $rec->unload_placeid = $request->get('unload_placeid');
-                $rec->unload_placename = $request->get('unload_placename');
-
-                $rec->unload_qty = $request->get('unload_qty');
-                $rec->unload_price = $request->get('unload_price');
-                $rec->unload_sum = $rec->unload_qty * $rec->unload_price;
-
-                $rec->ownorg_sum = $request->get('ownorg_sum');
-
-                $rec->raid_qty = $request->get('raid_qty');
-                $rec->orgid = $request->get('orgid');
-                $rec->org_name = $request->get('org_name');
-                $rec->paytypeid = $request->get('paytypeid');
-
-                $rec->disp_staffid = $request->get('disp_staffid');
-
+                $pre_dt = clone $cur_dt;
+                $minutes_to_add = 60;
             }
+//dd($cur_dt, $day_hrs, $night_hrs);
 
+            $rec->aux_equipment = $request->get('aux_equipment') ?? 0;   // работа с прицепом
+            $rec->day_brkhrs = $request->get('day_brkhrs') ?? 0;
+            $rec->night_brkhrs = $request->get('night_brkhrs') ?? 0;
+//            $rec->day_wrkhrs = $request->get('day_wrkhrs') ?? 0;
+//            $rec->night_wrkhrs = $request->get('night_wrkhrs') ?? 0;
+            $rec->day_wrkhrs = $day_hrs - min($day_hrs, $rec->day_brkhrs);
+            $rec->night_wrkhrs = $night_hrs - min($night_hrs, $rec->night_brkhrs);
+//            dd( $rec->day_wrkhrs , $rec->night_wrkhrs );
+
+
+            $rec->notes = mb_substr($request->get('notes'), 0, 300);
+            $rec->raid_salary = $request->get('raid_salary');
+            $rec->hr_salary = mchn_raid::hr_salary(
+                $rec->wrkdate
+                , $rec->driverid
+                , $rec->day_wrkhrs
+                , $rec->night_wrkhrs
+                , $rec->aux_equipment);
 
         } elseif ($statusid == 2) {
             //согласование

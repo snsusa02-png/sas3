@@ -6,6 +6,9 @@
         @if(isset($rec->lock_reason))
             <br>заблокировано: {{$rec->lock_reason}}
         @endif
+        @if(isset($rec->signed_at))
+            <br>согласовано: {{$rec->signed_at}}/ {{$rec->whosign->FirstLast??''}}
+        @endif
         <br><a
             href="{{route('objevntlog',['sysobjid'=>($thisSysObjId??$sysobjid), 'objid'=>$rec->id,'route'=>Route::current()->getName()])}}">журнал</a>
     </div>

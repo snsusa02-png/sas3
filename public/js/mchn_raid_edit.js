@@ -26,23 +26,76 @@ $(document).ready(function () {
     });
 
     function recalc_hrs() {
-        const begtime = $("#begtime").val();
-        const endtime = $("#endtime").val();
-        const break_hrs = 0; //parseFloat($("#break_hrs").val());
 
-        var stfwrkhrs = '-';
-        if (begtime && endtime && !isNaN(break_hrs)) {
-            var t1 = begtime.split(':'), t2 = endtime.split(':');
-            var d1 = new Date(0, 0, 0, t1[0], t1[1]),
-                d2 = new Date(0, 0, 0, t2[0], t2[1]);
-            //var stfwrkhrs = Math.round(10*((d2 - d1)/3600000 - break_hrs))/10;
-            var stfwrkhrs = Math.round(10 * ((d2 - d1) / 3600000 - break_hrs)) / 10;
+        var day_brkhrs = parseFloat($("#day_brkhrs").val());
+        var night_brkhrs = parseFloat($("#night_brkhrs").val());
+        day_brkhrs = isNaN(day_brkhrs) ? 0 : day_brkhrs;
+        night_brkhrs = isNaN(night_brkhrs) ? 0 : night_brkhrs;
+
+        var begdt = moment($("#wrkdate").val() + ' ' + $("#begtime").val());
+        var enddt = moment($("#wrkenddate").val() + ' ' + $("#endtime").val());
+        //console.log(begdt, enddt, (enddt<begdt), (enddt>=begdt));
+        //console.log(begdt.format('DD.MM.yyyy HH:mm'), enddt.format('DD.MM.yyyy HH:mm'));
+        //console.log(begdt, enddt);
+
+        //console.log($("#wrkenddate").val())
+        if ($("#wrkdate").val() != '')
+            $("#wrkenddate").attr('min', $("#wrkdate").val());
+        if ($("#wrkenddate").val() == '')
+            $("#wrkenddate").val($("#wrkdate").val());
+        if (1 == 0 && enddt < begdt) {
+            $("#wrkenddate").val($("#wrkdate").val());
+            $("#endtime").val($("#begtime").val());
+            var enddt = moment($("#wrkenddate").val() + ' ' + $("#endtime").val());
         }
-        $("#mchnwrkhrs").val(stfwrkhrs);
+
+        // var fctenddt = begdt.add(3, 'hours');
+        // console.log(fctenddt);
+        //console.log(enddt.diff(begdt, 'hours', true));
+        //var stfwrkhrs = Math.round((enddt.diff(begdt, 'hours', true) - day_brkhrs - night_brkhrs) * 10) / 10;
+        var stfwrkhrs = Math.round((enddt.diff(begdt, 'hours', true)) * 10) / 10;
+        // $("#mchnwrkhrs").val(stfwrkhrs);
+        if (isNaN(stfwrkhrs))
+            $("#stfwrkhrs").val('-');
+        else
+            $("#stfwrkhrs").val(stfwrkhrs);
         //console.log(stfwrkhrs)
+
+        var day_hrs = 0;
+        var night_hrs = 0;
+        var hr_duration = 0;
+        var pre_dt = moment(begdt);
+        var cur_dt = moment(begdt);
+        var add_minutes = 60 - begdt.format('mm');
+        //console.log(add_minutes);
+        while (cur_dt < enddt) {
+            //cur_dt = cur_dt.add(1, 'hour');
+            cur_dt = cur_dt.add(add_minutes, 'minute');
+            if (cur_dt > enddt)
+                cur_dt = moment(enddt);
+
+            //console.log(pre_dt.format('HH:mm'), cur_dt.format('HH:mm'));
+            hr_duration = moment.duration(cur_dt.diff(pre_dt)).asHours();
+            if (pre_dt.format('HH:mm') >= '07:00' && pre_dt.format('HH:mm') <= '20:00'
+                && cur_dt.format('HH:mm') >= '07:00' && cur_dt.format('HH:mm') <= '20:00') {
+                // День
+                day_hrs += hr_duration;
+            } else {
+                night_hrs += hr_duration;
+            }
+
+            pre_dt = moment(cur_dt);
+            add_minutes = 60;
+        }
+        //console.log(day_hrs, night_hrs)
+        $("#day_hrs").val(Math.round(day_hrs * 10) / 10);
+        $("#night_hrs").val(Math.round(night_hrs * 10) / 10);
+        $("#day_wrkhrs").val(Math.round(day_hrs - Math.min(day_brkhrs, day_hrs)));
+        $("#night_wrkhrs").val(Math.round(night_hrs - Math.min(night_brkhrs, night_hrs)));
+
     }
 
-    $("#begtime, #endtime, #break_hrs").change(function () {
+    $("#wrkdate, #begtime, #wrkenddate, #endtime, #day_brkhrs, #night_brkhrs").change(function () {
         recalc_hrs();
     });
 
@@ -1493,6 +1546,7 @@ $(document).ready(function () {
     //при загрузке -------------------------------------------------
 
     rfr_iface();
+    recalc_hrs();
 
     //покраска в зеленый всех автозаполняемых названий с установленными id в соответств. полях
     $.each($(".ac_name"), function (key, value) {
