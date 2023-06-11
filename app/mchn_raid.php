@@ -486,7 +486,7 @@ select FROM_UNIXTIME(UNIX_TIMESTAMP(CONCAT(:start_ym,n)),'%Y-%m-%d') as Date
     }
 
     /*2023-06-11 Расчет ЗП сотрудника при почасовой ставке "День/Ночь"*/
-    public static function hr_salary(
+    public static function calc_hr_salary(
         $wrkdate
         , $staffid
         , $day_wrkhrs

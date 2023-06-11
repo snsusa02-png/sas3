@@ -843,7 +843,7 @@ class MchnRaidController extends Controller
 
             $rec->notes = mb_substr($request->get('notes'), 0, 300);
             $rec->raid_salary = $request->get('raid_salary');
-            $rec->hr_salary = mchn_raid::hr_salary(
+            $rec->hr_salary = mchn_raid::calc_hr_salary(
                 $rec->wrkdate
                 , $rec->driverid
                 , $rec->day_wrkhrs
