@@ -1,0 +1,2 @@
+id,name,ownorgid,payrolltypeid,begdate,enddate,notes,active,created_at,created_by,updated_at,updated_by
+1,"Водители, почасовой тариф (день/ночь + прицеп)",NULL,1,2001-06-20,NULL,NULL,1,"2023-06-10 03:04:51",1,"2023-06-10 03:04:51",1
