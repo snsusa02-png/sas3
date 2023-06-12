@@ -224,7 +224,7 @@
                                             {{$rec->machine_name}}
                                         </td>
                                         <td class="text-center">
-                                            {{$rec->raid_sum}}
+                                            {{$rec->hrs_salary + $rec->raid_sum}}
                                         </td>
                                         <td class="text-center">
                                             {{$rec->pdt_sum}}

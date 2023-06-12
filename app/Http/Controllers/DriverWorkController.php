@@ -164,6 +164,7 @@ class DriverWorkController extends Controller
             ->whereraw($sc)
             ->select('dw.id as id', 'dw.wrkdate'
                 , 'dw.active', 'dw.notes', 'dw.staffid'
+                , 'dw.hrs_salary'
                 , 'dw.raid_qty', 'dw.raid_sum'
                 , 'pdt_sum', 'repair_sum'
                 , 'salary_sum'
@@ -665,7 +666,7 @@ class DriverWorkController extends Controller
             $rec->repair_cost = $request->get('repair_cost');
             $rec->repair_sum = $rec->repair_hrs * $rec->repair_cost;
 
-            $rec->salary_sum = $rec->raid_sum + $rec->pdt_sum + $rec->repair_sum;
+            $rec->salary_sum = $rec->hrs_salary + $rec->raid_sum + $rec->pdt_sum + $rec->repair_sum;
 
             $rec->meter_begqty = $request->get('meter_begqty');
             $rec->meter_endqty = $request->get('meter_endqty');
