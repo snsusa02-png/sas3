@@ -1,13 +1,34 @@
 ﻿--------------------------------------------------------------------------------------------------
-2023.06.11
+2023.06.12
+
+ALTER TABLE `driver_works`
+ADD COLUMN `aux_equipment` TINYINT(1) NULL DEFAULT 0 COMMENT 'Работа с прицепом' AFTER `wrkhrs`,
+ADD COLUMN `day_wrkhrs` DECIMAL(5,1) NULL COMMENT 'Кол-во рабочих часов в дневную смену' AFTER `aux_equipment`,
+ADD COLUMN `day_brkhrs` DECIMAL(5,1) NULL DEFAULT 0 COMMENT 'Необоснованный простой в дневную смену' AFTER `day_wrkhrs`,
+ADD COLUMN `day_hr_rate` DECIMAL(8,1) NULL COMMENT 'Ставка за час работы в дневную смену' AFTER `day_brkhrs`,
+ADD COLUMN `night_wrkhrs` DECIMAL(5,1) NULL COMMENT 'Кол-во рабочих часов в ночную смену' AFTER `day_hr_rate`,
+ADD COLUMN `night_brkhrs` DECIMAL(5,1) NULL COMMENT 'Необоснованный простой в ночную смену' AFTER `night_wrkhrs`,
+ADD COLUMN `night_hr_rate` DECIMAL(8,1) NULL COMMENT 'Ставка за час работы в ночную смену' AFTER `night_brkhrs`,
+ADD COLUMN `hrs_salary` DECIMAL(12,2) NULL COMMENT 'Сумма ЗП при расчете от часов работы' AFTER `night_hr_rate`;
 
 ALTER TABLE `mchn_raids`
-ADD COLUMN `aux_equipment` TINYINT(1) NULL DEFAULT 0 COMMENT 'Работа с прицепом' AFTER `updated_by`,
-ADD COLUMN `day_brkhrs` DECIMAL(5,1) NULL DEFAULT 0 COMMENT 'Необоснованный простой в дневную смену' AFTER `aux_equipment`,
-ADD COLUMN `night_brkhrs` DECIMAL(5,1) NULL COMMENT 'Необоснованный простой в ночную смену' AFTER `day_brkhrs`,
-ADD COLUMN `day_wrkhrs` DECIMAL(5,1) NULL COMMENT 'Кол-во рабочих часов в дневную смену' AFTER `night_brkhrs`,
-ADD COLUMN `night_wrkhrs` DECIMAL(5,1) NULL COMMENT 'Кол-во рабочих часов в ночную смену' AFTER `day_wrkhrs`б
-ADD COLUMN `hr_salary` DECIMAL(12,2) NULL COMMENT 'Сумма ЗП при расчете от часов работы' AFTER `night_wrkhrs`;
+DROP COLUMN `hr_salary`,
+DROP COLUMN `night_wrkhrs`,
+DROP COLUMN `day_wrkhrs`,
+DROP COLUMN `night_brkhrs`,
+DROP COLUMN `day_brkhrs`;
+
+
+--------------------------------------------------------------------------------------------------
+2023.06.11
+
+//ALTER TABLE `mchn_raids`
+//ADD COLUMN `aux_equipment` TINYINT(1) NULL DEFAULT 0 COMMENT 'Работа с прицепом' AFTER `updated_by`,
+//ADD COLUMN `day_brkhrs` DECIMAL(5,1) NULL DEFAULT 0 COMMENT 'Необоснованный простой в дневную смену' AFTER `aux_equipment`,
+//ADD COLUMN `night_brkhrs` DECIMAL(5,1) NULL COMMENT 'Необоснованный простой в ночную смену' AFTER `day_brkhrs`,
+//ADD COLUMN `day_wrkhrs` DECIMAL(5,1) NULL COMMENT 'Кол-во рабочих часов в дневную смену' AFTER `night_brkhrs`,
+//ADD COLUMN `night_wrkhrs` DECIMAL(5,1) NULL COMMENT 'Кол-во рабочих часов в ночную смену' AFTER `day_wrkhrs`,
+//ADD COLUMN `hr_salary` DECIMAL(12,2) NULL COMMENT 'Сумма ЗП при расчете от часов работы' AFTER `night_wrkhrs`;
 
 
 --------------------------------------------------------------------------------------------------
