@@ -104,6 +104,13 @@ class opertype extends Model
                         $sc .= " and " . (($val == 0) ? "not" : "")
                             . " exists (select 1 from mchn_raids as mr where mr.opertypeid=ot.id)";
 
+                    } elseif ($key == 'for_user') {
+                        $sc .= " and (ot.need_rightid is null"
+                                    . " or exists (select 1 from usrsysrights as ur"
+                                                    . " where ur.userid={$val}"
+                                                    . " and ur.sysfuncid = ot.need_rightid"
+                                                    . " and ur.active=1 and ur.enddt is null)"
+                                    .")";
                     }
                 }
 

@@ -132,6 +132,13 @@ class MchnRaidController extends Controller
 
         //сформируем условие запроса в БД -----
         $sc = "1=1";
+        //2023-06-12 Ограничение доступа по видам операций
+        $sc .= " and exists(select 1 from opertypes ot where ot.id=mr.opertypeid"
+                . " and (ot.need_rightid is null or exists (select 1 from usrsysrights as ur"
+				. " where ur.userid={$userid} and ur.sysfuncid = ot.need_rightid and ur.active=1 and ur.enddt is null)"
+                .")"
+            .")";
+
         foreach ($search_params as $item => $val) {
             if (isset($val) and strlen($val) > 0) {
 
@@ -287,6 +294,7 @@ class MchnRaidController extends Controller
 
         $data->opertypes = opertype::lstFor([
             'in_mchn_raids' => 1,
+            'for_user' => $userid,
         ]);
 
         $data->machines = machine::getFor(
@@ -424,9 +432,14 @@ class MchnRaidController extends Controller
         } else {
 
             $sc = '1=1';
+            //2023-06-12 Ограничение доступа по видам операций
+            $sc .= " and exists(select 1 from opertypes ot where ot.id=mr.opertypeid"
+                . " and (ot.need_rightid is null or exists (select 1 from usrsysrights as ur"
+                . " where ur.userid={$userid} and ur.sysfuncid = ot.need_rightid and ur.active=1 and ur.enddt is null)"
+                .")"
+                .")";
 
-            $rec = mchn_raid::from('mchn_raids as crs')->whereRaw($sc)->where('id', $id)->first();
-
+            $rec = mchn_raid::from('mchn_raids as mr')->whereRaw($sc)->where('id', $id)->first();
 
             if (!isset($rec))
                 return redirect(route($this->sysobjcode . '.index'));
@@ -523,7 +536,7 @@ class MchnRaidController extends Controller
         $rec->statuses = $statuses;
         //dd($rec->statuses);
 
-        $rec->opertypes = opertype::lstFor(['in_machines' => 1]);
+        $rec->opertypes = opertype::lstFor(['in_machines' => 1, 'for_user' => $userid]);
 
         if ($rec->id <> -1) {
             //для не новых записей
@@ -737,11 +750,13 @@ class MchnRaidController extends Controller
                 $wrkdate = $request->get('wrkdate');
                 $machineid = $request->get('machineid');
                 $driverid = $request->get('driverid');
+                $aux_equipment = $request->get('aux_equipment') ?? 0;
 
                 $driver_work = driver_work::find_or_create([
                     'wrkdate' => $wrkdate,
                     'machineid' => $machineid,
                     'staffid' => $driverid,
+                    'aux_equipment' => $aux_equipment,
                 ]);
             }
 
@@ -768,6 +783,8 @@ class MchnRaidController extends Controller
             $rec->drivername = $rec->driver->name;
             $rec->machineid = $request->get('machineid');
             $rec->mot_id = $request->get('mot_id');
+            $rec->aux_equipment = $request->get('aux_equipment') ?? 0;   // работа с прицепом
+
 
             //если до сих пор рейс не привязан к отчету о работе
             $rec->dw_id = null;
@@ -777,6 +794,7 @@ class MchnRaidController extends Controller
                     'wrkdate' => $rec->wrkdate,
                     'machineid' => $rec->machineid,
                     'staffid' => $rec->driverid,
+                    'aux_equipment' => $rec->aux_equipment,
                 ]);
                 $rec->dw_id = $driver_work->id;
             }
@@ -802,8 +820,6 @@ class MchnRaidController extends Controller
             // Getting the difference between two given DateTime objects
             //dd($diff->d, $diff->h, $diff->i, $diff->d*24 + $diff->h + $diff->i/60  );
             $rec->stfwrkhrs = round($diff->d * 24 + $diff->h + $diff->i / 60, 1);
-
-            $rec->aux_equipment = $request->get('aux_equipment') ?? 0;   // работа с прицепом
 
             $rec->notes = mb_substr($request->get('notes'), 0, 300);
             $rec->raid_salary = $request->get('raid_salary');

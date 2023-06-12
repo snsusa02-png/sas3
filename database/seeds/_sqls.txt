@@ -18,6 +18,9 @@ DROP COLUMN `day_wrkhrs`,
 DROP COLUMN `night_brkhrs`,
 DROP COLUMN `day_brkhrs`;
 
+ALTER TABLE `opertypes`
+ADD COLUMN `need_rightid` BIGINT UNSIGNED NULL COMMENT 'Право, необходимое для использования данного типа операций' AFTER `active`;
+
 
 --------------------------------------------------------------------------------------------------
 2023.06.11
