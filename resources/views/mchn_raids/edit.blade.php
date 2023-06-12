@@ -128,7 +128,7 @@
                                 <div class="row">
 
                                     <div class="form-group offset-md-0 col-md-3">
-                                        <label for="name" class="required">Начало:</label>
+                                        <label for="name" class="required">Дата:</label>
                                         @if(isset($rec->dw_id))
                                             <a href="{{route('driver_works.edit',$rec->dw_id)}}" class="float-right"
                                                style="{{$in_gk_hide}}">Отчет:
@@ -149,7 +149,37 @@
                                         @endif
                                     </div>
 
-                                    @if(1==1)
+                                    <div class="form-group offset-md-0 col-md-3">
+                                        <label>Работа с прицепом </label>
+                                        @if ($usrrights['edit'])
+                                            {!! Form::checkbox('aux_equipment', 1, $rec->aux_equipment==1
+                                                , ['class="form-control"'
+                                                    , 'id="aux_equipment"'
+                                                    , 'title'=>'Работа с прицепом'
+                                                    ]) !!}
+                                        @else
+                                            <div class="font-weight-bold text-center">{{$rec->aux_equipment}}</div>
+                                        @endif
+                                    </div>
+                                    <div class="offset-md-0 col-md-6">
+                                        <div class="form-group">
+                                            <label for="decision">Примечание:</label>
+                                            @if ($usrrights['edit'] or $usrrights['change_status'])
+                                                <textarea class="form-control rounded-0"
+                                                          name="notes" id="notes"
+                                                          rows="1">{{old('notes',$rec->notes)}}</textarea>
+                                            @else
+                                                <div class="font-weight-bold">
+                                                    <div class="font-weight-bold">{{$rec->notes??'-'}}</div>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                @if(1==0)
+                                    <div class="row">
                                         <div class="form-group offset-md-0 col-md-2">
                                             <label class="">время:</label>
                                             @if ($usrrights['edit'])
@@ -200,99 +230,8 @@
                                                 <div class="font-weight-bold text-center">{{$rec->stfwrkhrs}}</div>
                                             @endif
                                         </div>
-                                    @endif
-
-                                </div>
-
-                                <div class="row">
-                                    <div class="form-group offset-md-4 col-md-3">
-                                        <label for="name" class="">Дневная смена, ч:</label>
-                                        <input type="text" name="day_hrs" id="day_hrs"
-                                               class="form-control text-center"
-                                               readonly value="{{$rec->day_hrs}}">
                                     </div>
-                                    <div class="form-group col-md-3">
-                                        <label>Необоснованный простой, ч </label>
-                                        @if ($usrrights['edit'])
-                                            <input type="number" name="day_brkhrs" id="day_brkhrs"
-                                                   step="0.1"
-                                                   class="form-control text-center"
-                                                   value="{{$rec->day_brkhrs}}">
-                                        @else
-                                            <div class="font-weight-bold text-center">{{$rec->day_brkhrs}}</div>
-                                        @endif
-                                    </div>
-                                    <div class="form-group offset-md-0 col-md-2">
-                                        <label for="name" class="">Работа, ч:</label>
-                                        <input type="text" name="day_wrkhrs" id="day_wrkhrs"
-                                               class="form-control text-center"
-                                               readonly value="{{$rec->day_wrkhrs}}">
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="form-group offset-md-4 col-md-3">
-                                        <label for="name" class="">Ночная смена, ч:</label>
-                                        <input type="text" name="night_hrs" id="night_hrs"
-                                               class="form-control text-center"
-                                               readonly value="{{$rec->night_hrs}}">
-                                    </div>
-                                    <div class="form-group col-md-3">
-                                        <label>Необоснованный простой, ч </label>
-                                        @if ($usrrights['edit'])
-                                            <input type="text" name="night_brkhrs" id="night_brkhrs"
-                                                   class="form-control text-center"
-                                                   value="{{$rec->night_brkhrs}}">
-                                        @else
-                                            <div class="font-weight-bold text-center">{{$rec->night_brkhrs}}</div>
-                                        @endif
-                                    </div>
-                                    <div class="form-group offset-md-0 col-md-2">
-                                        <label for="name" class="">Работа, ч:</label>
-                                        <input type="text" name="night_wrkhrs" id="night_wrkhrs"
-                                               class="form-control text-center"
-                                               readonly value="{{$rec->night_wrkhrs}}">
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="form-group offset-md-4 col-md-3">
-                                        <label>Работа с прицепом </label>
-                                        @if ($usrrights['edit'])
-                                            {!! Form::checkbox('aux_equipment', 1, $rec->aux_equipment==1
-                                                , ['class="form-control"'
-                                                    , 'id="aux_equipment"'
-                                                    , 'title'=>'Работа с прицепом'
-                                                    ]) !!}
-                                        @else
-                                            <div class="font-weight-bold text-center">{{$rec->aux_equipment}}</div>
-                                        @endif
-                                    </div>
-                                    <div class="form-group offset-md-3 col-md-2">
-                                        <label for="name" class="">Почасовая ЗП, &#8381;:</label>
-                                        <input type="text" name="hr_salary" id="hr_salary"
-                                               class="form-control text-center"
-                                               readonly value="{{$rec->hr_salary}}">
-                                    </div>
-
-                                </div>
-
-                                <div class="row">
-                                    <div class="offset-md-3 col-md-9">
-                                        <div class="form-group">
-                                            <label for="decision">Примечание:</label>
-                                            @if ($usrrights['edit'] or $usrrights['change_status'])
-                                                <textarea class="form-control rounded-0"
-                                                          name="notes" id="notes"
-                                                          rows="1">{{old('notes',$rec->notes)}}</textarea>
-                                            @else
-                                                <div class="font-weight-bold">
-                                                    <div class="font-weight-bold">{{$rec->notes??'-'}}</div>
-                                                </div>
-                                            @endif
-                                        </div>
-                                    </div>
-
-                                </div>
+                                @endif
 
                                 <div class="row salary_info" style="{{$in_gk_hide}}">
 

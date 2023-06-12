@@ -6,6 +6,7 @@ use App\driver_work;
 use App\dw_break;
 use App\mchn_raid;
 use App\orgstaff;
+use App\srs_hr_item;
 use App\sysobj;
 use App\usrsysright;
 use App\machine;
@@ -16,8 +17,10 @@ use App\objlog;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
+use DateTime;
 use App\Traits\SearchDataTrait;
 use App\Traits\snsTrait;
+
 
 class DriverWorkController extends Controller
 {
@@ -302,6 +305,7 @@ class DriverWorkController extends Controller
         }
 
         $rec->begtime = (isset($rec->wrkbegdt)) ? strftime('%H:%M', strtotime($rec->wrkbegdt)) : '';
+        $rec->wrkenddate = (isset($rec->wrkenddt)) ? date_create($rec->wrkenddt)->format('Y-m-d') : '';
         $rec->endtime = (isset($rec->wrkenddt)) ? strftime('%H:%M', strtotime($rec->wrkenddt)) : '';
 
         //сформируем комплексный идентификатор организации/контракта субподряда
@@ -389,6 +393,25 @@ class DriverWorkController extends Controller
         if ($usrrights['save']) {
             //установим минимально-допустимую дату для wrkdate
             $rec->wrkdate_min = driver_work::min_wrkdate();
+
+            //Получим по-часовые ставки оплаты
+            if (isset($rec->staffid) and isset($rec->wrkdate)) {
+                $rates = srs_hr_item::from('srs_hr_items as i')
+                    ->join('salary_rate_sets as srs', 'srs.id', 'i.srs_id')
+                    ->join('orgstaff as os', 'os.id', '=', DB::raw($rec->staffid))
+                    ->where('srs.payrolltypeid', 1) //to-do - взять из карточки сотрдника
+                    ->whereRaw('ifnull(srs.ownorgid,os.orgid)=os.orgid')
+                    ->whereRaw("'{$rec->wrkdate}' between srs.begdate and ifnull(srs.enddate,'{$rec->wrkdate}')")
+                    ->whereRaw("TIMESTAMPDIFF(year, os.begdate, '{$rec->wrkdate}' ) between i.min_wrkexp and i.max_wrkexp-0.001")
+                    ->select('i.hr_day_rate', 'i.hr_night_rate', 'i.hr_aux_rate')
+                    ->first();
+                //dd($rates);
+                if (isset($rates)) {
+                    $rec->day_hr_rate = $rates->hr_day_rate;
+                    $rec->night_hr_rate = $rates->hr_night_rate;
+                    $rec->aux_hr_rate = $rates->hr_aux_rate;
+                }
+            }
         }
 
         return view('driver_works.edit', compact('rec', "usrrights"));
@@ -558,15 +581,72 @@ class DriverWorkController extends Controller
             $rec->notes = mb_substr($request->get('notes'), 0, 300);
 
             //$rec->break_hrs = $request->get('break_hrs', 0);    //Продолжительность перерыва
+
+//            $rec->wrkbegdt = date_create($rec->wrkdate)->format('Y-m-d') . ' ' . $request->get('begtime');
+//            $endtime = $request->get('endtime');
+//            if ($endtime != '') {
+//                $rec->wrkenddt = date_create($rec->wrkdate)->format('Y-m-d') . ' ' . $endtime;
+//                $rec->wrkhrs = round((date_create($rec->wrkenddt)->getTimestamp() - date_create($rec->wrkbegdt)->getTimestamp()) / 3600, 1);
+//            } else {
+//                $rec->wrkenddt = null;
+//                $rec->wrkhrs = null;
+//            }
+
+            //-------------------------------------------------------
             $rec->wrkbegdt = date_create($rec->wrkdate)->format('Y-m-d') . ' ' . $request->get('begtime');
-            $endtime = $request->get('endtime');
-            if ($endtime != '') {
-                $rec->wrkenddt = date_create($rec->wrkdate)->format('Y-m-d') . ' ' . $endtime;
-                $rec->wrkhrs = round((date_create($rec->wrkenddt)->getTimestamp() - date_create($rec->wrkbegdt)->getTimestamp()) / 3600, 1);
-            } else {
-                $rec->wrkenddt = null;
-                $rec->wrkhrs = null;
+            $rec->wrkenddt = date_create($request->get('wrkenddate'))->format('Y-m-d') . ' ' . $request->get('endtime');
+
+            $begdt = new DateTime($rec->wrkbegdt);
+            $enddt = new DateTime($rec->wrkenddt);
+            $diff = $begdt->diff($enddt);
+
+            // Getting the difference between two given DateTime objects
+            //dd($diff->d, $diff->h, $diff->i, $diff->d*24 + $diff->h + $diff->i/60  );
+            //$rec->stfwrkhrs = round($diff->d * 24 + $diff->h + $diff->i / 60, 1);
+
+            $pre_dt = clone $begdt;
+            $cur_dt = clone $begdt;
+            $minutes_to_add = 60 - $cur_dt->format('i');
+//            dd($minutes_to_add);
+            $day_hrs = 0;
+            $night_hrs = 0;
+            while ($cur_dt < $enddt) {
+                //$cur_dt->add(new DateInterval('PT' . $minutes_to_add . 'M'));
+                $cur_dt->modify('+' . $minutes_to_add . ' minutes');
+                if ($cur_dt > $enddt)
+                    $cur_dt = clone $enddt;
+
+                //var_dump($cur_dt, '<hr>');
+                $diff = $cur_dt->diff($pre_dt);
+                $diff_hrs = $diff->d * 24 + $diff->h + $diff->i / 60;
+                //dd($diff, $diff_hrs);
+                if ($pre_dt->format('H:i') >= '07:00' and $pre_dt->format('H:i') <= '20:00'
+                    and $cur_dt->format('H:i') >= '07:00' and $cur_dt->format('H:i') <= '20:00') {
+                    // День
+                    $day_hrs += $diff_hrs;
+                } else {
+                    $night_hrs += $diff_hrs;
+                }
+
+                $pre_dt = clone $cur_dt;
+                $minutes_to_add = 60;
             }
+//dd($cur_dt, $day_hrs, $night_hrs);
+
+            $rec->aux_equipment = $request->get('aux_equipment') ?? 0;   // работа с прицепом
+            $rec->day_brkhrs = $request->get('day_brkhrs') ?? 0;
+            $rec->night_brkhrs = $request->get('night_brkhrs') ?? 0;
+            $rec->day_wrkhrs = $day_hrs - min($day_hrs, $rec->day_brkhrs);
+            $rec->night_wrkhrs = $night_hrs - min($night_hrs, $rec->night_brkhrs);
+//            dd( $rec->day_wrkhrs , $rec->night_wrkhrs );
+
+            $rec->hrs_salary = mchn_raid::calc_hr_salary(
+                $rec->wrkdate
+                , $rec->staffid
+                , $rec->day_wrkhrs
+                , $rec->night_wrkhrs
+                , $rec->aux_equipment);
+            //-------------------------------------------------------
 
             //$rec->mchnwrkhrs = $request->get('mchnwrkhrs');
 

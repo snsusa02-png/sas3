@@ -17,6 +17,7 @@ use App\org;
 use App\org_place;
 use App\orgstaff;
 use App\refitem;
+use App\srs_hr_item;
 use App\sysobj;
 use App\sysobj_lockdate;
 use App\place;
@@ -802,53 +803,10 @@ class MchnRaidController extends Controller
             //dd($diff->d, $diff->h, $diff->i, $diff->d*24 + $diff->h + $diff->i/60  );
             $rec->stfwrkhrs = round($diff->d * 24 + $diff->h + $diff->i / 60, 1);
 
-            $pre_dt = clone $begdt;
-            $cur_dt = clone $begdt;
-            $minutes_to_add = 60 - $cur_dt->format('i');
-//            dd($minutes_to_add);
-            $day_hrs = 0;
-            $night_hrs = 0;
-            while ($cur_dt < $enddt) {
-                //$cur_dt->add(new DateInterval('PT' . $minutes_to_add . 'M'));
-                $cur_dt->modify('+' . $minutes_to_add . ' minutes');
-                if ($cur_dt > $enddt)
-                    $cur_dt = clone $enddt;
-
-                //var_dump($cur_dt, '<hr>');
-                $diff = $cur_dt->diff($pre_dt);
-                $diff_hrs = $diff->d*24 + $diff->h + $diff->i/60;
-                //dd($diff, $diff_hrs);
-                if ($pre_dt->format('H:i') >= '07:00' and $pre_dt->format('H:i') <= '20:00'
-                    and $cur_dt->format('H:i') >= '07:00' and $cur_dt->format('H:i') <= '20:00') {
-                    // День
-                    $day_hrs += $diff_hrs;
-                } else {
-                    $night_hrs += $diff_hrs;
-                }
-
-                $pre_dt = clone $cur_dt;
-                $minutes_to_add = 60;
-            }
-//dd($cur_dt, $day_hrs, $night_hrs);
-
             $rec->aux_equipment = $request->get('aux_equipment') ?? 0;   // работа с прицепом
-            $rec->day_brkhrs = $request->get('day_brkhrs') ?? 0;
-            $rec->night_brkhrs = $request->get('night_brkhrs') ?? 0;
-//            $rec->day_wrkhrs = $request->get('day_wrkhrs') ?? 0;
-//            $rec->night_wrkhrs = $request->get('night_wrkhrs') ?? 0;
-            $rec->day_wrkhrs = $day_hrs - min($day_hrs, $rec->day_brkhrs);
-            $rec->night_wrkhrs = $night_hrs - min($night_hrs, $rec->night_brkhrs);
-//            dd( $rec->day_wrkhrs , $rec->night_wrkhrs );
-
 
             $rec->notes = mb_substr($request->get('notes'), 0, 300);
             $rec->raid_salary = $request->get('raid_salary');
-            $rec->hr_salary = mchn_raid::calc_hr_salary(
-                $rec->wrkdate
-                , $rec->driverid
-                , $rec->day_wrkhrs
-                , $rec->night_wrkhrs
-                , $rec->aux_equipment);
 
         } elseif ($statusid == 2) {
             //согласование
@@ -1082,8 +1040,19 @@ class MchnRaidController extends Controller
             ])
                 ->select(db::raw("count(1) as raid_qty")
                     , db::raw("sum(raid_salary) as raid_salary_sum"))
-                ->first();
+                ->first()->toArray();
 
+            //$list['test']=12345;
+            $rates = srs_hr_item::from('srs_hr_items as i')
+                ->join('salary_rate_sets as srs', 'srs.id', 'i.srs_id')
+                ->join('orgstaff as os', 'os.id', '=', DB::raw($request->driverid))
+                ->where('srs.payrolltypeid', 1) //to-do - взять из карточки сотрдника
+                ->whereRaw('ifnull(srs.ownorgid,os.orgid)=os.orgid')
+                ->whereRaw("'{$request->wrkdate}' between srs.begdate and ifnull(srs.enddate,'{$request->wrkdate}')")
+                ->whereRaw("TIMESTAMPDIFF(year, os.begdate, '{$request->wrkdate}' ) between i.min_wrkexp and i.max_wrkexp-0.001")
+                ->select('i.hr_day_rate', 'i.hr_night_rate', 'i.hr_aux_rate')
+                ->first()->toArray();
+            $list = $list + $rates;
             $result = array('data' => $list);
             //Log::info(implode('; ', $list));
 

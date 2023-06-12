@@ -13,27 +13,119 @@ $(document).ready(function () {
     });
 
     function recalc_hrs() {
-        const begtime = $("#begtime").val();
-        const endtime = $("#endtime").val();
-        const break_hrs = 0; //parseFloat($("#break_hrs").val());
 
-        var stfwrkhrs = '-';
-        if (begtime && endtime && !isNaN(break_hrs)) {
-            var t1 = begtime.split(':'), t2 = endtime.split(':');
-            var d1 = new Date(0, 0, 0, t1[0], t1[1]),
-                d2 = new Date(0, 0, 0, t2[0], t2[1]);
-            //var stfwrkhrs = Math.round(10*((d2 - d1)/3600000 - break_hrs))/10;
-            var stfwrkhrs = Math.round(10 * ((d2 - d1) / 3600000 - break_hrs)) / 10;
+        //console.log(moment('2020-01-01').set('year', moment().get('year')).format('yyyy-MM-DD'));
+        if ($("#wrkdate").val() != '')
+            $("#wrkenddate").attr('min', $("#wrkdate").val());
+
+         if ($("#wrkenddate").val() == '' && $("#wrkdate").val() != '')
+             $("#wrkenddate").val($("#wrkdate").val());
+
+        // if (1 == 0 && enddt < begdt) {
+        //     $("#wrkenddate").val($("#wrkdate").val());
+        //     $("#endtime").val($("#begtime").val());
+        //     var enddt = moment($("#wrkenddate").val() + ' ' + $("#endtime").val());
+        // }
+
+        var day_brkhrs = parseFloat($("#day_brkhrs").val());
+        //day_brkhrs = (isNaN(day_brkhrs) || day_brkhrs < 0) ? 0 : day_brkhrs;
+        if (isNaN(day_brkhrs) || day_brkhrs < 0) {
+            day_brkhrs = 0;
+            $("#day_brkhrs").val(day_brkhrs);
         }
-        $("#stfwrkhrs").val(stfwrkhrs);
+
+        var day_hr_rate = parseFloat($("#day_hr_rate").val());
+        day_hr_rate = isNaN(day_hr_rate) ? 0 : day_hr_rate;
+
+        var night_brkhrs = parseFloat($("#night_brkhrs").val());
+        //night_brkhrs = (isNaN(night_brkhrs) || night_brkhrs < 0) ? 0 : night_brkhrs;
+        if (isNaN(night_brkhrs) || night_brkhrs < 0) {
+            night_brkhrs = 0.0;
+            $("#night_brkhrs").val(night_brkhrs);
+        }
+
+        var night_hr_rate = parseFloat($("#night_hr_rate").val());
+        night_hr_rate = isNaN(night_hr_rate) ? 0 : night_hr_rate;
+
+        var begdt = moment($("#wrkdate").val() + ' ' + $("#begtime").val());
+        var enddt = moment($("#wrkenddate").val() + ' ' + $("#endtime").val());
+        //console.log(begdt, enddt, (enddt<begdt), (enddt>=begdt));
+        //console.log(begdt.format('DD.MM.yyyy HH:mm'), enddt.format('DD.MM.yyyy HH:mm'));
+        //console.log(begdt, enddt);
+
+        // var fctenddt = begdt.add(3, 'hours');
+        // console.log(fctenddt);
+        //console.log(enddt.diff(begdt, 'hours', true));
+        //var stfwrkhrs = Math.round((enddt.diff(begdt, 'hours', true) - day_brkhrs - night_brkhrs) * 10) / 10;
+        var stfwrkhrs = Math.round((enddt.diff(begdt, 'hours', true)) * 10) / 10;
+        if (isNaN(stfwrkhrs))
+            $("#stfwrkhrs").val('-');
+        else
+            $("#stfwrkhrs").val(stfwrkhrs);
         //console.log(stfwrkhrs)
+
+        var day_wrkhrs = 0;
+        var night_wrkhrs = 0;
+        var hrs_salary = 0;
+
+        //var lim_dt = moment().subtract(2, 'month'); // два месяца назад от текущего дня
+        console.log(moment.duration(enddt.diff(begdt)).asDays());
+        if (moment.duration(enddt.diff(begdt)).asDays() < 10) {
+            // не запускаем расчет часов, если указана (скорее всего ошибочно) слишком ранняя дата
+            var day_hrs = 0;
+            var night_hrs = 0;
+            var hr_duration = 0;
+            var pre_dt = moment(begdt);
+            var cur_dt = moment(begdt);
+            var add_minutes = 60 - begdt.format('mm');
+            //console.log(add_minutes);
+            while (cur_dt < enddt) {
+                //cur_dt = cur_dt.add(1, 'hour');
+                cur_dt = cur_dt.add(add_minutes, 'minute');
+                if (cur_dt > enddt)
+                    cur_dt = moment(enddt);
+
+                //console.log(pre_dt.format('HH:mm'), cur_dt.format('HH:mm'));
+                hr_duration = moment.duration(cur_dt.diff(pre_dt)).asHours();
+                if (pre_dt.format('HH:mm') >= '07:00' && pre_dt.format('HH:mm') <= '20:00'
+                    && cur_dt.format('HH:mm') >= '07:00' && cur_dt.format('HH:mm') <= '20:00') {
+                    // День
+                    day_hrs += hr_duration;
+                } else {
+                    night_hrs += hr_duration;
+                }
+
+                pre_dt = moment(cur_dt);
+                add_minutes = 60;
+            }
+            //console.log(day_hrs, night_hrs)
+            var aux_hr_rate = 0;
+            if ($("#aux_equipment").is(':checked'))
+                aux_hr_rate = 100;
+
+            day_wrkhrs = Math.round(day_hrs - Math.min(day_brkhrs, day_hrs));
+            night_wrkhrs = Math.round(night_hrs - Math.min(night_brkhrs, night_hrs));
+            hrs_salary = Math.round((day_wrkhrs * day_hr_rate
+                + night_wrkhrs * night_hr_rate
+                + aux_hr_rate * (day_wrkhrs + night_wrkhrs)
+            ) * 100) / 100;
+        }
+
+        $("#day_hrs").val(Math.round(day_hrs * 10) / 10);
+        $("#night_hrs").val(Math.round(night_hrs * 10) / 10);
+        $("#day_wrkhrs").val(day_wrkhrs);
+        $("#night_wrkhrs").val(night_wrkhrs);
+        $("#hrs_salary").val(hrs_salary);
+
+        recalc_salary();
     }
 
-    $("#begtime, #endtime, #break_hrs").change(function () {
+    $("#wrkdate, #begtime, #wrkenddate, #endtime, #day_brkhrs, #night_brkhrs, #aux_equipment").change(function () {
         recalc_hrs();
     });
 
     function recalc_salary() {
+        var hrs_salary = parseFloat($("#hrs_salary").val());
         var raid_sum = parseFloat($("#raid_sum").val());
         var pdt_cost = parseFloat($("#pdt_cost").val());
         var pdt_hrs = parseFloat($("#pdt_hrs").val());
@@ -52,7 +144,7 @@ $(document).ready(function () {
         repair_sum = Math.round(100 * repair_cost * repair_hrs) / 100;
         $("#repair_sum").val(repair_sum);
 
-        salary_sum = raid_sum + pdt_sum + repair_sum;
+        var salary_sum = hrs_salary + raid_sum + pdt_sum + repair_sum;
         $("#salary_sum").val(salary_sum);
         //console.log(salary_sum)
     }
@@ -102,9 +194,11 @@ $(document).ready(function () {
             function (data) {
                 //console.log(data);
                 //console.log(data.data.raid_salary_sum);
-                $("#raid_qty").val(data.data.raid_qty)
-                $("#raid_sum").val(data.data.raid_salary_sum)
-
+                $("#raid_qty").val(data.data.raid_qty);
+                $("#raid_sum").val(data.data.raid_salary_sum);
+                $("#day_hr_rate").val(data.data.hr_day_rate);
+                $("#night_hr_rate").val(data.data.hr_night_rate);
+                $("#aux_hr_rate").val(data.data.hr_aux_rate);
             }
         )
         //-----------------------------------------------------------------
@@ -182,7 +276,8 @@ $(document).ready(function () {
         select: function (event, ui) {
             if (ui.item.id) {
                 // console.log($(this).parent().find('.staffid').val());
-                var staffid = $(this).parent().find('.staffid');
+                //var staffid = $(this).parent().find('.staffid');
+                var staffid = $(this).parent().find('.ac_id');
                 staffid.val(ui.item.id);
                 var orgid = $(this).parent().find('.orgid');
                 orgid.val(ui.item.orgid);
@@ -440,4 +535,60 @@ $(document).ready(function () {
         }
         return $("<li></li>").append($div).appendTo(ul);
     };
+
+    //на изменение ID заполняемого по автокомплиту
+    $(".ac_id").change(function () {
+        //отработаем скрытие/открытие кнопки со ссылкой на выбраный элмент спр-ка в зависимости от наличия значения в id
+        if ($(this).val()) {
+            $(this).parent().find('.id_lnk').hide()
+            const id_lnk = $(this).parent().find('.id_lnk');
+            if (id_lnk && id_lnk.data('id') && id_lnk.data('obj'))
+                $(this).parent().find('.id_lnk').show() //отобразить ссылку на карточку редактирования объекта справочника
+        } else {
+            $(this).parent().find('.id_lnk').hide()
+        }
+    });
+
+
+    $('.id_lnk').click(function (e) {
+        //переход в элемент справочника
+        e.preventDefault();
+
+        //console.log($(this).data('obj'));
+        const chkfld_id = $(this).data('id');
+        if (chkfld_id) {
+            const id = $("#" + chkfld_id).val();
+            const ref = $(this).data('obj');
+            if (id && ref) {
+                var url = "/" + ref + "/" + id + "/edit";
+                window.open(url, '_blank');
+            }
+        }
+    });
+
+
+
+    //при загрузке -------------------------------------------------
+
+    //rfr_iface();
+    recalc_hrs();
+
+    //покраска в зеленый всех автозаполняемых названий с установленными id в соответств. полях
+    $.each($(".ac_name"), function (key, value) {
+        //console.log( key + ": " + $(value).val() );
+        if ($(this).parent().find('.ac_id').val()) {
+            $(value).addClass("ac-act");
+
+            //отобразить ссылку на карточку редактирования объекта справочника
+            const id_lnk = $(this).parent().find('.id_lnk');
+            id_lnk.hide()
+            if (id_lnk && id_lnk.data('id') && id_lnk.data('obj'))
+                id_lnk.show() //отобразить ссылку на карточку редактирования объекта справочника
+
+        } else {
+            $(this).parent().find('.id_lnk').hide()
+        }
+    });
+
+
 });
