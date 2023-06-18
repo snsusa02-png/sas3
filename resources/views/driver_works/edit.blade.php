@@ -273,7 +273,7 @@
                                                readonly value="{{$rec->hrs_salary}}">
                                     </div>
                                 </div>
-                                <hr>
+                                {{--                                <hr>--}}
 
                                 В том числе простои:
                                 <table class="table table-striped">
@@ -458,130 +458,150 @@
                                 </div>
 
 
-                                <div class="p-2" style="background-color: #fdf2d4;">
-                                    <label for="category"><b>Показания спидометра</b>:</label>
-                                    <div class="row">
-                                        <div class="offset-md-4 col-md-3">
-                                            <div class="form-group">
-                                                <label for="category" class="">на начало, км:</label>
-                                                @if ($usrrights['edit'] )
-                                                    <input type="number"
-                                                           class="form-control rounded-0 text-right font-weight-bold"
-                                                           name="meter_begqty"
-                                                           id="meter_begqty"
-                                                           min=0
+                                <div id="accordionAux">
 
-                                                           value="{{old('meter_begqty',$rec->meter_begqty)}}">
-                                                @else
-                                                    <div class="font-weight-bold">
-                                                        <div
-                                                            class="font-weight-bold text-right">{{$rec->meter_begqty??'-'}}</div>
-                                                    </div>
-                                                @endif
+                                    <div class="p-2" style="background-color: #fdf2d4;">
+                                        <button type="button" class="btn btn-link"
+                                                style="background-color: #fffcf5;"
+                                                data-toggle="collapse"
+                                                data-target="#collapse_meter">
+                                            <b>Показания спидометра</b>:
+                                        </button>
+                                        <div class="row" id="collapse_meter" class="collapse "
+                                             aria-labelledby="heading_dimensions"
+                                             data-parent="#accordionAux">
+                                            <div class="offset-md-4 col-md-3">
+                                                <div class="form-group">
+                                                    <label for="category" class="">на начало, км:</label>
+                                                    @if ($usrrights['edit'] )
+                                                        <input type="number"
+                                                               class="form-control rounded-0 text-right font-weight-bold"
+                                                               name="meter_begqty"
+                                                               id="meter_begqty"
+                                                               min=0
+
+                                                               value="{{old('meter_begqty',$rec->meter_begqty)}}">
+                                                    @else
+                                                        <div class="font-weight-bold">
+                                                            <div
+                                                                class="font-weight-bold text-right">{{$rec->meter_begqty??'-'}}</div>
+                                                        </div>
+                                                    @endif
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="offset-md-0 col-md-3">
-                                            <div class="form-group">
-                                                <label class="">по окончанию, км:</label>
-                                                @if ($usrrights['edit'] )
+                                            <div class="offset-md-0 col-md-3">
+                                                <div class="form-group">
+                                                    <label class="">по окончанию, км:</label>
+                                                    @if ($usrrights['edit'] )
+                                                        <input type="number"
+                                                               class="form-control rounded-0 text-right font-weight-bold"
+                                                               name="meter_endqty" id="meter_endqty"
+                                                               min=0
+                                                               value="{{old('meter_endqty',$rec->meter_endqty)}}">
+                                                    @else
+                                                        <div class="font-weight-bold text-right">
+                                                            <div
+                                                                class="font-weight-bold">{{$rec->meter_endqty??'-'}}</div>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <div class="offset-md-0 col-md-2">
+                                                <div class="form-group">
+                                                    <label for="category">Пробег, км:</label>
                                                     <input type="number"
                                                            class="form-control rounded-0 text-right font-weight-bold"
-                                                           name="meter_endqty" id="meter_endqty"
-                                                           min=0
-                                                           value="{{old('meter_endqty',$rec->meter_endqty)}}">
-                                                @else
-                                                    <div class="font-weight-bold text-right">
-                                                        <div class="font-weight-bold">{{$rec->meter_endqty??'-'}}</div>
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        </div>
-                                        <div class="offset-md-0 col-md-2">
-                                            <div class="form-group">
-                                                <label for="category">Пробег, км:</label>
-                                                <input type="number"
-                                                       class="form-control rounded-0 text-right font-weight-bold"
-                                                       id="meter_qty"
-                                                       readonly
-                                                       value="{{old('meter_qty',$rec->meter_qty)}}">
+                                                           id="meter_qty"
+                                                           readonly
+                                                           value="{{old('meter_qty',$rec->meter_qty)}}">
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div class="p-2" style="background-color: #d8f6c3;">
-                                    <label for="category"><b>Топливо</b>:</label>
-                                    <div class="row">
-                                        <div class="offset-md-1 col-md-3">
-                                            <div class="form-group">
-                                                <label for="fuel_begqty" class="">на начало, л:</label>
-                                                @if ($usrrights['edit'] )
-                                                    <input type="number"
-                                                           class="form-control rounded-0 text-right font-weight-bold"
-                                                           name="fuel_begqty"
-                                                           id="fuel_begqty"
-                                                           min=0
+                                    <div class="p-2" style="background-color: #d8f6c3;">
+                                        <button type="button" class="btn btn-link"
+                                                style="background-color: #e2fdcc;"
+                                                data-toggle="collapse"
+                                                data-target="#collapse_fuel">
+                                            <b>Топливо</b>:
+                                        </button>
+                                        <div class="row" id="collapse_fuel" class="collapse "
+                                             aria-labelledby="heading_dimensions"
+                                             data-parent="#accordionAux">
+                                            <div class="offset-md-1 col-md-3">
+                                                <div class="form-group">
+                                                    <label for="fuel_begqty" class="">на начало, л:</label>
+                                                    @if ($usrrights['edit'] )
+                                                        <input type="number"
+                                                               class="form-control rounded-0 text-right font-weight-bold"
+                                                               name="fuel_begqty"
+                                                               id="fuel_begqty"
+                                                               min=0
 
-                                                           value="{{old('fuel_begqty',$rec->fuel_begqty)}}">
-                                                @else
-                                                    <div class="font-weight-bold">
+                                                               value="{{old('fuel_begqty',$rec->fuel_begqty)}}">
+                                                    @else
+                                                        <div class="font-weight-bold">
+                                                            <div
+                                                                class="font-weight-bold text-right">{{$rec->fuel_begqty??'-'}}</div>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <div class="offset-md-0 col-md-3">
+                                                <div class="form-group">
+                                                    <label>получено, л:</label>
+                                                    @if ($usrrights['edit'] )
+                                                        <input type="number"
+                                                               class="form-control rounded-0 text-right font-weight-bold"
+                                                               name="fuel_inpqty"
+                                                               id="fuel_inpqty"
+                                                               min=0
+                                                               value="{{old('fuel_inpqty',$rec->fuel_inpqty)}}">
+                                                    @else
+                                                        <div class="font-weight-bold text-right">
+                                                            <div
+                                                                class="font-weight-bold">{{$rec->fuel_inpqty??'0'}}</div>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <div class="offset-md-0 col-md-3">
+                                                <div class="form-group">
+                                                    <label class="">по окончанию, л:</label>
+                                                    @if ($usrrights['edit'] )
+                                                        <input type="number"
+                                                               class="form-control rounded-0 text-right font-weight-bold"
+                                                               name="fuel_endqty"
+                                                               id="fuel_endqty"
+                                                               min=0
+                                                               value="{{old('fuel_endqty',$rec->fuel_endqty)}}">
+                                                    @else
+                                                        <div class="font-weight-bold text-right">
+                                                            <div
+                                                                class="font-weight-bold">{{$rec->fuel_endqty??'-'}}</div>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <div class="offset-md-0 col-md-2">
+                                                <div class="form-group">
+                                                    <label for="category">Расход, л:</label>
+                                                    <div class="font-weight-bold text-right">
                                                         <div
-                                                            class="font-weight-bold text-right">{{$rec->fuel_begqty??'-'}}</div>
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        </div>
-                                        <div class="offset-md-0 col-md-3">
-                                            <div class="form-group">
-                                                <label>получено, л:</label>
-                                                @if ($usrrights['edit'] )
-                                                    <input type="number"
-                                                           class="form-control rounded-0 text-right font-weight-bold"
-                                                           name="fuel_inpqty"
-                                                           id="fuel_inpqty"
-                                                           min=0
-                                                           value="{{old('fuel_inpqty',$rec->fuel_inpqty)}}">
-                                                @else
-                                                    <div class="font-weight-bold text-right">
-                                                        <div class="font-weight-bold">{{$rec->fuel_inpqty??'0'}}</div>
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        </div>
-                                        <div class="offset-md-0 col-md-3">
-                                            <div class="form-group">
-                                                <label class="">по окончанию, л:</label>
-                                                @if ($usrrights['edit'] )
-                                                    <input type="number"
-                                                           class="form-control rounded-0 text-right font-weight-bold"
-                                                           name="fuel_endqty"
-                                                           id="fuel_endqty"
-                                                           min=0
-                                                           value="{{old('fuel_endqty',$rec->fuel_endqty)}}">
-                                                @else
-                                                    <div class="font-weight-bold text-right">
-                                                        <div class="font-weight-bold">{{$rec->fuel_endqty??'-'}}</div>
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        </div>
-                                        <div class="offset-md-0 col-md-2">
-                                            <div class="form-group">
-                                                <label for="category">Расход, л:</label>
-                                                <div class="font-weight-bold text-right">
-                                                    <div
-                                                        class="font-weight-bold"><input type="text"
-                                                                                        class="form-control rounded-0 text-right font-weight-bold"
-                                                                                        id="fuel_spentqty"
-                                                                                        readonly
-                                                                                        value="{{old('fuel_spentqty',$rec->fuel_spentqty)}}">
+                                                            class="font-weight-bold"><input type="text"
+                                                                                            class="form-control rounded-0 text-right font-weight-bold"
+                                                                                            id="fuel_spentqty"
+                                                                                            readonly
+                                                                                            value="{{old('fuel_spentqty',$rec->fuel_spentqty)}}">
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
+                                </div>
 
                                 {{--                                <div class="p-2" style="background-color: #d6f6f6;">--}}
                                 {{--                                    <div class="row">--}}
@@ -687,7 +707,7 @@
                 @if($rec->id<>-1)
                     <div class="col-md-4">
                         @include('driver_works._raids')
-{{--                        @include('driver_works._breaks')--}}
+                        {{--                        @include('driver_works._breaks')--}}
                         {{--                        @include('objfiles.obj_files')--}}
                         {{--                        @include('obj_readers._readers')--}}
                     </div>
