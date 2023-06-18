@@ -27,8 +27,6 @@ class CreateSrsHrItemsTable extends Migration
             $table->decimal('hr_day_rate',10,2)->nullable()->comment('Ставка за час работы в дневную смену, руб');
             $table->decimal('hr_night_rate',10,2)->nullable()->comment('Ставка за час работы в дневную смену, руб');
 
-            $table->decimal('hr_aux_rate',10,2)->nullable()->comment('Ставка за час работы с доп. оборудованием (с прицепом), руб');
-
             $table->timestamp('created_at')->nullable()->useCurrent=true;
             $table->bigInteger('created_by')->nullable()->unsigned()->default(1)
                 ->comment('UserID, создавшего запись');
