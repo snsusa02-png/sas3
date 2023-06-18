@@ -36,7 +36,12 @@ class dw_break extends Model
 
     static public function breaktypes()
     {
-        return [1 => 'оплачиваемый простой', 2 => 'ремонт', 9 => 'прочее'];
+        return [1 => 'оплачиваемый простой',
+                2 => 'ремонт - сам не ремонтировал',
+                3 => 'ремонт - помощь слесарям',
+                4 => 'ремонт - самостоятельно',
+                8 => 'сон',
+                9 => 'прочее'];
     }
 
     static public function recalc_dw_sums($dw_id)
@@ -160,5 +165,22 @@ class dw_break extends Model
             return $recs;
         } else
             return null;
+    }
+
+    static public function addOrUpdate($search_params, $set_params)
+    {
+        if (isset($search_params) and isset($set_params)) {
+
+            $rec = self::where($search_params)->first();
+
+            if (!isset($rec)) {
+                $rec = new self($search_params);
+            }
+            $rec->fill($set_params);
+            $rec->save();
+
+            return $rec;
+        }
+        return null;
     }
 }

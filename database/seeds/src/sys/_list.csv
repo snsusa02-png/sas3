@@ -28,6 +28,7 @@ bdgtacnttypes,U,id
 informers,U,id
 task_statuses,U,id
 wrhdoctypes,U,id
+wrktypes,U,id
 payrolltypes,U,id
 salary_rate_sets,U,id
 srs_hr_items,U,id

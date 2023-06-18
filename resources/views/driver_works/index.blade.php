@@ -76,10 +76,10 @@
                                 <td rowspan="1">Дата</td>
                                 <td rowspan="1">Работник</td>
                                 <td rowspan="1">Техника</td>
-                                <td colspan="1" class="text-right">Рейсы, руб</td>
+                                <td colspan="1" class="text-center">Рейсы, руб</td>
                                 <td colspan="1" class="text-center">Простой, руб</td>
-                                <td colspan="1" class="text-center">Ремонт, руб</td>
-                                <td rowspan="1">Всего, руб</td>
+{{--                                <td colspan="1" class="text-center">Ремонт, руб</td>--}}
+                                <td rowspan="1" class="text-center">Всего, руб</td>
 
                                 <td rowspan="1" class="text-center;">
 
@@ -141,7 +141,7 @@
                                 </td>
                                 <td></td>
                                 <td></td>
-                                <td></td>
+{{--                                <td></td>--}}
                                 <td></td>
                                 <td>
                                     <div class="input-group-btn">
@@ -222,16 +222,17 @@
                                         </td>
                                         <td class="text-left small">
                                             {{$rec->machine_name}}
+                                            <div class="float-right">{{$rec->wrktype_name}}</div>
                                         </td>
                                         <td class="text-center">
                                             {{$rec->hrs_salary + $rec->raid_sum}}
                                         </td>
                                         <td class="text-center">
-                                            {{$rec->pdt_sum}}
+                                            {{$rec->breaks_sum}}
                                         </td>
-                                        <td class="text-center">
-                                            {{$rec->repair_sum}}
-                                        </td>
+{{--                                        <td class="text-center">--}}
+{{--                                            {{$rec->repair_sum}}--}}
+{{--                                        </td>--}}
                                         <td class="text-center">
                                             {{$rec->salary_sum}}
                                         </td>

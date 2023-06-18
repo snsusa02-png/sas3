@@ -50,7 +50,7 @@ class driver_work extends Model
     public function breaks()
     {
         return $this->hasMany(dw_break::class, 'dw_id', 'id')
-            ->orderBy('breakbegdt');
+            ->orderBy('begdt');
     }
 
     static public function isLocked($id)

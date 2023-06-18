@@ -1,25 +1,14 @@
 $(document).ready(function () {
 
 
-    function wrkdate_onchange() {
-        //получить данные по рейсам выбранного авто за указанный день -----
-        raid_info_rfr()
-        //-----------------------------------------------------------------
-    }
-
-    $("#wrkdate, #staffid, #machineid").change(function () {
-
-        wrkdate_onchange();
-    });
-
     function recalc_hrs() {
-
+        //console.log('recalc_HRS')
         //console.log(moment('2020-01-01').set('year', moment().get('year')).format('yyyy-MM-DD'));
         if ($("#wrkdate").val() != '')
             $("#wrkenddate").attr('min', $("#wrkdate").val());
 
-         if ($("#wrkenddate").val() == '' && $("#wrkdate").val() != '')
-             $("#wrkenddate").val($("#wrkdate").val());
+        if ($("#wrkenddate").val() == '' && $("#wrkdate").val() != '')
+            $("#wrkenddate").val($("#wrkdate").val());
 
         // if (1 == 0 && enddt < begdt) {
         //     $("#wrkenddate").val($("#wrkdate").val());
@@ -36,6 +25,7 @@ $(document).ready(function () {
 
         var day_hr_rate = parseFloat($("#day_hr_rate").val());
         day_hr_rate = isNaN(day_hr_rate) ? 0 : day_hr_rate;
+        // console.log('day_hr_rate = ' + day_hr_rate)
 
         var night_brkhrs = parseFloat($("#night_brkhrs").val());
         //night_brkhrs = (isNaN(night_brkhrs) || night_brkhrs < 0) ? 0 : night_brkhrs;
@@ -69,7 +59,7 @@ $(document).ready(function () {
         var hrs_salary = 0;
 
         //var lim_dt = moment().subtract(2, 'month'); // два месяца назад от текущего дня
-        console.log(moment.duration(enddt.diff(begdt)).asDays());
+        //console.log(moment.duration(enddt.diff(begdt)).asDays());
         if (moment.duration(enddt.diff(begdt)).asDays() < 10) {
             // не запускаем расчет часов, если указана (скорее всего ошибочно) слишком ранняя дата
             var day_hrs = 0;
@@ -99,16 +89,14 @@ $(document).ready(function () {
                 add_minutes = 60;
             }
             //console.log(day_hrs, night_hrs)
-            var aux_hr_rate = 0;
-            if ($("#aux_equipment").is(':checked'))
-                aux_hr_rate = 100;
 
             day_wrkhrs = Math.round(day_hrs - Math.min(day_brkhrs, day_hrs));
             night_wrkhrs = Math.round(night_hrs - Math.min(night_brkhrs, night_hrs));
-            hrs_salary = Math.round((day_wrkhrs * day_hr_rate
+            hrs_salary = Math.round((
+                day_wrkhrs * day_hr_rate
                 + night_wrkhrs * night_hr_rate
-                + aux_hr_rate * (day_wrkhrs + night_wrkhrs)
             ) * 100) / 100;
+            // console.log('hrs_salary = ' + hrs_salary)
         }
 
         $("#day_hrs").val(Math.round(day_hrs * 10) / 10);
@@ -124,32 +112,196 @@ $(document).ready(function () {
         recalc_hrs();
     });
 
+    function recalc_breaks() {
+
+        // Расчет полной суммы ЗП по простоям ----------------------------
+        var breaks_sum = 0;
+
+        $('.break_item').each(function () {
+            hr_sum = 0;
+            h = parseFloat($(this).find('.aux_day_hrs').val());
+            r = parseFloat($(this).find('.aux_hr_day_rate').val());
+            h = (isNaN(h)) ? 0 : h;
+            r = (isNaN(r)) ? 0 : r;
+            hr_sum += h * r;
+
+            h = parseFloat($(this).find('.aux_night_hrs').val());
+            r = parseFloat($(this).find('.aux_hr_night_rate').val());
+            h = (isNaN(h)) ? 0 : h;
+            r = (isNaN(r)) ? 0 : r;
+            hr_sum += h * r;
+
+            $(this).find('.aux_hr_sum').val(hr_sum);
+            breaks_sum += hr_sum;
+        });
+
+        if (1 == 0) {
+            // Проход по дневным часам -------------------------------
+            $('.aux_day_hrs').each(function () {
+                h = parseFloat($(this).val());
+                rate = parseFloat($(this).parent().parent().find('.aux_hr_day_rate').val());
+                rate = (isNaN(rate)) ? 0 : rate;
+                breaks_sum += h * rate;
+            });
+            // Проход по ночным часам --------------------------------
+            $('.aux_night_hrs').each(function () {
+                h = parseFloat($(this).val());
+                rate = parseFloat($(this).parent().parent().find('.aux_hr_night_rate').val());
+                rate = (isNaN(rate)) ? 0 : rate;
+                breaks_sum += h * rate;
+            });
+            // Проход по явно-указанной ЗП по строке ----------------
+            $('.aux_aux_sum').each(function () {
+                s = parseFloat($(this).val());
+                s = (isNaN(s)) ? 0 : s;
+                breaks_sum += s;
+            });
+        }
+
+        //Установим рассчитанную сумму ЗП по простоям
+        $("#breaks_sum").val(breaks_sum);
+        //----------------------------------------------------------------
+
+        recalc_hrs();
+    }
+
+    // --- При изменении какого-то из часов простоя днем ---
+    $(".aux_day_hrs").change(function () {
+        //console.log($(this).val());
+        var hr = parseFloat($(this).val());
+        if (isNaN(hr) || hr < 0) {
+            hr = 0;
+            $(this).val(hr);
+        }
+
+        var tot_hrs = 0;
+        $('.aux_day_hrs').each(function () {
+            h = parseFloat($(this).val());
+            tot_hrs += (isNaN(h)) ? 0 : h;
+        });
+        //console.log(tot_hrs);
+        //Кол-во часов простоя днем не может превыщать общее кол-во рабочих часов днем
+        var lim_hrs = parseFloat($("#day_hrs").val());
+        if (tot_hrs > lim_hrs) {
+            hr -= tot_hrs - lim_hrs;
+            $(this).val(hr);
+            tot_hrs = lim_hrs;
+        }
+
+        //вычислим почасовую ЗП по строке (day+night) --------------------------
+        var h;
+        var r;
+        var hr_sum = 0;
+
+        var line = $(this).parent().parent();
+        // console.log(line)
+        h = parseFloat(line.find('.aux_day_hrs').val());
+        h = (isNaN(h)) ? 0 : h;
+        r = parseFloat(line.find('.aux_hr_day_rate').val());
+        r = (isNaN(r)) ? 0 : r;
+        hr_sum += h * r;
+
+        h = parseFloat(line.find('.aux_night_hrs').val());
+        h = (isNaN(h)) ? 0 : h;
+        r = parseFloat(line.find('.aux_hr_night_rate').val());
+        r = (isNaN(r)) ? 0 : r;
+        hr_sum += h * r;
+
+        line.find('.aux_hr_sum').val(hr_sum);
+        //----------------------------------------------------------------------
+
+        $("#day_brkhrs").val(tot_hrs);  // Для "верхнего", итогового значения по дневным часам
+
+        recalc_breaks();
+    });
+
+    // --- При изменении какого-то из часов простоя ночью ---
+    $(".aux_night_hrs").change(function () {
+        //console.log('aux_night_hrs = ' + $(this).val());
+        var hr = parseFloat($(this).val());
+        hr = (isNaN(hr) || hr < 0) ? 0 : hr;
+        $(this).val(hr);
+
+        // Проход по ночным часам ----------------
+        var tot_hrs = 0;
+        $('.aux_night_hrs').each(function () {
+            h = parseFloat($(this).val());
+            tot_hrs += (isNaN(h) || h < 0) ? 0 : h;
+        });
+        //console.log(tot_hrs);
+        // Проверка на превышение общего кол-ва ночных часов
+        var lim_hrs = parseFloat($("#night_hrs").val());
+        //console.log('night_hrs = ' + $("#night_hrs").val());
+        if (tot_hrs > lim_hrs) {
+            hr -= tot_hrs - lim_hrs;
+            $(this).val(hr);
+            tot_hrs = lim_hrs;
+        }
+        // Установим общее кол-во ночных часов
+        $("#night_brkhrs").val(tot_hrs);
+
+        //вычислим почасовую ЗП по строке (day+night) --------------------------
+        var h;
+        var r;
+        var hr_sum = 0;
+
+        var line = $(this).parent().parent();
+        // console.log(line)
+        h = parseFloat(line.find('.aux_day_hrs').val());
+        h = (isNaN(h)) ? 0 : h;
+        r = parseFloat(line.find('.aux_hr_day_rate').val());
+        r = (isNaN(r)) ? 0 : r;
+        hr_sum += h * r;
+
+        h = parseFloat(line.find('.aux_night_hrs').val());
+        h = (isNaN(h)) ? 0 : h;
+        r = parseFloat(line.find('.aux_hr_night_rate').val());
+        r = (isNaN(r)) ? 0 : r;
+        hr_sum += h * r;
+
+        line.find('.aux_hr_sum').val(hr_sum);
+        //----------------------------------------------------------------------
+
+        recalc_breaks();
+    });
+
+
+    $("#wrkdate, #staffid, #machineid, #wrktypeid").change(function () {
+        //получить данные по рейсам выбранного авто за указанный день и ставки почасовой оплаты -----
+        raid_info_rfr();
+    });
+
+
     function recalc_salary() {
         var hrs_salary = parseFloat($("#hrs_salary").val());
+        var breaks_sum = parseFloat($("#breaks_sum").val());
         var raid_sum = parseFloat($("#raid_sum").val());
-        var pdt_cost = parseFloat($("#pdt_cost").val());
-        var pdt_hrs = parseFloat($("#pdt_hrs").val());
-        var repair_cost = parseFloat($("#repair_cost").val());
-        var repair_hrs = parseFloat($("#repair_hrs").val());
+        // var pdt_cost = parseFloat($("#pdt_cost").val());
+        // var pdt_hrs = parseFloat($("#pdt_hrs").val());
+        // var repair_cost = parseFloat($("#repair_cost").val());
+        // var repair_hrs = parseFloat($("#repair_hrs").val());
 
+
+        hrs_salary = (isNaN(hrs_salary)) ? 0 : hrs_salary
+        breaks_sum = (isNaN(breaks_sum)) ? 0 : breaks_sum
         raid_sum = (isNaN(raid_sum)) ? 0 : raid_sum
-        pdt_cost = (isNaN(pdt_cost)) ? 0 : pdt_cost
-        pdt_hrs = (isNaN(pdt_hrs)) ? 0 : pdt_hrs
-        repair_cost = (isNaN(repair_cost)) ? 0 : repair_cost
-        repair_hrs = (isNaN(repair_hrs)) ? 0 : repair_hrs
+        // pdt_cost = (isNaN(pdt_cost)) ? 0 : pdt_cost
+        // pdt_hrs = (isNaN(pdt_hrs)) ? 0 : pdt_hrs
+        // repair_cost = (isNaN(repair_cost)) ? 0 : repair_cost
+        // repair_hrs = (isNaN(repair_hrs)) ? 0 : repair_hrs
 
-        pdt_sum = Math.round(100 * pdt_cost * pdt_hrs) / 100;
-        $("#pdt_sum").val(pdt_sum);
+        // pdt_sum = Math.round(100 * pdt_cost * pdt_hrs) / 100;
+        // $("#pdt_sum").val(pdt_sum);
 
-        repair_sum = Math.round(100 * repair_cost * repair_hrs) / 100;
-        $("#repair_sum").val(repair_sum);
+        // repair_sum = Math.round(100 * repair_cost * repair_hrs) / 100;
+        // $("#repair_sum").val(repair_sum);
 
-        var salary_sum = hrs_salary + raid_sum + pdt_sum + repair_sum;
+        var salary_sum = hrs_salary + breaks_sum + raid_sum;
         $("#salary_sum").val(salary_sum);
         //console.log(salary_sum)
     }
 
-    $("#raid_sum, #pdt_cost, #pdt_hrs, #repair_cost, #repair_hrs").change(function () {
+    $("#hrs_salary, #breaks_sum, #raid_sum").change(function () {
         recalc_salary();
     });
 
@@ -189,16 +341,35 @@ $(document).ready(function () {
 
     function raid_info_rfr() {
         //получить данные по рейсам выбранного авто за указанный день -----
+        //console.log('before raid_info_rfr--------------------------------')
         $.get("/api/mchn_raids/data_for_driver_works",
-            {machineid: $("#machineid").val(), driverid: $("#staffid").val(), wrkdate: $("#wrkdate").val()},
+            {
+                machineid: $("#machineid").val()
+                , driverid: $("#staffid").val()
+                , wrkdate: $("#wrkdate").val()
+                , wrktypeid: $("#wrktypeid").val()
+            },
             function (data) {
+                //console.log('get data raid_info_rfr--------------------------------')
                 //console.log(data);
                 //console.log(data.data.raid_salary_sum);
                 $("#raid_qty").val(data.data.raid_qty);
                 $("#raid_sum").val(data.data.raid_salary_sum);
                 $("#day_hr_rate").val(data.data.hr_day_rate);
                 $("#night_hr_rate").val(data.data.hr_night_rate);
-                $("#aux_hr_rate").val(data.data.hr_aux_rate);
+
+                //console.log(data.data.break_rates);
+                var break_rates = data.data.break_rates;
+                break_rates.forEach(function (item, i, break_rates) {
+                    /*console.log( i + ": " + item.wrktypeid
+                            + ", day_rate = " + item.hr_day_rate
+                            + ", night_rate = " + item.hr_night_rate);*/
+                    $("#hr_day_rate_wt" + item.wrktypeid).val(item.hr_day_rate);
+                    $("#hr_night_rate_wt" + item.wrktypeid).val(item.hr_night_rate);
+                });
+
+                // пересчитать ЗП от часов, начиная с расчета простоев
+                recalc_breaks();
             }
         )
         //-----------------------------------------------------------------
@@ -567,11 +738,12 @@ $(document).ready(function () {
     });
 
 
-
     //при загрузке -------------------------------------------------
 
     //rfr_iface();
-    recalc_hrs();
+    raid_info_rfr();
+    recalc_breaks();
+    //recalc_hrs();
 
     //покраска в зеленый всех автозаполняемых названий с установленными id в соответств. полях
     $.each($(".ac_name"), function (key, value) {

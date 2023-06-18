@@ -28,6 +28,7 @@ use App\unittype;
 use App\User;
 use App\user_template;
 use App\usrsysright;
+use App\wrktype;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -477,6 +478,13 @@ class MchnRaidController extends Controller
         //Типы оплат
         $rec->paytypes = mchn_raid::paytypes();
 
+        //Основные виды работ водителя
+        $rec->main_wrktypes = wrktype::main_wrktypes();
+        //$rec->aux_wrktypes = wrktype::aux_wrktypes();
+
+
+//dd($rec->main_wrktypes, $rec->aux_wrktypes);
+
         if (!isset($rec->mot_id) and count($rec->mots) == 1)
             $rec->mot_id = array_key_first($rec->mots);
 
@@ -637,7 +645,8 @@ class MchnRaidController extends Controller
         if ($statusid == 0) {
             //черновик
             $messages = [
-                'opertypeid.required' => 'Укажите тип работ',
+                'opertypeid.required' => 'Укажите вид работ',
+                'wrktypeid.required' => 'Укажите тип работы',
                 'machineid.required' => 'Не указан автомобиль',
                 'driverid.required' => 'Не указан водитель',
                 'wrkdate.required' => 'Укажите дату проведения работ',
@@ -647,6 +656,7 @@ class MchnRaidController extends Controller
 
             $rules = [
                 'opertypeid' => 'required',
+                'wrktypeid' => 'required',
                 'machineid' => 'required',
                 'driverid' => 'required',
                 'wrkdate' => 'required',
@@ -750,13 +760,13 @@ class MchnRaidController extends Controller
                 $wrkdate = $request->get('wrkdate');
                 $machineid = $request->get('machineid');
                 $driverid = $request->get('driverid');
-                $aux_equipment = $request->get('aux_equipment') ?? 0;
+                $wrktypeid = $request->get('wrktypeid');
 
                 $driver_work = driver_work::find_or_create([
                     'wrkdate' => $wrkdate,
                     'machineid' => $machineid,
                     'staffid' => $driverid,
-                    'aux_equipment' => $aux_equipment,
+                    'wrktypeid' => $wrktypeid,
                 ]);
             }
 
@@ -777,13 +787,13 @@ class MchnRaidController extends Controller
         if ($statusid == 0) {
 
             $rec->opertypeid = $request->get('opertypeid');
+            $rec->wrktypeid = $request->get('wrktypeid');
             $rec->wrkdate = $request->get('wrkdate');
             $rec->driverid = $request->get('driverid');
             //$rec->drivername = $request->get('drivername');
             $rec->drivername = $rec->driver->name;
             $rec->machineid = $request->get('machineid');
             $rec->mot_id = $request->get('mot_id');
-            $rec->aux_equipment = $request->get('aux_equipment') ?? 0;   // работа с прицепом
 
 
             //если до сих пор рейс не привязан к отчету о работе
@@ -794,7 +804,7 @@ class MchnRaidController extends Controller
                     'wrkdate' => $rec->wrkdate,
                     'machineid' => $rec->machineid,
                     'staffid' => $rec->driverid,
-                    'aux_equipment' => $rec->aux_equipment,
+                    'wrktypeid' => $rec->wrktypeid,
                 ]);
                 $rec->dw_id = $driver_work->id;
             }
@@ -1063,12 +1073,31 @@ class MchnRaidController extends Controller
                 ->join('salary_rate_sets as srs', 'srs.id', 'i.srs_id')
                 ->join('orgstaff as os', 'os.id', '=', DB::raw($request->driverid))
                 ->where('srs.payrolltypeid', 1) //to-do - взять из карточки сотрдника
+                ->where('i.wrktypeid', $request->wrktypeid)
                 ->whereRaw('ifnull(srs.ownorgid,os.orgid)=os.orgid')
                 ->whereRaw("'{$request->wrkdate}' between srs.begdate and ifnull(srs.enddate,'{$request->wrkdate}')")
-                ->whereRaw("TIMESTAMPDIFF(year, os.begdate, '{$request->wrkdate}' ) between i.min_wrkexp and i.max_wrkexp-0.001")
-                ->select('i.hr_day_rate', 'i.hr_night_rate', 'i.hr_aux_rate')
+                ->whereRaw("TIMESTAMPDIFF(year, ifnull(os.begdate,'{$request->wrkdate}'), '{$request->wrkdate}' ) between i.min_wrkexp and i.max_wrkexp-0.001")
+                ->select('i.hr_day_rate', 'i.hr_night_rate')
                 ->first()->toArray();
             $list = $list + $rates;
+
+            $break_rates = srs_hr_item::from('srs_hr_items as i')
+                ->join('wrktypes as wt', 'wt.id', 'i.wrktypeid')
+                ->join('salary_rate_sets as srs', 'srs.id', 'i.srs_id')
+                ->join('orgstaff as os', 'os.id', '=', DB::raw($request->driverid))
+                ->where('srs.payrolltypeid', 1) //to-do - взять из карточки сотрдника
+                ->where('wt.active', 1)
+                ->where('wt.main', 0)
+                ->whereRaw('ifnull(srs.ownorgid,os.orgid)=os.orgid')
+                ->whereRaw("'{$request->wrkdate}' between srs.begdate and ifnull(srs.enddate,'{$request->wrkdate}')")
+                ->whereRaw("TIMESTAMPDIFF(year, ifnull(os.begdate,'{$request->wrkdate}'), '{$request->wrkdate}' ) between i.min_wrkexp and i.max_wrkexp-0.001")
+                ->select('i.wrktypeid', 'i.hr_day_rate', 'i.hr_night_rate')
+                ->orderBy('wt.ordr')
+                ->get()->toArray();
+            $list['break_rates'] = $break_rates;
+            //dd($list);
+
+
             $result = array('data' => $list);
             //Log::info(implode('; ', $list));
 

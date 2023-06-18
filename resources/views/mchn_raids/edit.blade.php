@@ -150,17 +150,20 @@
                                     </div>
 
                                     <div class="form-group offset-md-0 col-md-3">
-                                        <label>Работа с прицепом </label>
-                                        @if ($usrrights['edit'])
-                                            {!! Form::checkbox('aux_equipment', 1, $rec->aux_equipment==1
-                                                , ['class="form-control"'
-                                                    , 'id="aux_equipment"'
-                                                    , 'title'=>'Работа с прицепом'
-                                                    ]) !!}
+                                        <label for="name" class="required">Тип работы:</label>
+                                        @if ($usrrights['save'])
+                                            {!! Form::select('wrktypeid', $rec->main_wrktypes??[], old('wrktypeid',$rec->wrktypeid),
+                                             [
+                                                 'id' => 'wrktypeid',
+                                             'class' => 'form-control',
+                                             'placeholder' => '-выбор-',
+                                             'required' => 'required',
+                                             ]) !!}
                                         @else
-                                            <div class="font-weight-bold text-center">{{$rec->aux_equipment}}</div>
+                                            <div class="font-weight-bold">{{$rec->wrktype->name}}</div>
                                         @endif
                                     </div>
+
                                     <div class="offset-md-0 col-md-6">
                                         <div class="form-group">
                                             <label for="decision">Примечание:</label>

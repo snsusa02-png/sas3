@@ -1,4 +1,42 @@
 ﻿--------------------------------------------------------------------------------------------------
+2023.06.16
+
+ALTER TABLE `mchn_raids` ADD COLUMN `wrktypeid` BIGINT NULL COMMENT 'вид работы (основной)' AFTER `wrkdate`;
+update mchn_raids set wrktypeid = 1 where aux_equipment=0;
+update mchn_raids set wrktypeid = 2 where aux_equipment=1;
+
+ALTER TABLE `mchn_raids` DROP COLUMN `aux_equipment`;
+
+
+ALTER TABLE `driver_works` ADD COLUMN `wrktypeid` BIGINT NULL COMMENT 'вид работы (основной)' AFTER `wrkdate`;
+update driver_works set wrktypeid = 1 where aux_equipment=0;
+update driver_works set wrktypeid = 2 where aux_equipment=1;
+
+ALTER TABLE `driver_works` DROP COLUMN `aux_equipment`,
+ADD COLUMN `breaks_sum` DECIMAL(12,2) NULL COMMENT 'Сумма, начисленная от простоев - по часам и явно указанная' AFTER `hrs_salary`;
+
+
+ALTER TABLE `srs_hr_items`
+ADD COLUMN `wrktypeid` BIGINT NULL COMMENT 'вид работы (основной)' AFTER `srs_id`,
+DROP COLUMN `hr_aux_rate`;
+
+
+ALTER TABLE `dw_breaks`
+ADD COLUMN `wrktypeid` BIGINT NULL COMMENT 'вид работы (основной)' AFTER `dw_id`;
+
+ALTER TABLE `dw_breaks`
+DROP COLUMN `breaktypeid`,
+ADD COLUMN `night_hrs` DECIMAL(4,1) NULL DEFAULT 0 COMMENT 'кол-во часов, приходящихся на ночную смену' AFTER `day_hrs`,
+ADD COLUMN `hr_day_rate` DECIMAL(8,2) NULL DEFAULT 0 COMMENT 'ставка за час дневой смены' AFTER `night_hrs`,
+ADD COLUMN `hr_night_rate` DECIMAL(8,2) NULL DEFAULT 0 COMMENT 'ставка за час ночной смены' AFTER `hr_day_rate`,
+ADD COLUMN `hr_sum` DECIMAL(12,2) NULL DEFAULT 0 COMMENT 'сумма ЗП, рассчитанная по часам и ставкам' AFTER `hr_night_rate`,
+ADD COLUMN `aux_sum` DECIMAL(12,2) NULL DEFAULT 0 COMMENT 'явно указанная сумма ЗП (в дополнение к HR_SUM)' AFTER `hr_sum`,
+ADD COLUMN `brk_sum` DECIMAL(12,2) NULL DEFAULT 0 COMMENT 'Общая сумма ЗП по строке (HR_SUM + AUX_SUM)' AFTER `aux_sum`,
+CHANGE COLUMN `breakbegdt` `begdt` DATETIME NULL DEFAULT NULL COMMENT 'Время начала работы' ,
+CHANGE COLUMN `breakenddt` `enddt` DATETIME NULL DEFAULT NULL COMMENT 'Время окончания работы' ,
+CHANGE COLUMN `breakhrs` `day_hrs` DECIMAL(4,1) NULL DEFAULT 0 COMMENT 'кол-во часов, приходящихся на дневную смену' ;
+
+--------------------------------------------------------------------------------------------------
 2023.06.12
 
 ALTER TABLE `driver_works`

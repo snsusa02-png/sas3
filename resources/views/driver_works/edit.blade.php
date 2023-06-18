@@ -73,7 +73,7 @@
                                     {{--                                            </div>--}}
                                     {{--                                        @endif--}}
                                     {{--                                    </div>--}}
-                                    <div class="form-group offset-md-0 col-md-8">
+                                    <div class="form-group offset-md-0 col-md-7">
                                         <label for="name" class="required">Водитель:</label>
                                         @if ($usrrights['edit'])
                                             <div class="input-group mb-3 ">
@@ -93,10 +93,25 @@
                                             <div class="font-weight-bold">{{$rec->orgstaff->name}}</div>
                                         @endif
                                     </div>
+
+                                    <div class="form-group offset-md-0 col-md-5">
+                                        <label for="name" class="required">Тип работы:</label>
+                                        @if ($usrrights['save'])
+                                            {!! Form::select('wrktypeid', $rec->main_wrktypes??[], old('wrktypeid',$rec->wrktypeid),
+                                             [
+                                                 'id' => 'wrktypeid',
+                                             'class' => 'form-control',
+                                             'placeholder' => '-выбор-',
+                                             'required' => 'required',
+                                             ]) !!}
+                                        @else
+                                            <div class="font-weight-bold">{{$rec->wrktype->name}}</div>
+                                        @endif
+                                    </div>
                                 </div>
 
                                 <div class="row">
-                                    <div class="form-group offset-md-0 col-md-8">
+                                    <div class="form-group offset-md-0 col-md-9">
                                         <label for="name" class="required">Спецтехника/Автомобиль:</label>
                                         @if ($usrrights['edit'])
                                             <div class="input-group mb-3 ">
@@ -112,19 +127,6 @@
                                             </div>
                                         @else
                                             <div class="font-weight-bold">{{$rec->machine->name}}</div>
-                                        @endif
-                                    </div>
-                                    <div class="form-group offset-md-0 col-md-3">
-                                        <label>Работа с прицепом </label>
-                                        @if ($usrrights['edit'])
-                                            {!! Form::checkbox('aux_equipment', 1, $rec->aux_equipment==1
-                                                , ['class="form-control"'
-                                                    , 'id="aux_equipment"'
-                                                    , 'title'=>'Работа с прицепом'
-                                                    ]) !!}
-                                            {{ Form::hidden('aux_hr_rate', $rec->aux_hr_rate,['id'=>'aux_hr_rate']) }}
-                                        @else
-                                            <div class="font-weight-bold text-center">{{$rec->aux_equipment}}</div>
                                         @endif
                                     </div>
                                 </div>
@@ -207,11 +209,11 @@
                                                class="form-control text-center"
                                                readonly value="{{$rec->day_hrs}}">
                                     </div>
-                                    <div class="form-group col-md-3">
-                                        <label>Необосн. простой, ч </label>
+                                    <div class="form-group col-md-2">
+                                        <label>простой, ч </label>
                                         @if ($usrrights['edit'])
-                                            <input type="number" name="day_brkhrs" id="day_brkhrs"
-                                                   step="0.1" min="0"
+                                            <input type="text" name="day_brkhrs" id="day_brkhrs"
+                                                   readonly
                                                    class="form-control text-center"
                                                    value="{{$rec->day_brkhrs}}">
                                         @else
@@ -238,11 +240,11 @@
                                                class="form-control text-center"
                                                readonly value="{{$rec->night_hrs}}">
                                     </div>
-                                    <div class="form-group col-md-3">
-                                        <label>Необосн. простой, ч </label>
+                                    <div class="form-group col-md-2">
+                                        <label>простой, ч </label>
                                         @if ($usrrights['edit'])
-                                            <input type="number" name="night_brkhrs" id="night_brkhrs"
-                                                   step="0.1" min="0"
+                                            <input type="text" name="night_brkhrs" id="night_brkhrs"
+                                                   readonly
                                                    class="form-control text-center"
                                                    value="{{$rec->night_brkhrs}}">
                                         @else
@@ -265,7 +267,7 @@
 
                                 <div class="row">
                                     <div class="form-group offset-md-9 col-md-3">
-                                        <label for="name" class="">Сумма, &#8381;:</label>
+                                        <label for="name" class="">Итого работа, &#8381;:</label>
                                         <input type="text" name="hrs_salary" id="hrs_salary"
                                                class="form-control text-right"
                                                readonly value="{{$rec->hrs_salary}}">
@@ -273,172 +275,178 @@
                                 </div>
                                 <hr>
 
+                                В том числе простои:
+                                <table class="table table-striped">
+                                    <tr>
+                                        <th>Вид</th>
+                                        <th>Днем, ч</th>
+                                        <th>Ставка, &#8381;/ч</th>
+                                        <th>Ночью, ч</th>
+                                        <th>Ставка, &#8381;/ч</th>
+                                        <th>Сумма по часам, &#8381;</th>
+                                        <th>Сумма, &#8381;</th>
+                                    </tr>
+                                    @foreach($rec->aux_wrk_rates as $itm)
+                                        <tr>
+                                            <td colspan="6"><b>{{$itm->wrktype_name}}</b>
+                                                <input type="hidden" name="aux_dwi_id[]" value="{{$itm->dwi_id}}">
+                                                <input type="hidden" name="aux_wrktypeid[]" value="{{$itm->wrktypeid}}">
+                                            </td>
+                                        </tr>
+                                        <tr class="break_item">
+                                            <td></td>
+                                            <td>
+                                                <input type="number" name="aux_day_hrs[]"
+                                                       class="form-control text-center aux_day_hrs"
+                                                       value="{{$itm->day_hrs}}"
+                                                       min="0" step="1">
+                                            </td>
+                                            <td>
+                                                <input type="text" name="aux_hr_day_rate[]"
+                                                       id="hr_day_rate_wt{{$itm->wrktypeid}}"
+                                                       class="form-control text-center aux_hr_day_rate"
+                                                       readonly value="{{$itm->hr_day_rate}}">
+                                            </td>
+                                            <td>
+                                                <input type="number" name="aux_night_hrs[]"
+                                                       class="form-control text-center aux_night_hrs"
+                                                       value="{{$itm->night_hrs}}"
+                                                       min="0" step="1">
+                                            </td>
+                                            <td>
+                                                <input type="text" name="aux_hr_night_rate[]"
+                                                       id="hr_night_rate_wt{{$itm->wrktypeid}}"
+                                                       class="form-control text-center aux_hr_night_rate"
+                                                       readonly value="{{$itm->hr_night_rate}}">
+                                            </td>
+                                            <td>
+                                                <input type="text" name="aux_hr_sum"
+                                                       class="form-control text-center aux_hr_sum"
+                                                       value="{{$itm->day_hrs*$itm->hr_day_rate + $itm->night_hrs*$itm->hr_night_rate}}"
+                                                       readonly>
+                                            </td>
+                                            <td>
+                                                <input type="number" name="aux_aux_sum[]"
+                                                       class="form-control text-center aux_aux_sum"
+                                                       value="{{$itm->aux_sum}}"
+                                                       min="0">
+                                            </td>
+                                        </tr>
 
-                                {{--                                <div class="row">--}}
-                                {{--                                    <div class="form-group offset-md-0 col-md-3">--}}
-                                {{--                                        <label class="required">Начало работы</label>--}}
-                                {{--                                        @if ($usrrights['edit'])--}}
-                                {{--                                            <input type="time" name="begtime" id="begtime"--}}
-                                {{--                                                   class="form-control text-center"--}}
-                                {{--                                                   --}}{{--                                                   max="{{$rec->maxtime}}"--}}
-                                {{--                                                   value="{{old('begtime',$rec->begtime)}}">--}}
-                                {{--                                        @else--}}
-                                {{--                                            <div class="font-weight-bold text-center">{{$rec->begtime}}</div>--}}
-                                {{--                                        @endif--}}
-                                {{--                                    </div>--}}
-                                {{--                                    <div class="form-group col-md-3">--}}
-                                {{--                                        <label>Окончание</label>--}}
-                                {{--                                        @if ($usrrights['edit'])--}}
-                                {{--                                            <input type="time" name="endtime" id="endtime"--}}
-                                {{--                                                   class="form-control text-center"--}}
-                                {{--                                                   --}}{{--                                                   max="{{$rec->maxtime}}"--}}
-                                {{--                                                   value="{{old('endtime',$rec->endtime)}}">--}}
-                                {{--                                        @else--}}
-                                {{--                                            <div class="font-weight-bold text-center">{{$rec->endtime}}</div>--}}
-                                {{--                                        @endif--}}
-                                {{--                                    </div>--}}
-                                {{--                                    <div class="form-group col-md-3">--}}
-                                {{--                                        <label>Продолжительность</label>--}}
-                                {{--                                        @if ($usrrights['edit'])--}}
-                                {{--                                            <input type="text" name="stfwrkhrs" id="stfwrkhrs"--}}
-                                {{--                                                   class="form-control text-center"--}}
-                                {{--                                                   readonly value="{{$rec->wrkhrs}}">--}}
-                                {{--                                        @else--}}
-                                {{--                                            <div class="font-weight-bold text-center">{{$rec->wrkhrs}}</div>--}}
-                                {{--                                        @endif--}}
-                                {{--                                    </div>--}}
-                                {{--                                </div>                                <div class="row">--}}
-                                {{--                                    <div class="form-group offset-md-0 col-md-3">--}}
-                                {{--                                        <label class="required">Начало работы</label>--}}
-                                {{--                                        @if ($usrrights['edit'])--}}
-                                {{--                                            <input type="time" name="begtime" id="begtime"--}}
-                                {{--                                                   class="form-control text-center"--}}
-                                {{--                                                   --}}{{--                                                   max="{{$rec->maxtime}}"--}}
-                                {{--                                                   value="{{old('begtime',$rec->begtime)}}">--}}
-                                {{--                                        @else--}}
-                                {{--                                            <div class="font-weight-bold text-center">{{$rec->begtime}}</div>--}}
-                                {{--                                        @endif--}}
-                                {{--                                    </div>--}}
-                                {{--                                    <div class="form-group col-md-3">--}}
-                                {{--                                        <label>Окончание</label>--}}
-                                {{--                                        @if ($usrrights['edit'])--}}
-                                {{--                                            <input type="time" name="endtime" id="endtime"--}}
-                                {{--                                                   class="form-control text-center"--}}
-                                {{--                                                   --}}{{--                                                   max="{{$rec->maxtime}}"--}}
-                                {{--                                                   value="{{old('endtime',$rec->endtime)}}">--}}
-                                {{--                                        @else--}}
-                                {{--                                            <div class="font-weight-bold text-center">{{$rec->endtime}}</div>--}}
-                                {{--                                        @endif--}}
-                                {{--                                    </div>--}}
-                                {{--                                    <div class="form-group col-md-3">--}}
-                                {{--                                        <label>Продолжительность</label>--}}
-                                {{--                                        @if ($usrrights['edit'])--}}
-                                {{--                                            <input type="text" name="stfwrkhrs" id="stfwrkhrs"--}}
-                                {{--                                                   class="form-control text-center"--}}
-                                {{--                                                   readonly value="{{$rec->wrkhrs}}">--}}
-                                {{--                                        @else--}}
-                                {{--                                            <div class="font-weight-bold text-center">{{$rec->wrkhrs}}</div>--}}
-                                {{--                                        @endif--}}
-                                {{--                                    </div>--}}
-                                {{--                                </div>--}}
-
+                                    @endforeach
+                                </table>
                                 <div class="row">
-                                    <div class="form-group offset-md-3 col-md-3">
-                                        <label class="">Кол-во рейсов</label>
+                                    <div class="form-group offset-md-9 col-md-3">
+                                        <label>Итого простои, &#8381;</label>
                                         @if ($usrrights['edit'])
-                                            <input type="number" name="raid_qty" id="raid_qty"
-                                                   class="form-control text-right" readonly
-                                                   min="0" max="24"
-                                                   value="{{old('raid_qty',$rec->raid_qty)}}">
+                                            <input type="text" name="breaks_sum" id="breaks_sum"
+                                                   class="form-control text-right "
+                                                   readonly value="{{$rec->breaks_sum}}">
                                         @else
-                                            <div class="font-weight-bold text-right">{{$rec->raid_qty}}</div>
-                                        @endif
-                                    </div>
-                                    <div class="form-group offset-md-3 col-md-3">
-                                        <label>Сумма, &#8381;</label>
-                                        @if ($usrrights['edit'])
-                                            <input type="number" name="raid_sum" id="raid_sum"
-                                                   class="form-control text-right" readonly
-                                                   value="{{$rec->raid_sum}}">
-                                        @else
-                                            <div class="font-weight-bold text-right">{{$rec->raid_sum}}</div>
+                                            <div class="font-weight-bold text-center">{{$rec->breaks_sum}}</div>
                                         @endif
                                     </div>
                                 </div>
 
-                                <div class="row">
-                                    <div class="form-group offset-md-3 col-md-3">
-                                        <label class="">Время простоя, ч</label>
-                                        @if ($usrrights['edit'])
-                                            <input type="text" name="pdt_hrs" id="pdt_hrs"
-                                                   class="form-control text-right"
-                                                   min="0" max="24" step="0.1" readonly
-                                                   value="{{old('pdt_hrs',$rec->pdt_hrs)}}">
-                                        @else
-                                            <div class="font-weight-bold text-right">{{$rec->pdt_hrs}}</div>
-                                        @endif
+                                @if(1==0)
+                                    <div class="row">
+                                        <div class="form-group offset-md-3 col-md-3">
+                                            <label class="">Кол-во рейсов</label>
+                                            @if ($usrrights['edit'])
+                                                <input type="number" name="raid_qty" id="raid_qty"
+                                                       class="form-control text-right" readonly
+                                                       min="0" max="24"
+                                                       value="{{old('raid_qty',$rec->raid_qty)}}">
+                                            @else
+                                                <div class="font-weight-bold text-right">{{$rec->raid_qty}}</div>
+                                            @endif
+                                        </div>
+                                        <div class="form-group offset-md-3 col-md-3">
+                                            <label>Сумма, &#8381;</label>
+                                            @if ($usrrights['edit'])
+                                                <input type="number" name="raid_sum" id="raid_sum"
+                                                       class="form-control text-right" readonly
+                                                       value="{{$rec->raid_sum}}">
+                                            @else
+                                                <div class="font-weight-bold text-right">{{$rec->raid_sum}}</div>
+                                            @endif
+                                        </div>
                                     </div>
-                                    <div class="form-group col-md-3">
-                                        <label>Ставка за час, &#8381;</label>
-                                        @if ($usrrights['edit'])
-                                            <input type="number" name="pdt_cost" id="pdt_cost"
-                                                   class="form-control text-right"
-                                                   min="0"
-                                                   value="{{old('pdt_cost',$rec->pdt_cost)}}">
-                                        @else
-                                            <div class="font-weight-bold text-center">{{$rec->pdt_cost}}</div>
-                                        @endif
-                                    </div>
-                                    <div class="form-group col-md-3">
-                                        <label>Сумма, &#8381;</label>
-                                        @if ($usrrights['edit'])
-                                            <input type="text" name="pdt_sum" id="pdt_sum"
-                                                   class="form-control text-right"
-                                                   readonly value="{{$rec->pdt_sum}}">
-                                        @else
-                                            <div class="font-weight-bold text-right">{{$rec->pdt_sum}}</div>
-                                        @endif
-                                    </div>
-                                </div>
 
-                                <div class="row">
-                                    <div class="form-group offset-md-3 col-md-3">
-                                        <label class="">Время ремонта, ч</label>
-                                        @if ($usrrights['edit'])
-                                            <input type="text" name="repair_hrs" id="repair_hrs"
-                                                   class="form-control text-right"
-                                                   min="0" max="24" step="0.1" readonly
-                                                   value="{{old('repair_hrs',$rec->repair_hrs)}}">
-                                        @else
-                                            <div class="font-weight-bold text-right">{{$rec->repair_hrs}}</div>
-                                        @endif
+                                    <div class="row">
+                                        <div class="form-group offset-md-3 col-md-3">
+                                            <label class="">Время простоя, ч</label>
+                                            @if ($usrrights['edit'])
+                                                <input type="text" name="pdt_hrs" id="pdt_hrs"
+                                                       class="form-control text-right"
+                                                       min="0" max="24" step="0.1" readonly
+                                                       value="{{old('pdt_hrs',$rec->pdt_hrs)}}">
+                                            @else
+                                                <div class="font-weight-bold text-right">{{$rec->pdt_hrs}}</div>
+                                            @endif
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label>Ставка за час, &#8381;</label>
+                                            @if ($usrrights['edit'])
+                                                <input type="number" name="pdt_cost" id="pdt_cost"
+                                                       class="form-control text-right"
+                                                       min="0"
+                                                       value="{{old('pdt_cost',$rec->pdt_cost)}}">
+                                            @else
+                                                <div class="font-weight-bold text-center">{{$rec->pdt_cost}}</div>
+                                            @endif
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label>Сумма, &#8381;</label>
+                                            @if ($usrrights['edit'])
+                                                <input type="text" name="pdt_sum" id="pdt_sum"
+                                                       class="form-control text-right"
+                                                       readonly value="{{$rec->pdt_sum}}">
+                                            @else
+                                                <div class="font-weight-bold text-right">{{$rec->pdt_sum}}</div>
+                                            @endif
+                                        </div>
                                     </div>
-                                    <div class="form-group col-md-3">
-                                        <label>Ставка за час, &#8381;</label>
-                                        @if ($usrrights['edit'])
-                                            <input type="number" name="repair_cost" id="repair_cost"
-                                                   class="form-control text-right"
-                                                   min="0"
-                                                   value="{{old('pdt_cost',$rec->repair_cost)}}">
-                                        @else
-                                            <div class="font-weight-bold text-center">{{$rec->repair_cost}}</div>
-                                        @endif
+
+                                    <div class="row">
+                                        <div class="form-group offset-md-3 col-md-3">
+                                            <label class="">Время ремонта, ч</label>
+                                            @if ($usrrights['edit'])
+                                                <input type="text" name="repair_hrs" id="repair_hrs"
+                                                       class="form-control text-right"
+                                                       min="0" max="24" step="0.1" readonly
+                                                       value="{{old('repair_hrs',$rec->repair_hrs)}}">
+                                            @else
+                                                <div class="font-weight-bold text-right">{{$rec->repair_hrs}}</div>
+                                            @endif
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label>Ставка за час, &#8381;</label>
+                                            @if ($usrrights['edit'])
+                                                <input type="number" name="repair_cost" id="repair_cost"
+                                                       class="form-control text-right"
+                                                       min="0"
+                                                       value="{{old('pdt_cost',$rec->repair_cost)}}">
+                                            @else
+                                                <div class="font-weight-bold text-center">{{$rec->repair_cost}}</div>
+                                            @endif
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label>Сумма, &#8381;</label>
+                                            @if ($usrrights['edit'])
+                                                <input type="text" name="repair_sum" id="repair_sum"
+                                                       class="form-control text-right"
+                                                       readonly value="{{$rec->repair_sum}}">
+                                            @else
+                                                <div class="font-weight-bold text-center">{{$rec->repair_sum}}</div>
+                                            @endif
+                                        </div>
                                     </div>
-                                    <div class="form-group col-md-3">
-                                        <label>Сумма, &#8381;</label>
-                                        @if ($usrrights['edit'])
-                                            <input type="text" name="repair_sum" id="repair_sum"
-                                                   class="form-control text-right"
-                                                   readonly value="{{$rec->repair_sum}}">
-                                        @else
-                                            <div class="font-weight-bold text-center">{{$rec->repair_sum}}</div>
-                                        @endif
-                                    </div>
-                                </div>
+                                @endif
 
                                 <div class="row">
                                     <div class="form-group offset-md-9 col-md-3">
-                                        <label>Всего, &#8381;</label>
+                                        <label>ЗП Всего, &#8381;</label>
                                         @if ($usrrights['edit'])
                                             <input type="text" name="salary_sum" id="salary_sum"
                                                    class="form-control text-right font-weight-bold"
@@ -679,7 +687,7 @@
                 @if($rec->id<>-1)
                     <div class="col-md-4">
                         @include('driver_works._raids')
-                        @include('driver_works._breaks')
+{{--                        @include('driver_works._breaks')--}}
                         {{--                        @include('objfiles.obj_files')--}}
                         {{--                        @include('obj_readers._readers')--}}
                     </div>

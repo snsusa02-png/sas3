@@ -18,6 +18,9 @@ class CreateSrsHrItemsTable extends Migration
             $table->biginteger('srs_id')->unsigned()->comment('ID набора ставок');
 		$table->foreign('srs_id')->references('id')->on('salary_rate_sets');
 
+            $table->biginteger('wrktypeid')->unsigned()->comment('Тип работы');
+	            $table->foreign('wrktypeid')->references('id')->on('wrktypes');
+
             $table->decimal('min_wrkexp',4,1)->comment('Минимальный стаж работы в организации (>=)');
             $table->decimal('max_wrkexp',4,1)->nullable()->comment('Максимальный стаж работы в организации (<)');
 

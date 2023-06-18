@@ -61,6 +61,11 @@ class mchn_raid extends Model
         return $this->hasOne(opertype::class, 'id', 'opertypeid')->withDefault();
     }
 
+    public function wrktype()
+    {
+        return $this->hasOne(wrktype::class, 'id', 'wrktypeid')->withDefault();
+    }
+
     static public function paytypes()
     {
         return [1 => 'нал', 2 => 'б/н'];
@@ -491,35 +496,38 @@ select FROM_UNIXTIME(UNIX_TIMESTAMP(CONCAT(:start_ym,n)),'%Y-%m-%d') as Date
         , $staffid
         , $day_wrkhrs
         , $night_wrkhrs
-        , $aux_equipment)
+        , $wrktypeid)
     {
         $result = 0;
         if (isset($wrkdate) and isset($staffid)) {
-            $sql = "select i.hr_day_rate, i.hr_night_rate, i.hr_aux_rate"
+            $sql = "select i.hr_day_rate, i.hr_night_rate"
                 . " from salary_rate_sets srs"
                 . " join srs_hr_items i	on i.srs_id = srs.id"
                 . " join orgstaff os on os.id={$staffid}"
                 . " where ifnull(srs.ownorgid,os.orgid)=os.orgid"
                 . " and srs.payrolltypeid=1"
+                . " and i.wrktypeid={$wrktypeid}"
                 . " and '{$wrkdate}' between srs.begdate and ifnull(srs.enddate,'{$wrkdate}')"
-                . " and TIMESTAMPDIFF(year, os.begdate, '{$wrkdate}' ) between i.min_wrkexp and i.max_wrkexp-0.001";
+                . " and TIMESTAMPDIFF(year, ifnull(os.begdate,'{$wrkdate}'), '{$wrkdate}' ) between i.min_wrkexp and i.max_wrkexp-0.001";
 //            $rates = DB::select(DB::raw($sql));
 
             $rates = srs_hr_item::from('srs_hr_items as i')
                 ->join('salary_rate_sets as srs', 'srs.id', 'i.srs_id')
                 ->join('orgstaff as os', 'os.id', '=', DB::raw($staffid))
+                ->where('i.wrktypeid', $wrktypeid)
                 ->where('srs.payrolltypeid', 1) //to-do - взять из карточки сотрдника
                 ->whereRaw('ifnull(srs.ownorgid,os.orgid)=os.orgid')
                 ->whereRaw("'{$wrkdate}' between srs.begdate and ifnull(srs.enddate,'{$wrkdate}')")
-                ->whereRaw("TIMESTAMPDIFF(year, os.begdate, '{$wrkdate}' ) between i.min_wrkexp and i.max_wrkexp-0.001")
-                ->select('i.hr_day_rate', 'i.hr_night_rate', 'i.hr_aux_rate')
+                ->whereRaw("TIMESTAMPDIFF(year, ifnull(os.begdate,'{$wrkdate}'), '{$wrkdate}' ) between i.min_wrkexp and i.max_wrkexp-0.001")
+                ->select('i.hr_day_rate', 'i.hr_night_rate')
                 ->get();
             //dd($rates);
             if (isset($rates)) {
                 foreach ($rates as $rate) {
                     $result = $day_wrkhrs * $rate->hr_day_rate
                         + $night_wrkhrs * $rate->hr_night_rate
-                        + $aux_equipment * ($day_wrkhrs + $night_wrkhrs) * $rate->hr_aux_rate;
+                        //+ $aux_equipment * ($day_wrkhrs + $night_wrkhrs) * $rate->hr_aux_rate
+                    ;
                     break;
                 }
             }

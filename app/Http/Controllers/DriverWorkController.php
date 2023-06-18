@@ -14,6 +14,7 @@ use App\user_template;
 use App\objtag;
 use App\objlog;
 
+use App\wrktype;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
@@ -158,15 +159,16 @@ class DriverWorkController extends Controller
             ->join('machines as m', function ($join) {
                 $join->on('m.id', '=', 'dw.machineid');
             })
-//            ->leftjoin('buildobjs as bo', function ($join) {
-//                $join->on('bo.id', '=', 'dw.machineid');
-//            })
+            ->leftjoin('wrktypes as wt', function ($join) {
+                $join->on('wt.id', '=', 'dw.wrktypeid');
+            })
             ->whereraw($sc)
             ->select('dw.id as id', 'dw.wrkdate'
+                , 'dw.wrktypeid', 'wt.name as wrktype_name'
                 , 'dw.active', 'dw.notes', 'dw.staffid'
-                , 'dw.hrs_salary'
+                , 'dw.hrs_salary', 'dw.breaks_sum'
                 , 'dw.raid_qty', 'dw.raid_sum'
-                , 'pdt_sum', 'repair_sum'
+                //, 'pdt_sum', 'repair_sum'
                 , 'salary_sum'
                 , 'os.name as staff_name'
                 , db::raw("concat(m.regnum,' ', m.name) as machine_name")
@@ -321,12 +323,40 @@ class DriverWorkController extends Controller
 
 
         $rec->breaktypes = dw_break::breaktypes();
-        $rec->breaks = dw_break::where('dw_id', $rec->id)
-            ->select('id', 'breakbegdt', 'breakenddt', 'breakhrs', 'reason', 'breaktypeid')
-            ->orderby('breaktypeid')
-            ->orderby('breakbegdt')
-            ->get();
+
+//        $rec->breaks = dw_break::where('dw_id', $rec->id)
+//            ->select('id', 'begdt', 'enddt', 'day_hrs', 'night_hrs', 'brk_sum', 'reason', 'wrktypeid')
+//            ->orderby('wrktypeid')
+//            ->orderby('begdt')
+//            ->get();
 //dd( $rec->breaks);
+
+        //Основные виды работ водителя
+        $rec->main_wrktypes = wrktype::main_wrktypes();
+        //$rec->aux_wrktypes = wrktype::aux_wrktypes();
+        //dd($rec->aux_wrktypes);
+
+        $rec->aux_wrk_rates = srs_hr_item::from('srs_hr_items as i')
+            ->join('salary_rate_sets as srs', 'srs.id', 'i.srs_id')
+            ->join('wrktypes as wt', 'wt.id', 'i.wrktypeid')
+            ->join('orgstaff as os', 'os.id', '=', DB::raw($rec->staffid))
+            ->leftjoin('dw_breaks as dwi', function ($join) use ($rec) {
+                $join->on('dwi.wrktypeid', '=', 'wt.id')
+                    ->where('dwi.dw_id', '=', DB::raw($rec->id));
+            })
+            ->where('srs.payrolltypeid', 1) //to-do - взять из карточки сотрдника
+            ->where('wt.active', 1)
+            ->where('wt.main', '<>', 1)
+            ->whereRaw('ifnull(srs.ownorgid,os.orgid)=os.orgid')
+            ->whereRaw("'{$rec->wrkdate}' between srs.begdate and ifnull(srs.enddate,'{$rec->wrkdate}')")
+            ->whereRaw("TIMESTAMPDIFF(year, ifnull(os.begdate,'{$rec->wrkdate}'), '{$rec->wrkdate}' ) between i.min_wrkexp and i.max_wrkexp-0.001")
+            ->select('i.wrktypeid', 'wt.name as wrktype_name', 'i.hr_day_rate', 'i.hr_night_rate'
+                , 'dwi.id as dwi_id', 'dwi.day_hrs', 'dwi.night_hrs', 'dwi.aux_sum')
+            ->orderby('wt.ordr')
+            ->orderby('wt.name')
+            ->get();
+//        dd($rec->aux_wrk_rates);
+
 
         $rec->status_name = 'черновик';
         $rec->status_style = 'background-color:silver';
@@ -400,17 +430,17 @@ class DriverWorkController extends Controller
                 $rates = srs_hr_item::from('srs_hr_items as i')
                     ->join('salary_rate_sets as srs', 'srs.id', 'i.srs_id')
                     ->join('orgstaff as os', 'os.id', '=', DB::raw($rec->staffid))
+                    ->where('i.wrktypeid', $rec->wrktypeid)
                     ->where('srs.payrolltypeid', 1) //to-do - взять из карточки сотрдника
                     ->whereRaw('ifnull(srs.ownorgid,os.orgid)=os.orgid')
                     ->whereRaw("'{$rec->wrkdate}' between srs.begdate and ifnull(srs.enddate,'{$rec->wrkdate}')")
                     ->whereRaw("TIMESTAMPDIFF(year, os.begdate, '{$rec->wrkdate}' ) between i.min_wrkexp and i.max_wrkexp-0.001")
-                    ->select('i.hr_day_rate', 'i.hr_night_rate', 'i.hr_aux_rate')
+                    ->select('i.hr_day_rate', 'i.hr_night_rate')
                     ->first();
                 //dd($rates);
                 if (isset($rates)) {
                     $rec->day_hr_rate = $rates->hr_day_rate;
                     $rec->night_hr_rate = $rates->hr_night_rate;
-                    $rec->aux_hr_rate = $rates->hr_aux_rate;
                 }
             }
         }
@@ -443,6 +473,7 @@ class DriverWorkController extends Controller
             $messages = [
                 'machineid.required' => 'Не указана техника/автомобиль',
                 'staffid.required' => 'Не указан работник',
+                'wrktypeid.required' => 'Укажите тип работ',
                 'wrkdate.required' => 'Укажите дату проведения работ',
                 'statusid.required' => 'Укажите статус готовности документа',
                 'meter_endqty.required' => 'Укажите показания спидометра на окончание работы',
@@ -452,6 +483,7 @@ class DriverWorkController extends Controller
             $rules = [
                 'machineid' => 'required',
                 'staffid' => 'required',
+                'wrktypeid' => 'required',
                 'wrkdate' => 'required',
 //                'meter_begqty' => 'required|numeric',
 //                'meter_endqty' => 'required|numeric|gte:meter_begqty',
@@ -634,22 +666,61 @@ class DriverWorkController extends Controller
             }
 //dd($cur_dt, $day_hrs, $night_hrs);
 
-            $rec->aux_equipment = $request->get('aux_equipment') ?? 0;   // работа с прицепом
-            $rec->day_brkhrs = $request->get('day_brkhrs') ?? 0;
-            $rec->night_brkhrs = $request->get('night_brkhrs') ?? 0;
+            $rec->wrktypeid = $request->get('wrktypeid');
+
+
+            // Считаем данные по доп. работам/простоям --------------------
+            $aux_worktypeid = $request->get('aux_wrktypeid');
+            $aux_dwi_id = $request->get('aux_dwi_id');
+            $aux_day_hrs = $request->get('aux_day_hrs');
+            $aux_night_hrs = $request->get('aux_night_hrs');
+            $aux_hr_day_rate = $request->get('aux_hr_day_rate');
+            $aux_hr_night_rate = $request->get('aux_hr_night_rate');
+            $aux_aux_sum = $request->get('aux_aux_sum');
+            //dd( $aux_day_hrs,  $aux_hr_day_rate);
+            //dd($aux_night_hrs, $aux_hr_night_rate);
+
+//            $rec->day_brkhrs = $request->get('day_brkhrs') ?? 0;
+//            $rec->night_brkhrs = $request->get('night_brkhrs') ?? 0;
+
+            // Подсчитаем кол-во простоев - по записям, внесенным в разрезе видов доп. деятельности -------
+            $day_brkhrs = 0.0;
+            $night_brkhrs = 0.0;
+            $aux_sum = 0.00;
+            foreach ($aux_worktypeid as $i => $itm) {
+                $day_brkhrs += 1 * $aux_day_hrs[$i];
+                $night_brkhrs += 1 * $aux_night_hrs[$i];
+
+                $salary_sum = $day_brkhrs * $aux_hr_day_rate[$i]
+                    + $night_brkhrs * $aux_hr_night_rate[$i]
+                    + 1 * $aux_aux_sum[$i];
+                $aux_sum += $salary_sum;
+            }
+            $rec->day_brkhrs = $day_brkhrs;
+            $rec->night_brkhrs = $night_brkhrs;
+            // Нужно исправить - сейчас "с натяжкой" всю сумму за доп-работу ставим в сумму ремонта.
+            $rec->repair_sum = $aux_sum;
+            //---------------------------------------------------------------------------------------------
+
+            // Скорректируем кол-во рабочих часов с учетом часов простоя/ремонта/сна
             $rec->day_wrkhrs = $day_hrs - min($day_hrs, $rec->day_brkhrs);
             $rec->night_wrkhrs = $night_hrs - min($night_hrs, $rec->night_brkhrs);
 //            dd( $rec->day_wrkhrs , $rec->night_wrkhrs );
+
 
             $rec->hrs_salary = mchn_raid::calc_hr_salary(
                 $rec->wrkdate
                 , $rec->staffid
                 , $rec->day_wrkhrs
                 , $rec->night_wrkhrs
-                , $rec->aux_equipment);
+                , $rec->wrktypeid);
+            //dd( $rec->hrs_salary);
             //-------------------------------------------------------
 
             //$rec->mchnwrkhrs = $request->get('mchnwrkhrs');
+
+            $rec->breaks_sum = $request->get('breaks_sum');
+
 
             //Получим текущие данные от рейсов:
             $raid_info = mchn_raid::where('dw_id', $rec->id)->selectRaw("sum(raid_qty) as qty, sum(raid_qty*raid_salary) as sum")->first();
@@ -658,15 +729,15 @@ class DriverWorkController extends Controller
             $rec->raid_sum = $raid_info->sum;
 
 
-            $rec->pdt_hrs = $request->get('pdt_hrs');
-            $rec->pdt_cost = $request->get('pdt_cost');
-            $rec->pdt_sum = $rec->pdt_hrs * $rec->pdt_cost;
+//            $rec->pdt_hrs = $request->get('pdt_hrs');
+//            $rec->pdt_cost = $request->get('pdt_cost');
+//            $rec->pdt_sum = $rec->pdt_hrs * $rec->pdt_cost;
+//
+//            $rec->repair_hrs = $request->get('repair_hrs');
+//            $rec->repair_cost = $request->get('repair_cost');
+//            $rec->repair_sum = $rec->repair_hrs * $rec->repair_cost;
 
-            $rec->repair_hrs = $request->get('repair_hrs');
-            $rec->repair_cost = $request->get('repair_cost');
-            $rec->repair_sum = $rec->repair_hrs * $rec->repair_cost;
-
-            $rec->salary_sum = $rec->hrs_salary + $rec->raid_sum + $rec->pdt_sum + $rec->repair_sum;
+            $rec->salary_sum = $rec->hrs_salary + $rec->raid_sum + $rec->breaks_sum;
 
             $rec->meter_begqty = $request->get('meter_begqty');
             $rec->meter_endqty = $request->get('meter_endqty');
@@ -728,6 +799,36 @@ class DriverWorkController extends Controller
         //dd($rec);
 
         objlog::log_info($this->sysobjid, $rec->id, $mess, 5);
+
+
+        //-------------------------------------------------------
+        // Сохраним данные о простоях/ремонтах/доп.работах
+
+        foreach ($aux_worktypeid as $i => $itm) {
+
+            $hr_sum = 1 * $aux_day_hrs[$i] * $aux_hr_day_rate[$i]
+                + 1 * $aux_night_hrs[$i] * $aux_hr_night_rate[$i];
+
+            $brk_sum = $hr_sum + 1 * $aux_aux_sum[$i];
+
+            dw_break::addOrUpdate(
+                ['dw_id' => $rec->id, 'wrktypeid' => $aux_worktypeid[$i]],
+                ['dw_id' => $rec->id, 'wrktypeid' => $aux_worktypeid[$i]
+                    , 'begdt' => null
+                    , 'enddt' => null
+                    , 'day_hrs' => $aux_day_hrs[$i] * 1
+                    , 'night_hrs' => $aux_night_hrs[$i] * 1
+                    , 'hr_day_rate' => $aux_hr_day_rate[$i] * 1
+                    , 'hr_night_rate' => $aux_hr_night_rate[$i] * 1
+                    , 'hr_sum' => $hr_sum
+                    , 'aux_sum' => $aux_aux_sum[$i] * 1
+                    , 'brk_sum' => $brk_sum
+                    , 'updated_by' => $userid
+                    , 'updated_at' => now()
+                ]);
+        }
+        //-------------------------------------------------------
+
 
         if ($id == -1 or $rec->statusid <> $pre_statusid)
             return redirect(route($this->sysobjcode . '.edit', $rec->id));
