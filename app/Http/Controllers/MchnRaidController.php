@@ -247,6 +247,9 @@ class MchnRaidController extends Controller
             ->leftjoin('orgs as o', function ($join) {
                 $join->on('o.id', '=', 'mro.orgid');
             })
+            ->leftjoin('wrktypes as wt', function ($join) {
+                $join->on('wt.id', '=', 'mr.wrktypeid');
+            })
             ->whereraw($sc)
             ->select('mr.id', 'mr.wrkdate'
                 , 'mro.sale_dir', 'mro.refitmid', 'mro.itm_qty', 'mro.itm_price', 'mro.itm_sum', 'mro.paytypeid'
@@ -257,6 +260,7 @@ class MchnRaidController extends Controller
                 , 'ds.lname as disp_name'
                 , db::raw("concat(m.regnum,' ',m.name) as machine_name")
                 , 'mr.opertypeid'
+                , 'mr.wrktypeid', 'wt.name as wrktype_name'
                 , 'ot.name as opertype_name'
                 , 's_o.name as suporg_name'
                 , 'o.name as org_name'

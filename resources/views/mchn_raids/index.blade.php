@@ -381,6 +381,8 @@
                                                 {{$item->staff_name}}
 
                                                 <div class="mt-1 ml-3 small">{{$item->machine_name}}</div>
+                                                <div class="float-right">{{$item->wrktype_name}}</div>
+
                                             </a>
                                         </td>
                                         <td class="text-center">
