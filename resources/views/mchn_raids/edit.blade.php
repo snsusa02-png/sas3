@@ -30,6 +30,7 @@
                 margin-bottom: 0px;
             }
         </style>
+
         <div class="container">
 
             @includeIf('layouts.edit_msgs')

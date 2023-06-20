@@ -47,7 +47,7 @@ $(document).ready(function () {
         // console.log(fctenddt);
         //console.log(enddt.diff(begdt, 'hours', true));
         //var stfwrkhrs = Math.round((enddt.diff(begdt, 'hours', true) - day_brkhrs - night_brkhrs) * 10) / 10;
-        var stfwrkhrs = Math.round((enddt.diff(begdt, 'hours', true)) * 10) / 10;
+        var stfwrkhrs = Math.round((enddt.diff(begdt, 'hours', true)) * 100) / 100;
         if (isNaN(stfwrkhrs))
             $("#stfwrkhrs").val('-');
         else
@@ -90,8 +90,9 @@ $(document).ready(function () {
             }
             //console.log(day_hrs, night_hrs)
 
-            day_wrkhrs = Math.round(day_hrs - Math.min(day_brkhrs, day_hrs));
-            night_wrkhrs = Math.round(night_hrs - Math.min(night_brkhrs, night_hrs));
+            day_wrkhrs = Math.round((day_hrs - Math.min(day_brkhrs, day_hrs))*100)/100;
+            night_wrkhrs = Math.round((night_hrs - Math.min(night_brkhrs, night_hrs))*100)/100;
+            console.log(day_wrkhrs, night_wrkhrs)
             hrs_salary = Math.round((
                 day_wrkhrs * day_hr_rate
                 + night_wrkhrs * night_hr_rate
@@ -99,8 +100,8 @@ $(document).ready(function () {
             // console.log('hrs_salary = ' + hrs_salary)
         }
 
-        $("#day_hrs").val(Math.round(day_hrs * 10) / 10);
-        $("#night_hrs").val(Math.round(night_hrs * 10) / 10);
+        $("#day_hrs").val(Math.round(day_hrs * 100) / 100);
+        $("#night_hrs").val(Math.round(night_hrs * 100) / 100);
         $("#day_wrkhrs").val(day_wrkhrs);
         $("#night_wrkhrs").val(night_wrkhrs);
         $("#hrs_salary").val(hrs_salary);

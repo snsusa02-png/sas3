@@ -32,7 +32,7 @@
             @includeIf('layouts.edit_msgs')
 
             <div class="row ">
-                <div class="col-md-8">
+                <div class="col-md-9">
                     <div class="card p-2 my-2 my-md-3" style="background-color: #f8f8f8">
                         <div class="card-header">
                             <?php
@@ -151,6 +151,7 @@
                                                     <input type="time" name="begtime" id="begtime" required
                                                            class="form-control text-center font-weight-bold"
                                                            {{--                                                   max="{{$rec->maxtime}}"--}}
+                                                           step="900"
                                                            value="{{old('begtime',$rec->begtime)}}">
                                                 </div>
                                             </div>
@@ -176,6 +177,7 @@
                                                     <div class="input-group-append">
                                                         <input type="time" name="endtime" id="endtime" required
                                                                class="form-control text-center font-weight-bold"
+                                                               step="900"
                                                                value="{{old('endtime',$rec->endtime)}}">
                                                     </div>
                                                 </div>
@@ -279,7 +281,7 @@
                                 <table class="table table-striped">
                                     <tr>
                                         <th>Вид</th>
-                                        <th>Днем, ч</th>
+                                        <th>Днем, ч&nbsp;&nbsp;</th>
                                         <th>Ставка, &#8381;/ч</th>
                                         <th>Ночью, ч</th>
                                         <th>Ставка, &#8381;/ч</th>
@@ -299,7 +301,7 @@
                                                 <input type="number" name="aux_day_hrs[]"
                                                        class="form-control text-center aux_day_hrs"
                                                        value="{{$itm->day_hrs}}"
-                                                       min="0" step="1">
+                                                       min="0" max="99" step="0.25">
                                             </td>
                                             <td>
                                                 <input type="text" name="aux_hr_day_rate[]"
@@ -311,7 +313,7 @@
                                                 <input type="number" name="aux_night_hrs[]"
                                                        class="form-control text-center aux_night_hrs"
                                                        value="{{$itm->night_hrs}}"
-                                                       min="0" step="1">
+                                                       min="0" max="99" step="0.25">
                                             </td>
                                             <td>
                                                 <input type="text" name="aux_hr_night_rate[]"
@@ -414,7 +416,7 @@
                                             @if ($usrrights['edit'])
                                                 <input type="text" name="repair_hrs" id="repair_hrs"
                                                        class="form-control text-right"
-                                                       min="0" max="24" step="0.1" readonly
+                                                       min="0" max="99" step="0.25" readonly
                                                        value="{{old('repair_hrs',$rec->repair_hrs)}}">
                                             @else
                                                 <div class="font-weight-bold text-right">{{$rec->repair_hrs}}</div>
@@ -705,7 +707,7 @@
                     </div>
                 </div>
                 @if($rec->id<>-1)
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         @include('driver_works._raids')
                         {{--                        @include('driver_works._breaks')--}}
                         {{--                        @include('objfiles.obj_files')--}}
