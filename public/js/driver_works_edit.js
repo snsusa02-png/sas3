@@ -1,6 +1,31 @@
 $(document).ready(function () {
 
 
+    function checkForInput(element) {
+        // element is passed to the function ^
+
+        // const $label = $(element).siblings('label');
+        var n = parseFloat($(element).val());
+
+        //if ($(element).val().length > 0) {
+        if (isNaN(n) || n == 0) {
+            $(element).removeClass('has-value');
+        } else {
+            $(element).addClass('has-value');
+        }
+    }
+
+    // The lines below are executed on page load
+    //     $('input.textdemo').each(function() {
+    $('input[type="number"]').each(function() {
+        checkForInput(this);
+    });
+
+    // The lines below (inside) are executed on change & keyup
+    $('input[type="number"]').on('change keyup', function() {
+        checkForInput(this);
+    });
+
     function recalc_hrs() {
         //console.log('recalc_HRS')
         //console.log(moment('2020-01-01').set('year', moment().get('year')).format('yyyy-MM-DD'));

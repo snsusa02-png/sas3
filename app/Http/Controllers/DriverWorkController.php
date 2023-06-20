@@ -301,6 +301,7 @@ class DriverWorkController extends Controller
                 'wrkdate' => $rec->wrkdate,
                 'machineid' => $rec->machineid,
                 'driverid' => $rec->staffid,
+                'wrktypeid' => $rec->wrktypeid,
             ])->whereNull('dw_id')
                 ->update(['dw_id' => $rec->id]);
             //---------------------------------------------------------------------------------------
@@ -322,14 +323,7 @@ class DriverWorkController extends Controller
         //dd($rec->begtime, $rec->endtime, $rec->maxtime);
 
 
-        $rec->breaktypes = dw_break::breaktypes();
-
-//        $rec->breaks = dw_break::where('dw_id', $rec->id)
-//            ->select('id', 'begdt', 'enddt', 'day_hrs', 'night_hrs', 'brk_sum', 'reason', 'wrktypeid')
-//            ->orderby('wrktypeid')
-//            ->orderby('begdt')
-//            ->get();
-//dd( $rec->breaks);
+        //$rec->breaktypes = dw_break::breaktypes();
 
         //Основные виды работ водителя
         $rec->main_wrktypes = wrktype::main_wrktypes();

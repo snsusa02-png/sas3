@@ -25,8 +25,8 @@
                     <thead>
                     <tr class="text-center align-middle small">
                         <td>#</td>
-                        <td class="text-right">Когда</td>
-                        <td class="text-center">Куда</td>
+                        <td class="text-center">Когда</td>
+                        <td class="text-center">Рейсов</td>
                         <td/>
                     </tr>
                     </thead>
@@ -47,12 +47,10 @@
                         <tr class="align-top ">
                             <td class="small text-right">{{$loop->iteration}}</td>
                             <td class="text-right small" style="{{$linestyle}}">
-                                {{date_create($itm->wrkbegdt)->format('H:i')}}
-                                - {{date_create($itm->wrkenddt)->format('H:i')}}
+                                {{date_create($itm->wrkdate)->format('d.m.Y')}}
                             </td>
-                            <td class="text-left pl-2" style="{{$linestyle}}">
-                                {{$itm->cargo_name}}
-                                <div class="ml-3 small text-right">{{$itm->raid_salary}}*{{$itm->raid_qty}}={{$itm->raid_salary*$itm->raid_qty}}</div>
+                            <td class="text-center pl-2" style="{{$linestyle}}">
+                                {{$itm->raid_qty??0}}
                             </td>
                             <td class="text-right">
                                 @if(1==1)
@@ -68,10 +66,10 @@
                         $tot_salarysum += $itm->raid_salary * $itm->raid_qty;
                         ?>
                     @endforeach
-                    <tr>
-                        <td colspan="2" class="text-right">Всего:</td>
-                        <td class="text-right">{{$tot_salarysum}}</td>
-                    </tr>
+{{--                    <tr>--}}
+{{--                        <td colspan="2" class="text-right">Всего:</td>--}}
+{{--                        <td class="text-right">{{$tot_salarysum}}</td>--}}
+{{--                    </tr>--}}
                     </tbody>
                 </table>
             </div>
