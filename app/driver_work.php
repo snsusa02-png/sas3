@@ -81,7 +81,6 @@ class driver_work extends Model
             return null;
 
         $driver_work = driver_work::where($params)->first();
-
         if (!isset($driver_work)) {
             //создадим запись в driver_works
 
@@ -91,6 +90,7 @@ class driver_work extends Model
 
 
             $driver_work = new driver_work($params);
+//            dd($params, $driver_work);
 
             //добавим значения, подходящие для новой записи
             $driver_work->statusid = 0;    //черновик

@@ -1,41 +1,80 @@
 ﻿--------------------------------------------------------------------------------------------------
+2023.06.21
+SELECT wrkdate,machineid,staffid,wrktypeid
+, count(1) as cnt
+	FROM `driver_works` WHERE 1
+    and wrkdate>='2023-06-01'
+    group by wrkdate,machineid,staffid,wrktypeid
+    having count(1)>1
+    order by wrkdate desc
+
+select * from driver_works dw where not exists (select 1 FROM `mchn_raids` mr WHERE mr.dw_id=dw.id) and updated_by=1 order by wrkdate desc
+
+--------------------------------------------------------------------------------------------------
+2023.06.20
+ALTER TABLE `dw_breaks`
+CHANGE COLUMN `day_hrs` `day_hrs` DECIMAL(5,2) NULL DEFAULT '0.0' COMMENT 'кол-во часов, приходящихся на дневную смену' ,
+CHANGE COLUMN `night_hrs` `night_hrs` DECIMAL(5,2) NULL DEFAULT '0.0' COMMENT 'кол-во часов, приходящихся на ночную смену' ;
+
+ALTER TABLE `driver_works`
+CHANGE COLUMN `wrkhrs` `wrkhrs` DECIMAL(6,2) NULL DEFAULT NULL COMMENT 'кол-во рабочих часов' ,
+CHANGE COLUMN `day_wrkhrs` `day_wrkhrs` DECIMAL(5,2) NULL DEFAULT NULL COMMENT 'Кол-во рабочих часов в дневную смену' ,
+CHANGE COLUMN `day_brkhrs` `day_brkhrs` DECIMAL(5,2) NULL DEFAULT '0.0' COMMENT 'Необоснованный простой в дневную смену' ,
+CHANGE COLUMN `day_hr_rate` `day_hr_rate` DECIMAL(8,2) NULL DEFAULT NULL COMMENT 'Ставка за час работы в дневную смену' ,
+CHANGE COLUMN `night_wrkhrs` `night_wrkhrs` DECIMAL(5,2) NULL DEFAULT NULL COMMENT 'Кол-во рабочих часов в ночную смену' ,
+CHANGE COLUMN `night_brkhrs` `night_brkhrs` DECIMAL(5,2) NULL DEFAULT NULL COMMENT 'Необоснованный простой в ночную смену' ,
+CHANGE COLUMN `night_hr_rate` `night_hr_rate` DECIMAL(8,2) NULL DEFAULT NULL COMMENT 'Ставка за час работы в ночную смену' ;
+
+--------------------------------------------------------------------------------------------------
 2023.06.16
 
-ALTER TABLE `mchn_raids` ADD COLUMN `wrktypeid` BIGINT NULL COMMENT 'вид работы (основной)' AFTER `wrkdate`;
+/*ALTER TABLE `mchn_raids` ADD COLUMN `wrktypeid` BIGINT NULL COMMENT 'вид работы (основной)' AFTER `wrkdate`;
 update mchn_raids set wrktypeid = 1 where aux_equipment=0;
 update mchn_raids set wrktypeid = 2 where aux_equipment=1;
 
 ALTER TABLE `mchn_raids` DROP COLUMN `aux_equipment`;
+*/
 
-
+/*
 ALTER TABLE `driver_works` ADD COLUMN `wrktypeid` BIGINT NULL COMMENT 'вид работы (основной)' AFTER `wrkdate`;
 update driver_works set wrktypeid = 1 where aux_equipment=0;
 update driver_works set wrktypeid = 2 where aux_equipment=1;
 
 ALTER TABLE `driver_works` DROP COLUMN `aux_equipment`,
 ADD COLUMN `breaks_sum` DECIMAL(12,2) NULL COMMENT 'Сумма, начисленная от простоев - по часам и явно указанная' AFTER `hrs_salary`;
+*/
 
-
+/*
 ALTER TABLE `srs_hr_items`
-ADD COLUMN `wrktypeid` BIGINT NULL COMMENT 'вид работы (основной)' AFTER `srs_id`,
-DROP COLUMN `hr_aux_rate`;
+    ADD COLUMN `wrktypeid` BIGINT NULL COMMENT 'вид работы (основной)' AFTER `srs_id`,
+    DROP COLUMN `hr_aux_rate`;
+*/
 
-
-ALTER TABLE `dw_breaks`
-ADD COLUMN `wrktypeid` BIGINT NULL COMMENT 'вид работы (основной)' AFTER `dw_id`;
-
-ALTER TABLE `dw_breaks`
-DROP COLUMN `breaktypeid`,
+/*ALTER TABLE `dw_breaks`
 ADD COLUMN `night_hrs` DECIMAL(4,1) NULL DEFAULT 0 COMMENT 'кол-во часов, приходящихся на ночную смену' AFTER `day_hrs`,
 ADD COLUMN `hr_day_rate` DECIMAL(8,2) NULL DEFAULT 0 COMMENT 'ставка за час дневой смены' AFTER `night_hrs`,
 ADD COLUMN `hr_night_rate` DECIMAL(8,2) NULL DEFAULT 0 COMMENT 'ставка за час ночной смены' AFTER `hr_day_rate`,
 ADD COLUMN `hr_sum` DECIMAL(12,2) NULL DEFAULT 0 COMMENT 'сумма ЗП, рассчитанная по часам и ставкам' AFTER `hr_night_rate`,
 ADD COLUMN `aux_sum` DECIMAL(12,2) NULL DEFAULT 0 COMMENT 'явно указанная сумма ЗП (в дополнение к HR_SUM)' AFTER `hr_sum`,
 ADD COLUMN `brk_sum` DECIMAL(12,2) NULL DEFAULT 0 COMMENT 'Общая сумма ЗП по строке (HR_SUM + AUX_SUM)' AFTER `aux_sum`,
+ADD COLUMN `wrktypeid` BIGINT NULL COMMENT 'вид работы (основной)' AFTER `dw_id`,
 CHANGE COLUMN `breakbegdt` `begdt` DATETIME NULL DEFAULT NULL COMMENT 'Время начала работы' ,
 CHANGE COLUMN `breakenddt` `enddt` DATETIME NULL DEFAULT NULL COMMENT 'Время окончания работы' ,
-CHANGE COLUMN `breakhrs` `day_hrs` DECIMAL(4,1) NULL DEFAULT 0 COMMENT 'кол-во часов, приходящихся на дневную смену' ;
+CHANGE COLUMN `breakhrs` `day_hrs` DECIMAL(4,1) NULL DEFAULT 0 COMMENT 'кол-во часов, приходящихся на дневную смену'
+, DROP COLUMN `breaktypeid`;
+*/
 
+insert into dw_breaks (dw_id, wrktypeid, day_hrs, night_hrs, hr_day_rate, hr_night_rate, hr_sum, aux_sum, brk_sum)
+SELECT
+	id as dw_id, 22 as wrktypeid
+    , day_brkhrs as day_hrs, night_brkhrs as night_hrs
+    , 0 as hr_day_rate, 0 as hr_night_rate
+    , 0 as hr_sum, 0 as aux_sum, 0 as brk_sum
+FROM `driver_works`
+where 1=1
+ and wrkenddt is not null
+ and ( night_brkhrs>0 or day_brkhrs > 0)
+order by id
 --------------------------------------------------------------------------------------------------
 2023.06.12
 

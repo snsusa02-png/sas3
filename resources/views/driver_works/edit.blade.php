@@ -161,7 +161,7 @@
                                                     <input type="time" name="begtime" id="begtime" required
                                                            class="form-control text-center font-weight-bold"
                                                            {{--                                                   max="{{$rec->maxtime}}"--}}
-                                                           step="900"
+                                                           step0="300"
                                                            value="{{old('begtime',$rec->begtime)}}">
                                                 </div>
                                             </div>
@@ -187,7 +187,7 @@
                                                     <div class="input-group-append">
                                                         <input type="time" name="endtime" id="endtime" required
                                                                class="form-control text-center font-weight-bold"
-                                                               step="900"
+                                                               step0="300"
                                                                value="{{old('endtime',$rec->endtime)}}">
                                                     </div>
                                                 </div>
