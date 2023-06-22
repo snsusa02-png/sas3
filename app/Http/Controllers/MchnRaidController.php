@@ -135,10 +135,10 @@ class MchnRaidController extends Controller
         $sc = "1=1";
         //2023-06-12 Ограничение доступа по видам операций
         $sc .= " and exists(select 1 from opertypes ot where ot.id=mr.opertypeid"
-                . " and (ot.need_rightid is null or exists (select 1 from usrsysrights as ur"
-				. " where ur.userid={$userid} and ur.sysfuncid = ot.need_rightid and ur.active=1 and ur.enddt is null)"
-                .")"
-            .")";
+            . " and (ot.need_rightid is null or exists (select 1 from usrsysrights as ur"
+            . " where ur.userid={$userid} and ur.sysfuncid = ot.need_rightid and ur.active=1 and ur.enddt is null)"
+            . ")"
+            . ")";
 
         foreach ($search_params as $item => $val) {
             if (isset($val) and strlen($val) > 0) {
@@ -441,8 +441,8 @@ class MchnRaidController extends Controller
             $sc .= " and exists(select 1 from opertypes ot where ot.id=mr.opertypeid"
                 . " and (ot.need_rightid is null or exists (select 1 from usrsysrights as ur"
                 . " where ur.userid={$userid} and ur.sysfuncid = ot.need_rightid and ur.active=1 and ur.enddt is null)"
-                .")"
-                .")";
+                . ")"
+                . ")";
 
             $rec = mchn_raid::from('mchn_raids as mr')->whereRaw($sc)->where('id', $id)->first();
 
@@ -753,29 +753,8 @@ class MchnRaidController extends Controller
         $mess = "";
         if ($id == -1) {
 
-            //проверим - задана ли связь с driver_works
-            $dw_id = $request->get('dw_id');
-            if (isset($dw_id))
-                //$driver_work = driver_work::find($dw_id);
-                $driver_work = null;
-
-            //если нет, то попробуем поискать по соответствию wrkdate/machineid/driverid
-            if (!isset($driver_work)) {
-                $wrkdate = $request->get('wrkdate');
-                $machineid = $request->get('machineid');
-                $driverid = $request->get('driverid');
-                $wrktypeid = $request->get('wrktypeid');
-
-                $driver_work = driver_work::find_or_create([
-                    'wrkdate' => $wrkdate,
-                    'machineid' => $machineid,
-                    'staffid' => $driverid,
-                    'wrktypeid' => $wrktypeid,
-                ]);
-            }
-
             $rec = new mchn_raid([
-                "dw_id" => $driver_work->id,
+                "dw_id" => null,
                 "active" => 0,
                 //"statusid" => 0,
                 "created_by" => $userid,
@@ -800,18 +779,16 @@ class MchnRaidController extends Controller
             $rec->mot_id = $request->get('mot_id');
 
 
-            //если до сих пор рейс не привязан к отчету о работе
-            $rec->dw_id = null;
-            if (!isset($rec->dw_id)) {
-                //то найдем/создадим такой отчет и привяжем
-                $driver_work = driver_work::find_or_create([
-                    'wrkdate' => $rec->wrkdate,
-                    'machineid' => $rec->machineid,
-                    'staffid' => $rec->driverid,
-                    'wrktypeid' => $rec->wrktypeid,
-                ]);
-                $rec->dw_id = $driver_work->id;
-            }
+            //Перепривяжем рейс к отчету о работе
+            // - найдем/создадим такой отчет и привяжем
+            $driver_work = driver_work::find_or_create([
+                'wrkdate' => $rec->wrkdate,
+                'machineid' => $rec->machineid,
+                'staffid' => $rec->driverid,
+                'wrktypeid' => $rec->wrktypeid,
+            ]);
+            $rec->dw_id = $driver_work->id;
+
 
 //            $rec->wrk_descript = mb_substr($request->get('wrk_descript'), 0, 360);
 
@@ -822,7 +799,6 @@ class MchnRaidController extends Controller
 //
 //            $rec->exe_contractid = $tids[1] ?? null;   //договор подряда/бюджета
 //            $rec->exe_contractid = ($rec->exe_contractid == '') ? null : $rec->exe_contractid;
-
 
             $rec->wrkbegdt = date_create($rec->wrkdate)->format('Y-m-d') . ' ' . $request->get('begtime');
             $rec->wrkenddt = date_create($request->get('wrkenddate'))->format('Y-m-d') . ' ' . $request->get('endtime');

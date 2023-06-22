@@ -330,25 +330,49 @@ class DriverWorkController extends Controller
         //$rec->aux_wrktypes = wrktype::aux_wrktypes();
         //dd($rec->aux_wrktypes);
 
-        $rec->aux_wrk_rates = srs_hr_item::from('srs_hr_items as i')
-            ->join('salary_rate_sets as srs', 'srs.id', 'i.srs_id')
-            ->join('wrktypes as wt', 'wt.id', 'i.wrktypeid')
-            ->join('orgstaff as os', 'os.id', '=', DB::raw($rec->staffid))
-            ->leftjoin('dw_breaks as dwi', function ($join) use ($rec) {
-                $join->on('dwi.wrktypeid', '=', 'wt.id')
-                    ->where('dwi.dw_id', '=', DB::raw($rec->id));
-            })
-            ->where('srs.payrolltypeid', 1) //to-do - взять из карточки сотрдника
-            ->where('wt.active', 1)
-            ->where('wt.main', '<>', 1)
-            ->whereRaw('ifnull(srs.ownorgid,os.orgid)=os.orgid')
-            ->whereRaw("'{$rec->wrkdate}' between srs.begdate and ifnull(srs.enddate,'{$rec->wrkdate}')")
-            ->whereRaw("TIMESTAMPDIFF(year, ifnull(os.begdate,'{$rec->wrkdate}'), '{$rec->wrkdate}' ) between i.min_wrkexp and i.max_wrkexp-0.001")
-            ->select('i.wrktypeid', 'wt.name as wrktype_name', 'i.hr_day_rate', 'i.hr_night_rate'
-                , 'dwi.id as dwi_id', 'dwi.day_hrs', 'dwi.night_hrs', 'dwi.aux_sum')
-            ->orderby('wt.ordr')
-            ->orderby('wt.name')
-            ->get();
+//        if ( $id == -1){
+        if ( 1 == 1){
+            $rec->aux_wrk_rates = wrktype::from('wrktypes as wt')
+                ->leftjoin('dw_breaks as dwi', function ($join) use ($rec) {
+                    $join->on('dwi.wrktypeid', '=', 'wt.id')
+                        ->where('dwi.dw_id', '=', DB::raw($rec->id));
+                })
+                ->where('wt.active', 1)
+                ->where('wt.main', '<>', 1)
+                ->select('wt.id as wrktypeid'
+                        , 'wt.name as wrktype_name'
+                        , 'dwi.hr_day_rate'
+                        , 'dwi.hr_night_rate'
+                        , 'dwi.id as dwi_id'
+                        , 'dwi.day_hrs'
+                        , 'dwi.night_hrs'
+                        , 'dwi.aux_sum'
+                )
+                ->orderby('wt.ordr')
+                ->orderby('wt.name')
+                ->get();
+
+        }else{
+            $rec->aux_wrk_rates = srs_hr_item::from('srs_hr_items as i')
+                ->join('salary_rate_sets as srs', 'srs.id', 'i.srs_id')
+                ->join('wrktypes as wt', 'wt.id', 'i.wrktypeid')
+                ->leftjoin('orgstaff as os', 'os.id', '=', DB::raw($rec->staffid??0))
+                ->leftjoin('dw_breaks as dwi', function ($join) use ($rec) {
+                    $join->on('dwi.wrktypeid', '=', 'wt.id')
+                        ->where('dwi.dw_id', '=', DB::raw($rec->id));
+                })
+                ->where('srs.payrolltypeid', 1) //to-do - взять из карточки сотрдника
+                ->where('wt.active', 1)
+                ->where('wt.main', '<>', 1)
+                ->whereRaw('ifnull(srs.ownorgid,os.orgid)=os.orgid')
+                ->whereRaw("'{$rec->wrkdate}' between srs.begdate and ifnull(srs.enddate,'{$rec->wrkdate}')")
+                ->whereRaw("TIMESTAMPDIFF(year, ifnull(os.begdate,'{$rec->wrkdate}'), '{$rec->wrkdate}' ) between i.min_wrkexp and i.max_wrkexp-0.001")
+                ->select('i.wrktypeid', 'wt.name as wrktype_name', 'i.hr_day_rate', 'i.hr_night_rate'
+                    , 'dwi.id as dwi_id', 'dwi.day_hrs', 'dwi.night_hrs', 'dwi.aux_sum')
+                ->orderby('wt.ordr')
+                ->orderby('wt.name')
+                ->get();
+        }
 //        dd($rec->aux_wrk_rates);
 
 
