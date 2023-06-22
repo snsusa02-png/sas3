@@ -2,6 +2,8 @@
 
 namespace App\Traits;
 
+use App\dw_break;
+use App\mchn_raid;
 use App\obj_comment;
 use App\obj_link;
 use App\obj_msg;
@@ -83,6 +85,10 @@ trait DeleteTrait
 
                             // нужно удалить и отчетность
                             task_report::where('taskid', $id)->delete();
+
+                        } elseif ($sysobjid == 1141) {
+                            mchn_raid::where('dw_id', $id)->update(['dw_id' => null]);
+                            dw_break::where('dw_id', $id)->delete();
                         }
                     }
                     //------------------------------------------------------
