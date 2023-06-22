@@ -45,14 +45,14 @@
                             <td class="align-text-top small {{$tclass}}">{{date_create($itm->date)->format('d.m.Y')}}</td>
                             <td class="text-right">{{$itm->raid_qty??' '}}</td>
                             <td class="text-right">
-                                @if(isset($itm->prod_salesum))
+{{--                                @if(isset($itm->prod_salesum))--}}
                                     <a href="{{route('reports.rep55',['date'=>$itm->date])}}?returl={{$retURL}}"
                                        title="Детализация производства и отгрузки продукции за день">
                                         {{$prod_salesum}}
                                     </a>
-                                @else
-                                    {{$prod_salesum}}
-                                @endif
+{{--                                @else--}}
+{{--                                    {{$prod_salesum}}--}}
+{{--                                @endif--}}
                             </td>
                             <td class="text-right">
                                 @if(isset($itm->inp_paysum))
