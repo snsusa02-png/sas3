@@ -1,6 +1,6 @@
 @if( isset($data->calendar_sums_items) and count($data->calendar_sums_items)>0)
 
-{{--    <div class="col-lg-4 col-md-4 col-sm-8">--}}
+    {{--    <div class="col-lg-4 col-md-4 col-sm-8">--}}
     <div class="col-md-12">
         <div class="card card-stats mt-3">
             <div class="card-header">
@@ -45,14 +45,14 @@
                             <td class="align-text-top small {{$tclass}}">{{date_create($itm->date)->format('d.m.Y')}}</td>
                             <td class="text-right">{{$itm->raid_qty??' '}}</td>
                             <td class="text-right">
-{{--                                @if(isset($itm->prod_salesum))--}}
-                                    <a href="{{route('reports.rep55',['date'=>$itm->date])}}?returl={{$retURL}}"
-                                       title="Детализация производства и отгрузки продукции за день">
+                                <a href="{{route('reports.rep55',['date'=>$itm->date])}}?returl={{$retURL}}"
+                                   title="Детализация производства и отгрузки продукции за день">
+                                    @if(isset($itm->prod_salesum))
                                         {{$prod_salesum}}
-                                    </a>
-{{--                                @else--}}
-{{--                                    {{$prod_salesum}}--}}
-{{--                                @endif--}}
+                                    @else
+                                        {{$prod_salesum}}-
+                                    @endif
+                                </a>
                             </td>
                             <td class="text-right">
                                 @if(isset($itm->inp_paysum))
