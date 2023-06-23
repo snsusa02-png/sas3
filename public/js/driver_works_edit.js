@@ -17,12 +17,12 @@ $(document).ready(function () {
 
     // The lines below are executed on page load
     //     $('input.textdemo').each(function() {
-    $('input[type="number"]').each(function() {
+    $('input[type="number"]').each(function () {
         checkForInput(this);
     });
 
     // The lines below (inside) are executed on change & keyup
-    $('input[type="number"]').on('change keyup', function() {
+    $('input[type="number"]').on('change keyup', function () {
         checkForInput(this);
     });
 
@@ -115,8 +115,8 @@ $(document).ready(function () {
             }
             //console.log(day_hrs, night_hrs)
 
-            day_wrkhrs = Math.round((day_hrs - Math.min(day_brkhrs, day_hrs))*100)/100;
-            night_wrkhrs = Math.round((night_hrs - Math.min(night_brkhrs, night_hrs))*100)/100;
+            day_wrkhrs = Math.round((day_hrs - Math.min(day_brkhrs, day_hrs)) * 100) / 100;
+            night_wrkhrs = Math.round((night_hrs - Math.min(night_brkhrs, night_hrs)) * 100) / 100;
             console.log(day_wrkhrs, night_wrkhrs)
             hrs_salary = Math.round((
                 day_wrkhrs * day_hr_rate
@@ -161,28 +161,13 @@ $(document).ready(function () {
             breaks_sum += hr_sum;
         });
 
-        if (1 == 0) {
-            // Проход по дневным часам -------------------------------
-            $('.aux_day_hrs').each(function () {
-                h = parseFloat($(this).val());
-                rate = parseFloat($(this).parent().parent().find('.aux_hr_day_rate').val());
-                rate = (isNaN(rate)) ? 0 : rate;
-                breaks_sum += h * rate;
-            });
-            // Проход по ночным часам --------------------------------
-            $('.aux_night_hrs').each(function () {
-                h = parseFloat($(this).val());
-                rate = parseFloat($(this).parent().parent().find('.aux_hr_night_rate').val());
-                rate = (isNaN(rate)) ? 0 : rate;
-                breaks_sum += h * rate;
-            });
-            // Проход по явно-указанной ЗП по строке ----------------
-            $('.aux_aux_sum').each(function () {
-                s = parseFloat($(this).val());
-                s = (isNaN(s)) ? 0 : s;
-                breaks_sum += s;
-            });
-        }
+        // Проход по явно-указанной ЗП по строке --------------------------
+        $('.aux_aux_sum').each(function () {
+            s = parseFloat($(this).val());
+            s = (isNaN(s)) ? 0 : s;
+            //console.log(s)
+            breaks_sum += s;
+        });
 
         //Установим рассчитанную сумму ЗП по простоям
         $("#breaks_sum").val(breaks_sum);
@@ -190,6 +175,12 @@ $(document).ready(function () {
 
         recalc_hrs();
     }
+
+
+    $(".aux_aux_sum").change(function () {
+        recalc_breaks();
+    });
+
 
     // --- При изменении какого-то из часов простоя днем ---
     $(".aux_day_hrs").change(function () {
@@ -200,12 +191,14 @@ $(document).ready(function () {
             $(this).val(hr);
         }
 
+        //Подсчитаем общее кол-во дневных счетов
         var tot_hrs = 0;
         $('.aux_day_hrs').each(function () {
             h = parseFloat($(this).val());
             tot_hrs += (isNaN(h)) ? 0 : h;
         });
         //console.log(tot_hrs);
+
         //Кол-во часов простоя днем не может превыщать общее кол-во рабочих часов днем
         var lim_hrs = parseFloat($("#day_hrs").val());
         if (tot_hrs > lim_hrs) {
