@@ -68,7 +68,7 @@ class mchn_raid extends Model
 
     static public function paytypes()
     {
-        return [1 => 'нал', 2 => 'б/н'];
+        return [1 => 'нал', 2 => 'б/н с НДС', 3 => 'б/н без НДС'];
     }
 
     public function mchn_opertype()

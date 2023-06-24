@@ -51,7 +51,15 @@ $(document).ready(function () {
             const itm_sum = parseFloat($("#itm_sum").val()) ?? 0;
             var agent_sum = parseFloat($("#agent_sum").val()) ?? 0;
             agent_sum = (isNaN(agent_sum)) ? 0 : agent_sum;
-            const k1 = ($("#paytypeid").val() == 1) ? 1 : 0.8;
+            //const k1 = ($("#paytypeid").val() == 1) ? 1 : 0.8;
+            var k1 = 1;
+            if ($("#paytypeid").val() == 1)
+                k1 = 1;
+            else if ($("#paytypeid").val() == 2)
+                k1 = 0.8;
+            else
+                k1 = 0.8;
+
             const k2 = 0.1;
 
             var driver_sum = Math.round((itm_sum * k1 - agent_sum) * k2 * 100) / 100;

@@ -217,7 +217,7 @@
 
                                 <div class="row">
 
-                                    <div class="form-group offset-md-1 col-md-3">
+                                    <div class="form-group offset-md-0 col-md-3">
                                         <label for="name" class="required">Количество,
                                             <span class="font-weight-bold"
                                                   id="load_qty_unit">{{$rec->refitem->unittype->name??'ЕИ'}}</span>:
@@ -264,7 +264,7 @@
                                         @endif
                                     </div>
 
-                                    <div class="form-group offset-md-0 col-md-2">
+                                    <div class="form-group offset-md-0 col-md-3">
                                         <label for="mot_id" class="required">Оплата:</label>
                                         @if ($usrrights['edit'] )
                                             {!! Form::select('paytypeid', $rec->paytypes??[], old('paytypeid',$rec->paytypeid),
