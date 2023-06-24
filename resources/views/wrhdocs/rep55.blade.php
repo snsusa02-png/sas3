@@ -32,7 +32,9 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
             border-collapse: collapse;
             border: 1px solid #e2e2e2;
         }
-
+        .b-r{
+            border-right: 1px solid darkgray !important;
+        }
         .page {
             background-color: white;
         }
@@ -90,19 +92,19 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                     <tr class="text-left small" style="vertical-align:middle;">
                         <td class="text-right small" style="width: 38px" rowspan="2">№п/п</td>
                         <td class="text-center" rowspan="2">Наименование продукции</td>
-                        <td class="text-center" rowspan="2">ЕИ</td>
-                        <td class="text-center" colspan="2">Вх. остаток</td>
-                        <td class="text-center" colspan="2">Приход</td>
-                        <td class="text-center" colspan="2">Расход</td>
+                        <td class="text-center b-r" rowspan="2">ЕИ</td>
+                        <td class="text-center b-r" colspan="2">Вх. остаток</td>
+                        <td class="text-center b-r" colspan="2">Приход</td>
+                        <td class="text-center b-r" colspan="2">Расход</td>
                         <td class="text-center" colspan="2">Исх. остаток</td>
                     </tr>
                     <tr>
                         <td class="text-center small">Кол-во, ЕИ</td>
-                        <td class="text-center small">Сумма, руб</td>
+                        <td class="text-center small b-r">Сумма, руб</td>
                         <td class="text-center small">Кол-во, ЕИ</td>
-                        <td class="text-center small">Сумма, руб</td>
+                        <td class="text-center small b-r">Сумма, руб</td>
                         <td class="text-center small">Кол-во, ЕИ</td>
-                        <td class="text-center small">Сумма, руб</td>
+                        <td class="text-center small b-r">Сумма, руб</td>
                         <td class="text-center small">Кол-во, ЕИ</td>
                         <td class="text-center small">Сумма, руб</td>
                     </tr>
@@ -161,7 +163,7 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                             <td class="text-left " data-npp="{{$npp}}">
                                 {{$rec->refitm_name}}
                             </td>
-                            <td class="text-center small">
+                            <td class="text-center small b-r">
                                 {{$rec->refitm_unit}}
                             </td>
 
@@ -172,7 +174,7 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                                     {{$pre_qty}}
                                 @endif
                             </td>
-                            <td class="text-right small calced" data-num="{{$n_pre_sum}}">
+                            <td class="text-right small calced b-r" data-num="{{$n_pre_sum}}">
                                 @if(isset($ref_url))
                                     <a href="{{$ref_url}}" target="_blank">{{$pre_sum}}</a>
                                 @else
@@ -187,7 +189,7 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                                     {{$inp_qty}}
                                 @endif
                             </td>
-                            <td class="text-right small calced" data-num="{{$n_inp_sum}}">
+                            <td class="text-right small calced b-r" data-num="{{$n_inp_sum}}">
                                 @if(isset($ref_url))
                                     <a href="{{$ref_url}}" target="_blank">{{$inp_sum}}</a>
                                 @else
@@ -202,7 +204,7 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                                     {{$out_qty}}
                                 @endif
                             </td>
-                            <td class="text-right small calced" data-num="{{$n_out_sum}}">
+                            <td class="text-right small calced b-r" data-num="{{$n_out_sum}}">
                                 @if(isset($sale_ref_url))
                                     <a href="{{$sale_ref_url}}" target="_blank">{{$out_sum}}</a>
                                 @else
@@ -230,11 +232,11 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                         ?>
                         <tr>
                             <td colspan="4" class="text-right" data-npp="{{$npp++}}">Итого:</td>
-                            <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totPreSum,2)}}</td>
+                            <td class="text-right font-weight-bold b-r {{$td_class}}">{{number_format($totPreSum,2)}}</td>
                             <td></td>
-                            <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totInpSum,2)}}</td>
+                            <td class="text-right font-weight-bold b-r {{$td_class}}">{{number_format($totInpSum,2)}}</td>
                             <td></td>
-                            <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totOutSum,2)}}</td>
+                            <td class="text-right font-weight-bold b-r {{$td_class}}">{{number_format($totOutSum,2)}}</td>
                             <td></td>
                             <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totPreSum + $totInpSum - $totOutSum,2)}}</td>
                         </tr>
