@@ -135,15 +135,18 @@ class WrhDocReportController extends Controller
 //                GROUP BY refitmid
 //                order by refitm_name";
 
-        $sql = "select a.refitmid, ri.name as refitm_name, ri.unit as refitm_unit
+        $sql = "select a.ownorgid, oo.name as ownorg_name
+                , a.refitmid, ri.name as refitm_name, ri.unit as refitm_unit
 	            , sum(a.pre_qty) as pre_qty
 	            , sum(a.pre_sum) as pre_sum
 	            , sum(a.inp_qty) as inp_qty
 	            , sum(a.inp_sum) as inp_sum
 	            , sum(a.out_qty) as out_qty
 	            , sum(a.out_sum) as out_sum
+	            , sum((a.pre_qty + a.inp_qty - a.out_qty)*rp.price) as end_sum
                 from (
                     SELECT i.refitmid
+                        , d.ownorgid
                         , SUM(t.forStock*i.qty) as pre_qty
                     	, SUM(t.forStock*i.qty*i.price) as pre_sum
                         , null as inp_qty
@@ -154,9 +157,10 @@ class WrhDocReportController extends Controller
                     INNER JOIN wrhdocs as d ON d.id = i.docid
                     INNER JOIN wrhdoctypes as t ON t.id = d.doctypeid AND t.forstock <> 0
                     WHERE d.docsigned=1 and  d.docdate < '{$date}'
-                    GROUP BY refitmid
+                    GROUP BY refitmid, d.ownorgid
                     union all
                     SELECT i.refitmid
+                        , d.ownorgid
                         , null as pre_qty
                     	, null as pre_sum
                         , SUM(IF(t.forStock=1, i.qty, 0)) as inp_qty
@@ -167,11 +171,17 @@ class WrhDocReportController extends Controller
                     INNER JOIN wrhdocs as d ON d.id = i.docid
                     INNER JOIN wrhdoctypes as t ON t.id = d.doctypeid AND t.forstock <> 0
                     WHERE d.docsigned=1 and  d.docdate = '{$date}'
-                    GROUP BY refitmid
+                    GROUP BY refitmid, d.ownorgid
                     ) as a
                 INNER JOIN  refitems as ri ON ri.id = a.refitmid
-                GROUP BY refitmid
-                order by refitm_name";
+                INNER JOIN  orgs as oo ON oo.id = a.ownorgid
+                left join (SELECT refitmid, orgid, max(price) as price
+	                        FROM `ri_sup_prices` sp
+	                        WHERE '{$date}' between sp.begdate and if(sp.enddate is null,  '{$date}', sp.enddate)
+                            group by refitmid, orgid) rp
+		            on rp.orgid=a.ownorgid and rp.refitmid=a.refitmid
+                GROUP BY a.refitmid, a.ownorgid
+                order by ownorg_name, ownorgid, refitm_name ";
 
         $recs = DB::select(DB::raw($sql));
 

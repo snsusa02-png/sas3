@@ -113,9 +113,20 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                     <tbody>
                     <?php
                     $npp = 0;
-                    $totSum = $totPreSum = $totInpSum = $totOutSum = 0;
+                    $totSum = $totPreSum = $totInpSum = $totOutSum = $totEndSum = 0;
+                    $cur_ownorgid = -1;
                     ?>
                     @foreach($recs as $rec)
+                        @if($rec->ownorgid <> $cur_ownorgid)
+                            <tr>
+                                <td colspan="11">
+                                    {{$rec->ownorg_name}}
+                                </td>
+                            </tr>
+                            <?php
+                            $cur_ownorgid = $rec->ownorgid;
+                            ?>
+                        @endif
                         <?php
 
                         $tr_class = "";
@@ -129,7 +140,6 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                         $out_qty = (isset($rec->out_qty)) ? number_format($rec->out_qty, 0) : '';
                         $out_sum = (isset($rec->out_sum)) ? number_format($rec->out_sum, 2) : '';
 
-
                         $n_pre_qty = (isset($rec->pre_qty)) ? $rec->pre_qty : 0;
                         $n_pre_sum = (isset($rec->pre_sum)) ? $rec->pre_sum : 0;
                         $n_inp_qty = (isset($rec->inp_qty)) ? $rec->inp_qty : 0;
@@ -138,7 +148,8 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                         $n_out_sum = (isset($rec->out_sum)) ? $rec->out_sum : 0;
 
                         $n_end_qty = $rec->pre_qty + $rec->inp_qty - $rec->out_qty;
-                        $n_end_sum = $rec->pre_sum + $rec->inp_sum - $rec->out_sum;
+                        //$n_end_sum = $rec->pre_sum + $rec->inp_sum - $rec->out_sum;
+                        $n_end_sum = $rec->end_sum;
                         $end_qty = number_format($n_end_qty, 0);
                         $end_sum = number_format($n_end_sum, 2);
 
@@ -223,6 +234,7 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                         $totPreSum += $rec->pre_sum;
                         $totInpSum += $rec->inp_sum;
                         $totOutSum += $rec->out_sum;
+                        $totEndSum += $rec->end_sum;
                         ?>
                     @endforeach
                     @if(1==1)
@@ -238,7 +250,7 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                             <td></td>
                             <td class="text-right font-weight-bold b-r {{$td_class}}">{{number_format($totOutSum,2)}}</td>
                             <td></td>
-                            <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totPreSum + $totInpSum - $totOutSum,2)}}</td>
+                            <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totEndSum,2)}}</td>
                         </tr>
                     @endif
                     </tbody>
