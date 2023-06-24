@@ -108,51 +108,71 @@ class WrhDocReportController extends Controller
         $data->date = $date;
         $data->returl = $returl;
 
+//        $sql = "select a.refitmid, ri.name as refitm_name, ri.unit as refitm_unit
+//	            , sum(a.pre_qty) as pre_qty, sum(a.inp_qty) as inp_qty
+//	            , sum(a.out_qty) as out_qty, sum(a.sale_sum) as sale_sum
+//                from (
+//                    SELECT i.refitmid
+//                        , SUM(IF(t.forStock=1, i.qty, 0) - IF(t.forStock=-1, i.qty, 0)) as pre_qty
+//                        , null as inp_qty, null as out_qty, null as sale_sum
+//                    FROM wrhdoclst as i
+//                    INNER JOIN wrhdocs as d ON d.id = i.docid
+//                    INNER JOIN wrhdoctypes as t ON t.id = d.doctypeid AND t.forstock <> 0
+//                    WHERE d.docsigned=1 and  d.docdate < '{$date}'
+//                    GROUP BY refitmid
+//                    union all
+//                    SELECT     i.refitmid, null as pre_qty
+//                        , SUM(IF(t.forStock= 1, i.qty, null )) as inp_qty
+//                        , SUM(IF(t.forStock=-1, i.qty, null)) as out_qty
+//                        , SUM(IF(t.forSale= 1, i.qty*i.price, null)) as sale_sum
+//                    FROM wrhdoclst as i
+//                    INNER JOIN wrhdocs as d ON d.id = i.docid
+//                    INNER JOIN wrhdoctypes as t ON t.id = d.doctypeid AND t.forstock <> 0
+//                    WHERE d.docsigned=1 and d.docdate = '{$date}'
+//                    GROUP BY refitmid
+//                    ) as a
+//                INNER JOIN  refitems as ri ON ri.id = a.refitmid
+//                GROUP BY refitmid
+//                order by refitm_name";
+
         $sql = "select a.refitmid, ri.name as refitm_name, ri.unit as refitm_unit
-	            , sum(a.pre_qty) as pre_qty, sum(a.inp_qty) as inp_qty
-	            , sum(a.out_qty) as out_qty, sum(a.sale_sum) as sale_sum
+	            , sum(a.pre_qty) as pre_qty
+	            , sum(a.pre_sum) as pre_sum
+	            , sum(a.inp_qty) as inp_qty
+	            , sum(a.inp_sum) as inp_sum
+	            , sum(a.out_qty) as out_qty
+	            , sum(a.out_sum) as out_sum
                 from (
                     SELECT i.refitmid
-                        , SUM(IF(t.forStock=1, i.qty, 0) - IF(t.forStock=-1, i.qty, 0)) as pre_qty
-                        , null as inp_qty, null as out_qty, null as sale_sum
+                        , SUM(t.forStock*i.qty) as pre_qty
+                    	, SUM(t.forStock*i.qty*i.price) as pre_sum
+                        , null as inp_qty
+                    	, null as inp_sum
+                        , null as out_qty
+                        , null as out_sum
                     FROM wrhdoclst as i
                     INNER JOIN wrhdocs as d ON d.id = i.docid
                     INNER JOIN wrhdoctypes as t ON t.id = d.doctypeid AND t.forstock <> 0
                     WHERE d.docsigned=1 and  d.docdate < '{$date}'
                     GROUP BY refitmid
                     union all
-                    SELECT     i.refitmid, null as pre_qty
-                        , SUM(IF(t.forStock= 1, i.qty, null )) as inp_qty
-                        , SUM(IF(t.forStock=-1, i.qty, null)) as out_qty
-                        , SUM(IF(t.forSale= 1, i.qty*i.price, null)) as sale_sum
+                    SELECT i.refitmid
+                        , null as pre_qty
+                    	, null as pre_sum
+                        , SUM(IF(t.forStock=1, i.qty, 0)) as inp_qty
+                    	, SUM(IF(t.forStock=1, i.qty, 0)*i.price) as inp_sum
+                        , SUM(IF(t.forStock=-1, i.qty, 0)) as out_qty
+                        , SUM(IF(t.forStock=-1, i.qty, 0)*i.price) as out_sum
                     FROM wrhdoclst as i
                     INNER JOIN wrhdocs as d ON d.id = i.docid
                     INNER JOIN wrhdoctypes as t ON t.id = d.doctypeid AND t.forstock <> 0
-                    WHERE d.docsigned=1 and d.docdate = '{$date}'
+                    WHERE d.docsigned=1 and  d.docdate = '{$date}'
                     GROUP BY refitmid
                     ) as a
                 INNER JOIN  refitems as ri ON ri.id = a.refitmid
                 GROUP BY refitmid
                 order by refitm_name";
 
-        /*$recs = wrhdoclst::from('wrhdoclst as i')
-            ->join('wrhdocs as d', 'd.id', 'i.docid')
-            ->join('wrhdoctypes as t', function ($join) {
-                $join->on('t.id', '=', 'd.doctypeid')
-                    ->where('t.forstock', '<>', 0);
-            })
-            ->join('refitems as ri', 'ri.id', 'i.refitmid')
-            ->where('d.docdate', $date)
-            ->where('d.docsigned', 1)
-            ->select('i.refitmid', 'ri.name as refitm_name', 'ri.unit as refitm_unit'
-                , db::raw("sum( if(t.forStock= 1, i.qty, null)) as inp_qty")
-                , db::raw("sum( if(t.forStock=-1, i.qty, null)) as out_qty")
-                , db::raw("sum( if(t.forStock=-1, i.qty*i.price, null)) as out_sum")
-            )
-            ->groupBy('refitmid')
-            ->orderBy('refitm_name')
-            ->get();
-        */
         $recs = DB::select(DB::raw($sql));
 
         //dd($date,$sql,$recs);
