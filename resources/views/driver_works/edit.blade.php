@@ -181,8 +181,8 @@
                                                 <div class="input-group ">
                                                     <input type="date" class="form-control text-center font-weight-bold"
                                                            name="wrkenddate" id="wrkenddate" required
-                                                           min="{{$rec->wrkdate_min}}"
-                                                           max="{{today()->format('Y-m-d')}}"
+{{--                                                           min="{{$rec->wrkdate_min}}"--}}
+{{--                                                           max="{{today()->format('Y-m-d')}}"--}}
                                                            value="{{old('wrkenddate',$rec->wrkenddate)}}"/>
                                                     <div class="input-group-append">
                                                         <input type="time" name="endtime" id="endtime" required
