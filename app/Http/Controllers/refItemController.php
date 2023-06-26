@@ -730,6 +730,16 @@ class refItemController extends Controller
                 ->orderBy('price')
                 ->with('suporg')->get();
 
+            $rec->compounds = $rec->compounds()
+                ->whereRaw("curdate() <= ifnull(enddate,curdate())")
+                ->select('ri_compounds.*'
+                    , db::raw("case when (begdate<=curdate()) then 1 else 2 end as act_status")
+                    , db::raw("greatest(0,DATEDIFF(begdate, curdate())) as days2beg")
+                )
+                ->orderBy('act_status')
+                ->orderBy('begdate', 'desc')
+                ->get();
+
             if (1 == 0) {
                 $rec->offers = equiprqst_item::from('equiprqst_items as eri')
                     ->join('eritm_offers as ofr', 'ofr.eritmid', 'eri.id')
@@ -1220,6 +1230,8 @@ class refItemController extends Controller
                 'itmtypeid' => $request->itmtypeid,
                 //'price_on_date' => $request->price_on_date,
                 'price_on_date' => $price_on_date,
+                'in_compounds' => $request->in_compounds,
+                'cmpnd_ownorgid' => $request->cmpnd_ownorgid,
             ],
                 //['ri.id', 'ri.name', 'ri.code', 'ri.unittypeid', 'ri.unit', 'ut.decimal_dgts', 'rop.price']
                 $fields

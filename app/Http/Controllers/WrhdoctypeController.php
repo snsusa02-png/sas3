@@ -101,7 +101,7 @@ class WrhdoctypeController extends Controller
             $data = "";
             try {
                 $data = wrhdoctype::
-                select('need_relwrh', 'need_predoc', 'need_org', 'ownorg_label', 'wrh_label', 'relwrh_label', 'box_label', 'relbox_label')
+                select('need_relwrh', 'need_predoc', 'need_org', 'ri_produced', 'ownorg_label', 'wrh_label', 'relwrh_label', 'box_label', 'relbox_label')
                     ->find($doctypeid)->toArray();
                 session([$sess_var_lbl => response()->json($data)]);
 

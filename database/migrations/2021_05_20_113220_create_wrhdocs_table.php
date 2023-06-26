@@ -64,6 +64,21 @@ class CreateWrhdocsTable extends Migration
                   ->nullable()
                   ->comment('(устарело?) ID сотрудника, ответственного за документ (недостачу). Можно редактировать при непустом составе документа');
 
+	    //20230606 Информация о сотрудниках с обеих сторон		
+            $table->bigInteger('ownorg_signer_staffid')
+                  ->unsigned()
+                  ->nullable()
+                  ->comment('ID сотрудника, со стороны организации-владельца');
+
+            $table->bigInteger('org_signer_staffid')
+                  ->unsigned()
+                  ->nullable()
+                  ->comment('ID сотрудника, со стороны организации-контрагента');
+
+            $table->string('org_signer_name', 36)
+                  ->nullable()
+                  ->comment('ФИО сотрудника, со стороны организации-контрагента');
+
             $table->string('remarks',60)->nullable()->comment('Примечания к документу');
 
             $table->boolean('docsigned')->default(0)->comment('1-признак подписанности, 0 - черновик');

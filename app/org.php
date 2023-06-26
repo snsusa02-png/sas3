@@ -591,6 +591,19 @@ class org extends Model
         return $info;
     }
 
+    static public function listUsed($params)
+    {
+        $orgs = org::from('orgs as o')
+            ->select('name', 'id')
+            ->whereExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('ri_compounds as ric')
+                    ->whereRaw('ric.ownorgid = o.id');
+            })
+            ->orderBy('name')
+            ->get()->pluck("name", "id")->prepend("-любой-", "");
+        return $orgs;
+    }
 
     static public function fullname_on_date($orgid, $on_date = null)
     {

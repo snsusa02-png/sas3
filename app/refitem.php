@@ -86,6 +86,11 @@ class refitem extends Model
             ->with('suporg');
     }
 
+    public function compounds()
+    {//Составы комлектующих при производстве товара
+        return $this->hasMany(ri_compound::class, 'refitmid', 'id');
+    }
+
     public function items()
     {//? не нужно?
         return $this->hasMany(orditem::class, 'refitmid', 'id');
@@ -537,6 +542,7 @@ class refitem extends Model
         $lim_by_rv = $request->get("lim_rv");    //признак ограничения по ресурсной ведомости
         $nakl_only = $request->get("nakl");    //признак ограничения материалами с признаком "Накладые расходы"
         $wrhdocid = $request->get("wdid");    //ID складского документа
+        $in_compounds = $request->get("in_compounds");    //Признак Изготавливаемого продукта
 
 
         //Т.к. не работает привязка к параметру
@@ -659,6 +665,11 @@ class refitem extends Model
             }
         }
         //------------------------------------------------------------------------------------
+
+        if (isset($in_compounds)) {
+            $sc .= " and " . (($in_compounds == 1) ? '' : 'not') .
+                " exists (select 1 from ri_compounds as ric where ric.refitmid = ri.id)";
+        }
 
         $rq = refitem::from('refitems as ri')
             ->leftjoin('itmtypes as t', 't.id', 'ri.itmtypeid')
@@ -1371,6 +1382,16 @@ class refitem extends Model
                         $sc .= " and " . (($val == 1) ? '' : 'not') .
                             " exists (select 1 from mchn_raids as mr where ri.id in (mr.load_refitmid, mr.unload_refitmid))";
 
+                    } elseif ($key == 'in_compounds') {
+                        $sc .= " and " . (($val == 1) ? '' : 'not')
+                            . " exists (select 1 from ri_compounds as ric where ric.refitmid = ri.id"
+                            . " and ric.active=1 and ric.docsigned=1";
+                        if (isset($params['cmpnd_ownorgid']))
+                            $sc .= " and ric.ownorgid = {$params['cmpnd_ownorgid']}";
+                        if (isset($params['cmpnd_on_date']))
+                            $sc .= " and '{$params['cmpnd_on_date']}' between ric.begdate and if(ric.enddate is null, '{$params['cmpnd_on_date']}', ric.enddate) ";
+                        $sc .= ")";
+
                     } elseif ($key == 'in_mr_opers') {
                         $sc .= " and " . (($val == 1) ? '' : 'not') .
                             " exists (select 1 from mr_opers as mro where ri.id = mro.refitmid)";
@@ -1392,7 +1413,6 @@ class refitem extends Model
                         and rop2.active=1
                         and {$on_date} between rop2.begdate and ifnull(rop2.enddate,{$on_date}) )";
                         }
-
                     }
                 }
 

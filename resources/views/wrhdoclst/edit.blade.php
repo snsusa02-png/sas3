@@ -4,7 +4,7 @@
     <link href="{{ asset('css/jquery-ui.css') }}" rel="stylesheet">
     <script src="{{ asset('js/jquery-ui.js') }}" defer></script>
     <script src="{{ asset('js/callListRefGoods.js') }}" defer></script>
-    <script src="{{ asset('js/ri_ac_wrhdoclst.js') }}" defer></script>
+    <script0 src="{{ asset('js/ri_ac_wrhdoclst.js') }}" defer></script0>
 
 
     @if (!isset( $rec))
@@ -82,23 +82,28 @@
                                 @csrf
 
                                 {{ Form::hidden('docid', $rec->docid,['id'=>'docid']) }}
+                                {{ Form::hidden('ownorgid', $rec->wrhdoc->ownorgid,['id'=>'ownorgid']) }}
+                                {{ Form::hidden('ri_produced', $rec->ri_produced,['id'=>'ri_produced']) }}
+                                {{ Form::hidden('cmpnd_ownorgid', $rec->cmpnd_ownorgid,['id'=>'cmpnd_ownorgid']) }}
+                                {{ Form::hidden('cmpnd_on_date', $rec->cmpnd_on_date,['id'=>'cmpnd_on_date']) }}
 
                                 <div class="form-group">
                                     <label for="refitmid">Товар:&nbsp;</label>
                                     <div class="input-group mb-3 input-group-sm">
 
-                                        <input type="text" class="form-control text-center" style="max-width:120px;"
+                                        <input type="text" class="form-control text-center ac_id"
+                                               style="max-width:120px;"
                                                name="code"
                                                id="code"
                                                value="{{$rec->refitem->id}}" readonly>
-                                        <input type="text" class="form-control font-weight-bold " name="refitmname"
+                                        <input type="text" class="form-control font-weight-bold ac_refitm_name" name="refitmname"
                                                id="refitmname"
                                                value="{{$ri_name}}"
                                             {{$ri_InputMode}}
                                         />
                                         <input type="text" class="form-control text-center small"
                                                style="display: none; border: #d7f3e3;" id="ac_refitmid" readonly>
-                                        <input type="hidden" name="refitmid" id="refitmid"
+                                        <input type="hidden" name="refitmid" id="refitmid" class="ac_id"
                                                value="{{$rec->refitmid}}">
 
 
@@ -126,7 +131,34 @@
                                 </div>
 
                                 <div class="row">
-                                    <div class="offset-md-8 col-md-3 offset-sm-4 col-sm-4 col-xs-6">
+                                    <div class="offset-md-0 col-md-6 col-sm-7 col-xs-8">
+                                        <div class="form-group list-inline">
+                                            <label for="">Изготовлено по составу:</label>
+                                            <div class="input-group">
+                                                @if( 1==0)
+                                                    {{ Form::hidden('cmpndid', $rec->cmpndid, ['id'=>'cmpnd_on_date', 'class'=>'ac_id']) }}
+                                                    {{$rec->cmpndid}}
+                                                @else
+                                                    <div class="input-group mb-3 ">
+                                                        <input type="text" name="cmpnd_name" id="cmpnd_name"
+                                                               class="ac_name ac_cmpnd_name form-control font-weight-bold"
+                                                               value="{{old('cmpnd_name',$rec->cmpnd_name)}}">
+                                                        <input type="text" class="form-control text-center small ac_status"
+                                                               title=""
+                                                               style="display: none; border: #d7f3e3; max-width: 30px" readonly>
+                                                        <input type="hidden" name="cmpndid" class="ac_id" id="cmpndid"
+                                                               value="{{old('cmpndid',$rec->cmpndid)}}">
+                                                        <a class="btn btn-light id_lnk" data-id="cmpndid" data-obj="ri_compounds"
+                                                           target="_blank">
+                                                            <i class="fa fa-info text-info" aria-hidden="true"></i>
+                                                        </a>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="offset-md-2 col-md-3 offset-sm-4 col-sm-4 col-xs-6">
                                         <div class="form-group list-inline">
                                             <label for="">Количество, <span class="font-weight-bold"
                                                                             id="unit_html">{{$rec->refitem->unittype->name?:'еи'}}</span>:</label>
@@ -207,5 +239,6 @@
 
             </div>
         </div>
+        <script src="{{ asset('js/wrhdoclst_edit.js') }}" defer></script>
     @endif
 @endsection

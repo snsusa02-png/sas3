@@ -1,93 +1,19 @@
 $(document).ready(function () {
 
-    $("#doctypeid").change(function () {
-        $.get("/stock/wrhdoctypes/params/", {doctypeid: $("#doctypeid").val()},
-            function (data) {
-                //console.log(data);
+    $("#min_qty").change(function () {
+        var v = parseFloat($(this).val());
+        if (isNaN(v) || v < 0) {
+            v = v;
+            $(this).val(v);
+        }
 
-                lbl = data.ownorg_label;
-                if (lbl == '') lbl = 'Владелец';
-                $("#ownorg_label").html(lbl + ':');
+        if ( $("#max_qty").val() == ''){
+            $("#max_qty").val(v);
+        }
 
-                lbl = data.wrh_label;
-                if (lbl == '') lbl = 'Склад';
-                $("#wrh_label").html(lbl + ':');
-
-                lbl = data.box_label;
-                if (lbl == '') lbl = 'Отделение';
-                $("#box_label").html(lbl + ':');
-
-                if (data.need_relwrh == "1") {
-                    lbl = data.relwrh_label;
-                    if (lbl == '') lbl = 'Связанный склад';
-                    $("#relwrh_label").html(lbl + ':');
-                    $("#relwrh").show()
-
-                    lbl = data.relbox_label;
-                    if (!lbl || lbl == '') lbl = 'Связанное отделение';
-                    $("#relbox_label").html(lbl + ':');
-                    $("#relbox").show()
-                } else {
-                    $("#relwrh").hide();
-                    $("#relbox").hide()
-                }
-
-                if (data.need_predoc == "1") {
-                    $("#predoc").show()
-                }
-                else $("#predoc").hide();
-
-                if (data.need_org == "1") {
-                    $("#org").show()
-                }
-                else $("#org").hide();
-            }
-        )
     });
 
 
-    $("#wrhid").change(function () {
-        //alert($("#wrhid").val());
-
-        $("#boxid > option").remove()
-        $.get("/api/wrh_boxes/for_", {wrhid: $("#wrhid").val()},
-            function (data) {
-                //console.log(data);
-
-                $("#boxid > option").remove()
-                $("#boxid").append($("<option>"))
-                $.each(data.boxes, function (index, value) {
-                    $("#boxid").append($("<option>").attr("value", index).append(value))
-                });
-
-                // $("#need_relwrh").val(data.need_relwrh);
-                // $("#need_predoc").val(data.need_predoc);
-
-                // if (data.need_relwrh == "1") $("#relwrh").show()
-                // else $("#relwrh").hide();
-                //
-                // if (data.need_predoc == "1") $("#predoc").show()
-                // else $("#predoc").hide();
-            }
-        )
-    });
-
-    $("#relwrhid").change(function () {
-        //alert($("#wrhid").val());
-
-        $("#relboxid > option").remove()
-        $.get("/api/wrh_boxes/for_", {wrhid: $("#relwrhid").val()},
-            function (data) {
-                //console.log(data);
-
-                $("#relboxid > option").remove()
-                $("#relboxid").append($("<option>"))
-                $.each(data.boxes, function (index, value) {
-                    $("#relboxid").append($("<option>").attr("value", index).append(value))
-                });
-            }
-        )
-    });
 
     if ($(".ac_refitm_name").length > 0) {
 
@@ -100,7 +26,10 @@ $(document).ready(function () {
                     url: "/api/refitems/for_ac",
                     dataType: "json",
                     data: {
-                        name: request.term
+                        name: request.term,
+                        in_compounds:  $("#ri_produced").val(),
+                        cmpnd_ownorgid:  $("#cmpnd_ownorgid").val(),
+                        cmpnd_on_date:  $("#cmpnd_on_date").val()
                     },
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -221,24 +150,22 @@ $(document).ready(function () {
         };
     }
 
-    if ($(".ac_org_name").length > 0) {
+
+    if ($(".ac_cmpnd_name").length > 0) {
 
         //Поиск контрагента
-        $(".ac_org_name").autocomplete({
+        $(".ac_cmpnd_name").autocomplete({
 
 
             source: function (request, response) {
-                //var ft = ($("#sale_dir").val() == -1 || $("#sale_dir").val() == 0) ? 12 : null;
-                // var gk = $(this).val(); //data('gk');
-                //alert(gk);
-
                 $.ajax({
-                    //url: "/orgs/autocomplete/search",
-                    url: "/api/orgs/for_ac",
+                    url: "/api/ri_compounds/for_ac",
                     dataType: "json",
                     data: {
-                        name_inn: request.term,
-                        flagtypeid: 12,
+                        name: request.term,
+                        refitmid:  $("#refitmid").val(),
+                        cmpnd_ownorgid:  $("#cmpnd_ownorgid").val(),
+                        cmpnd_on_date:  $("#cmpnd_on_date").val()
                     },
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -257,11 +184,14 @@ $(document).ready(function () {
                             if (index > 16) return null;
 
                             //var lbl = item.code + " - " + item.name;
-                            var lbl = item.name;
+                            var lbl = item.name + " - " + item.notes;
                             return {
                                 label: lbl,
                                 value: item.name,
-                                id: item.id
+                                id: item.id,
+                                notes: item.notes,
+                                refitmid: item.refitmid,
+                                refitmname: item.refitmname,
                             }
                         }));
                     }
@@ -280,6 +210,12 @@ $(document).ready(function () {
                     //$('#set_id').val(ui.item.id);
                     set_id.val(ui.item.id);
                     $(this).val(ui.item.label);
+
+                    //Установим также refitmid и refitmname -------------
+                    $("#refitmid").val(ui.item.refitmid);
+                    $("#refitmname").val(ui.item.refitmname);
+                    //---------------------------------------------------
+
 
                     let ac_status = $(this).parent().find('.ac_status');
                     ac_status.hide().removeClass("ac-fail");
@@ -358,6 +294,7 @@ $(document).ready(function () {
             return $("<li></li>").append($div).appendTo(ul);
         };
     }
+
 
     $('.id_lnk').click(function (e) {
         //переход в элемент справочника

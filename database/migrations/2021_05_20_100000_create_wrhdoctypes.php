@@ -100,6 +100,10 @@ class CreateWrhdoctypes extends Migration
                     ->comment('1-в составе документа могут быть указаны только товары, имеющие спецификацию');
 
 
+                $table->boolean('need_ri_compound')
+                    ->nullable()
+                    ->comment('1 - требуется указание рецепта (состава) производимого изделия');
+
             $table->timestamp('created_at')->nullable()->useCurrent=true;
             $table->bigInteger('created_by')->nullable()->unsigned()->default(1)
                 ->comment('UserID, создавшего запись');

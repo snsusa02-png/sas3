@@ -1,4 +1,14 @@
 ﻿--------------------------------------------------------------------------------------------------
+2023.06.25
+
+ALTER TABLE `wrhdoctypes`
+    ADD COLUMN `ri_produced` TINYINT(1) NULL COMMENT '1 - Позиции документа произведены в соответствии с рецептами' AFTER `need_details`;
+UPDATE `wrhdoctypes` SET `ri_produced` = '1' WHERE (`id` = '10');
+
+ALTER TABLE `wrhdoclst`
+ADD COLUMN `cmpndid` BIGINT NULL COMMENT 'Id  ( ri_compounds.id )  используемого рецепта состава изделмя' AFTER `sum`;
+
+--------------------------------------------------------------------------------------------------
 2023.06.21
 SELECT wrkdate,machineid,staffid,wrktypeid
 , count(1) as cnt

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\group;
 use App\grptype;
+use App\ri_compound;
 use App\sysobj;
 use App\wrh_stock;
 use App\wrhdoc;
@@ -121,6 +122,23 @@ class WrhdoclstController extends Controller
                 $rec->subtypeid = (count($rec->subtypes) == 1) ? key($rec->subtypes) : null;
             }
 
+            $rec->ri_produced = $rec->wrhdoc->doctype->ri_produced;
+
+            if ($rec->ri_produced = 1) {
+                $rec->cmpnd_ownorgid = $rec->wrhdoc->ownorgid;
+                $rec->cmpnd_on_date = $rec->wrhdoc->docdate;
+                $rec->cmpnd_name = $rec->ri_compound->info;
+
+            }
+            $rec->ri_compounds = ri_compound::from('ri_compounds as ric')
+                ->join('refitems as ri', 'ri.id', 'ric.refitmid')
+                ->where('ric.docsigned', 1)
+                ->where('ric.active', 1)
+                ->where('ric.ownorgid', $rec->wrhdoc->ownorgid)
+                ->select('ric.id', db::raw("concat(ri.name, ' /', ric.notes) as name"))
+                ->get()->pluck('name', 'id')->toArray();
+//            dd($rec->wrhdoc->ownorgid, $rec->ri_compounds);
+
             $rec->sysobjs = sysobj::lst_sysobjs4grptypes_cache();
 
 
@@ -161,6 +179,12 @@ class WrhdoclstController extends Controller
 
             $rules['qty'] = $rules['qty'] . '|not_greater_than_field:preqty';
             $messages['qty.not_greater_than_field'] = 'Количество не может превышать количество в исходном документе!';
+        }
+
+        if ($doc->doctype->ri_produced == 1) {
+
+            $rules['cmpnd_name'] = 'required';
+            $messages['cmpnd_name.required'] = 'Укажите рецепт по которому произведено изделие!';
         }
         //dd($rules);
         Validator::make($request->all(), $rules, $messages)->validate();
@@ -205,6 +229,7 @@ class WrhdoclstController extends Controller
         $rec->price = isset($usr_rec['price']) ? $usr_rec['price'] : null;
         //dd($rec->price);
         $rec->sum = $rec->price * $rec->qty;
+        $rec->cmpndid = $usr_rec['cmpndid'] ?? null;;
         $rec->updated_by = $userid;
         $rec->updated_at = now();
 
@@ -234,7 +259,7 @@ class WrhdoclstController extends Controller
             $add_qty = $qty - $pre_qty;
 
             //Произведем необходимый контроль и манипуляции с кол-вом данного товара на складе и в заказе
-            //Вернет реально допустимуое кол-во
+            //Вернет реально допустимое кол-во
             $rslt = wrhdoclst::RefItmQtyAdd2Doc($refitmid, $add_qty, $rec->wrhdoc);
 
             $add_qty = $rslt->qty;

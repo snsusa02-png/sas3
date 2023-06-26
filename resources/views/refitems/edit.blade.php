@@ -514,6 +514,8 @@
 
                     @include('refitems/ri_extids')
 
+                    @includeif('refitems/_compounds')
+
                     {{--					@include('refitems/ri_images')--}}
 
 

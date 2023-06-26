@@ -29,8 +29,8 @@ $(document).ready(function () {
     function recalc_hrs() {
         //console.log('recalc_HRS')
         //console.log(moment('2020-01-01').set('year', moment().get('year')).format('yyyy-MM-DD'));
-        if ($("#wrkdate").val() != '')
-            $("#wrkenddate").attr('min', $("#wrkdate").val());
+        // if ($("#wrkdate").val() != '')
+        //     $("#wrkenddate").attr('min', $("#wrkdate").val());
 
         if ($("#wrkenddate").val() == '' && $("#wrkdate").val() != '')
             $("#wrkenddate").val($("#wrkdate").val());

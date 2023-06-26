@@ -50,6 +50,12 @@ class wrhdoclst extends Model
             ->withDefault();
     }
 
+    public function ri_compound()
+    {
+        return $this->hasOne(ri_compound::class, 'id', 'cmpndid')
+            ->withDefault();
+    }
+
     public function items()
     {
         return $this->hasMany(wrhdoclst::class, 'docid', 'id');
@@ -102,7 +108,6 @@ class wrhdoclst extends Model
         if ($doc->doctype->any_ownorg == 0) $sc = "ownorgid={$ownorgid}";
 
         $stock = wrh_stock::where('refitmid', $refitmid)
-//            ->where(['ownorgid' => $ownorgid, 'wrhid' => $wrhid, 'boxid' => $boxid])
             ->where(['wrhid' => $wrhid, 'boxid' => $boxid])
             ->whereRaw($sc)
             ->first();

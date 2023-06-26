@@ -924,6 +924,24 @@ Route::get('ri_sup_prices/{orgid}/create', "RiSupPriceController@create")->name(
 Route::match(array('POST', 'PUT'), 'ri_sup_prices/{id}', "RiSupPriceController@update")->name('ri_sup_prices.update');
 Route::get('ri_sup_prices/{id}/delete', "RiSupPriceController@destroy")->name("ri_sup_prices.delete");
 
+//Составы комплектующих для производства (Рецептуры)
+Route::match(array('GET', 'POST'), '/ri_compounds', "RiCompoundController@index")->name("ri_compounds.index");
+Route::get('ri_compounds/{id}/edit', "RiCompoundController@edit")->name('ri_compounds.edit');
+Route::get('ri_compounds/create', "RiCompoundController@create")->name('ri_compounds.create');
+Route::match(array('POST', 'PUT'), 'ri_compounds/{id}', "RiCompoundController@update")->name('ri_compounds.update');
+Route::put('ri_compounds/{id}/delete', "RiCompoundController@destroy")->name("ri_compounds.delete");
+Route::put('ri_compounds/{id}/sign', "RiCompoundController@sign")->name("ri_compounds.sign");
+Route::put('ri_compounds/{id}/unsign', "RiCompoundController@unsign")->name("ri_compounds.unsign");
+Route::put('ri_compounds/{id}/set_active', "RiCompoundController@set_active")->name("ri_compounds.set_active");
+Route::put('ri_compounds/{id}/trg_active', "RiCompoundController@trg_active")->name("ri_compounds.trg_active");
+Route::get('/api/ri_compounds/for_ac/', 'RiCompoundController@list_for_ac');
+
+//Позиции документа состава изготавливаемого изделия
+Route::get('ri_cmpnd_items/{docid}/create', 'RiCmpndItemController@create')->name('ri_cmpnd_items.create');
+Route::get('ri_cmpnd_items/{id}/edit', "RiCmpndItemController@edit")->name('ri_cmpnd_items.edit');
+Route::match(array('POST', 'PUT'), 'ri_cmpnd_items/{id}', "RiCmpndItemController@update")->name('ri_cmpnd_items.update');
+Route::put('ri_cmpnd_items/{id}/delete', "RiCmpndItemController@destroy")->name("ri_cmpnd_items.delete");
+
 
 //Единицы измерения для позиции справочника номенклатуры
 Route::get('ri_units/create/{refitmid}', "RiUnitController@create")->name('ri_units.create');

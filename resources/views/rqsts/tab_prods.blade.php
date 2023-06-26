@@ -12,6 +12,12 @@ $userid = \Auth::user()->id;
                 'title' => 'Учет движения по складу',
                 'sysobjid' => '1107',
             ],
+            [
+                'right' => 'ri_compounds.read',
+                'route' => 'ri_compounds.index',
+                'title' => 'Состав изделий',
+                'sysobjid' => '147',
+            ],
         ];
         ?>
         @foreach($menu_itms as $mnu)

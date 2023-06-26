@@ -413,8 +413,12 @@ class WrhdocController extends Controller
         $items = wrhdoclst::from('wrhdoclst as dl')
             ->join('refitems as ri', 'ri.id', 'dl.refitmid')
             ->join('unittypes as ut', 'ut.id', 'ri.unittypeid')
+            ->leftjoin('itmtypes as it', 'it.id', 'ri.itmtypeid')
+            ->leftjoin('ri_compounds as ric', 'ric.id', 'dl.cmpndid')
             ->where('dl.docid', $id)
-            ->select('dl.*', 'ri.name as ri_name', 'ut.name as ut_name', 'ut.decimal_dgts')
+            ->select('dl.*', 'ri.name as ri_name', 'ut.name as ut_name', 'ut.decimal_dgts'
+                , 'it.name as it_name'
+                , db::raw("concat(ric.notes, ' от ', date_format(begdate, '%d.%m.%Y'))  as cmpnd_name"))
             ->get();
 
         $restorditems = null;
@@ -1026,7 +1030,7 @@ class WrhdocController extends Controller
                             }
                         }
 
-                        if ($force_stock_recalc){
+                        if ($force_stock_recalc) {
                             DB::unprepared('CALL recalc_stock()');
                         }
 
@@ -1204,14 +1208,14 @@ class WrhdocController extends Controller
 
         $data = new \stdClass();
 
-        if ($rec->doctype->forstock == -1){
+        if ($rec->doctype->forstock == -1) {
             $data->src_signer_label = 'Отпустил';
             $data->src_signer_name = \Auth::user()->short_fio;
 
             $data->tgt_signer_label = 'Получил';
             $data->tgt_signer_name = '';
 
-        }else{
+        } else {
             $data->src_signer_label = '';
             $data->src_signer_name = '';
 
