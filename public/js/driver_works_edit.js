@@ -32,8 +32,9 @@ $(document).ready(function () {
         // if ($("#wrkdate").val() != '')
         //     $("#wrkenddate").attr('min', $("#wrkdate").val());
 
-        if ($("#wrkenddate").val() == '' && $("#wrkdate").val() != '')
-            $("#wrkenddate").val($("#wrkdate").val());
+        // if ($("#wrkenddate").val() == '' && $("#wrkdate").val() != '')
+        //     $("#wrkenddate").val($("#wrkdate").val());
+
 
         // if (1 == 0 && enddt < begdt) {
         //     $("#wrkenddate").val($("#wrkdate").val());

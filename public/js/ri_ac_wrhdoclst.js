@@ -8,6 +8,9 @@ $(document).ready(function () {
                 q: request.term,
                 svc: 0,
                 wdid: $("#docid").val(),    //ID документа склада
+                in_compounds:  $("#ri_produced").val(),
+                cmpnd_ownorgid:  $("#cmpnd_ownorgid").val(),
+                cmpnd_on_date:  $("#cmpnd_on_date").val()
             };
             //console.log(search_params)
             if (1 == 0) {

@@ -284,7 +284,7 @@ $action_url = route('reports.rep' . $thisObjId);
                                     @for ($i = 0; $i < $days_before; $i++)
                                         <td class="cell"></td>
                                     @endfor
-                                    <td class="cell work" title="{{$itm->salary_sum}} = {{$itm->raid_sum}}(рейс) + {{$itm->pdt_sum}}(простой) + {{$itm->repair_sum}}(ремонт)">
+                                    <td class="cell work" title="{{$itm->wrkdate}}: {{$itm->salary_sum}} = {{$itm->raid_sum}}(рейс) + {{$itm->pdt_sum}}(простой)">
 {{--                                        <a href="{{route('driver_works.edit',$itm->id)}}" class="text-decoration-none" target="_blank">{{number_format($itm->salary_sum,0)}}</a>--}}
                                         {{number_format($itm->salary_sum,0)}}
                                     </td>

@@ -122,9 +122,9 @@ class WrhdoclstController extends Controller
                 $rec->subtypeid = (count($rec->subtypes) == 1) ? key($rec->subtypes) : null;
             }
 
-            $rec->ri_produced = $rec->wrhdoc->doctype->ri_produced;
+            $rec->ri_produced = $rec->wrhdoc->doctype->ri_produced??0;
 
-            if ($rec->ri_produced = 1) {
+            if ($rec->ri_produced == 1) {
                 $rec->cmpnd_ownorgid = $rec->wrhdoc->ownorgid;
                 $rec->cmpnd_on_date = $rec->wrhdoc->docdate;
                 $rec->cmpnd_name = $rec->ri_compound->info;

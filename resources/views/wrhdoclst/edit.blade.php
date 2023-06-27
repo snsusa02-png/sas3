@@ -4,7 +4,7 @@
     <link href="{{ asset('css/jquery-ui.css') }}" rel="stylesheet">
     <script src="{{ asset('js/jquery-ui.js') }}" defer></script>
     <script src="{{ asset('js/callListRefGoods.js') }}" defer></script>
-    <script0 src="{{ asset('js/ri_ac_wrhdoclst.js') }}" defer></script0>
+    <script src="{{ asset('js/ri_ac_wrhdoclst.js') }}" defer></script>
 
 
     @if (!isset( $rec))
@@ -31,7 +31,8 @@
         <?php
         //Отображать или нет Цену/Сумму определяется типом документа
         $showPrice = ($rec->wrhdoc->doctype->useprice == 1);
-        //dd($showPrice);
+        $showCompound = ($rec->ri_produced == 1);
+        //        dd($showPrice,$showCompound, $rec->ri_produced);
 
         //Отображать или нет кол-во из предшествующего документа определяется типом документа
         $showPreQry = ($rec->wrhdoc->doctype->need_predoc == 1
@@ -73,6 +74,7 @@
                             // $ri_name = (old('refitmname')) ?: $rec->refitem->name;
                             $rec->refitmid = old('refitmid') ?: ($rec->refitmid);
                             $rec->qty = (old('qty')) ?: $rec->qty;
+
                             ?>
 
                             <form name="forEdit" id="forEdit" method="post"
@@ -96,7 +98,8 @@
                                                name="code"
                                                id="code"
                                                value="{{$rec->refitem->id}}" readonly>
-                                        <input type="text" class="form-control font-weight-bold ac_refitm_name" name="refitmname"
+                                        <input type="text" class="form-control font-weight-bold ac_refitm_name"
+                                               name="refitmname"
                                                id="refitmname"
                                                value="{{$ri_name}}"
                                             {{$ri_InputMode}}
@@ -132,30 +135,36 @@
 
                                 <div class="row">
                                     <div class="offset-md-0 col-md-6 col-sm-7 col-xs-8">
-                                        <div class="form-group list-inline">
-                                            <label for="">Изготовлено по составу:</label>
-                                            <div class="input-group">
-                                                @if( 1==0)
-                                                    {{ Form::hidden('cmpndid', $rec->cmpndid, ['id'=>'cmpnd_on_date', 'class'=>'ac_id']) }}
-                                                    {{$rec->cmpndid}}
-                                                @else
-                                                    <div class="input-group mb-3 ">
-                                                        <input type="text" name="cmpnd_name" id="cmpnd_name"
-                                                               class="ac_name ac_cmpnd_name form-control font-weight-bold"
-                                                               value="{{old('cmpnd_name',$rec->cmpnd_name)}}">
-                                                        <input type="text" class="form-control text-center small ac_status"
-                                                               title=""
-                                                               style="display: none; border: #d7f3e3; max-width: 30px" readonly>
-                                                        <input type="hidden" name="cmpndid" class="ac_id" id="cmpndid"
-                                                               value="{{old('cmpndid',$rec->cmpndid)}}">
-                                                        <a class="btn btn-light id_lnk" data-id="cmpndid" data-obj="ri_compounds"
-                                                           target="_blank">
-                                                            <i class="fa fa-info text-info" aria-hidden="true"></i>
-                                                        </a>
-                                                    </div>
-                                                @endif
+                                        @if ($showCompound)
+                                            <div class="form-group list-inline">
+                                                <label for="">Изготовлено по составу:</label>
+                                                <div class="input-group">
+                                                    @if( 1==0)
+                                                        {{ Form::hidden('cmpndid', $rec->cmpndid, ['id'=>'cmpnd_on_date', 'class'=>'ac_id']) }}
+                                                        {{$rec->cmpndid}}
+                                                    @else
+                                                        <div class="input-group mb-3 ">
+                                                            <input type="text" name="cmpnd_name" id="cmpnd_name"
+                                                                   class="ac_name ac_cmpnd_name form-control font-weight-bold"
+                                                                   value="{{old('cmpnd_name',$rec->cmpnd_name)}}">
+                                                            <input type="text"
+                                                                   class="form-control text-center small ac_status"
+                                                                   title=""
+                                                                   style="display: none; border: #d7f3e3; max-width: 30px"
+                                                                   readonly>
+                                                            <input type="hidden" name="cmpndid" class="ac_id"
+                                                                   id="cmpndid"
+                                                                   value="{{old('cmpndid',$rec->cmpndid)}}">
+                                                            <a class="btn btn-light id_lnk" data-id="cmpndid"
+                                                               data-obj="ri_compounds"
+                                                               target="_blank">
+                                                                <i class="fa fa-info text-info" aria-hidden="true"></i>
+                                                            </a>
+                                                        </div>
+                                                    @endif
+                                                </div>
                                             </div>
-                                        </div>
+                                        @endif
                                     </div>
 
                                     <div class="offset-md-2 col-md-3 offset-sm-4 col-sm-4 col-xs-6">

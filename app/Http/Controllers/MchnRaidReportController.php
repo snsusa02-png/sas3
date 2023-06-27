@@ -661,9 +661,9 @@ class MchnRaidReportController extends Controller
                     , 'os.fname as staff_fname'
                     , 'os.mname as staff_mname'
                     , db::raw("sum(dw.salary_sum) as salary_sum")
-                    , db::raw("sum(dw.raid_sum) as raid_sum")
-                    , db::raw("sum(dw.pdt_sum) as pdt_sum")
-                    , db::raw("sum(dw.repair_sum) as repair_sum")
+                    , db::raw("sum(dw.hrs_salary) as raid_sum")
+                    , db::raw("sum(dw.breaks_sum) as pdt_sum")
+                    //, db::raw("sum(dw.repair_sum) as repair_sum")
                 )
                 ->groupBy(['dw.wrkdate', 'dw.staffid'])
                 ->orderBy('os.lname')

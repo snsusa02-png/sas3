@@ -543,6 +543,7 @@ class refitem extends Model
         $nakl_only = $request->get("nakl");    //признак ограничения материалами с признаком "Накладые расходы"
         $wrhdocid = $request->get("wdid");    //ID складского документа
         $in_compounds = $request->get("in_compounds");    //Признак Изготавливаемого продукта
+        $cmpnd_ownorgid = $request->cmpnd_ownorgid;
 
 
         //Т.к. не работает привязка к параметру
@@ -668,7 +669,13 @@ class refitem extends Model
 
         if (isset($in_compounds)) {
             $sc .= " and " . (($in_compounds == 1) ? '' : 'not') .
-                " exists (select 1 from ri_compounds as ric where ric.refitmid = ri.id)";
+                " exists (select 1 from ri_compounds as ric where ric.refitmid = ri.id and ric.docsigned=1";
+            if (isset($cmpnd_ownorgid))
+                $sc .= " and ric.ownorgid = {$cmpnd_ownorgid}";
+            if (isset($cmpnd_on_date))
+                $sc .= " and '{$cmpnd_on_date}' between ric.begdate and if(ric.enddate is null, '{$cmpnd_on_date}', ric.enddate) ";
+            $sc .= ")";
+
         }
 
         $rq = refitem::from('refitems as ri')
