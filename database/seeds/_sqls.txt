@@ -1,4 +1,35 @@
 ﻿--------------------------------------------------------------------------------------------------
+2023.06.27
+
+select `dw`.`wrkdate`, `dw`.`staffid`, `os`.`lname` as `staff_lname`, `os`.`fname` as `staff_fname`, `os`.`mname` as `staff_mname`, sum(dw.salary_sum) as salary_sum, sum(dw.hrs_salary) as raid_sum, sum(dw.breaks_sum) as pdt_sum
+from `driver_works` as `dw`
+inner join `orgstaff` as `os` on `os`.`id` = `dw`.`staffid`
+where 1=1 and dw.wrkdate >= '2023-06-21' and dw.wrkdate <= '2023-06-21'
+and dw.staffid=98
+group by `dw`.`wrkdate`, `dw`.`staffid`
+order by `os`.`lname` asc, `os`.`fname` asc, `dw`.`staffid` asc, `dw`.`wrkdate` asc
+
+select * from driver_works as dw
+    where 1=1 and dw.wrkdate >= '2023-06-01' and dw.wrkdate <= '2023-06-30'
+    and if(salary_sum is null, 0, salary_sum)<>( if(hrs_salary is null, 0, hrs_salary) + if(breaks_sum is null, 0, breaks_sum) )
+
+update `driver_works` as `dw`
+    set salary_sum = (if(hrs_salary is null, 0, hrs_salary) + if(breaks_sum is null, 0, breaks_sum))
+    where 1=1 and dw.wrkdate >= '2023-06-01' and dw.wrkdate <= '2023-06-30'
+    and if(salary_sum is null, 0, salary_sum)<>( if(hrs_salary is null, 0, hrs_salary) + if(breaks_sum is null, 0, breaks_sum) )
+
+
+select `dw`.`wrkdate`, `dw`.`staffid`, `os`.`lname` as `staff_lname`, `os`.`fname` as `staff_fname`, `os`.`mname` as `staff_mname`, sum(dw.salary_sum) as salary_sum
+, sum(dw.hrs_salary) as raid_sum
+, sum(dw.breaks_sum) as pdt_sum
+from `driver_works` as `dw`
+inner join `orgstaff` as `os` on `os`.`id` = `dw`.`staffid`
+where 1=1 and dw.wrkdate >= '2023-06-08' and dw.wrkdate <= '2023-06-08'
+and dw.staffid=142
+group by `dw`.`wrkdate`, `dw`.`staffid`
+order by `os`.`lname` asc, `os`.`fname` asc, `dw`.`staffid` asc, `dw`.`wrkdate` asc
+
+--------------------------------------------------------------------------------------------------
 2023.06.25
 
 ALTER TABLE `wrhdoctypes`

@@ -272,7 +272,7 @@ $action_url = route('reports.rep' . $thisObjId);
                                 ?>
                                 <tr>
                                     <td colspan=""
-                                        class="text-center font-weight-bold font-italic text-nowrap">{{$staff_name}}</td>
+                                        class="text-center font-weight-bold font-italic text-nowrap" title="{{$itm->staffid}}">{{$staff_name}}</td>
                                     @endif
 
 
@@ -280,11 +280,19 @@ $action_url = route('reports.rep' . $thisObjId);
                                     //дней перед началом работ
                                     $days_before = (strtotime($itm->wrkdate) - strtotime($pre_date)) / 3600 / 24 - 1;
                                     //dd($itm->wrkdate, $pre_date, $days_before);
+
+                                    $cell_title = date_format(date_create($itm->wrkdate), 'd.m.Y')
+                                        . ': ' . $itm->salary_sum . ' = '
+                                        . number_format($itm->raid_sum, 2) . ' (рейс)';
+                                    if (isset($itm->pdt_sum)) {
+                                        $cell_title .= ' + ' . number_format($itm->pdt_sum, 2) . ' (простой)';
+                                    }
                                     ?>
                                     @for ($i = 0; $i < $days_before; $i++)
                                         <td class="cell"></td>
                                     @endfor
-                                    <td class="cell work" title="{{$itm->wrkdate}}: {{$itm->salary_sum}} = {{$itm->raid_sum}}(рейс) + {{$itm->pdt_sum}}(простой)">
+{{--                                    <td class="cell work" title="{{$itm->wrkdate}}: {{$itm->salary_sum}} = {{$itm->raid_sum}}(рейс) + {{$itm->pdt_sum}}(простой)">--}}
+                                    <td class="cell work" title="{{$cell_title}}">
 {{--                                        <a href="{{route('driver_works.edit',$itm->id)}}" class="text-decoration-none" target="_blank">{{number_format($itm->salary_sum,0)}}</a>--}}
                                         {{number_format($itm->salary_sum,0)}}
                                     </td>
