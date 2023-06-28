@@ -726,8 +726,9 @@ class DriverWorkController extends Controller
             // Скорректируем кол-во рабочих часов с учетом часов простоя/ремонта/сна
             $rec->day_wrkhrs = $day_hrs - min($day_hrs, $rec->day_brkhrs);
             $rec->night_wrkhrs = $night_hrs - min($night_hrs, $rec->night_brkhrs);
-//            dd( $rec->day_wrkhrs , $rec->night_wrkhrs );
-
+            $rec->day_wrkhrs = round($rec->day_wrkhrs,2);
+            $rec->night_wrkhrs = round($rec->night_wrkhrs,2);
+            //dd( $rec->day_wrkhrs , $rec->night_wrkhrs );
 
             $rec->hrs_salary = mchn_raid::calc_hr_salary(
                 $rec->wrkdate

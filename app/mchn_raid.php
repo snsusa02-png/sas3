@@ -498,7 +498,7 @@ select FROM_UNIXTIME(UNIX_TIMESTAMP(CONCAT(:start_ym,n)),'%Y-%m-%d') as Date
         , $night_wrkhrs
         , $wrktypeid)
     {
-        $result = 0;
+        $result = 0.00;
         if (isset($wrkdate) and isset($staffid)) {
             $sql = "select i.hr_day_rate, i.hr_night_rate"
                 . " from salary_rate_sets srs"
@@ -515,7 +515,7 @@ select FROM_UNIXTIME(UNIX_TIMESTAMP(CONCAT(:start_ym,n)),'%Y-%m-%d') as Date
                 ->join('salary_rate_sets as srs', 'srs.id', 'i.srs_id')
                 ->join('orgstaff as os', 'os.id', '=', DB::raw($staffid))
                 ->where('i.wrktypeid', $wrktypeid)
-                ->where('srs.payrolltypeid', 1) //to-do - взять из карточки сотрдника
+                ->where('srs.payrolltypeid', 1) //to-do - взять из карточки сотрудника
                 ->whereRaw('ifnull(srs.ownorgid,os.orgid)=os.orgid')
                 ->whereRaw("'{$wrkdate}' between srs.begdate and ifnull(srs.enddate,'{$wrkdate}')")
                 ->whereRaw("TIMESTAMPDIFF(year, ifnull(os.begdate,'{$wrkdate}'), '{$wrkdate}' ) between i.min_wrkexp and i.max_wrkexp-0.001")
@@ -524,10 +524,13 @@ select FROM_UNIXTIME(UNIX_TIMESTAMP(CONCAT(:start_ym,n)),'%Y-%m-%d') as Date
             //dd($rates);
             if (isset($rates)) {
                 foreach ($rates as $rate) {
+                    //dd($day_wrkhrs, $rate->hr_day_rate, $day_wrkhrs * $rate->hr_day_rate);
+                    //dd($night_wrkhrs, $rate->hr_night_rate, $night_wrkhrs * $rate->hr_night_rate);
                     $result = $day_wrkhrs * $rate->hr_day_rate
                         + $night_wrkhrs * $rate->hr_night_rate
                         //+ $aux_equipment * ($day_wrkhrs + $night_wrkhrs) * $rate->hr_aux_rate
                     ;
+
                     break;
                 }
             }
