@@ -686,6 +686,9 @@ class DriverWorkController extends Controller
 
             $rec->wrktypeid = $request->get('wrktypeid');
 
+            $rec->day_hr_rate = $request->get('day_hr_rate');
+            $rec->night_hr_rate = $request->get('night_hr_rate');
+
 
             // Считаем данные по доп. работам/простоям --------------------
             $aux_worktypeid = $request->get('aux_wrktypeid');
