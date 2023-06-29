@@ -42,6 +42,7 @@ $action_url = route('reports.rep' . $thisObjId);
         body {
             /* this affects the margin on the content before sending to printer */
             margin: 0px;
+            padding: 2rem;
         }
 
         .rep-data td {
@@ -71,6 +72,33 @@ $action_url = route('reports.rep' . $thisObjId);
             font-size: 1.1em;
         }
 
+
+        table {
+            text-align: left;
+            position: relative;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 0.25rem;
+        }
+        tr.red th {
+            background: red;
+            color: white;
+        }
+        tr.green th {
+            background: green;
+            color: white;
+        }
+        tr.purple th {
+            background: purple;
+            color: white;
+        }
+        th {
+            background: white;
+            position: sticky;
+            top: 0; /* Don't forget this, required for the stickiness */
+            box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.4);
+        }
     </style>
 
     <div class="container">
@@ -212,8 +240,9 @@ $action_url = route('reports.rep' . $thisObjId);
                     {{-- ------------------------------------------------------------------------------------------}}
 
                     <table class="table1 table-bordered table-sm table-data" border="0" style="background-color: white">
+                        <thead>
                         <tr>
-                            <td rowspan="1">Работник</td>
+                            <th rowspan="1">Работник</th>
                             <?php
                             $mindate = date_create($s_begdate);
                             $maxdate = date_create($s_enddate);
@@ -228,15 +257,16 @@ $action_url = route('reports.rep' . $thisObjId);
                             $date = clone $mindate;
                             ?>
                             @while ($date <= $maxdate)
-                                <td class="day">{{$date->format('d')}}</td>
+                                <th class="day">{{$date->format('d')}}</th>
                                 <?php
                                 $date->modify('+1 day');
                                 ?>
                             @endwhile
 
-                            <td rowspan="1" class="text-center">Сумма, &#8381;</td>
+                            <th rowspan="1" class="text-center">Сумма, &#8381;</th>
                         </tr>
-
+                        </thead>
+                        <tbody>
                         @foreach($recs as $itm)
 
                             @if($itm->staffid<>$cur_staffid)
@@ -272,7 +302,8 @@ $action_url = route('reports.rep' . $thisObjId);
                                 ?>
                                 <tr>
                                     <td colspan=""
-                                        class="text-center font-weight-bold font-italic text-nowrap" title="{{$itm->staffid}}">{{$staff_name}}</td>
+                                        class="text-center font-weight-bold font-italic text-nowrap"
+                                        title="{{$itm->staffid}}">{{$staff_name}}</td>
                                     @endif
 
 
@@ -291,9 +322,9 @@ $action_url = route('reports.rep' . $thisObjId);
                                     @for ($i = 0; $i < $days_before; $i++)
                                         <td class="cell"></td>
                                     @endfor
-{{--                                    <td class="cell work" title="{{$itm->wrkdate}}: {{$itm->salary_sum}} = {{$itm->raid_sum}}(рейс) + {{$itm->pdt_sum}}(простой)">--}}
+                                    {{--                                    <td class="cell work" title="{{$itm->wrkdate}}: {{$itm->salary_sum}} = {{$itm->raid_sum}}(рейс) + {{$itm->pdt_sum}}(простой)">--}}
                                     <td class="cell work" title="{{$cell_title}}">
-{{--                                        <a href="{{route('driver_works.edit',$itm->id)}}" class="text-decoration-none" target="_blank">{{number_format($itm->salary_sum,0)}}</a>--}}
+                                        {{--                                        <a href="{{route('driver_works.edit',$itm->id)}}" class="text-decoration-none" target="_blank">{{number_format($itm->salary_sum,0)}}</a>--}}
                                         {{number_format($itm->salary_sum,0)}}
                                     </td>
                                     <?php
@@ -324,6 +355,7 @@ $action_url = route('reports.rep' . $thisObjId);
                                 <td colspan="{{$month_days+1}}" class="text-right">Всего:</td>
                                 <td class="text-right font-weight-bold">{{number_format($totSum,2)}}</td>
                             </tr>
+                        </tbody>
                     </table>
 
                     {{-- ------------------------------------------------------------------------------------------}}

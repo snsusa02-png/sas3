@@ -597,6 +597,7 @@ class DriverWorkController extends Controller
             $request->validate($rules, $messages);
         }
 
+
         $userid = \Auth::user()->id;
         $mess = "";
         if ($id == -1) {
@@ -682,7 +683,7 @@ class DriverWorkController extends Controller
                 $pre_dt = clone $cur_dt;
                 $minutes_to_add = 60;
             }
-//dd($cur_dt, $day_hrs, $night_hrs);
+            //dd($cur_dt, $day_hrs, $night_hrs);
 
             $rec->wrktypeid = $request->get('wrktypeid');
 
@@ -741,8 +742,7 @@ class DriverWorkController extends Controller
 
             //$rec->mchnwrkhrs = $request->get('mchnwrkhrs');
 
-            $rec->breaks_sum = $request->get('breaks_sum');
-
+            $rec->breaks_sum = $request->get('breaks_sum') ?? 0;
 
             //Получим текущие данные от рейсов:
             $raid_info = mchn_raid::where('dw_id', $rec->id)->selectRaw("sum(raid_qty) as qty, sum(raid_qty*raid_salary) as sum")->first();

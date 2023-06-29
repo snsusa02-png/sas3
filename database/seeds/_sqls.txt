@@ -1,4 +1,90 @@
 ﻿--------------------------------------------------------------------------------------------------
+2023.06.29
+
+-- Проверка на расхождение суммы ЗП от расчетной
+SELECT id, wrkdate, day_hr_rate, day_wrkhrs, day_brkhrs, night_hr_rate, night_wrkhrs, night_brkhrs
+    , hrs_salary
+    , day_wrkhrs* day_hr_rate+ night_wrkhrs* night_hr_rate as calc_hrs_sum
+    , breaks_sum
+    , day_wrkhrs * day_hr_rate+ night_wrkhrs*night_hr_rate + if(breaks_sum is null, 0, breaks_sum) as calc_sum
+    , salary_sum
+FROM `driver_works` as dw
+WHERE wrkdate between '2023-06-01' and '2023-06-30'
+and  day_wrkhrs * day_hr_rate+ night_wrkhrs*night_hr_rate + if(breaks_sum is null, 0, breaks_sum) <> salary_sum
+
+ update `driver_works` as dw
+    set breaks_sum=0
+    WHERE wrkdate between '2023-06-01' and '2023-06-30'
+        and breaks_sum is null
+
+
+update `driver_works` as dw
+    set salary_sum = day_wrkhrs * day_hr_rate+ night_wrkhrs*night_hr_rate + if(breaks_sum is null, 0, breaks_sum)
+    WHERE wrkdate between '2023-06-01' and '2023-06-30'
+    and  day_wrkhrs * day_hr_rate+ night_wrkhrs*night_hr_rate + if(breaks_sum is null, 0, breaks_sum) <> salary_sum
+
+
+SELECT id, wrkdate, day_hr_rate, day_wrkhrs, day_brkhrs, night_hr_rate, night_wrkhrs, night_brkhrs
+    , hrs_salary
+    , day_wrkhrs* day_hr_rate+ night_wrkhrs* night_hr_rate as calc_hrs_sum
+    , breaks_sum
+    , day_wrkhrs * day_hr_rate+ night_wrkhrs*night_hr_rate + if(breaks_sum is null, 0, breaks_sum) as calc_sum
+    , salary_sum
+FROM `driver_works` as dw
+WHERE  updated_at >= '2023-06-29'
+and wrkdate between '2023-06-01' and '2023-06-30'
+-- and  breaks_sum > 0
+and exists (select 1 from dw_breaks b where b.dw_id=dw.id and b.aux_sum>0)
+--------------------------------------------------------------------------------------------------
+2023.06.28
+
+CREATE DEFINER=`sns25`@`localhost` FUNCTION `hr_day_rate`( p_wrkdate date, p_staffid bigint, p_wrktypeid bigint) RETURNS decimal(10,0)
+    READS SQL DATA
+BEGIN
+	declare rslt decimal;
+
+    select i.hr_day_rate into rslt
+		from srs_hr_items as i
+		join salary_rate_sets as srs on srs.id = i.srs_id
+		join orgstaff as os on os.id = p_staffid
+		where i.wrktypeid = p_wrktypeid
+			and srs.payrolltypeid=1
+			and ifnull(srs.ownorgid,os.orgid)=os.orgid
+			and p_wrkdate between srs.begdate and ifnull(srs.enddate, p_wrkdate)
+			and TIMESTAMPDIFF(year, ifnull(os.begdate, p_wrkdate), p_wrkdate ) between i.min_wrkexp and i.max_wrkexp-0.001
+			;
+RETURN rslt;
+END
+
+
+CREATE DEFINER=`homestead`@`%` FUNCTION `hr_night_rate`( p_wrkdate date, p_staffid bigint, p_wrktypeid bigint) RETURNS decimal(10,0)
+    READS SQL DATA
+BEGIN
+	declare rslt decimal;
+
+    select i.hr_night_rate into rslt
+		from srs_hr_items as i
+		join salary_rate_sets as srs on srs.id = i.srs_id
+		join orgstaff as os on os.id = p_staffid
+		where i.wrktypeid = p_wrktypeid
+			and srs.payrolltypeid=1
+			and ifnull(srs.ownorgid,os.orgid)=os.orgid
+			and p_wrkdate between srs.begdate and ifnull(srs.enddate, p_wrkdate)
+			and TIMESTAMPDIFF(year, ifnull(os.begdate, p_wrkdate), p_wrkdate ) between i.min_wrkexp and i.max_wrkexp-0.001
+			;
+
+RETURN rslt;
+END
+--------------------------------------------------------------------------------------------------
+update
+	driver_works dw
+	set day_hr_rate = hr_day_rate(dw.wrkdate, dw.staffid, dw.wrktypeid)
+    , night_hr_rate= hr_night_rate(dw.wrkdate, dw.staffid, dw.wrktypeid)
+	where wrkdate between '01.06.2023' and '30.06.2023'
+    and day_hr_rate is null
+
+
+--------------------------------------------------------------------------------------------------
 2023.06.27
 
 select `dw`.`wrkdate`, `dw`.`staffid`, `os`.`lname` as `staff_lname`, `os`.`fname` as `staff_fname`, `os`.`mname` as `staff_mname`, sum(dw.salary_sum) as salary_sum, sum(dw.hrs_salary) as raid_sum, sum(dw.breaks_sum) as pdt_sum
