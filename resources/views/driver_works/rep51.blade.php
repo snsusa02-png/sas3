@@ -78,21 +78,26 @@ $action_url = route('reports.rep' . $thisObjId);
             position: relative;
             border-collapse: collapse;
         }
+
         th, td {
             padding: 0.25rem;
         }
+
         tr.red th {
             background: red;
             color: white;
         }
+
         tr.green th {
             background: green;
             color: white;
         }
+
         tr.purple th {
             background: purple;
             color: white;
         }
+
         th {
             background: white;
             position: sticky;
@@ -181,7 +186,8 @@ $action_url = route('reports.rep' . $thisObjId);
                 </div>
             </div>
         </div>
-
+    </div>
+    <div class="container-fluid">
         @if (isset($recs))
             @if ($recs->count()==0)
 
