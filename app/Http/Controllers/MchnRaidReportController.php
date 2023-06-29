@@ -582,11 +582,12 @@ class MchnRaidReportController extends Controller
                 ->with(['error' => 'У вас нет полномочий для работы с платежами для этой организации!']);
 
         // временная корректировка расхождений -------------------------------
-        $cmd = "update driver_works as dw"
+        /*$cmd = "update driver_works as dw"
             . " set salary_sum = (if(hrs_salary is null, 0, hrs_salary) + if(breaks_sum is null, 0, breaks_sum))"
             . " where 1=1 and dw.wrkdate >= '2023-06-01' and dw.wrkdate <= '2023-06-30'"
             . " and if(salary_sum is null, 0, salary_sum)<>( if(hrs_salary is null, 0, hrs_salary) + if(breaks_sum is null, 0, breaks_sum) )";
         DB::statement($cmd);
+        */
         //--------------------------------------------------------------------
 
         // - параметры поиска: массив из имени и значения по-умолчанию -----------------------------------------------
