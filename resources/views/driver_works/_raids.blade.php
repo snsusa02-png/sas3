@@ -50,7 +50,7 @@
                                 {{date_create($itm->wrkdate)->format('d.m.Y')}}
                             </td>
                             <td class="text-center pl-2" style="{{$linestyle}}">
-                                {{$itm->raid_qty??0}}
+                                {{$itm->raid_qty??0}} <div class="small">{{$itm->opertype->name}}</div>
                             </td>
                             <td class="text-right">
                                 @if(1==1)

@@ -1,16 +1,30 @@
 ﻿--------------------------------------------------------------------------------------------------
+2023.07.01
+
+SELECT * FROM `driver_works` WHERE created_At between '2023-06-27 10:30' and '2023-06-27 10:45' order by created_at
+
+SELECT * FROM `driver_works` dw
+    WHERE wrkdate between '2023-06-01' and '2023-06-30'
+    and not exists(select 1 from mchn_raids mr where mr.dw_id=dw.id)
+
+http://192.168.24.14/driver_works/19456
+http://192.168.24.14/driver_works/20249
+http://192.168.24.14/driver_works/20298
+--------------------------------------------------------------------------------------------------
 2023.06.29
 
 -- Проверка на расхождение суммы ЗП от расчетной
-SELECT id, wrkdate, day_hr_rate, day_wrkhrs, day_brkhrs, night_hr_rate, night_wrkhrs, night_brkhrs
+SELECT
+    salary_sum
+    , day_wrkhrs * day_hr_rate+ night_wrkhrs*night_hr_rate + if(breaks_sum is null, 0, breaks_sum) as calc_sum
+	, updated_at,  id, wrkdate, day_hr_rate, day_wrkhrs, day_brkhrs, night_hr_rate, night_wrkhrs, night_brkhrs
     , hrs_salary
     , day_wrkhrs* day_hr_rate+ night_wrkhrs* night_hr_rate as calc_hrs_sum
     , breaks_sum
-    , day_wrkhrs * day_hr_rate+ night_wrkhrs*night_hr_rate + if(breaks_sum is null, 0, breaks_sum) as calc_sum
-    , salary_sum
 FROM `driver_works` as dw
 WHERE wrkdate between '2023-06-01' and '2023-06-30'
-and  day_wrkhrs * day_hr_rate+ night_wrkhrs*night_hr_rate + if(breaks_sum is null, 0, breaks_sum) <> salary_sum
+and  (day_wrkhrs * day_hr_rate + night_wrkhrs * night_hr_rate + if(breaks_sum is null, 0, breaks_sum)) <> salary_sum
+
 
  update `driver_works` as dw
     set breaks_sum=0
@@ -19,9 +33,9 @@ and  day_wrkhrs * day_hr_rate+ night_wrkhrs*night_hr_rate + if(breaks_sum is nul
 
 
 update `driver_works` as dw
-    set salary_sum = day_wrkhrs * day_hr_rate+ night_wrkhrs*night_hr_rate + if(breaks_sum is null, 0, breaks_sum)
+    set salary_sum = day_wrkhrs * day_hr_rate + night_wrkhrs * night_hr_rate + if(breaks_sum is null, 0, breaks_sum)
     WHERE wrkdate between '2023-06-01' and '2023-06-30'
-    and  day_wrkhrs * day_hr_rate+ night_wrkhrs*night_hr_rate + if(breaks_sum is null, 0, breaks_sum) <> salary_sum
+    and  (day_wrkhrs * day_hr_rate + night_wrkhrs * night_hr_rate + if(breaks_sum is null, 0, breaks_sum)) <> salary_sum
 
 
 SELECT id, wrkdate, day_hr_rate, day_wrkhrs, day_brkhrs, night_hr_rate, night_wrkhrs, night_brkhrs

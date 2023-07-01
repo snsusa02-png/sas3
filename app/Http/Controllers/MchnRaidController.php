@@ -667,6 +667,7 @@ class MchnRaidController extends Controller
                 //'stfwrkhrs' => 'gt:0',
             ];
         } else {
+            //не черновик
             $messages = [
                 'statusid.required' => 'Укажите статус готовности документа',
             ];
@@ -787,6 +788,7 @@ class MchnRaidController extends Controller
                 'staffid' => $rec->driverid,
                 'wrktypeid' => $rec->wrktypeid,
             ]);
+            //dd($driver_work);
             $rec->dw_id = $driver_work->id;
 
 

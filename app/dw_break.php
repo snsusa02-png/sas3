@@ -62,7 +62,8 @@ class dw_break extends Model
             $dw->pdt_sum = $dw->pdt_hrs * $dw->pdt_cost;
             $dw->repair_sum = $dw->repair_hrs * $dw->repair_cost;
 
-            $dw->salary_sum = $dw->raid_sum + $dw->pdt_sum + $dw->repair_sum; //коррекция общей суммы ЗП
+            //$dw->salary_sum = $dw->raid_sum + $dw->pdt_sum + $dw->repair_sum; //коррекция общей суммы ЗП
+            $dw->salary_sum = $dw->raid_sum + $dw->hrs_salary + $dw->break_sum; //коррекция общей суммы ЗП
             //dd($dw);
             $dw->save();
         }

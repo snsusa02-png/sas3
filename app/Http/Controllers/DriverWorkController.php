@@ -292,7 +292,6 @@ class DriverWorkController extends Controller
 
             $rec = driver_work::from('driver_works as dw')->where('id', $id)->first();
 
-
             if (!isset($rec))
                 return redirect(route($this->sysobjcode . '.index'));
 
@@ -311,6 +310,11 @@ class DriverWorkController extends Controller
         $rec->begtime = (isset($rec->wrkbegdt)) ? strftime('%H:%M', strtotime($rec->wrkbegdt)) : '';
         $rec->wrkenddate = (isset($rec->wrkenddt)) ? date_create($rec->wrkenddt)->format('Y-m-d') : '';
         $rec->endtime = (isset($rec->wrkenddt)) ? strftime('%H:%M', strtotime($rec->wrkenddt)) : '';
+        if (isset($rec->wrkbegdt) and isset($rec->wrkenddt)) {
+            $diff = date_diff(date_create($rec->wrkbegdt), date_create($rec->wrkenddt));
+            $rec->stfwrkhrs = round($diff->days * 24 + $diff->h + $diff->i / 60, 2);
+        } else
+            $rec->stfwrkhrs = 0;
 
         //сформируем комплексный идентификатор организации/контракта субподряда
         $rec->orgcontractid = ($rec->exe_orgid ?? '') . ':' . ($rec->exe_contractid ?? '');
@@ -323,7 +327,7 @@ class DriverWorkController extends Controller
         //dd($rec->begtime, $rec->endtime, $rec->maxtime);
 
 
-        //$rec->breaktypes = dw_break::breaktypes();
+//        $rec->breaktypes = dw_break::breaktypes();
 
         //Основные виды работ водителя
         $rec->main_wrktypes = wrktype::main_wrktypes();
@@ -331,7 +335,7 @@ class DriverWorkController extends Controller
         //dd($rec->aux_wrktypes);
 
 //        if ( $id == -1){
-        if ( 1 == 1){
+        if (1 == 1) {
             $rec->aux_wrk_rates = wrktype::from('wrktypes as wt')
                 ->leftjoin('dw_breaks as dwi', function ($join) use ($rec) {
                     $join->on('dwi.wrktypeid', '=', 'wt.id')
@@ -340,23 +344,23 @@ class DriverWorkController extends Controller
                 ->where('wt.active', 1)
                 ->where('wt.main', '<>', 1)
                 ->select('wt.id as wrktypeid'
-                        , 'wt.name as wrktype_name'
-                        , 'dwi.hr_day_rate'
-                        , 'dwi.hr_night_rate'
-                        , 'dwi.id as dwi_id'
-                        , 'dwi.day_hrs'
-                        , 'dwi.night_hrs'
-                        , 'dwi.aux_sum'
+                    , 'wt.name as wrktype_name'
+                    , 'dwi.hr_day_rate'
+                    , 'dwi.hr_night_rate'
+                    , 'dwi.id as dwi_id'
+                    , 'dwi.day_hrs'
+                    , 'dwi.night_hrs'
+                    , 'dwi.aux_sum'
                 )
                 ->orderby('wt.ordr')
                 ->orderby('wt.name')
                 ->get();
 
-        }else{
+        } else {
             $rec->aux_wrk_rates = srs_hr_item::from('srs_hr_items as i')
                 ->join('salary_rate_sets as srs', 'srs.id', 'i.srs_id')
                 ->join('wrktypes as wt', 'wt.id', 'i.wrktypeid')
-                ->leftjoin('orgstaff as os', 'os.id', '=', DB::raw($rec->staffid??0))
+                ->leftjoin('orgstaff as os', 'os.id', '=', DB::raw($rec->staffid ?? 0))
                 ->leftjoin('dw_breaks as dwi', function ($join) use ($rec) {
                     $join->on('dwi.wrktypeid', '=', 'wt.id')
                         ->where('dwi.dw_id', '=', DB::raw($rec->id));
@@ -428,12 +432,10 @@ class DriverWorkController extends Controller
         }
         $rec->statuses = $statuses;
 
-        //$usrrights['edit'] = ($rec->created_by == $userid and $rec->statusid == 0);
         $usrrights['edit'] = ($rec->statusid == 0);
         $usrrights['change_status'] = ($rec->created_by == $userid);
 
         //корректировка прав с учетом статуса -------------------------------------------
-
         if ($rec->statusid != 0) {
             $usrrights['create'] = $usrrights['delete'] = false;
         }
@@ -727,11 +729,11 @@ class DriverWorkController extends Controller
             // Скорректируем кол-во рабочих часов с учетом часов простоя/ремонта/сна
             $rec->day_wrkhrs = $day_hrs - min($day_hrs, $rec->day_brkhrs);
             $rec->night_wrkhrs = $night_hrs - min($night_hrs, $rec->night_brkhrs);
-            $rec->day_wrkhrs = round($rec->day_wrkhrs,2);
-            $rec->night_wrkhrs = round($rec->night_wrkhrs,2);
+            $rec->day_wrkhrs = round($rec->day_wrkhrs, 2);
+            $rec->night_wrkhrs = round($rec->night_wrkhrs, 2);
             //dd( $rec->day_wrkhrs , $rec->night_wrkhrs );
 
-            $rec->hrs_salary = mchn_raid::calc_hr_salary(
+            $rec->hrs_salary = driver_work::calc_hr_salary(
                 $rec->wrkdate
                 , $rec->staffid
                 , $rec->day_wrkhrs
@@ -745,7 +747,8 @@ class DriverWorkController extends Controller
             $rec->breaks_sum = $request->get('breaks_sum') ?? 0;
 
             //Получим текущие данные от рейсов:
-            $raid_info = mchn_raid::where('dw_id', $rec->id)->selectRaw("sum(raid_qty) as qty, sum(raid_qty*raid_salary) as sum")->first();
+            $raid_info = mchn_raid::where('dw_id', $rec->id)
+                ->selectRaw("sum(raid_qty) as qty, sum(raid_qty*raid_salary) as sum")->first();
             //dd($raid_info);
             $rec->raid_qty = $raid_info->qty;
             $rec->raid_sum = $raid_info->sum;

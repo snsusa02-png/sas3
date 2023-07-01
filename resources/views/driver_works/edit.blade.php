@@ -26,15 +26,18 @@
                 color: gray;
                 margin-bottom: 0px;
             }
+
             input.has-value {
                 color: #00028e;
                 font-weight: bold;
             }
-            input[type="number"].hrs{
-                width:80px;
+
+            input[type="number"].hrs {
+                width: 80px;
             }
-            input.aux_hr_sum{
-                background-color: aliceblue!important;
+
+            input.aux_hr_sum {
+                background-color: aliceblue !important;
             }
         </style>
         <div class="container">
@@ -85,7 +88,7 @@
                                     {{--                                    </div>--}}
                                     <div class="form-group offset-md-0 col-md-7">
                                         <label for="name" class="required">Водитель:</label>
-                                        @if ($usrrights['edit'])
+                                        @if ($usrrights['save'] and $usrrights['edit'])
                                             <div class="input-group mb-3 ">
                                                 <input type="text" name="staff_name"
                                                        class="stfname form-control font-weight-bold"
@@ -123,7 +126,7 @@
                                 <div class="row">
                                     <div class="form-group offset-md-0 col-md-9">
                                         <label for="name" class="required">Спецтехника/Автомобиль:</label>
-                                        @if ($usrrights['edit'])
+                                        @if ($usrrights['save'] and $usrrights['edit'])
                                             <div class="input-group mb-3 ">
                                                 <input type="text" name="machine_name"
                                                        class="machine_name form-control font-weight-bold"
@@ -150,7 +153,7 @@
                                                style="{{$in_gk_hide}}">Отчет:
                                                 >>></a>
                                         @endif
-                                        @if ($usrrights['edit'])
+                                        @if ($usrrights['save'] and $usrrights['edit'])
                                             <div class="input-group ">
                                                 <input type="date" class="form-control text-center font-weight-bold"
                                                        name="wrkdate" id="wrkdate" required
@@ -177,11 +180,11 @@
                                     @if(1==1)
                                         <div class="form-group offset-md-0 col-md-5">
                                             <label for="name" class="required">Окончание:</label>
-                                            @if ($usrrights['edit'])
+                                            @if ($usrrights['save'] and $usrrights['edit'])
                                                 <div class="input-group ">
                                                     <input type="date" class="form-control text-center font-weight-bold"
                                                            name="wrkenddate" id="wrkenddate" required
-{{--                                                           min="{{$rec->wrkdate_min}}"--}}
+                                                           {{--                                                           min="{{$rec->wrkdate_min}}"--}}
                                                            max="{{today()->format('Y-m-d')}}"
                                                            value="{{old('wrkenddate',$rec->wrkenddate)}}"/>
                                                     <div class="input-group-append">
@@ -202,7 +205,7 @@
 
                                         <div class="form-group col-md-2">
                                             <label>Всего, ч </label>
-                                            @if ($usrrights['edit'])
+                                            @if ($usrrights['save'])
                                                 <input type="text" name="stfwrkhrs" id="stfwrkhrs"
                                                        class="form-control text-center"
                                                        readonly value="{{$rec->stfwrkhrs}}">
@@ -217,13 +220,18 @@
                                 <div class="row">
                                     <div class="form-group offset-md-2 col-md-3">
                                         <label for="name" class="">Дневная смена, ч:</label>
-                                        <input type="text" name="day_hrs" id="day_hrs"
-                                               class="form-control text-center"
-                                               readonly value="{{$rec->day_hrs}}">
+                                        @if ($usrrights['save'] )
+                                            <input type="text" name="day_hrs" id="day_hrs"
+                                                   class="form-control text-center"
+                                                   readonly value="{{$rec->day_hrs}}">
+                                        @else
+                                            <div
+                                                class="font-weight-bold text-center">{{$rec->day_wrkhrs + $rec->day_brkhrs}}</div>
+                                        @endif
                                     </div>
                                     <div class="form-group col-md-2">
                                         <label>простой, ч </label>
-                                        @if ($usrrights['edit'])
+                                        @if ($usrrights['save'])
                                             <input type="text" name="day_brkhrs" id="day_brkhrs"
                                                    readonly
                                                    class="form-control text-center"
@@ -234,27 +242,41 @@
                                     </div>
                                     <div class="form-group offset-md-0 col-md-2">
                                         <label for="name" class="">Работа, ч:</label>
-                                        <input type="text" name="day_wrkhrs" id="day_wrkhrs"
-                                               class="form-control text-center"
-                                               readonly value="{{$rec->day_wrkhrs}}">
+                                        @if ($usrrights['save'] )
+                                            <input type="text" name="day_wrkhrs" id="day_wrkhrs"
+                                                   class="form-control text-center"
+                                                   readonly value="{{$rec->day_wrkhrs}}">
+                                        @else
+                                            <div class="font-weight-bold text-center">{{$rec->day_wrkhrs}}</div>
+                                        @endif
                                     </div>
                                     <div class="form-group offset-md-0 col-md-2">
                                         <label for="name" class="">Ставка, &#8381;/ч:</label>
-                                        <input type="text" name="day_hr_rate" id="day_hr_rate"
-                                               class="form-control text-center"
-                                               readonly value="{{$rec->day_hr_rate}}">
+                                        @if ($usrrights['save'])
+                                            <input type="text" name="day_hr_rate" id="day_hr_rate"
+                                                   class="form-control text-center"
+                                                   readonly value="{{$rec->day_hr_rate}}">
+                                        @else
+                                            <div class="font-weight-bold text-center">{{$rec->day_hr_rate}}</div>
+                                        @endif
                                     </div>
                                 </div>
+
                                 <div class="row">
                                     <div class="form-group offset-md-2 col-md-3">
                                         <label for="name" class="">Ночная смена, ч:</label>
-                                        <input type="text" name="night_hrs" id="night_hrs"
-                                               class="form-control text-center"
-                                               readonly value="{{$rec->night_hrs}}">
+                                        @if ($usrrights['save'])
+                                            <input type="text" name="night_hrs" id="night_hrs"
+                                                   class="form-control text-center"
+                                                   readonly value="{{$rec->night_hrs}}">
+                                        @else
+                                            <div
+                                                class="font-weight-bold text-center">{{$rec->night_wrkhrs + $rec->night_brkhrs}}</div>
+                                        @endif
                                     </div>
                                     <div class="form-group col-md-2">
                                         <label>простой, ч </label>
-                                        @if ($usrrights['edit'])
+                                        @if ($usrrights['save'])
                                             <input type="text" name="night_brkhrs" id="night_brkhrs"
                                                    readonly
                                                    class="form-control text-center"
@@ -265,24 +287,36 @@
                                     </div>
                                     <div class="form-group offset-md-0 col-md-2">
                                         <label for="name" class="">Работа, ч:</label>
-                                        <input type="text" name="night_wrkhrs" id="night_wrkhrs"
-                                               class="form-control text-center"
-                                               readonly value="{{$rec->night_wrkhrs}}">
+                                        @if ($usrrights['save'])
+                                            <input type="text" name="night_wrkhrs" id="night_wrkhrs"
+                                                   class="form-control text-center"
+                                                   readonly value="{{$rec->night_wrkhrs}}">
+                                        @else
+                                            <div class="font-weight-bold text-center">{{$rec->night_wrkhrs}}</div>
+                                        @endif
                                     </div>
                                     <div class="form-group offset-md-0 col-md-2">
                                         <label for="name" class="">Ставка, &#8381;/ч:</label>
-                                        <input type="text" name="night_hr_rate" id="night_hr_rate"
-                                               class="form-control text-center"
-                                               readonly value="{{$rec->night_hr_rate}}">
+                                        @if ($usrrights['save'])
+                                            <input type="text" name="night_hr_rate" id="night_hr_rate"
+                                                   class="form-control text-center"
+                                                   readonly value="{{$rec->night_hr_rate}}">
+                                        @else
+                                            <div class="font-weight-bold text-center">{{$rec->night_hr_rate}}</div>
+                                        @endif
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="form-group offset-md-9 col-md-3">
                                         <label for="name" class="">Итого работа, &#8381;:</label>
-                                        <input type="text" name="hrs_salary" id="hrs_salary"
-                                               class="form-control text-right"
-                                               readonly value="{{$rec->hrs_salary}}">
+                                        @if ($usrrights['save'])
+                                            <input type="text" name="hrs_salary" id="hrs_salary"
+                                                   class="form-control text-right"
+                                                   readonly value="{{$rec->hrs_salary}}">
+                                        @else
+                                            <div class="font-weight-bold text-right">{{$rec->hrs_salary}}</div>
+                                        @endif
                                     </div>
                                 </div>
                                 {{--                                <hr>--}}
@@ -299,69 +333,95 @@
                                         <th>Сумма, &#8381;</th>
                                     </tr>
                                     @foreach($rec->aux_wrk_rates as $itm)
-                                        <tr>
-                                            <td colspan="6"><b>{{$itm->wrktype_name}}</b>
-                                                <input type="hidden" name="aux_dwi_id[]" value="{{$itm->dwi_id}}">
-                                                <input type="hidden" name="aux_wrktypeid[]" value="{{$itm->wrktypeid}}">
-                                            </td>
-                                        </tr>
-                                        <tr class="break_item">
-                                            <td></td>
-                                            <td>
-                                                <input type="number" name="aux_day_hrs[]"
-                                                       class="form-control text-center hrs aux_day_hrs"
-                                                       value="{{$itm->day_hrs}}"
-                                                       title="Количество часов днем"
-                                                       min="0" max="99" step="0.25">
-                                            </td>
-                                            <td>
-                                                <input type="text" name="aux_hr_day_rate[]"
-                                                       id="hr_day_rate_wt{{$itm->wrktypeid}}"
-                                                       class="form-control text-center aux_hr_day_rate"
-                                                       title="Ставка днем, &#8381;/ч"
-                                                       readonly value="{{$itm->hr_day_rate}}">
-                                            </td>
-                                            <td>
-                                                <input type="number" name="aux_night_hrs[]"
-                                                       class="form-control text-center hrs aux_night_hrs"
-                                                       value="{{$itm->night_hrs}}"
-                                                       title="Количество часов ночью"
-                                                       min="0" max="99" step="0.25">
-                                            </td>
-                                            <td>
-                                                <input type="text" name="aux_hr_night_rate[]"
-                                                       id="hr_night_rate_wt{{$itm->wrktypeid}}"
-                                                       class="form-control text-center aux_hr_night_rate"
-                                                       title="Ставка ночью, &#8381;/ч"
-                                                       readonly value="{{$itm->hr_night_rate}}">
-                                            </td>
-                                            <td>
-                                                <input type="text" name="aux_hr_sum"
-                                                       class="form-control text-center aux_hr_sum"
-                                                       title="Сумма ЗП из расчета по-часам, &#8381;"
-                                                       value="{{$itm->day_hrs*$itm->hr_day_rate + $itm->night_hrs*$itm->hr_night_rate}}"
-                                                       readonly>
-                                            </td>
-                                            <td>
-                                                <input type="number" name="aux_aux_sum[]"
-                                                       class="form-control text-center aux_aux_sum"
-                                                       value="{{$itm->aux_sum}}"
-                                                       title="Дополнительная сумма ЗП, &#8381;"
-                                                       min="0">
-                                            </td>
-                                        </tr>
-
+                                        @if ($usrrights['save'] or $itm->day_hrs>0 or $itm->night_hrs>0 or $itm->aux_sum>0)
+                                            <tr>
+                                                <td colspan="6"><b>{{$itm->wrktype_name}}</b>
+                                                    <input type="hidden" name="aux_dwi_id[]" value="{{$itm->dwi_id}}">
+                                                    <input type="hidden" name="aux_wrktypeid[]"
+                                                           value="{{$itm->wrktypeid}}">
+                                                </td>
+                                            </tr>
+                                            <tr class="break_item">
+                                                <td></td>
+                                                <td align="center">
+                                                    @if ($usrrights['save'])
+                                                        <input type="number" name="aux_day_hrs[]"
+                                                               class="form-control text-center hrs aux_day_hrs"
+                                                               value="{{$itm->day_hrs}}"
+                                                               title="Количество часов днем"
+                                                               min="0" max="99" step="0.25">
+                                                    @else
+                                                        {{$itm->day_hrs}}
+                                                    @endif
+                                                </td>
+                                                <td align="right">
+                                                    @if ($usrrights['save'])
+                                                        <input type="text" name="aux_hr_day_rate[]"
+                                                               id="hr_day_rate_wt{{$itm->wrktypeid}}"
+                                                               class="form-control text-center aux_hr_day_rate"
+                                                               title="Ставка днем, &#8381;/ч"
+                                                               readonly value="{{$itm->hr_day_rate}}">
+                                                    @else
+                                                        {{$itm->hr_day_rate}}
+                                                    @endif
+                                                </td>
+                                                <td align="center">
+                                                    @if ($usrrights['save'])
+                                                        <input type="number" name="aux_night_hrs[]"
+                                                               class="form-control text-center hrs aux_night_hrs"
+                                                               value="{{$itm->night_hrs}}"
+                                                               title="Количество часов ночью"
+                                                               min="0" max="99" step="0.25">
+                                                    @else
+                                                        {{$itm->night_hrs}}
+                                                    @endif
+                                                </td>
+                                                <td align="right">
+                                                    @if ($usrrights['save'])
+                                                        <input type="text" name="aux_hr_night_rate[]"
+                                                               id="hr_night_rate_wt{{$itm->wrktypeid}}"
+                                                               class="form-control text-center aux_hr_night_rate"
+                                                               title="Ставка ночью, &#8381;/ч"
+                                                               readonly value="{{$itm->hr_night_rate}}">
+                                                    @else
+                                                        {{$itm->hr_night_rate}}
+                                                    @endif
+                                                </td>
+                                                <td align="right">
+                                                    @if ($usrrights['save'])
+                                                        <input type="text" name="aux_hr_sum"
+                                                               class="form-control text-center aux_hr_sum"
+                                                               title="Сумма ЗП из расчета по-часам, &#8381;"
+                                                               value="{{$itm->day_hrs*$itm->hr_day_rate + $itm->night_hrs*$itm->hr_night_rate}}"
+                                                               readonly>
+                                                    @else
+                                                        {{$itm->day_hrs*$itm->hr_day_rate + $itm->night_hrs*$itm->hr_night_rate}}
+                                                    @endif
+                                                </td>
+                                                <td align="right">
+                                                    @if ($usrrights['save'])
+                                                        <input type="number" name="aux_aux_sum[]"
+                                                               class="form-control text-center aux_aux_sum"
+                                                               value="{{$itm->aux_sum}}"
+                                                               title="Дополнительная сумма ЗП, &#8381;"
+                                                               min="0">
+                                                    @else
+                                                        {{$itm->aux_sum}}
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endif
                                     @endforeach
                                 </table>
                                 <div class="row">
                                     <div class="form-group offset-md-9 col-md-3">
                                         <label>Итого простои, &#8381;</label>
-                                        @if ($usrrights['edit'])
+                                        @if ($usrrights['save'])
                                             <input type="text" name="breaks_sum" id="breaks_sum"
                                                    class="form-control text-right "
                                                    readonly value="{{$rec->breaks_sum}}">
                                         @else
-                                            <div class="font-weight-bold text-center">{{$rec->breaks_sum}}</div>
+                                            <div class="font-weight-bold text-right">{{$rec->breaks_sum}}</div>
                                         @endif
                                     </div>
                                 </div>
@@ -370,12 +430,12 @@
                                 <div class="row">
                                     <div class="form-group offset-md-9 col-md-3">
                                         <label>ЗП Всего, &#8381;</label>
-                                        @if ($usrrights['edit'])
+                                        @if ($usrrights['save'])
                                             <input type="text" name="salary_sum" id="salary_sum"
                                                    class="form-control text-right font-weight-bold"
                                                    readonly value="{{$rec->salary_sum}}">
                                         @else
-                                            <div class="font-weight-bold text-center">{{$rec->salary_sum}}</div>
+                                            <div class="font-weight-bold text-right">{{$rec->salary_sum}}</div>
                                         @endif
                                     </div>
                                 </div>
@@ -396,7 +456,7 @@
                                             <div class="offset-md-4 col-md-3">
                                                 <div class="form-group">
                                                     <label for="category" class="">на начало, км:</label>
-                                                    @if ($usrrights['edit'] )
+                                                    @if ( $usrrights['save'] and $usrrights['edit'] )
                                                         <input type="number"
                                                                class="form-control rounded-0 text-right font-weight-bold"
                                                                name="meter_begqty"
@@ -405,38 +465,40 @@
 
                                                                value="{{old('meter_begqty',$rec->meter_begqty)}}">
                                                     @else
-                                                        <div class="font-weight-bold">
-                                                            <div
-                                                                class="font-weight-bold text-right">{{$rec->meter_begqty??'-'}}</div>
-                                                        </div>
+                                                        <div
+                                                            class="font-weight-bold text-center"> {{$rec->meter_begqty??'-'}}</div>
                                                     @endif
                                                 </div>
                                             </div>
                                             <div class="offset-md-0 col-md-3">
                                                 <div class="form-group">
                                                     <label class="">по окончанию, км:</label>
-                                                    @if ($usrrights['edit'] )
+                                                    @if ($usrrights['save'] and $usrrights['edit'] )
                                                         <input type="number"
                                                                class="form-control rounded-0 text-right font-weight-bold"
                                                                name="meter_endqty" id="meter_endqty"
                                                                min=0
                                                                value="{{old('meter_endqty',$rec->meter_endqty)}}">
                                                     @else
-                                                        <div class="font-weight-bold text-right">
-                                                            <div
-                                                                class="font-weight-bold">{{$rec->meter_endqty??'-'}}</div>
-                                                        </div>
+                                                        <div
+                                                            class="font-weight-bold text-center">{{$rec->meter_endqty??'-'}}</div>
                                                     @endif
                                                 </div>
                                             </div>
                                             <div class="offset-md-0 col-md-2">
                                                 <div class="form-group">
                                                     <label for="category">Пробег, км:</label>
-                                                    <input type="number"
-                                                           class="form-control rounded-0 text-right font-weight-bold"
-                                                           id="meter_qty"
-                                                           readonly
-                                                           value="{{old('meter_qty',$rec->meter_qty)}}">
+                                                    @if ($usrrights['save'] )
+                                                        <input type="number"
+                                                               class="form-control rounded-0 text-right font-weight-bold"
+                                                               id="meter_qty"
+                                                               readonly
+                                                               value="{{old('meter_qty',$rec->meter_qty)}}">
+                                                    @else
+                                                        <div class="font-weight-bold text-center">
+                                                            {{$rec->meter_endqty??'-'}}
+                                                        </div>
+                                                    @endif
                                                 </div>
                                             </div>
                                         </div>
@@ -455,7 +517,7 @@
                                             <div class="offset-md-1 col-md-3">
                                                 <div class="form-group">
                                                     <label for="fuel_begqty" class="">на начало, л:</label>
-                                                    @if ($usrrights['edit'] )
+                                                    @if ($usrrights['save'] )
                                                         <input type="number"
                                                                class="form-control rounded-0 text-right font-weight-bold"
                                                                name="fuel_begqty"
@@ -464,9 +526,8 @@
 
                                                                value="{{old('fuel_begqty',$rec->fuel_begqty)}}">
                                                     @else
-                                                        <div class="font-weight-bold">
-                                                            <div
-                                                                class="font-weight-bold text-right">{{$rec->fuel_begqty??'-'}}</div>
+                                                        <div class="font-weight-bold text-center">
+                                                            {{$rec->fuel_begqty??'-'}}
                                                         </div>
                                                     @endif
                                                 </div>
@@ -474,7 +535,7 @@
                                             <div class="offset-md-0 col-md-3">
                                                 <div class="form-group">
                                                     <label>получено, л:</label>
-                                                    @if ($usrrights['edit'] )
+                                                    @if ($usrrights['save'] )
                                                         <input type="number"
                                                                class="form-control rounded-0 text-right font-weight-bold"
                                                                name="fuel_inpqty"
@@ -482,9 +543,8 @@
                                                                min=0
                                                                value="{{old('fuel_inpqty',$rec->fuel_inpqty)}}">
                                                     @else
-                                                        <div class="font-weight-bold text-right">
-                                                            <div
-                                                                class="font-weight-bold">{{$rec->fuel_inpqty??'0'}}</div>
+                                                        <div class="font-weight-bold text-center">
+                                                            {{$rec->fuel_inpqty??'0'}}
                                                         </div>
                                                     @endif
                                                 </div>
@@ -492,7 +552,7 @@
                                             <div class="offset-md-0 col-md-3">
                                                 <div class="form-group">
                                                     <label class="">по окончанию, л:</label>
-                                                    @if ($usrrights['edit'] )
+                                                    @if ($usrrights['save'] )
                                                         <input type="number"
                                                                class="form-control rounded-0 text-right font-weight-bold"
                                                                name="fuel_endqty"
@@ -500,9 +560,8 @@
                                                                min=0
                                                                value="{{old('fuel_endqty',$rec->fuel_endqty)}}">
                                                     @else
-                                                        <div class="font-weight-bold text-right">
-                                                            <div
-                                                                class="font-weight-bold">{{$rec->fuel_endqty??'-'}}</div>
+                                                        <div class="font-weight-bold text-center">
+                                                            {{$rec->fuel_endqty??'-'}}
                                                         </div>
                                                     @endif
                                                 </div>
@@ -510,15 +569,17 @@
                                             <div class="offset-md-0 col-md-2">
                                                 <div class="form-group">
                                                     <label for="category">Расход, л:</label>
-                                                    <div class="font-weight-bold text-right">
-                                                        <div
-                                                            class="font-weight-bold"><input type="text"
-                                                                                            class="form-control rounded-0 text-right font-weight-bold"
-                                                                                            id="fuel_spentqty"
-                                                                                            readonly
-                                                                                            value="{{old('fuel_spentqty',$rec->fuel_spentqty)}}">
+                                                    @if ($usrrights['save'] )
+                                                        <input type="text"
+                                                               class="form-control rounded-0 text-right font-weight-bold"
+                                                               id="fuel_spentqty"
+                                                               readonly
+                                                               value="{{old('fuel_spentqty',$rec->fuel_spentqty)}}">
+                                                    @else
+                                                        <div class="font-weight-bold text-center">
+                                                            {{$rec->fuel_spentqty??'-'}}
                                                         </div>
-                                                    </div>
+                                                    @endif
                                                 </div>
                                             </div>
                                         </div>
@@ -561,19 +622,20 @@
                                     <div class="offset-md-4 col-md-8">
                                         <div class="form-group">
                                             <label for="decision">Примечание:</label>
-                                            @if ($usrrights['edit'] or $usrrights['change_status'])
+                                            @if ($usrrights['save'] or $usrrights['change_status'])
                                                 <textarea class="form-control rounded-0"
                                                           name="notes" id="notes"
                                                           rows="1">{{old('notes',$rec->notes)}}</textarea>
                                             @else
-                                                <div class="font-weight-bold">
-                                                    <div class="font-weight-bold">{{$rec->notes??'-'}}</div>
-                                                </div>
+                                                @if(!empty($rec->notes))
+                                                    <div class="font-weight-bold">
+                                                        <div class="font-weight-bold">{{$rec->notes??'-'}}</div>
+                                                    </div>
+                                                @endif
                                             @endif
                                         </div>
                                     </div>
                                 </div>
-
 
                                 <hr>
                                 @if ($usrrights['save'] or $usrrights['change_status'])
