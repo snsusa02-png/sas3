@@ -685,7 +685,10 @@ class DriverWorkController extends Controller
                 $pre_dt = clone $cur_dt;
                 $minutes_to_add = 60;
             }
-            //dd($cur_dt, $day_hrs, $night_hrs);
+//            dd($cur_dt, $day_hrs, $night_hrs);
+            $day_hrs = round($day_hrs,2);
+            $night_hrs = round($night_hrs,2);
+//            dd($cur_dt, $day_hrs, $night_hrs);
 
             $rec->wrktypeid = $request->get('wrktypeid');
 
