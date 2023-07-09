@@ -120,6 +120,7 @@ class PayDocReportController extends Controller
             , 's_ownorgid' => Auth::user()->curorgid
             , 's_showmode' => 1
             , 's_curatorid' => ''
+            , 's_org_kind' => ''
         ];
 
         $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);
@@ -159,6 +160,18 @@ class PayDocReportController extends Controller
                     $sc = $sc . " and exists (select 1 from org_curators as oc
                         where oc.orgid=o.id and oc.staffid={$val}
                         and oc.active=1 and now() between oc.begdt and ifnull(oc.enddt,now()) )";
+
+                } elseif ($item == 's_org_kind') {
+                    if ($val == 1) {
+                        //только поставщики
+                        $sc = $sc . " and exists (select 1 from mr_opers as mro where mro.suporgid=o.id)";
+                    } elseif ($val == 2) {
+                        //только не поставщики
+                        $sc = $sc . " and not exists (select 1 from mr_opers as mro where mro.suporgid=o.id)";
+                    } elseif ($val == 9) {
+                        //все
+                        $sc = $sc . "";
+                    }
                 }
             }
         }
@@ -215,6 +228,7 @@ class PayDocReportController extends Controller
 
         //$data->showmodes = [1 => 'Должники', 2 => 'должники и с переплатой', 4 => 'все'];
         $data->showmodes = [1 => 'Должники', 3 => 'Переплата', 2 => 'Должники и Переплата', 4 => 'Все'];
+        $data->org_kinds = [1 => 'Поставщики', 3 => 'Не поставщики', 9 => 'Все'];
 
 //        $data->curators = User::lstFor_cached([
 //            'in_org_curators_now' => 1,

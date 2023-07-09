@@ -63,7 +63,7 @@ $usrrights['link_tasks'] = \App\usrsysright::isUserHasRightByCode_cached($userid
                             @if(1==1)
                                 <div class="row">
 
-                                    <div class="form-group col-md-6">
+                                    <div class="form-group col-md-5">
                                         <label for="s_ownorgid" class="required">от ГК:</label>
                                         {!! Form::select('s_ownorgid', $data->ownorgs, $search_params['s_ownorgid'],
                                                         [
@@ -75,7 +75,7 @@ $usrrights['link_tasks'] = \App\usrsysright::isUserHasRightByCode_cached($userid
                                     </div>
 
                                     <div class="form-group col-md-3">
-                                        <label for="name">Категория:</label>
+                                        <label for="name">Долг/Переплата:</label>
                                         {!! Form::select('s_showmode', $data->showmodes, $search_params['s_showmode'],
                                                         [
                                                         'class' => 'form-control',
@@ -83,7 +83,16 @@ $usrrights['link_tasks'] = \App\usrsysright::isUserHasRightByCode_cached($userid
                                                         ])
                                                         !!}
                                     </div>
-                                    <div class="form-group col-md-3">
+                                    <div class="form-group col-md-2">
+                                        <label for="name">Вид контрагента:</label>
+                                        {!! Form::select('s_org_kind', $data->org_kinds, $search_params['s_org_kind'],
+                                                        [
+                                                        'class' => 'form-control',
+                                                        'placeholder1' => '-все-',
+                                                        ])
+                                                        !!}
+                                    </div>
+                                    <div class="form-group col-md-2">
                                         <label for="name">Куратор:</label>
                                         {!! Form::select('s_curatorid', $data->curators, $search_params['s_curatorid'],
                                                         [
@@ -96,6 +105,7 @@ $usrrights['link_tasks'] = \App\usrsysright::isUserHasRightByCode_cached($userid
                                     <?php
                                     $s_orgname = $search_params['s_orgname'] ?? '';
                                     $s_showmodename = $data->showmodes[$search_params['s_showmode']] ?? '';
+                                    $s_orgkind_name = $data->org_kinds[$search_params['s_org_kind']] ?? '';
                                     $s_curatorname = $data->curators[$search_params['s_curatorid']] ?? '';
                                     ?>
 
@@ -193,6 +203,7 @@ $usrrights['link_tasks'] = \App\usrsysright::isUserHasRightByCode_cached($userid
                         <h4>{{$thisTitle}}</h4>
                         <b>{{$data->ownorgs[$search_params['s_ownorgid']]??''}}</b>
                         <div>{{$s_showmodename}}</div>
+                        <div>{{$s_orgkind_name}}</div>
                         <div>{{$s_curatorname}}</div>
                         <span class="small ml-3 d-print-none"><br>по состоянию на {{now()}}</span>
 
