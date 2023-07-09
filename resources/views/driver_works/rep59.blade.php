@@ -232,7 +232,7 @@ $action_url = route('reports.rep' . $thisObjId);
                                             <div  class="small">{{number_format($mchn_DayHrs/$max_hrs*100, 1)}}%</div>
                                         </td>
                                         <td class="text-right font-weight-bold">{{number_format($mchn_NightHrs,2)}}
-                                            <div class="small">{{number_format($mchn_DayHrs/$max_hrs*100, 1)}}%</div>
+                                            <div class="small">{{number_format($mchn_NightHrs/$max_hrs*100, 1)}}%</div>
                                         </td>
                                     </tr>
                                 @endif
@@ -267,13 +267,19 @@ $action_url = route('reports.rep' . $thisObjId);
 
                         @if( $cur_machineid <> -1)
                             <tr>
-                                <td colspan="3" class="text-right">Итого по авто "{{$cur_machine_name}}":</td>
-                                <td class="text-right font-weight-bold">{{number_format($mchn_DayHrs,2)}}</td>
-                                <td class="text-right font-weight-bold">{{number_format($mchn_NightHrs,2)}}</td>
+                                <td colspan="3" class="text-right font-weight-bold">Итого по авто
+                                    "{{$cur_machine_name}}":
+                                </td>
+                                <td class="text-right font-weight-bold">{{number_format($mchn_DayHrs,2)}}
+                                    <div  class="small">{{number_format($mchn_DayHrs/$max_hrs*100, 1)}}%</div>
+                                </td>
+                                <td class="text-right font-weight-bold">{{number_format($mchn_NightHrs,2)}}
+                                    <div class="small">{{number_format($mchn_NightHrs/$max_hrs*100, 1)}}%</div>
+                                </td>
                             </tr>
                         @endif
                         <tr>
-                            <td colspan="3" class="text-right">Итого:</td>
+                            <td colspan="3" class="text-right">Всего:</td>
                             <td class="text-right font-weight-bold">{{number_format($totDayHrs,2)}}
                                 <div  class="small">{{number_format($totDayHrs/$npp/$max_hrs*100, 1)}}%</div></td>
                             <td class="text-right font-weight-bold">{{number_format($totNightHrs,2)}}
