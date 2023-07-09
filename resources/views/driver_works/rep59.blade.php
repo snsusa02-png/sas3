@@ -92,28 +92,39 @@ $action_url = route('reports.rep' . $thisObjId);
                                 <div class="row">
 
                                     <div class="form-group col-md-2 dpt_1" style="">
-                                        <label for="s_month" class="required">Месяц:</label>
-                                        {!! Form::select('s_month', $data->monthes??[], $search_params['s_month'],
+                                        <label for="s_month" class="required">Год, месяц:</label>
+                                        {!! Form::select('s_year_month', $data->yms??[], $search_params['s_year_month']??'',
                                                         [
-                                                        'id' => 's_month',
+                                                        'id' => 's_ym',
                                                         'class' => 'form-control',
                                                         'placeholder' => '-укажите-',
                                                         ])
                                                         !!}
                                     </div>
 
-                                    <div class="form-group col-md-2 dpt_3 " style="">
-                                        <label for="s_year" class="required">Год:</label>
-                                        {!! Form::select('s_year', $data->years??[], $search_params['s_year'],
-                                                        [
-                                                        'id' => 's_year',
-                                                        'class' => 'form-control',
-                                                        'placeholder' => '-укажите-',
-                                                        ])
-                                                        !!}
-                                    </div>
 
                                     @if(1==0)
+                                        <div class="form-group col-md-2 dpt_1" style="">
+                                            <label for="s_month" class="required">Месяц:</label>
+                                            {!! Form::select('s_month', $data->monthes??[], $search_params['s_month'],
+                                                            [
+                                                            'id' => 's_month',
+                                                            'class' => 'form-control',
+                                                            'placeholder' => '-укажите-',
+                                                            ])
+                                                            !!}
+                                        </div>
+
+                                        <div class="form-group col-md-2 dpt_3 " style="">
+                                            <label for="s_year" class="required">Год:</label>
+                                            {!! Form::select('s_year', $data->years??[], $search_params['s_year'],
+                                                            [
+                                                            'id' => 's_year',
+                                                            'class' => 'form-control',
+                                                            'placeholder' => '-укажите-',
+                                                            ])
+                                                            !!}
+                                        </div>
                                         <div class="form-group col-md-3">
                                             <label for="s_ownorgid" class="">Организация:</label>
                                             {!! Form::select('s_ownorgid', $data->ownorgs, $search_params['s_ownorgid'],
