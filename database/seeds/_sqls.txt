@@ -1,4 +1,24 @@
 ﻿--------------------------------------------------------------------------------------------------
+2023.07.09
+
+INSERT INTO `reports` (`id`, `name`, `acsid`, `acs_rightid`, `public`, `active`) VALUES ('59', 'Сводка по авто', '1', '1', '1', '1');
+
+--------------------------------------------------------------------------------------------------
+2023.07.08
+
+SELECT wt.name as wt_name
+	, dw.staffid, os.name as stf_name
+    , sum(dw.day_wrkhrs) wrk_day_hrs
+	, sum(brk.day_hrs) as brk_Day_hrs, sum(brk.night_hrs) as brk_night_hrs , count(1) as cnt
+FROM `driver_works` dw
+join dw_breaks as brk on brk.dw_id=dw.id
+join wrktypes wt on wt.id=brk.wrktypeid
+join orgstaff os on os.id=dw.staffid
+where wrkdate between '2023-06-01' and '2023-06-30'
+group by dw.staffid, brk.wrktypeid
+order by stf_name, wt_name
+
+--------------------------------------------------------------------------------------------------
 2023.07.06
 
 INSERT INTO `payrolltypes` (`id`,`name`,`descript`,`active`,`ordr`,`created_at`,`created_by`,`updated_at`,`updated_by`) VALUES (2,'% от осн. услуги + % от доп. услуг','Тралисты, манипуляторщики',1,2,'2023-06-24 08:42:25',1,'2023-06-24 08:42:25',1);

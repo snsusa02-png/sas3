@@ -3,7 +3,7 @@
 <?php
 $thisTitle = "-";
 $thisSysObjId = 855;    //reports
-$thisObjId = 58;
+$thisObjId = 59;
 //$retURL = route('admin') . '#nsi-rep';
 //$retURL = '/admin#nsi-rep';
 $retURL = route('reports.pub_index');
@@ -207,64 +207,77 @@ $action_url = route('reports.rep' . $thisObjId);
 
                     <table class="table table-bordered table-sm table-data" border="0" style="background-color: white">
                         <tr>
-                            <td rowspan="2" class="small text-right">#пп</td>
-                            <td rowspan="2">Работник</td>
-                            <td rowspan="1" colspan="2" class="text-center">Работа, час</td>
-                            <td rowspan="1" colspan="2" class="text-center">Простой, час</td>
-                            <td rowspan="2" class="text-center">Сумма, руб</td>
-                        </tr>
-                        <tr align="center">
-                            <td>День</td>
-                            <td>Ночь</td>
-                            <td>День</td>
-                            <td>Ночь</td>
+                            <td rowspan="1" class="small text-right">#пп</td>
+                            <td rowspan="1">Авто</td>
+                            <td class="text-center">Тип занятия</td>
+                            <td class="text-center">День, час</td>
+                            <td class="text-center">Ночь, час</td>
                         </tr>
                         <?php
+                        $max_hrs = $data->days * 12;
                         $npp = 0;
                         $totSum = 0;
-                        $totDayWrkHrs = 0;
-                        $totNightWrkHrs = 0;
-                        $totDayBrkHrs = 0;
-                        $totNightBrkHrs = 0;
-                        $totWrkHrs = 0;
+                        $totDayHrs = 0;
+                        $totNightHrs = 0;
+                        $cur_machineid = -1;
                         ?>
                         @foreach($recs as $itm)
+                            @if($itm->machineid <> $cur_machineid)
+                                @if( $cur_machineid <> -1)
+                                    <tr>
+                                        <td colspan="3" class="text-right font-weight-bold">Итого по авто
+                                            "{{$cur_machine_name}}":
+                                        </td>
+                                        <td class="text-right font-weight-bold">{{number_format($mchn_DayHrs,2)}}
+                                            <div  class="small">{{number_format($mchn_DayHrs/$max_hrs*100, 1)}}%</div>
+                                        </td>
+                                        <td class="text-right font-weight-bold">{{number_format($mchn_NightHrs,2)}}
+                                            <div class="small">{{number_format($mchn_DayHrs/$max_hrs*100, 1)}}%</div>
+                                        </td>
+                                    </tr>
+                                @endif
+                                <tr>
+                                    <td class="small text-right">{{++$npp}}</td>
+                                    <td colspan="3" class="font-weight-bold font-italic">
+                                        <a href="{{route('machines.edit',$itm->machineid)}}"
+                                           target="_blank">{{$itm->machine_name}}</a></td>
+                                </tr>
+                                <?php
+                                $cur_machineid = $itm->machineid;
+                                $cur_machine_name = $itm->machine_name;
+                                $mchn_DayHrs = 0;
+                                $mchn_NightHrs = 0;
+                                ?>
+                            @endif
+                            @if ($itm->day_hrs + $itm->night_hrs > 0)
+                                <tr>
+                                    <td colspan="2"></td>
+                                    <td class="text-right">{{$itm->wt_name}}</td>
+                                    <td class="text-right">{{number_format($itm->day_hrs,2)}}</td>
+                                    <td class="text-right">{{number_format($itm->night_hrs,2)}}</td>
+                                </tr>
+                            @endif
                             <?php
-                            $staff_name = $itm->staff_lname;
-                            if (isset($itm->staff_fname)) {
-                                $staff_name .= ' ' . mb_substr($itm->staff_fname, 0, 1) . '.';
-                                if (isset($itm->staff_mname))
-                                    $staff_name .= mb_substr($itm->staff_mname, 0, 1) . '.';
-                            }
-                            ?>
-                            <tr>
-                                <td class="small text-right">{{++$npp}}</td>
-                                <td><a href="{{route('orgstaff.edit',$itm->staffid)}}"
-                                       target="_blank">{{$itm->staff_name}}</a>, <span
-                                        class="small ml-2"> {{$itm->postname}}</span></td>
-                                <td class="text-right">{{number_format($itm->day_wrkhrs,2)}}</td>
-                                <td class="text-right">{{number_format($itm->night_wrkhrs,2)}}</td>
-                                <td class="text-right">{{number_format($itm->day_brkhrs,2)}}</td>
-                                <td class="text-right">{{number_format($itm->night_brkhrs,2)}}</td>
-                                <td class="text-right">{{number_format($itm->day_hr_sum + $itm->night_hr_sum + $itm->breaks_sum,2)}}</td>
-                            </tr>
-                            <?php
-                            $totDayWrkHrs += $itm->day_wrkhrs;
-                            $totNightWrkHrs += $itm->night_wrkhrs;
-                            $totDayBrkHrs += $itm->day_brkhrs;
-                            $totNightBrkHrs += $itm->night_brkhrs;
-                            //                            $totWrkHrs += $itm->day_wrkhrs + $itm->night_wrkhrs;
-                            $totSum += $itm->day_hr_sum + $itm->night_hr_sum + $itm->breaks_sum;
+                            $mchn_DayHrs += $itm->day_hrs;
+                            $mchn_NightHrs += $itm->night_hrs;
+                            $totDayHrs += $itm->day_hrs;
+                            $totNightHrs += $itm->night_hrs;
                             ?>
                         @endforeach
 
+                        @if( $cur_machineid <> -1)
+                            <tr>
+                                <td colspan="3" class="text-right">Итого по авто "{{$cur_machine_name}}":</td>
+                                <td class="text-right font-weight-bold">{{number_format($mchn_DayHrs,2)}}</td>
+                                <td class="text-right font-weight-bold">{{number_format($mchn_NightHrs,2)}}</td>
+                            </tr>
+                        @endif
                         <tr>
-                            <td colspan="2" class="text-right">Итого:</td>
-                            <td class="text-right font-weight-bold">{{number_format($totDayWrkHrs,2)}}</td>
-                            <td class="text-right font-weight-bold">{{number_format($totNightWrkHrs,2)}}</td>
-                            <td class="text-right font-weight-bold">{{number_format($totDayBrkHrs,2)}}</td>
-                            <td class="text-right font-weight-bold">{{number_format($totNightBrkHrs,2)}}</td>
-                            <td class="text-right font-weight-bold">{{number_format($totSum,2)}}</td>
+                            <td colspan="3" class="text-right">Итого:</td>
+                            <td class="text-right font-weight-bold">{{number_format($totDayHrs,2)}}
+                                <div  class="small">{{number_format($totDayHrs/$npp/$max_hrs*100, 1)}}%</div></td>
+                            <td class="text-right font-weight-bold">{{number_format($totNightHrs,2)}}
+                                <div  class="small">{{number_format($totNightHrs/$npp/$max_hrs*100, 1)}}%</div></td>
                         </tr>
                     </table>
                     {{-- ------------------------------------------------------------------------------------------}}
