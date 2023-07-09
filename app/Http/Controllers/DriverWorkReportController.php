@@ -264,7 +264,7 @@ class DriverWorkReportController extends Controller
         $data->years = Cache::remember('driver_works_years', now()->addMinutes(55)
             , function () {
                 return driver_work::selectRaw("year(wrkdate) as year")
-                    ->whereNotNull('wrkhrs')
+                    ->whereNotNull('wrkenddt')
                     ->distinct()->orderby('year')
                     ->get()->pluck('year', 'year')->toArray();
             });
@@ -274,7 +274,7 @@ class DriverWorkReportController extends Controller
         $data->monthes = Cache::remember('driver_works_monthes', now()->addMinutes(15)
             , function () {
                 return driver_work::selectRaw("month(wrkdate) as month")
-                    ->whereNotNull('wrkhrs')
+                    ->whereNotNull('wrkenddt')
                     ->distinct()->orderby('month')
                     ->get()->pluck('month', 'month')->toArray();
             });
