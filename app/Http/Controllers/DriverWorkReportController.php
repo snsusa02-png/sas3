@@ -201,12 +201,14 @@ class DriverWorkReportController extends Controller
         $cd = $curdate->format('Y-m-d');
         $month = date("n");
         $yearQuarter = ceil($month / 3);
+        $year_month=$year.'-'.$month;
 
         $param_names = [
             's_pageitmcnt' => 20
             , 's_ownorgid' => '' //Auth::user()->curorgid
-            , 's_month' => $month
-            , 's_year' => $year
+//            , 's_month' => $month
+//            , 's_year' => $year
+            , 's_year_month' => $year_month
         ];
 
         $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);
@@ -217,13 +219,20 @@ class DriverWorkReportController extends Controller
 
         $recs = null;
 
-        $s_year = $search_params['s_year'];
-        $s_month = $search_params['s_month'];
+//        $s_year = $search_params['s_year'];
+//        $s_month = $search_params['s_month'];
+        //$tstdate = new DateTime($s_year . '-' . $s_month . '-01');
 
-        $tstdate = new DateTime($s_year . '-' . $s_month . '-01');
+        $year_month = $search_params['s_year_month'];
+        $tstdate = new DateTime($year_month . '-01');
         $begdate = $tstdate->format('Y-m-d');
         $enddate = $tstdate->format('Y-m-t');
-//        dd( $tstdate, $begdate, $enddate, $tstdate->format('t'));
+        //dd( $tstdate, $begdate, $enddate, $tstdate->format('t'));
+
+        $tmp_arr = explode ("-", $year_month);
+        $search_params['s_year'] = $tmp_arr[0]??'';
+        $search_params['s_month'] = $tmp_arr[1]??'';
+//        dd($search_params);
 
         if ($begdate <> '' and $enddate <> '') {
 
@@ -254,7 +263,7 @@ class DriverWorkReportController extends Controller
             report::updUseCnt($report_id, $userid, \Auth::user()->name);
 
             //занесем в журнал
-            objlog::log_info(855, $report_id, 'запрошен отчет; ' . $s_year . ' ' . $s_month);
+            objlog::log_info(855, $report_id, 'запрошен отчет; ' . $year_month);
         } else {
             $recs = null;
         }
@@ -283,6 +292,19 @@ class DriverWorkReportController extends Controller
             $data->monthes[$val] = $month_names[$key];
         }
         //dd($data->monthes);
+
+        $sql = "select year(wrkdate) as year, month(wrkdate) as month, count(DISTINCT day(wrkdate)) as days
+                    from driver_works
+                    where wrkenddt is not null
+                    group by year(wrkdate), month(wrkdate)
+                    order by 1 desc, 2 desc";
+        $yms = DB::select(DB::raw($sql));
+//        dd($yms);
+        $data->yms = [];
+        foreach ($yms as $ym) {
+            $data->yms[$ym->year.'-'.$ym->month] = $ym->year.', '.$month_names[$ym->month];
+        }
+        //dd($data->yms);
 
         $data->begdate = $begdate;
         $data->enddate = $enddate;
