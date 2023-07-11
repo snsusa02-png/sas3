@@ -304,6 +304,14 @@ $action_url = route('reports.rep' . $thisObjId);
                                 $daySum = $dayRaidQty = 0;
                                 ?>
                             @endif
+                            @if( $rec->suporgid <> $curOwnOrgID)
+                                <tr>
+                                    <td colspan="9" class="font-weight-bold font-italic">{{$rec->ownorgname}}</td>
+                                </tr>
+                                <?php
+                                $curOwnOrgID = $rec->suporgid;
+                                ?>
+                            @endif
                             <?php
                             $td_class = ($rec->org_saldo < 0) ? 'text-danger' : (($rec->org_saldo > 0) ? 'text-success' : '');
                             ?>
@@ -317,6 +325,7 @@ $action_url = route('reports.rep' . $thisObjId);
                                     <div
                                         class="text-center mt-1 small">{{date_create($rec->min_wrkdate)->format('d.m.Y')}}
                                         .. {{date_create($rec->max_wrkdate)->format('d.m.Y')}}</div>
+                                    <div class="text-right">{{$rec->ownorgname}}</div>
                                 </td>
                                 <td class="text-left small">{{$rec->dispuser_name}}</td>
                                 <td class="text-right small">{{$rec->raid_qty}}</td>
@@ -325,7 +334,7 @@ $action_url = route('reports.rep' . $thisObjId);
                                 <td class="text-right small">{{number_format($rec->unload_qty,2)}}
                                 <td class="text-right small">
                                     @if($rec->unload_qty>0)
-{{--                                        {{number_format($rec->unload_sum/$rec->unload_qty,2)}}--}}
+                                        {{--                                        {{number_format($rec->unload_sum/$rec->unload_qty,2)}}--}}
                                         {{number_format($rec->itm_price,2)}}
                                     @else
                                         0
@@ -403,6 +412,7 @@ $action_url = route('reports.rep' . $thisObjId);
                                 <td class="text-left "><span class="small"> {{$rec->load_placename}}</span>
                                     {{--                                    <span class="small ml-2">{{$rec->load_place_address??''}}</span>--}}
                                     <div>{{$rec->suporg_name}}</div>
+                                    <div class="text-right small">{{$rec->ownorg_name}}</div>
                                 </td>
                                 <td class="text-left small">{{$rec->refitm_name}}</td>
                                 <td class="text-center small">{{$rec->unit}}</td>

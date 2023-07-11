@@ -376,6 +376,9 @@ class MchnRaidReportController extends Controller
 
         $need_search = false;
         $sc = "1=1";
+        $sc1 = " and 1=1";
+        $sc2 = " and 1=1";
+        $sc3 = " and 1=1";
 
         foreach ($search_params as $item => $val) {
             if (isset($val) and strlen($val) > 0) {
@@ -386,8 +389,11 @@ class MchnRaidReportController extends Controller
 
 
                 if ($item == 's_ownorgid') {
-                    $sc = $sc . " and mr.load_ownorgid = '{$val}'";
-                    //$sc = $sc . " and '{$val}' in (mro.suporgid, mro.orgid)";
+                    ////$sc = $sc . " and '{$val}' in (mro.suporgid, mro.orgid)";
+                    //$sc = $sc . " and mr.load_ownorgid = '{$val}'";
+                    $sc1 = $sc1 . " and mro.suporgid = {$val}";
+                    $sc2 = $sc2 . " and mro.orgid = {$val}";
+                    $sc3 = $sc3 . " and mr.load_ownorgid = {$val}";
 
                 } elseif ($item == 's_orgid') {
                     //$sc = $sc . " and '{$val}' in (mro.suporgid, mro.orgid)";
@@ -423,7 +429,7 @@ class MchnRaidReportController extends Controller
                 ->leftjoin('orgs as oo', 'oo.id', 'mro.suporgid')
                 ->leftjoin('orgs as o', 'o.id', 'mro.orgid')
                 ->leftjoin('orgstaff as u_d', 'u_d.id', 'mro.disp_staffid')
-                ->whereRaw($sc)
+                ->whereRaw($sc . $sc1)
                 ->where('mro.sale_dir', +1);
 
 
@@ -448,20 +454,24 @@ class MchnRaidReportController extends Controller
                 //->groupBy(['mr.wrkdate', 'mro.suporgid', 'mro.orgid', 'mro.disp_staffid', 'mro.org_placeid', 'mro.refitmid'])
                 ->groupBy(['mro.suporgid', 'mro.orgid', 'mro.disp_staffid', 'mro.org_placeid', 'mro.refitmid', 'mro.itm_price'])
                 //->orderby('mr.wrkdate', 'asc')
+                ->orderby('ownorgname', 'asc')
+                ->orderby('suporgid', 'asc')
                 ->orderby('orgname', 'asc')
                 ->get();
             //dd($recs);
 
-            //2-й набор - группировка по местам погрузки
+            //2-й набор - группировка по местам погрузки (наши покупки у поставщиков)
             $recs2 = mr_oper::from('mr_opers as mro')
                 ->join('mchn_raids as mr', 'mr.id', 'mro.mr_id')
+                ->leftjoin('orgs as oo', 'oo.id', 'mro.orgid')
                 ->leftjoin('orgs as o', 'o.id', 'mro.suporgid')
                 ->leftjoin('org_places as p', 'p.id', 'mro.sup_placeid')
                 ->leftjoin('refitems as ri', 'ri.id', 'mro.refitmid')
-                ->whereRaw($sc)
+                ->whereRaw($sc . $sc2)
                 ->where('mro.sale_dir', -1)
                 ->select(
-                    'mro.suporgid', 'o.name as suporg_name'
+                    'mro.orgid as ownorgid', 'oo.name as ownorg_name'
+                    , 'mro.suporgid', 'o.name as suporg_name'
                     , 'mro.sup_placeid as load_placeid', 'p.name as load_placename', 'p.address as load_place_address'
                     , 'mro.itm_price as load_price'
                     , 'mro.refitmid'
@@ -470,6 +480,7 @@ class MchnRaidReportController extends Controller
                     , db::raw("sum(mro.itm_qty*mro.itm_price) as load_sum")
                     , 'ri.name as refitm_name'
                 )
+                ->groupBy('mro.orgid')
                 ->groupBy('mro.suporgid')
                 ->groupBy('mro.sup_placeid')
                 ->groupBy('mro.itm_price')
@@ -485,7 +496,7 @@ class MchnRaidReportController extends Controller
                 ->join('machines as m', 'm.id', 'mr.machineid')
                 ->join('orgstaff as os', 'os.id', 'mr.driverid')
                 ->leftjoin('driver_works as dw', 'dw.id', 'mr.dw_id')
-                ->whereRaw($sc)
+                ->whereRaw($sc . $sc3)
                 ->select(
                     'mr.machineid', db::raw("concat(m.name,' ',m.regnum) as machine_name")
                     , 'mr.driverid', 'os.name as driver_name'
