@@ -128,6 +128,10 @@ class DriverWorkReportController extends Controller
         , sum(dw.day_brkhrs) day_brkhrs
         , sum(dw.night_brkhrs) night_brkhrs
         , sum(dw.breaks_sum) breaks_sum
+        , sum(dw.day_brkhrs + dw.night_brkhrs) brkhrs
+        , SUM( (select sum(day_hrs+night_hrs) from dw_breaks b where b.dw_id=dw.id and b.wrktypeid=11)) as brk_11_hrs
+        , SUM( (select sum(day_hrs+night_hrs) from dw_breaks b where b.dw_id=dw.id and b.wrktypeid=21)) as brk_21_hrs
+        , SUM( (select sum(day_hrs+night_hrs) from dw_breaks b where b.dw_id=dw.id and b.wrktypeid=22)) as brk_22_hrs
         FROM `driver_works` as dw
         where 1=1
             and year(dw.wrkdate)={$s_year}

@@ -210,22 +210,26 @@ $action_url = route('reports.rep' . $thisObjId);
                             <td rowspan="2" class="small text-right">#пп</td>
                             <td rowspan="2">Работник</td>
                             <td rowspan="1" colspan="2" class="text-center">Работа, час</td>
-                            <td rowspan="1" colspan="2" class="text-center">Простой, час</td>
+                            <td rowspan="1" colspan="4" class="text-center">Простой, час</td>
                             <td rowspan="2" class="text-center">Сумма, руб</td>
                         </tr>
                         <tr align="center">
                             <td>День</td>
                             <td>Ночь</td>
-                            <td>День</td>
-                            <td>Ночь</td>
+                            <td>Всего</td>
+                            <td class="small">в т.ч. ремонт</td>
+                            <td class="small">в т.ч. сон</td>
+                            <td class="small">в т.ч. простой</td>
                         </tr>
                         <?php
                         $npp = 0;
                         $totSum = 0;
                         $totDayWrkHrs = 0;
                         $totNightWrkHrs = 0;
-                        $totDayBrkHrs = 0;
-                        $totNightBrkHrs = 0;
+                        $totBrkHrs = 0;
+                        $totBrk11Hrs = 0;
+                        $totBrk21Hrs = 0;
+                        $totBrk22Hrs = 0;
                         $totWrkHrs = 0;
                         ?>
                         @foreach($recs as $itm)
@@ -244,16 +248,19 @@ $action_url = route('reports.rep' . $thisObjId);
                                         class="small ml-2"> {{$itm->postname}}</span></td>
                                 <td class="text-right">{{number_format($itm->day_wrkhrs,2)}}</td>
                                 <td class="text-right">{{number_format($itm->night_wrkhrs,2)}}</td>
-                                <td class="text-right">{{number_format($itm->day_brkhrs,2)}}</td>
-                                <td class="text-right">{{number_format($itm->night_brkhrs,2)}}</td>
-                                <td class="text-right">{{number_format($itm->day_hr_sum + $itm->night_hr_sum + $itm->breaks_sum,2)}}</td>
+                                <td class="text-right">{{number_format($itm->brkhrs,2)}}</td>
+                                <td class="text-right small">{{number_format($itm->brk_11_hrs,2)}}</td>
+                                <td class="text-right small">{{number_format($itm->brk_21_hrs,2)}}</td>
+                                <td class="text-right small">{{number_format($itm->brk_22_hrs,2)}}</td>
+                                <td class="text-right small">{{number_format($itm->day_hr_sum + $itm->night_hr_sum + $itm->breaks_sum,2)}}</td>
                             </tr>
                             <?php
                             $totDayWrkHrs += $itm->day_wrkhrs;
                             $totNightWrkHrs += $itm->night_wrkhrs;
-                            $totDayBrkHrs += $itm->day_brkhrs;
-                            $totNightBrkHrs += $itm->night_brkhrs;
-                            //                            $totWrkHrs += $itm->day_wrkhrs + $itm->night_wrkhrs;
+                            $totBrkHrs += $itm->brkhrs;
+                            $totBrk11Hrs += $itm->brk_11_hrs;
+                            $totBrk21Hrs += $itm->brk_21_hrs;
+                            $totBrk22Hrs += $itm->brk_22_hrs;
                             $totSum += $itm->day_hr_sum + $itm->night_hr_sum + $itm->breaks_sum;
                             ?>
                         @endforeach
@@ -262,8 +269,10 @@ $action_url = route('reports.rep' . $thisObjId);
                             <td colspan="2" class="text-right">Итого:</td>
                             <td class="text-right font-weight-bold">{{number_format($totDayWrkHrs,2)}}</td>
                             <td class="text-right font-weight-bold">{{number_format($totNightWrkHrs,2)}}</td>
-                            <td class="text-right font-weight-bold">{{number_format($totDayBrkHrs,2)}}</td>
-                            <td class="text-right font-weight-bold">{{number_format($totNightBrkHrs,2)}}</td>
+                            <td class="text-right font-weight-bold">{{number_format($totBrkHrs,2)}}</td>
+                            <td class="text-right font-weight-bold small">{{number_format($totBrk11Hrs,2)}}</td>
+                            <td class="text-right font-weight-bold small">{{number_format($totBrk21Hrs,2)}}</td>
+                            <td class="text-right font-weight-bold small">{{number_format($totBrk22Hrs,2)}}</td>
                             <td class="text-right font-weight-bold">{{number_format($totSum,2)}}</td>
                         </tr>
                     </table>
