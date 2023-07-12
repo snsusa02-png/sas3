@@ -12,6 +12,7 @@
         <tr><td colspan="11"></td> </tr>
 
         <tr valign="top">
+            <td width="20">Поставщик</td>
             <td width="20">Компания/физ. лицо</td>
             <td width="20">Диспетчер</td>
             <td width="13">Кол-во рейсов</td>
@@ -43,7 +44,7 @@
             @if(1==0 and $wrkdate<>$curPayDate)
                 @if($curPayDate <>-1 )
                     <tr >
-                        <td colspan="2" style="background-color: #fcf9c2;">Итого за {{$curPayDate}}:</td>
+                        <td colspan="3" style="background-color: #fcf9c2;">Итого за {{$curPayDate}}:</td>
                         <td style="background-color: #fffee8; font-weight: bold">{{number_format($dayRaidQty,0)}}</td>
                         <td style="background-color: #fffee8;"></td>
                         <td style="background-color: #fffee8;"></td>
@@ -71,6 +72,8 @@
             ?>
             <tr class="text-left">
                 <td class="small" style="text-align: center" colspan="1">
+                    {{$rec->ownorgname}}
+                </td><td class="small" style="text-align: center" colspan="1">
                     {{$rec->orgname}}
                 </td>
                 <td class="text-left small" style="">{{$rec->dispuser_name}}</td>
@@ -118,7 +121,7 @@
             @endif
 
             <tr>
-                <td colspan="2" align="right" style="font-weight: bold">Всего:</td>
+                <td colspan="3" align="right" style="font-weight: bold">Всего:</td>
                 <td style="font-weight: bold">{{$totRaidQty}}</td>
                 <td></td>
                 <td></td>

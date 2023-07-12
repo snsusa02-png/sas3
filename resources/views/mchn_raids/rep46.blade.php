@@ -399,7 +399,6 @@ $action_url = route('reports.rep' . $thisObjId);
                             <td class="text-right">Цена за ЕИ, &#8381;</td>
                             <td class="text-right">Сумма, &#8381;</td>
                         </tr>
-
                         </thead>
                         <tbody>
                         <?php

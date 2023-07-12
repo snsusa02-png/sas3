@@ -432,7 +432,6 @@ class MchnRaidReportController extends Controller
                 ->whereRaw($sc . $sc1)
                 ->where('mro.sale_dir', +1);
 
-
             $recs = $recs->select(
                 'mro.suporgid', 'oo.name as ownorgname'
                 , 'mro.orgid', db::raw("max(o.name) as orgname")
@@ -485,6 +484,8 @@ class MchnRaidReportController extends Controller
                 ->groupBy('mro.sup_placeid')
                 ->groupBy('mro.itm_price')
                 ->groupBy('mro.refitmid')
+                ->orderby('oo.name', 'asc')
+                ->orderby('mro.orgid', 'asc')
                 ->orderby('p.name', 'asc')
                 ->orderby('ri.name', 'asc')
                 ->get();
