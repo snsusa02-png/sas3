@@ -107,6 +107,8 @@ class wrhdoclst extends Model
         // если для типа документа запрещено брать товар из запасов любой организации, то
         if ($doc->doctype->any_ownorg == 0) $sc = "ownorgid={$ownorgid}";
 
+        $sc .= ' and qty>0';
+        
         $stock = wrh_stock::where('refitmid', $refitmid)
             ->where(['wrhid' => $wrhid, 'boxid' => $boxid])
             ->whereRaw($sc)
@@ -293,7 +295,6 @@ class wrhdoclst extends Model
         //self::cache_clear($rec);
 
     }
-
 
 
 }

@@ -121,6 +121,7 @@ class DriverWorkReportController extends Controller
             $sql = " select staffid, os.name as staff_name, os.lname as staff_lname, os.fname as staff_fname, os.mname as staff_mname
             , os.postname, a.* from (
     SELECT dw.staffid, DATE_FORMAT(dw.wrkdate,'%Y-%m') as ym
+        , count( distinct dw.wrkdate) as wrkdate_cnt
         , sum(dw.day_wrkhrs) day_wrkhrs
         , sum(dw.day_wrkhrs*dw.day_hr_rate) day_hr_sum
         , sum(dw.night_wrkhrs) night_wrkhrs
