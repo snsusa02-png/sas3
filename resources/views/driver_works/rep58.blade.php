@@ -209,7 +209,7 @@ $action_url = route('reports.rep' . $thisObjId);
                         <tr>
                             <td rowspan="2" class="small text-right">#пп</td>
                             <td rowspan="2">Работник</td>
-                            <td rowspan="2" class="text-center">Раб.<br>дней</td>
+                            <td rowspan="2" class="text-center">Раб.<br>drдней</td>
                             <td rowspan="1" colspan="2" class="text-center">Работа, час</td>
                             <td rowspan="1" colspan="4" class="text-center">Простой, час</td>
                             <td rowspan="2" class="text-center">Сумма, руб</td>

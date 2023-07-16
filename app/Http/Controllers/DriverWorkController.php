@@ -306,8 +306,11 @@ class DriverWorkController extends Controller
             //---------------------------------------------------------------------------------------
 
         }
+//        $rec->begtime = (isset($rec->wrkbegdt)) ? strftime('%H:%M', strtotime($rec->wrkbegdt)) : '';
+        //2023-07-16 используем пустоту wrkenddt как признак "новой" записи и для удобства ввода занулим и начальное время
+        // - по настоятельной просьбе Анастасии
+        $rec->begtime = (isset($rec->wrkbegdt) and isset($rec->wrkenddt)) ? strftime('%H:%M', strtotime($rec->wrkbegdt)) : '';
 
-        $rec->begtime = (isset($rec->wrkbegdt)) ? strftime('%H:%M', strtotime($rec->wrkbegdt)) : '';
         $rec->wrkenddate = (isset($rec->wrkenddt)) ? date_create($rec->wrkenddt)->format('Y-m-d') : '';
         $rec->endtime = (isset($rec->wrkenddt)) ? strftime('%H:%M', strtotime($rec->wrkenddt)) : '';
         if (isset($rec->wrkbegdt) and isset($rec->wrkenddt)) {
