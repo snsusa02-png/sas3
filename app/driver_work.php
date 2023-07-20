@@ -269,11 +269,23 @@ class driver_work extends Model
                 . " and TIMESTAMPDIFF(year, ifnull(os.begdate,'{$wrkdate}'), '{$wrkdate}' ) between i.min_wrkexp and i.max_wrkexp-0.001";
 //            $rates = DB::select(DB::raw($sql));
 
+            $payrolltypeid = stf_payrolltype::from('stf_payrolltypes as spt')
+                    ->where('staffid', $staffid)
+                    ->whereRaw("'{$wrkdate}' between spt.begdate and ifnull(spt.enddate,'{$wrkdate}')")
+                    ->first()
+                    ->payrolltypeid ?? 1;
+//dd($payrolltypeid);
+
             $rates = srs_hr_item::from('srs_hr_items as i')
                 ->join('salary_rate_sets as srs', 'srs.id', 'i.srs_id')
                 ->join('orgstaff as os', 'os.id', '=', DB::raw($staffid))
+//                ->leftJoin('stf_payrolltypes as spt', function ($j) use ($wrkdate) {
+//                    $j->on('spt.staffid', '=', 'os.id')
+//                        ->whereRaw("'{$wrkdate}' between spt.begdate and ifnull(spt.enddate,'{$wrkdate}')");
+//                })
                 ->where('i.wrktypeid', $wrktypeid)
-                ->where('srs.payrolltypeid', 1) //to-do - взять из карточки сотрудника
+//                ->where('srs.payrolltypeid', db::raw("ifnull(spt.payrolltypeid, 1)"))
+                ->where('srs.payrolltypeid', $payrolltypeid)
                 ->whereRaw('ifnull(srs.ownorgid,os.orgid)=os.orgid')
                 ->whereRaw("'{$wrkdate}' between srs.begdate and ifnull(srs.enddate,'{$wrkdate}')")
                 ->whereRaw("TIMESTAMPDIFF(year, ifnull(os.begdate,'{$wrkdate}'), '{$wrkdate}' ) between i.min_wrkexp and i.max_wrkexp-0.001")

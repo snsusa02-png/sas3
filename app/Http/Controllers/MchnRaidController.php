@@ -1051,10 +1051,16 @@ class MchnRaidController extends Controller
                 ->first()->toArray();
 
             //$list['test']=12345;
+            $wrkdate = $request->wrkdate;
             $rates = srs_hr_item::from('srs_hr_items as i')
                 ->join('salary_rate_sets as srs', 'srs.id', 'i.srs_id')
                 ->join('orgstaff as os', 'os.id', '=', DB::raw($request->driverid))
-                ->where('srs.payrolltypeid', 1) //to-do - взять из карточки сотрдника
+                //->where('srs.payrolltypeid', 1) //to-do - взять из карточки сотрдника
+                ->leftJoin('stf_payrolltypes as spt', function ($j) use ($wrkdate) {
+                    $j->on('spt.staffid', '=', 'os.id')
+                        ->whereRaw("'{$wrkdate}' between spt.begdate and ifnull(spt.enddate,'{$wrkdate}')");
+                })
+                ->where('srs.payrolltypeid', db::raw("ifnull(spt.payrolltypeid, 1)"))
                 ->where('i.wrktypeid', $request->wrktypeid)
                 ->whereRaw('ifnull(srs.ownorgid,os.orgid)=os.orgid')
                 ->whereRaw("'{$request->wrkdate}' between srs.begdate and ifnull(srs.enddate,'{$request->wrkdate}')")
@@ -1078,7 +1084,6 @@ class MchnRaidController extends Controller
                 ->get()->toArray();
             $list['break_rates'] = $break_rates;
             //dd($list);
-
 
             $result = array('data' => $list);
             //Log::info(implode('; ', $list));
