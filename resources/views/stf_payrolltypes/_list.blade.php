@@ -38,7 +38,7 @@
                             @foreach($rec->stf_payrolltypes as $itm)
                                 <?php
                                 $period = date_create($itm->begdate)->format('d.m.Y')
-                                    . ' - ' . date_create($itm->enddate)->format('d.m.Y');
+                                    . ' - ' . ((isset($itm->enddate)) ? date_create($itm->enddate)->format('d.m.Y') : '...');
                                 ?>
                                 <tr>
                                     <td class="small text-center">{{$period}}</td>
