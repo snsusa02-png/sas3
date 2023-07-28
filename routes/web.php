@@ -393,6 +393,11 @@ Route::match(array('GET', 'POST'), 'usermanage/updatesysrights/{id}/{limsysobjid
 Route::match(array('POST', 'PUT'), 'usermanage/{id}', "UserManage@update")->name('users.update');
 Route::put('users/{id}/delete', "UserManage@destroy")->name("users.delete");
 Route::put('/setDefaultPassword/{userid}', 'UserManage@setDefaultPasswordForUser')->name('users.resetpassword');
+//Route::get('user_clone_rights/{id}', 'UserManage@clone_rights')->name('users.clone_rights');
+//Route::put('user_clone_rights_show', "UserManage@clone_rights_show")->name("users.clone_rights_show");
+//Route::match(array('POST', 'GET'), '/reports/rep/56', "OrgChargeController@rep56")->name('reports.rep56');
+Route::match(array('POST', 'GET'), '/user_clone_rights/{id}', "UserManage@clone_rights")->name('users.clone_rights');
+Route::match(array('GET', 'POST'), '/user_save_cloned_rights/{id}/{limsysobjid}/{limobjid}', "UserManage@save_cloned_rights")->name("users.save_cloned_rights");
 
 //Категории информации, доступные пользователю
 Route::get('user_acs/create/{userid}/', "UserAcController@create")->name('user_acs.create');
@@ -960,6 +965,29 @@ Route::match(array('GET', 'POST'), '/reports', "ReportController@pub_index")->na
 
 Route::match(array('GET', 'POST'), '/salary', "ReportController@pub_index")->name("salary.tab_index");
 
+//payrolltypes - Схемы расчета заработной платы (ЗП)
+Route::match(array('GET', 'POST'), '/payrolltypes', "PayrolltypeController@index")->name("payrolltypes.index");
+Route::get('/payrolltypes/create/{parid}', "PayrolltypeController@create")->name('payrolltypes.create');
+Route::get('payrolltypes/{id}', 'PayrolltypeController@edit')->name('payrolltypes.edit');
+Route::match(array('POST', 'PUT'), 'payrolltypes/{id}', "PayrolltypeController@update")
+    ->name('payrolltypes.update');
+Route::put('payrolltypes/{id}/delete', "PayrolltypeController@destroy")->name("payrolltypes.delete");
+
+//salary_rate_sets - Группы ставок для схем расчета заработной платы (ЗП)
+//Route::match(array('GET', 'POST'), '/salary_rate_sets', "SalaryRateSetController@index")->name("salary_rate_sets.index");
+Route::get('/salary_rate_sets/create/{payrolltypeid}', "SalaryRateSetController@create")->name('salary_rate_sets.create');
+Route::get('salary_rate_sets/{id}', 'SalaryRateSetController@edit')->name('salary_rate_sets.edit');
+Route::match(array('POST', 'PUT'), 'salary_rate_sets/{id}', "SalaryRateSetController@update")
+    ->name('salary_rate_sets.update');
+Route::put('salary_rate_sets/{id}/delete', "SalaryRateSetController@destroy")->name("salary_rate_sets.delete");
+
+//srs_hr_items - По-часовые ставки схемы расчета заработной платы
+Route::get('/srs_hr_items/create/{srs_id}', "SrsHrItemController@create")->name('srs_hr_items.create');
+Route::get('srs_hr_items/{id}', 'SrsHrItemController@edit')->name('srs_hr_items.edit');
+Route::match(array('POST', 'PUT'), 'srs_hr_items/{id}', "SrsHrItemController@update")
+    ->name('srs_hr_items.update');
+Route::put('srs_hr_items/{id}/delete', "SrsHrItemController@destroy")->name("srs_hr_items.delete");
+
 //chargetypes - Справочник типов начислений/удержаний
 Route::match(array('GET', 'POST'), '/chargetypes', "ChargetypeController@index")->name("chargetypes.index");
 Route::get('/chargetypes/create/{parid}', "ChargetypeController@create")->name('chargetypes.create');
@@ -1173,6 +1201,12 @@ Route::match(array('GET', 'POST'), '/user_templates', "UserTemplateController@in
 Route::get('user_templates/{id}/edit', "UserTemplateController@edit")->name('user_templates.edit');
 Route::match(array('POST', 'PUT'), 'user_templates/{id}', "UserTemplateController@update")->name('user_templates.update');
 Route::get('user_templates/{id}/delete', "UserTemplateController@destroy")->name("user_templates.delete");
+
+// stf_payrolltypes - Способы расчета ЗП сотрудников (по периодам)
+Route::get('stf_payrolltypes/{staffid}/create', "StfPayrolltypeController@create")->name('stf_payrolltypes.create');
+Route::get('stf_payrolltypes/{id}/edit', "StfPayrolltypeController@edit")->name('stf_payrolltypes.edit');
+Route::match(array('POST', 'PUT'), 'stf_payrolltypes/{id}', "StfPayrolltypeController@update")->name('stf_payrolltypes.update');
+Route::get('stf_payrolltypes/{id}/delete', "StfPayrolltypeController@destroy")->name("stf_payrolltypes.delete");
 
 // stf_charges - в каких начислениях/удержания участвует сотрудник
 Route::get('stf_charges/{staffid}/create', "StfChargeController@create")->name('stf_charges.create');

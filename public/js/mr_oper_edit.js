@@ -60,7 +60,7 @@ $(document).ready(function () {
             else
                 k1 = 0.8;
 
-            const k2 = 0.1;
+            const k2 = 0.1;     // 10%
 
             var driver_sum = Math.round((itm_sum * k1 - agent_sum) * k2 * 100) / 100;
             driver_sum = (driver_sum < 0) ? 0 : driver_sum;

@@ -3,12 +3,20 @@
         <div class="card-header">
             Права
             @if ($usrrights['edtrights'])
+                <span class="float-right">
+                <a class="btn btn-sm btn-warning"
+                   href="{{ route('users.clone_rights', $rec->id) . '?returl='.url()->full() }}"
+                   title="Добавить права от другого пользователя"
+                   style1="float: right"
+                ><i class="fa fa-clone"></i>
+                </a>
                 <a class="btn btn-sm btn-info"
                    href="{{ route('users.sysrights', ['id'=>$rec->id, 'limsysobjid'=>0, 'limobjid'=>0]) . '?returl='.url()->full() }}"
                    title="Установить/Отозвать права пользователя"
-                   style="float: right"
+                   style1="float: right"
                 ><i class="fa fa-pencil"></i>
                 </a>
+                </span>
             @endif
 
         </div>

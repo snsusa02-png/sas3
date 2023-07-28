@@ -6,7 +6,9 @@ use App\bdgtacnttype;
 use App\doctype;
 use App\objflag;
 use App\orgdep;
+use App\payrolltype;
 use App\staff_post;
+use App\stf_payrolltype;
 use App\stforder;
 use App\sysobj;
 use App\Traits\Result;
@@ -68,9 +70,10 @@ class orgstaffController extends Controller
         $usrrights['agr2'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.agr2');
         //$usrrights['regpay'] = usrsysright::isUserHasRightByCode_cached($userid, $this->sysobjcode . '.regpay');
 
-        $usrrights['stf_salaries.read'] = usrsysright::isUserHasRightByCode_cached($userid,  'stf_salaries.read');
-        $usrrights['stf_charges.read'] = usrsysright::isUserHasRightByCode_cached($userid,  'stf_charges.read');
-        $usrrights['stf_chrg_calcs.read'] = usrsysright::isUserHasRightByCode($userid,  'stf_chrg_calcs.read');
+        $usrrights['stf_payrolltypes.read'] = usrsysright::isUserHasRightByCode_cached($userid, 'stf_payrolltypes.read');
+        $usrrights['stf_salaries.read'] = usrsysright::isUserHasRightByCode_cached($userid, 'stf_salaries.read');
+        $usrrights['stf_charges.read'] = usrsysright::isUserHasRightByCode_cached($userid, 'stf_charges.read');
+        $usrrights['stf_chrg_calcs.read'] = usrsysright::isUserHasRightByCode($userid, 'stf_chrg_calcs.read');
 
         $this->sysobjcode = $tmp_sysobjcode;
 
@@ -320,6 +323,19 @@ class orgstaffController extends Controller
             4 => 'высшее профессиональное'
         ];
 
+        // 2023-07-19 Stf_PayRollTypes
+        $rec->payrolltypes = payrolltype::lstFor(['active' => 1,]);
+
+        $prt = stf_payrolltype::where('staffid', $rec->id)
+            ->whereNull('enddate')
+            ->select('id', 'payrolltypeid','begdate')
+            ->first();
+        $rec->stf_payrolltype_id = $prt->id ?? null;
+        $rec->payrolltypeid = $prt->payrolltypeid ?? null;
+        $rec->payrolltype_begdate = $prt->begdate ?? null;
+
+//    dd( $rec->payrolltypes, $prt);
+
         if ($id <> -1) {
 
             $acl_sysobjcode = sysobj::acl_sysobjcode('stforders');
@@ -345,6 +361,15 @@ class orgstaffController extends Controller
                 ->orderBy('begdate', 'asc')
                 ->get();
             //dd($rec->staff_posts);
+
+            $rec->stf_payrolltypes = stf_payrolltype::from('stf_payrolltypes as spr')
+                ->Join('payrolltypes as prt', 'prt.id', 'spr.payrolltypeid')
+                ->where('staffid', $rec->id)
+                ->select('spr.id', 'spr.payrolltypeid', 'spr.begdate', 'spr.enddate'
+                    , 'prt.name as payrolltype_name')
+                ->orderBy('spr.begdate', 'desc')
+                ->get();
+            //dd($rec->stf_payrolltypes);
         }
 
         return view('orgstaff.edit', compact(['rec', 'usrrights']));
@@ -464,6 +489,10 @@ class orgstaffController extends Controller
             $os->hour_salary = $request->get('hour_salary');
             $os->day_salary = $request->get('day_salary');
 
+            $stf_payrolltype_id = $request->get('stf_payrolltype_id');
+            $payrolltypeid = $request->get('payrolltypeid');
+            $payrolltype_begdate = $request->get('payrolltypeid');
+//dd($payrolltypeid);
         }
 
         //$os->active = $request->get('active',1);
@@ -737,7 +766,7 @@ class orgstaffController extends Controller
         $usrrights = $this->setInterfaceRight(-1);
         $rec = new \stdClass();
 
-        return view($this->sysobjcode.'.load', compact('rec', "usrrights"));
+        return view($this->sysobjcode . '.load', compact('rec', "usrrights"));
     }
 
 

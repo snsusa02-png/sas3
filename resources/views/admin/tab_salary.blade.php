@@ -1,6 +1,15 @@
 <div class="tab-pane fade " id="nsi-salary" role="tabpanel" aria-labelledby="nsi-fsd-tab">
     <div class="list-group list-group-flush">
 
+        @if (\App\usrsysright::isUserHasRightByCode(\Auth::user()->id,'payrolltypes.read'))
+            <a href="{{route('payrolltypes.index')}}"
+               class="list-group-item list-group-item-action">Схемы расчета заработной платы
+                <div class="description small font-italic" style="margin-left:2em;">
+
+                </div>
+            </a>
+        @endif
+
         @if (\App\usrsysright::isUserHasRightByCode(\Auth::user()->id,'chargetypes.read'))
             <a href="{{route('chargetypes.index')}}"
                class="list-group-item list-group-item-action">Типы начислений/удержаний

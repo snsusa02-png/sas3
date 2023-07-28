@@ -228,15 +228,17 @@ class UserManage extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public
-    function edit($id)
+    public function edit($id)
     {
-        $rec = User::find($id);
-
+        //массив с правами на операции в интерфейсе
         $usrrights = $this->setInterfaceRight($id);
+
         if (!$usrrights['read']) {
             return view('home');
         }
+
+        $rec = User::find($id);
+
 
         //        $orgs = org::whereActive(1)->select('id', 'name')->pluck("name", "id")->prepend("", "");
 
@@ -293,8 +295,9 @@ class UserManage extends Controller
         //dd( $rec->user_acs);
 
         //массив с правами на операции в интерфейсе
-        $usrrights = $this->setInterfaceRight($rec->id);
+//        $usrrights = $this->setInterfaceRight($rec->id);
 
+        // Массив с правами редактируемого пользователя
         //$rec->usrsysrights = usrsysright::UserRightLst($id,111,1);
         $rec->usrsysrights = usrsysright::UserRightLst($id);
 
@@ -310,8 +313,7 @@ class UserManage extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public
-    function update(Request $request, $id)
+    public function update(Request $request, $id)
     {
         $request->validate([
             "lname" => "required",
@@ -524,4 +526,98 @@ class UserManage extends Controller
         }
         return redirect()->back()->with("error", "Пароль не изменен!");
     }
+
+    public function clone_rights(Request $request, $id)
+    {
+
+        //массив с правами на операции в интерфейсе
+        $usrrights = $this->setInterfaceRight($id);
+        if (!$usrrights['read']) {
+            return view('home');
+        }
+
+        $returl = $request->get('returl') ?? route('users.edit', $id);
+        $userid = \Auth::user()->id;
+
+        if ($request->isMethod('POST')){
+            $src_id = $request->src_id;
+            $tgt_id = $request->tgt_id;
+        }else{
+            $src_id = null;
+            $tgt_id = $id;
+        }
+        $data = new \stdClass();
+        $data->returl = $returl;
+        $data->src_id = $src_id;
+        $data->src_name = null;
+        $data->tgt_id = $tgt_id;
+        $data->userid = $tgt_id;
+        $data->tgt_name = null;
+
+        $usrsysrights = null;
+        if ($tgt_id <> '') {
+            $rec = User::find($tgt_id);
+            if (isset($rec)) {
+                $data->tgt_name = $rec->lname . ' ' . $rec->fname . ' ' . $rec->mname . ' ' . $rec->email;
+
+                $limsysobjid = null;
+                $limobjid = null;
+            }
+        }
+
+        if ($src_id <> '') {
+            $rec = User::find($src_id);
+            if (isset($rec))
+                $data->src_name = $rec->lname . ' ' . $rec->fname . ' ' . $rec->mname . ' ' . $rec->email;
+        }
+
+        if ($src_id <> '' and $tgt_id <> '') {
+            //Права, которые есть у пользователя-источника, но отсутствуют у пользователя-получателя
+            // Но также у пользователя, который занимается переносом прав должны быть административные права на передаваемые права
+            $sql = "SELECT f.id, sysfuncid, f.sysobjid as objid, f.adminrightid, o.code as objcode, o.name as objname, f.name as funcname
+                    FROM usrsysrights as s
+                    join sysfuncs as f on f.id = s.sysfuncid
+                    join sysobjs as o on o.id=f.sysobjid
+                    where s.userid={$src_id} and enddt is null
+                    -- У получателя не должно быть такого права
+                    and not exists (select 1 from usrsysrights as t where t.userid={$tgt_id} and t.sysfuncid=s.sysfuncid and enddt is null)
+                    -- Админ должен обладать правом администратора на передаваемые права
+                    and exists (select 1 from usrsysrights as ur where ur.userid={$userid} and ur.sysfuncid=f.adminrightid and enddt is null)
+                    order by o.ordr, o.name";
+
+            $sysfunclst = DB::select(DB::raw($sql));
+            //dd($sysfunclst);
+        } else {
+            $sysfunclst = null;
+        }
+        objlog::log_info($this->sysobjid, $tgt_id, $this->sysobjcode . ".clone_rights", 5);
+
+        return view($this->sysobjcode . '.clone_rights', compact('data', 'sysfunclst', 'usrrights'));
+    }
+
+    public
+    static function save_cloned_rights(Request $request, $id, $limsysobjid, $limobjid)
+    {
+        $limsysobjid = ($limsysobjid == 0) ? null : $limsysobjid;
+        $limobjid = ($limobjid == 0) ? null : $limobjid;
+
+        //теперь расставим переданные права
+        if (isset($request->rightid)) {
+            for ($x = 0; $x <= count($request->rightid) - 1; $x++) {
+                usrsysright::setUsrSysRight($id, $request->rightid[$x], $limsysobjid, $limobjid);
+            }
+        }
+
+        //Зачистим кэш прав ------------------------------------------------------------------
+        usrsysright::clearUserRightsCache($id);
+        //------------------------------------------------------------------------------------
+
+        objlog::log_info(3, $id, "обновлены права пользователя {$id}/{$limsysobjid}/{$limobjid}", 5);
+
+        //$retURL = $request->get('retURL') ?? route('users.edit', $id);
+        $retURL = route('users.edit', $id);
+        return redirect($retURL);
+
+    }
+
 }
