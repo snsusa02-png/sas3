@@ -1,6 +1,4 @@
 @extends('layouts.edit')
-
-
 @section('content')
     @guest
         <?php
@@ -427,6 +425,27 @@
                                                 </div>
 
                                                 <h4>ЗП</h4>
+{{--                                                <div class="row">--}}
+{{--                                                    <div class="col-md-8">--}}
+{{--                                                        <label for="fot_acnttypeid">Тип расчета ЗП:</label>--}}
+{{--                                                        <input type="hidden" name="stf_payrolltype_id"--}}
+{{--                                                               value="{{$rec->stf_payrolltype_idd}}">--}}
+{{--                                                        {!! Form::select('payrolltypeid', $rec->payrolltypes, $rec->payrolltypeid,--}}
+{{--                                                             [--}}
+{{--                                                             'id' => 'payrolltypeid',--}}
+{{--                                                             'class' => 'form-control small',--}}
+{{--                                                             'placeholder' => '-выбор-',--}}
+{{--                                                             ]) !!}--}}
+{{--                                                    </div>--}}
+{{--                                                    <div class="col-md-4">--}}
+{{--                                                        <div class="form-group">--}}
+{{--                                                            <label for="hour_salary">Начало действия:</label>--}}
+{{--                                                            <input type="date" class="form-control" name="enddate"--}}
+{{--                                                                   value="{{ old('enddate',$rec->enddate) }}"/>--}}
+{{--                                                        </div>--}}
+{{--                                                    </div>--}}
+{{--                                                </div>--}}
+
                                                 <div class="row">
                                                     <div class="col-md-4">
                                                         <label for="fot_acnttypeid">Источник ФОТ:</label>
@@ -615,7 +634,8 @@
                             @include('objfiles.obj_files')
                             @include('obj_contacts._contacts')
                             @include('obj_addresses._list')
-{{--                            @include('stf_charges._list')--}}
+                            @include('stf_payrolltypes._list')
+                            @include('stf_charges._list')
                             @include('stf_chrg_calcs._list')
                             @include('stf_salaries._list')
 {{--                            @include('objflags._flags')--}}
