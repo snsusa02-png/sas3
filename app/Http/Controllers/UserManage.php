@@ -60,7 +60,7 @@ class UserManage extends Controller
             'userorgs.read' => false,
             'userorgs.create' => false,
 
-            'acs.admin' => false,
+            'acs.admin' => usrsysright::isUserHasRightByCode($userid, 'acs.read'),
         );
 
         if ($rec_id == -1) {

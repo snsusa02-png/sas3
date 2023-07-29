@@ -667,7 +667,9 @@ class refitem extends Model
         }
         //------------------------------------------------------------------------------------
 
-        if (isset($in_compounds)) {
+        //if (isset($in_compounds)) {
+        //2023-07-29 По другому интерпретируем 0 - считаем, что он не несет ограничений
+        if (isset($in_compounds) and $in_compounds == 1) {
             $sc .= " and " . (($in_compounds == 1) ? '' : 'not') .
                 " exists (select 1 from ri_compounds as ric where ric.refitmid = ri.id and ric.docsigned=1";
             if (isset($cmpnd_ownorgid))
@@ -675,7 +677,6 @@ class refitem extends Model
             if (isset($cmpnd_on_date))
                 $sc .= " and '{$cmpnd_on_date}' between ric.begdate and if(ric.enddate is null, '{$cmpnd_on_date}', ric.enddate) ";
             $sc .= ")";
-
         }
 
         $rq = refitem::from('refitems as ri')
