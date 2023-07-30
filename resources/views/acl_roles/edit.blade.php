@@ -54,8 +54,8 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group">
-                                            <label for="name">Название роли:</label>
-                                            <input type="text" class="form-control" name="name"
+                                            <label for="name" class="required">Название роли:</label>
+                                            <input type="text" class="form-control" name="name" required
                                                    value="{{ $rec->name }}"/>
                                         </div>
                                     </div>

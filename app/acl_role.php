@@ -20,7 +20,7 @@ class acl_role extends Model
     static public $prefix = 'acl_roles';
     static public $sysobjid = 1551;
 
-    protected $fillable = ["name", "descript", "active", "created_by", "updated_by", "created_at", "updated_at"];
+    protected $fillable = ["id", "name", "descript", "active", "created_by", "updated_by", "created_at", "updated_at"];
 
     //'это обратное к $fillable. то есть все поля становятся заполняемыми
     //protected $guarded = [];

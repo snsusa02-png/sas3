@@ -52,10 +52,16 @@ class AclRoleController extends Controller
         $usrrights['delete'] = false;
         $usrrights['admindelete'] = ($recid <> -1 and usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.admindelete'));
 //        $usrrights['private_acs'] = ($recid <> -1 and usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.private_acs'));
-        $usrrights['private_acs'] = (usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.private_acs'));
+//        $usrrights['private_acs'] = (usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.private_acs'));
 
-        $usrrights['save'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.update');
-        $usrrights['delete'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.delete');
+        if ($recid == -1) {
+            // для новой записи
+            $usrrights['save'] = $usrrights['create'];
+
+        } else {
+            $usrrights['save'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.update');
+            $usrrights['delete'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.delete');
+        }
 
         return $usrrights;
     }
@@ -72,7 +78,7 @@ class AclRoleController extends Controller
 
         $usrrights = $this->setInterfaceRight(-1);
         if (!$usrrights['read']) {
-            return view('home');
+            return redirect()->back()->with('error', 'У вас нет права на доступ к этой информации!');
         }
 
 
@@ -134,13 +140,13 @@ class AclRoleController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create(Request $request, $orgid)
+    public function create(Request $request)
     {
         $usrrights = $this->setInterfaceRight(-1);
         if (!$usrrights['create'])
             return redirect()->back()->with('error', 'У вас нет права на создание записей!');
 
-        return $this->edit($request, -1, $orgid);
+        return $this->edit($request, -1);
     }
 
     /**
@@ -149,28 +155,28 @@ class AclRoleController extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(Request $request, $id, $orgid = null)
+    public function edit(Request $request, $id)
     {
         //
         $usrrights = $this->setInterfaceRight($id);
+//        dd($usrrights);
         if (!$usrrights['read'])
             return redirect()->back()->with('error', 'У вас нет права на доступ к этой информации!');
 
         $userid = \Auth::user()->id;
 
         if ($id == -1) {
-            $orgid = ($orgid == 0) ? null : $orgid;
             $rec = new acl_role([
                 'id' => -1,
                 'active' => 1,
                 'created_by' => $userid,
             ]);
-            //dd($rec);
+//            dd($rec);
         } else
             $rec = acl_role::find($id);
 
         if (!isset($rec))
-            return redirect(route('orgs.index'))->with(['error' => 'Запись не найдена!']);
+            return redirect(route($this->sysobjcode . '.index'))->with(['error' => 'Запись не найдена!']);
 
         $rec->retURL = $request->get('returl');
 
@@ -188,6 +194,9 @@ class AclRoleController extends Controller
                 ->select('u.id', 'u.name', 'u.email')
                 ->orderby('u.name')
                 ->get();
+        }else{
+            $rec->role_rights=[];
+            $rec->role_users=[];
         }
 
         objlog::log_info($this->sysobjid, $rec->id, $this->sysobjcode . ".edit", 5);

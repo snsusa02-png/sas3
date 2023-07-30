@@ -1,4 +1,4 @@
-@if((isset($rec->role_rights) and count($rec->role_rights)>0) or $usrrights['save'])
+@if(($rec->id <> -1 and isset($rec->role_rights) and (count($rec->role_rights)>0 or $usrrights['save'])))
     <div class="card mt-3">
         <div class="card-header">
             Права

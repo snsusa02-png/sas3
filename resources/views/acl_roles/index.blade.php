@@ -60,7 +60,7 @@
                                 <td class="text-center">Статус</td>
                                 <td style="text-align: center;">
                                     @if ($usrrights['create'])
-                                        <a href="{{ route($sysobjcode.'.create',0)}}" class="btn btn-warning btn-sm">
+                                        <a href="{{ route($sysobjcode.'.create')}}" class="btn btn-warning btn-sm">
                                             <i class="fa fa-plus"></i>
                                         </a>
                                     @endif
