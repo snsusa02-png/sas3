@@ -28,5 +28,3 @@ bdgtacnttypes,U,id
 informers,U,id
 task_statuses,U,id
 wrhdoctypes,U,id
-acl_roles,U,id
-acl_role_rights,U,id
