@@ -711,7 +711,7 @@ class refitem extends Model
             ->orderby('itname')
             ->orderby('ri.name');
 
-        $s_isservice = $request->get("svc");
+        //Услуга?
         if (isset($s_isservice)) {
             $rq = $rq->where('t.isservice', $s_isservice);
         }

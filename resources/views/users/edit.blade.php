@@ -202,6 +202,8 @@
 
                     @include('users._usrsysrights')
 
+                    @include('users._user_roles')
+
                 </div>
     @endif
 @endsection

@@ -393,9 +393,6 @@ Route::match(array('GET', 'POST'), 'usermanage/updatesysrights/{id}/{limsysobjid
 Route::match(array('POST', 'PUT'), 'usermanage/{id}', "UserManage@update")->name('users.update');
 Route::put('users/{id}/delete', "UserManage@destroy")->name("users.delete");
 Route::put('/setDefaultPassword/{userid}', 'UserManage@setDefaultPasswordForUser')->name('users.resetpassword');
-//Route::get('user_clone_rights/{id}', 'UserManage@clone_rights')->name('users.clone_rights');
-//Route::put('user_clone_rights_show', "UserManage@clone_rights_show")->name("users.clone_rights_show");
-//Route::match(array('POST', 'GET'), '/reports/rep/56', "OrgChargeController@rep56")->name('reports.rep56');
 Route::match(array('POST', 'GET'), '/user_clone_rights/{id}', "UserManage@clone_rights")->name('users.clone_rights');
 Route::match(array('GET', 'POST'), '/user_save_cloned_rights/{id}/{limsysobjid}/{limobjid}', "UserManage@save_cloned_rights")->name("users.save_cloned_rights");
 
@@ -1382,3 +1379,19 @@ Route::get('informers/create', "InformerController@create")->name('informers.cre
 Route::get('informers/{id}', 'InformerController@edit')->name('informers.edit');
 Route::match(array('POST', 'PUT'), 'informers/{id}', "InformerController@update")->name('informers.update');
 Route::put('informers/{id}/delete', "InformerController@destroy")->name("informers.delete");
+
+// Роли доступа для пользователей --------------------------------------------------------------------------------------
+Route::match(array('GET', 'POST'), '/acl_roles', "AclRoleController@index")->name('acl_roles.index');
+Route::get('acl_roles/create', "AclRoleController@create")->name('acl_roles.create');
+Route::get('acl_roles/{id}', 'AclRoleController@edit')->name('acl_roles.edit');
+Route::match(array('POST', 'PUT'), 'acl_roles/{id}', "AclRoleController@update")->name('acl_roles.update');
+Route::put('acl_roles/{id}/delete', "AclRoleController@destroy")->name("acl_roles.delete");
+Route::get('acl_role_rights/{id}/edt', 'AclRoleController@edtRoleRights')->name('acl_roles.edit_rights');
+Route::match(array('GET', 'POST'), 'acl_role_rights/update/{id}', "AclRoleController@updRoleRights")
+    ->name("acl_roles.update_rights");
+
+//Роли доступа пользователя
+Route::get('user_acl_roles/create/{userid}/', "UserAclRoleController@create")->name('user_acl_roles.create');
+Route::get('user_acl_roles/{id}/', 'UserAclRoleController@edit')->name('user_acl_roles.edit');
+Route::match(array('POST', 'PUT'), 'user_acl_roles/{id}', "UserAclRoleController@update")->name('user_acl_roles.update');
+Route::put('user_acl_roles/{id}/delete', "UserAclRoleController@destroy")->name("user_acl_roles.delete");

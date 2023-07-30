@@ -4,6 +4,8 @@
 		@if (\App\usrsysright::isUserHasRightByCode(\Auth::user()->id,'users.read'))
 			<a href="{{route('users.index')}}"
 			   class="list-group-item list-group-item-action">Пользователи</a>
+			<a href="{{route('acl_roles.index')}}"
+			   class="list-group-item list-group-item-action">Роли доступа</a>
 		@endif
 {{--        @dd(\App\usrsysright::isUserHasRightByCode(\Auth::user()->id,'acs.admin'))--}}
 

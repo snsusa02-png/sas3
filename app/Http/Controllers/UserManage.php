@@ -15,6 +15,7 @@ use App\sysrole;
 use App\Traits\SearchDataTrait;
 use App\User;
 use App\user_ac;
+use App\user_acl_role;
 use App\userorg;
 use App\usrsysright;
 use App\usrsysrole;
@@ -293,6 +294,14 @@ class UserManage extends Controller
             ->orderby('ac.name')
             ->get();
         //dd( $rec->user_acs);
+
+        $rec->user_roles = user_acl_role::from('user_acl_roles as uar')
+            ->join('acl_roles as ar', 'ar.id', 'uar.roleid')
+            ->where('uar.userid', $rec->id)
+            ->select('uar.id','uar.roleid', 'ar.name as role_name','uar.reason','uar.active')
+            ->orderby('ar.name')
+            ->get();
+        //dd( $rec->user_roles);
 
         //массив с правами на операции в интерфейсе
 //        $usrrights = $this->setInterfaceRight($rec->id);

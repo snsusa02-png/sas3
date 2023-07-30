@@ -30,3 +30,5 @@ task_statuses,U,id
 wrhdoctypes,U,id
 payrolltypes,U,id
 salary_rate_sets,U,id
+acl_roles,U,id
+acl_role_rights,U,id

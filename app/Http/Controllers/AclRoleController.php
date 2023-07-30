@@ -2,30 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\chargetype;
-use App\doctype;
+use App\acl_role;
+use App\acl_role_right;
 use App\objflag;
 use App\objlog;
 use App\org;
-use App\orgstaff;
-use App\payrolltype;
-use App\salary_rate_set;
-use App\stf_chrg_calc;
-use App\stforder;
+use App\sysfunc;
 use App\sysobj;
 use App\Traits\Result;
 use App\Traits\SearchDataTrait;
 use App\Traits\snsTrait;
+use App\User;
+use App\user_acl_role;
 use App\usrsysright;
-use App\workertype;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class PayrolltypeController extends Controller
+class AclRoleController extends Controller
 {
     use SearchDataTrait;
     use snsTrait;
@@ -34,8 +28,8 @@ class PayrolltypeController extends Controller
     {
         $this->middleware('auth');
 
-        $this->sysobjid = 1221;
-        $this->sysobjcode = 'payrolltypes';
+        $this->sysobjid = 1551;
+        $this->sysobjcode = 'acl_roles';
         $this->acl_sysobjcode = sysobj::acl_sysobjcode($this->sysobjcode);
     }
 
@@ -52,7 +46,7 @@ class PayrolltypeController extends Controller
         $usrrights = array();
         $usrrights['read'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.read');
         $usrrights['create'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.create');
-        $usrrights['load'] = usrsysright::isUserHasRightByCode_cached($userid, 'admin-global');
+        //$usrrights['load'] = usrsysright::isUserHasRightByCode_cached($userid, 'admin-global');
 
         $usrrights['save'] = false;
         $usrrights['delete'] = false;
@@ -62,18 +56,6 @@ class PayrolltypeController extends Controller
 
         $usrrights['save'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.update');
         $usrrights['delete'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.delete');
-
-
-        $tmp_sysobjcode = $this->sysobjcode;
-        $this->sysobjcode = 'orgplnpays';
-
-        $usrrights['agr1'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.agr1');
-        $usrrights['agr2'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.agr2');
-        //$usrrights['regpay'] = usrsysright::isUserHasRightByCode_cached($userid, $this->sysobjcode . '.regpay');
-
-        $usrrights['stf_salaries.read'] = usrsysright::isUserHasRightByCode_cached($userid, 'stf_salaries.read');
-
-        $this->sysobjcode = $tmp_sysobjcode;
 
         return $usrrights;
     }
@@ -100,33 +82,30 @@ class PayrolltypeController extends Controller
         $param_names = [
             's_pageitmcnt' => 10
             , 's_active' => '1'
-            , 's_orgflagid' => 12
-            , 's_orgid' => ''
             , 's_name' => ''
-            , 's_dir' => ''
-            , 's_file_doctypeid' => ''
         ];
 
         $search_params = $this->search_params($request, $param_names);
         //сформируем условие запроса в БД -----------------------
-        $sc = payrolltype::search_cond($search_params);
+        $sc = acl_role::search_cond($search_params);
         //dd($sc);
         //-------------------------------------------------------
 
-        $recs = payrolltype::from('payrolltypes as prt')
+        $recs = acl_role::from('acl_roles as ar')
             ->whereraw($sc)
-            ->select('prt.id', 'prt.name', 'prt.descript', 'prt.active');
+            ->select('ar.id', 'ar.name', 'ar.descript', 'ar.active'
+                , db::raw('(select count(1) from acl_role_rights as r where r.roleid=ar.id) as rights_cnt')
+            );
 
         //Сортировка пользователя ----------------------------------------
         $sort_params = session('sort_params_' . $this->sysobjcode . '.index');
 
-        $recs = $recs->orderBy('prt.ordr', 'asc');
-        $recs = $recs->orderBy('prt.name', 'asc');
+        $recs = $recs->orderBy('ar.name', 'asc');
         if (isset($sort_params)) {
             foreach ($sort_params as $prm)
                 $recs = $recs->orderBy($prm['field'], $prm['dir']);
         } else {
-            $recs = $recs->orderBy('prt.name', 'asc');
+            $recs = $recs->orderBy('ar.name', 'asc');
         }
         //----------------------------------------------------------------
 
@@ -145,10 +124,7 @@ class PayrolltypeController extends Controller
 
         $data->search_params = $search_params;
 
-        //$data->dirs = [1 => 'начисление', -1 => 'удержание'];
-        $data->statuses = [1 => 'актив', 0 => 'архив'];
-
-        //$data->file_doctypes = doctype::lstUsedForSysObj($this->sysobjid);
+        objlog::log_info($this->sysobjid, 0, $this->sysobjcode . ".index", 5);
 
         return view($this->sysobjcode . '.index', compact(['recs', 'data', 'usrrights']));
     }
@@ -184,16 +160,14 @@ class PayrolltypeController extends Controller
 
         if ($id == -1) {
             $orgid = ($orgid == 0) ? null : $orgid;
-            $rec = new payrolltype([
+            $rec = new acl_role([
                 'id' => -1,
-                'orgid' => $orgid,
-                'begdate' => date_create()->format('Y-m-d'),
                 'active' => 1,
                 'created_by' => $userid,
             ]);
             //dd($rec);
         } else
-            $rec = payrolltype::find($id);
+            $rec = acl_role::find($id);
 
         if (!isset($rec))
             return redirect(route('orgs.index'))->with(['error' => 'Запись не найдена!']);
@@ -202,45 +176,23 @@ class PayrolltypeController extends Controller
 
         //$data = new \stdClass();
 
-        //$rec->isownorg = org::isOwnOrg($rec->orgid);
-
-        $rec->orgs = org::lstFor([
-            'flagtypeid_or_id' => [12, $rec->orgid],
-        ]);
-
-        $rec->rate_sets = null;
-
-        /*       $rec->chargetypes = chargetype::lstFor([
-                   'active_or_current' => $rec->chargetypeid,
-               ]);
-               $rec->charge_periods = chargetype::charge_periods();
-       dd($rec->chargetypes, $rec->charge_periods);
-       */
-        $rec->userrights = [];
-
-        $rec->flags = objflag::FlagTypesForObj($this->sysobjid, $rec->id);
-
         if ($id <> -1) {
 
-            $rec->rate_sets = salary_rate_set::where('payrolltypeid', $rec->id)
-                ->orderby('begdate', 'desc')->get();
+            //Список прав, соответствующих роли
+            $rec->role_rights = acl_role_right::RoleRightLst($rec->id);
 
-            // Список сотрудников, использующих данную схему начисления в данный момент
-            $rec->ref_staff = orgstaff::from('orgstaff as os')
-                ->join('stf_payrolltypes as spr', 'spr.staffid', 'os.id')
-                ->where('spr.payrolltypeid', $rec->id)
-                ->wherenull('spr.enddate')
-                ->select('os.id', 'os.name', 'spr.begdate')
-                ->orderby('os.name')
+            // Список сотрудников, использующих данную роль
+            $rec->role_users = user_acl_role::from('user_acl_roles as uar')
+                ->join('users as u', 'u.id', 'uar.userid')
+                ->where('uar.roleid', $rec->id)
+                ->select('u.id', 'u.name', 'u.email')
+                ->orderby('u.name')
                 ->get();
-
-            $acl_sysobjcode = sysobj::acl_sysobjcode('stforders');
-            if (usrsysright::isUserHasRightByCode_cached($userid, $acl_sysobjcode . '.read')) {
-
-            }
         }
 
-        return view($this->sysobjcode.'.edit', compact(['rec', 'usrrights']));
+        objlog::log_info($this->sysobjid, $rec->id, $this->sysobjcode . ".edit", 5);
+
+        return view($this->sysobjcode . '.edit', compact(['rec', 'usrrights']));
     }
 
     /**
@@ -261,59 +213,40 @@ class PayrolltypeController extends Controller
             return redirect()->back()->with('error', 'У вас нет права на изменение записей!');
 
         $messages = [
-            'name.required' => 'Введите название схемы/способа расчета ЗП',
-            //'stdpostunit.gt' => 'Ставка не может быть равна нулю',
-            //'postname.required' => 'Укажите должность',
-//            'inn.digits' => 'В ИНН должно быть 12 цифр',
-//            'snils.size' => 'Длина СНИЛС должна быть 14 символов',
+            'name.required' => 'Введите название роли',
         ];
 
         $rules = [
             "name" => "required",
-            //"postname" => "required",
-            //'phone' => 'required|max:20',
-//            'inn' => 'nullable|digits:12',
-//            'snils' => 'nullable|size:14',
         ];
 
-        $orgid = $request->get('orgid');
-
-//        $strictDepPost = (orgdep::where('orgid', $orgid)->count() > 0);
-//
-//        if ($strictDepPost) {
-//            $rules['depid'] = 'required';
-//            $rules['postid'] = 'required';
-//            $rules['stdpostunit'] = 'required|gt:0';
-//        }
-        //dd($rules);
-
         $request->validate($rules, $messages);
-        //$request->validate($rules, $messages)->validateWithBag('post');
 
         $userid = \Auth::user()->id;
 
         $mess = "";
         if ($id == -1) {
-            $os = new payrolltype();
-            $os->created_by = $userid;
-            $os->created_at = now();
+            $rec = new acl_role();
+            $rec->created_by = $userid;
+            $rec->created_at = now();
             $mess = "Создана запись о применяемом начислении для сотрудника";
         } else {
-            $os = payrolltype::find($id);
+            $rec = acl_role::find($id);
             $mess = "Изменена запись о применяемом начислении для сотрудника";
         }
-        $os->name = $request->get('name');
-        $os->descript = mb_substr($request->get('descript'), 0, 360);
+        $rec->name = $request->get('name');
+        $rec->descript = mb_substr($request->get('descript'), 0, 360);
 
-        $os->ordr = $request->get('ordr');
-        $os->active = $request->get('active') ?? 1;
-        $os->updated_by = $userid;
-        $os->save();
+        $rec->active = $request->get('active') ?? 1;
+        $rec->updated_by = $userid;
+        $rec->save();
 
-        //Cache::forget('org_aux_staff_.' . $os->orgid);
+        objlog::log_info($this->sysobjid, $rec->id, $this->sysobjcode . ".update", 5);
+
+        //Cache::forget('org_aux_staff_.' . $rec->orgid);
 
         $retURL = $request->get('returl') ?? route($this->sysobjcode . '.index')
-            . '?page=' . session($this->sysobjcode . '_pageno') . '#' . $os->id;
+            . '?page=' . session($this->sysobjcode . '_pageno') . '#' . $rec->id;
 
         return redirect($retURL)->with('success', $mess);
     }
@@ -336,14 +269,14 @@ class PayrolltypeController extends Controller
 
         if (usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.delete')) {
 
-            $res = payrolltype::delete_by_id($id);
+            $res = acl_role::delete_by_id($id);
             $route = "";
             $sd = array();
             if ($res->err == 1) {
                 $sd["error"] = $res->msg;
             } else {
 
-                $retURL = $request->get('returl') ?? route($this->sysobjcode.'.index');
+                $retURL = $request->get('returl') ?? route($this->sysobjcode . '.index');
                 $sd['success'] = 'Запись о сотруднике удалена';
             }
         } else {
@@ -353,14 +286,14 @@ class PayrolltypeController extends Controller
     }
 
 
-    static public function listpayrolltype(Request $request)
+    static public function listacl_role(Request $request)
     {
         //для AJAX-запросов
 
         $result = "";
         try {
             $orgid = $request->orgid;
-            $list = payrolltype::where('orgid', $orgid)
+            $list = acl_role::where('orgid', $orgid)
                 ->where('active', 1)
                 //->select('id', DB::raw("concat(lname,' ', fname, ' ', mname, ', ', postname) as name"))
                 ->select('id', DB::raw("concat(lname,' ', fname, ' ', mname, ', ', ifnull(postname,'-')) as name"))
@@ -378,12 +311,12 @@ class PayrolltypeController extends Controller
 
     static public function get_for(Request $request)
     {
-        //2021-07-03 SNS. Обертка для вызова payrolltype::getFor
+        //2021-07-03 SNS. Обертка для вызова acl_role::getFor
 
         $result = "";
 //        try {
 
-        $list = payrolltype::getFor([
+        $list = acl_role::getFor([
             'active' => $request->active,
             'active_or_current' => $request->active_or_current,
             'in_documents' => $request->in_documents,
@@ -399,72 +332,11 @@ class PayrolltypeController extends Controller
         $result = $list;
 
 //        } catch (\Exception $e) {
-//            Log::error('payrolltype::list_for:' . $e->getMessage());
+//            Log::error('acl_role::list_for:' . $e->getMessage());
 //        }
         return response()->json($result);
     }
 
-
-    public function load()
-    {
-        $userid = \Auth::user()->id;
-        $usrrights = $this->setInterfaceRight(-1);
-        $rec = new \stdClass();
-
-        return view($this->sysobjcode . '.load', compact('rec', "usrrights"));
-    }
-
-
-    public function import(Request $request)
-    {
-        //Импорт без сохранения файла на диск. Только обработка
-
-        $messages = [
-            'doc.required' => 'Не указан файл с данными',
-        ];
-
-        $rules = [
-            "doc" => "required",
-        ];
-
-        $request->validate($rules, $messages);
-
-        $userid = \Auth::user()->id;
-        //$returl = $request->get('retroute');
-
-        $usrrights = $this->setInterfaceRight(-1);
-        $result = new Result();
-        $rec = new \stdClass();
-
-        $rec->extsysid = 9;   // ? М.б. использовать для связывания по кодам во внешней системе
-        //dd($rec);
-
-        if ($request->hasfile('doc')) {
-
-            $file = $request->doc;
-
-            $filesize = $file->getSize();
-            $name = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-            $extension = $file->getClientOriginalExtension();
-            //dd($name, $extension, $filesize);
-
-            if (1 == 1)
-                $rec = payrolltype::import_001($file, $rec);
-            else {
-                $result->err = 1;
-                $result->msg = 'Не определена процедура импорта!';
-            }
-            //--------------------------------------------------------------------------------
-            //dd($result->msg);
-
-
-        } else {
-            $result->err = 1;
-            $result->msg = 'Файл с данными не загружен!';
-        }
-
-        return view($this->sysobjcode . '.load', compact('rec', "usrrights"));
-    }
 
     static public function list_for_ac(Request $request)
     {
@@ -473,7 +345,7 @@ class PayrolltypeController extends Controller
         $result = "";
         try {
 
-            $list = payrolltype::getFor([
+            $list = acl_role::getFor([
                 'name' => $request->name,
                 'orgid' => $request->orgid,
             ],
@@ -482,9 +354,75 @@ class PayrolltypeController extends Controller
             $result = $list;
 
         } catch (\Exception $e) {
-            Log::error('payrolltype::list_for_ac:' . $e->getMessage());
+            Log::error('acl_role::list_for_ac:' . $e->getMessage());
         }
         return response()->json($result);
+    }
+
+    public
+    function edtRoleRights($roleid)
+    {
+        $usrrights = $this->setInterfaceRight(1);
+        if (!$usrrights['save']) {
+            return view('home');
+        }
+
+        $role = acl_role::find($roleid);
+        $sysfunclst = sysfunc::funcLst();
+
+        //
+        $subj_rights = acl_role_right::RoleRightLst($roleid);
+        $subj_rights = $subj_rights->groupBy('funcid')->toArray();
+
+        $usrrights = $this->setInterfaceRight($roleid);
+
+        $data = new \stdClass();
+        $data->roleid = $roleid;
+        $data->sysfunclst = $sysfunclst;
+
+        return view('acl_roles.role_rights_edit', compact('role', "subj_rights", "sysfunclst", "usrrights", 'data'));
+    }
+
+    public
+    static function updRoleRights(Request $request, $id)
+    {
+
+        if (isset($request->rightid)) {
+            $rights = array_flip($request->rightid);
+        } else {
+            //если ничего не передано - то надо удалить все
+            $rights = [];
+        }
+        //dd($id, $rights);
+
+        //сначала удалим те права, которые не переданы ------------------------------
+        // получим список текущих прав роли
+        $subj_rights = acl_role_right::RoleRightLst($id);
+
+        for ($x = 0; $x <= count($subj_rights) - 1; $x++) {
+            //if (!isset($rights[$usrsysrights[$x]->funcid])) usrsysright::delUsrSysRight($id, $usrsysrights[$x]->funcid);
+            if (!isset($rights[$subj_rights[$x]->funcid]))
+//                usrsysright::delUsrSysRight($id, $subj_rights[$x]->funcid, $limsysobjid, $limobjid);
+                acl_role_right::delRoleRight($id, $subj_rights[$x]->funcid);
+        }
+        //---------------------------------------------------------------------------
+
+        //теперь расставим переданные права
+        if (isset($request->rightid)) {
+            for ($x = 0; $x <= count($request->rightid) - 1; $x++) {
+                acl_role_right::setRoleRight($id, $request->rightid[$x]);
+            }
+        }
+
+        //Зачистим кэш прав ------------------------------------------------------------------
+        acl_role_right::clearRoleRightsCache($id);
+        //------------------------------------------------------------------------------------
+
+        objlog::log_info(3, $id, "обновлены права роли доступа {$id}", 5);
+
+        $retURL = $request->get('retURL') ?? route('acl_roles.edit', $id);
+        return redirect($retURL);
+
     }
 
 }

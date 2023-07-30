@@ -3,7 +3,12 @@
 @section('content')
     <?php
     $sysobjid = 3;
+    $sysobjcode = 'users';
+
+    $thisTitle = "Пользователи";
+    $rec0 = $recs->currentPage() * $recs->perPage() - $recs->perPage() + 1;
     ?>
+    <link rel="stylesheet" href="/css/subnav.css">
     <style>
         .org_linked {
             background-color: #efc2c2
@@ -18,27 +23,44 @@
         @csrf
 
         <div class="container">
-            <div class="row">
-                <div class="col-md-12">
-                    <nav class="breadcrumb">
-                        <a class="breadcrumb-item" href="/admin">Настройки</a>
-                        <a class="breadcrumb-item" href="/admin?tab=nsi-admin">Admin</a>
-                        <span class="breadcrumb-item active">Пользователи</span>
-                    </nav>
-                </div>
-            </div>
+
+            <?php
+            $breadcrumbs = [
+                'Сервис' => "/admin",
+                'Admin' => "/admin?tab=nsi-admin",
+                $thisTitle => null,
+            ];
+            ?>
+            @includeIf('layouts.breadcrumbs')
 
             <div class="row justify-content-center">
                 <div class="col-md-12">
                     <h3>Пользователи
-                        <span class="objlog_link small float-right">
-							<a href="{{route('objevntlog',['sysobjid'=>$sysobjid, 'objid'=>0,'route'=>Route::current()->getName()])}}"
-                               title="Журнал общих событий"
-                            >журнал</a>
-                            </spans>
+{{--                        <span class="objlog_link small float-right">--}}
+{{--							<a href="{{route('objevntlog',['sysobjid'=>$sysobjid, 'objid'=>0,'route'=>Route::current()->getName()])}}"--}}
+{{--                               title="Журнал общих событий"--}}
+{{--                            >журнал</a>--}}
+{{--                            </span>--}}
                     </h3>
 
                     @includeif('layouts/edit_msgs')
+
+                    <div class="row mb-2">
+                        <div class="col-md-6">
+                        </div>
+                        <div class="col-md-6">
+                            <div class="subnav shift">
+                                <ul>
+                                    <li><a href="{{route('acl_roles.index')}}" title="Роли доступа для пользователей">Роли</a>
+                                    </li>
+                                    <li>
+                                        <a href="{{route('objevntlog',['sysobjid'=>$sysobjid, 'objid'=>0,'route'=>Route::current()->getName()])}}"
+                                           title="Журнал общих событий" class="objlog_link"
+                                        >журнал</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
 
                     <table class="table table-striped table-hover">
                         <thead>

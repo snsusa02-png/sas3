@@ -107,6 +107,15 @@ class User extends Authenticatable
         return $rslt;
     }
 
+    public function getInfoAttribute()
+    {
+        $rslt = null;
+        if (isset($this->id)) {
+            $rslt = $this->name . ' / ' . $this->email;
+        }
+        return $rslt;
+    }
+
     public static function setCurOrgID($userid, $orgid)
     {
         $rec = self::find($userid);
@@ -115,6 +124,7 @@ class User extends Authenticatable
             $rec->save();
         }
     }
+
 
     public static function getCurOrgID($userid)
     {
