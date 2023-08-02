@@ -62,6 +62,7 @@ class WrhdocController extends Controller
         $usrrights['doclst.create'] = false;
         $usrrights['doclst.update'] = false;
         $usrrights['make_diffdoc'] = false;
+        $usrrights['make_doc5'] = false;
 
         $userid = \Auth::user()->id;
 
@@ -495,6 +496,10 @@ class WrhdocController extends Controller
 
         //Потенциальное право на создание документа разногласий. Ниже (в blade) будет проверяться необходимость
         $usrrights['make_diffdoc'] = (isset($rec->predocid) and $rec->docsigned == 1);
+
+        //Потенциальное право на создание документа на списание материалов на производство.
+        // Ниже (в blade) будет проверяться необходимость
+        $usrrights['make_doc5'] = ($rec->doctypeid==10 and $rec->docsigned == 1);
 
         if ($usrrights['safe_save']) {
             //установим минимально-допустимую дату для wrkdate
@@ -1128,6 +1133,115 @@ class WrhdocController extends Controller
                 ]);
                 $item->save();
             }
+
+//            } catch (\Throwable $e) {
+//                DB::rollback();
+//                $msg = $e->getMessage();
+//                Log::error($msg);
+//                //notify()->error($e->getMessage());
+//                //throw $e;
+//                $sd["error"] = $e->getMessage();
+//
+//                $route = route('wrhdocs.edit', $id)->with($sd);
+//            }
+
+            DB::commit();
+
+            return redirect(route('wrhdocs.edit', $doc->id));
+        }
+
+    }
+
+    public function make_doc5($srcdocid)
+    {
+        //Создание документа "5 - Акт списания на производство" для списания материалов, истраченных на производство товаров по заданному документу
+
+        $src_doctypeid = 10;    // "Родительский" документ должен быть типа 10 - Накладная на прием товара (от производства)
+        $chld_doctypeid = 5;    // 'Акт списания на производство'
+
+        if (!isset($chld_doctypeid))
+            return false;
+
+        $srcdoc = wrhdoc::find($srcdocid);
+        if (!isset($srcdoc))
+            return false;
+
+        //"Родительский" документ должен быть утвержден
+        if ($srcdoc->docsigned <> 1)
+            return false;
+
+        //"Родительский" документ должен быть типа 10 - Накладная на прием товара (от производства)
+        if ($srcdoc->doctypeid <> $src_doctypeid)
+            return false;
+
+        // Попробуем найти документ нужного типа, который ссылается на заданный документ как на родительский(Исходный)
+        $doc = wrhdoc::where('doctypeid', $chld_doctypeid)
+            ->where('predocid', $srcdoc->id)
+            ->first();
+        // Если целевой документ уже утвержден, то выходим
+        if ($doc->docsigned == 1)
+            return false;
+
+        //Определим есть ли позиции с рецептами в составе исходного документа, и все ли рецепты утверждены
+        $cnts = wrhdoclst::from('wrhdoclst as dl')
+            ->join('ri_compounds as c', 'c.id', 'dl.cmpndid')
+            ->where('dl.docid', $srcdocid)
+            ->whereNotNull('dl.cmpndid')
+            ->select(db::raw("count(1) as itm_cnt"), db::raw("sum(c.docsigned) as actv_cnt"))
+            ->first();
+
+        if ($cnts->actv_cnt > 0 and $cnts->actv_cnt == $cnts->itm_cnt) {
+            $userid = \Auth::user()->id;
+
+            DB::beginTransaction();
+//            try {
+
+
+            if (!isset($doc)) {
+                //Создадим документ
+                $doc = new wrhdoc([
+                    'predocid' => $srcdocid,
+                    'ownorgid' => $srcdoc->ownorgid,
+                    'orgid' => $srcdoc->ownorgid,
+                    'doctypeid' => $chld_doctypeid,  //'Акт списания на производство'
+                    'wrhid' => $srcdoc->wrhid,       //склад
+                    'boxid' => $srcdoc->boxid,       //отделение
+                    'docdate' => $srcdoc->docdate,   //
+                ]);
+                $doc->save();
+            }
+            //dd('doc=',$doc);
+
+            // Получим список необходимых материалов по максимальной оценке
+            $items = wrhdoclst::from('wrhdoclst as dl')
+                ->join('ri_compounds as c', 'c.id', 'dl.cmpndid')
+                ->join('ri_cmpnd_items as ci', 'ci.cmpndid', 'c.id')
+                ->where('dl.docid', $srcdocid)
+                ->where('c.docsigned', 1)
+                ->select('ci.refitmid', db::raw("sum(ci.max_qty * dl.qty) as qty"))
+                ->groupby('ci.refitmid')
+                ->get();
+            //dd($items);
+
+            //пометим текущие записи состава обновляемого документа через updated_by=0
+            wrhdoclst::where('docid', $doc->id)->update(['updated_by' => 0]);
+
+            //Сформируем или обновим состав документа на списание материалов
+            foreach ($items as $itm) {
+                $item = wrhdoclst::where(['docid' => $doc->id, 'refitmid' => $itm->refitmid])->first();
+                if (!isset($item)) {
+                    $item = new wrhdoclst([
+                        'docid' => $doc->id,
+                        'refitmid' => $itm->refitmid,
+                    ]);
+                }
+                $item->qty = $itm->qty;
+                $item->updated_at = now();
+                $item->updated_by = $userid;
+                $item->save();
+            }
+            //удалим незатронутые записи (как лишние)
+            wrhdoclst::where(['docid' => $doc->id, 'updated_by' => 0])->delete();
 
 //            } catch (\Throwable $e) {
 //                DB::rollback();

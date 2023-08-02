@@ -67,7 +67,7 @@
             }
         </style>
         <div class="container">
-            <div class="row ">
+            <div class="row">
                 <div class="col-md-8">
                     <div class="card mt-3">
 
@@ -266,17 +266,14 @@
                                     </div>
                                     {{--									@endif--}}
                                     @if(isset($rec->childdoc))
-                                        <?php
-                                        $t_nxtoffset = "";
-                                        //                                        dd($rec->childdoc->docnum);
-                                        ?>
-                                        <div class="col-md-6" id="reldoc">
+                                        <div class="col-md-12" id="reldoc">
                                             <div class="form-group">
                                                 <label for="childdoc">Связ. документ:</label>
                                                 <p>
                                                     <a href="{{route("wrhdocs.edit",$rec->childdoc->id)}}">
                                                         {{$rec->childdoc->doctype->name}}
-                                                        <b>{{$rec->childdoc->docnum}} {{$rec->childdoc->docdate}}</b>
+                                                        <b>№ {{$rec->childdoc->docnum??'-'}}
+                                                            от {{date_create($rec->childdoc->docdate)->format('d.m.Y')}}</b>
                                                     </a>
                                                     @if($rec->childdoc->docsigned==1)
                                                         &nbsp; (Утвержден)
@@ -285,7 +282,19 @@
                                             </div>
                                         </div>
                                     @endif
-
+                                    @if (isset($rec->predocid))
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label for="doctypeid">Пред. документ:</label>
+                                                <p>
+                                                    <a href="{{route($thisSysObjCode.'.edit', $rec->predocid)}}"><b>{{$rec->predoc->info}}</b></a>
+                                                    @if($rec->predoc->docsigned==1)
+                                                        &nbsp; (Утвержден)
+                                                    @endif
+                                                </p>
+                                            </div>
+                                        </div>
+                                    @endif
                                 </div>
 
                                 <div class="row">
@@ -466,16 +475,26 @@
                                         <i class="fa fa-print" aria-hidden="true"></i>
                                     </a>
                                 @endif
+                                @if ($usrrights['make_doc5'])
+                                    <a class="btn btn-close btn-info btn hide_chngd ml-3"
+                                       href="{{ route($thisSysObjCode .'.make_doc5', $rec->id) }}"
+                                       {{--                                       target="_blank" id="act_raw_materials"--}}
+                                       title="Создать документ на списание материалов">
+                                        <i class="fa fa-cubes" aria-hidden="true"></i>
+                                    </a>
+                                @endif
 
                                 @include('layouts._who_when')
                             </form>
                         </div>
                     </div>
                 </div>
-                <?php
-                ?>
-                @if ($rec->id != -1 and isset($auxinfo) and is_array($auxinfo) and count($auxinfo)>0)
-                    <div class="col-md-5">
+
+                <div class="col-md-4">
+
+                    @include('wrhdocs._child_docs')
+
+                    @if ($rec->id != -1 and isset($auxinfo) and is_array($auxinfo) and count($auxinfo)>0)
                         <div class="card mt-3">
                             <div class="card-header">
                                 Доп. информация
@@ -515,9 +534,8 @@
                                 </table>
                             </div>
                         </div>
-                    </div>
-
-                @endif
+                    @endif
+                </div>
 
             </div>
 
@@ -527,7 +545,7 @@
 
                 @if (isset($rec->restorditems) and $rec->restorditems->count()>0)
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <div class="card mt-3" style="padding:6px; min-width:660px;">
                                 <table class="table-striped small"
                                        style=" width: 100%;">

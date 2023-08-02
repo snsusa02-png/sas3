@@ -131,6 +131,21 @@ class wrhdoc extends Model
         return $this->hasOne(User::class, 'id', 'updated_by');
     }
 
+    public function getInfoAttribute()
+    {
+        $rslt = null;
+        if (isset($this->id)) {
+            $rslt = $this->doctype->name.' № ' . ($this->docnum??'-') . ' от ' . date_create($this->docdate)->format('d.m.Y');
+        }
+        return $rslt;
+    }
+
+    public function child_docs()
+    {
+        return $this->hasMany(wrhdoc::class, 'predocid', 'id');
+    }
+
+
     public static function min_docdate()
     {
         //определим минимально-допустимую дату для поля docdate
