@@ -370,7 +370,7 @@ class ri_compound extends Model
                         $sc .= " and ric.refitmid={$val}";
 
                     } elseif ($key == 'name' or $key == 's_name') {
-                        $search_flds = "concat(ri.name, ' ', ifnull(ric.notes,' ')wr)";
+                        $search_flds = "concat(ri.name, ' ', ifnull(ric.notes,' '))";
 
                         $words = explode(" ", $val);
                         if (count($words) > 0) {

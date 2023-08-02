@@ -163,7 +163,9 @@ $(document).ready(function () {
                     dataType: "json",
                     data: {
                         name: request.term,
-                        refitmid:  $("#refitmid").val(),
+                        //2023-08-02 Так как в форме выбор refitmid заблокирован, то заполняем refitmid только от рецептуры,
+                        //и нам не нужно ограничивать выбор рецептов только ранее выбранным товаром. Поэтому заблокируем передачу refitmid
+                        // refitmid:  $("#refitmid").val(),
                         cmpnd_ownorgid:  $("#cmpnd_ownorgid").val(),
                         cmpnd_on_date:  $("#cmpnd_on_date").val()
                     },
@@ -212,6 +214,7 @@ $(document).ready(function () {
                     $(this).val(ui.item.label);
 
                     //Установим также refitmid и refitmname -------------
+                    $("#code").val(ui.item.refitmid);
                     $("#refitmid").val(ui.item.refitmid);
                     $("#refitmname").val(ui.item.refitmname);
                     //---------------------------------------------------

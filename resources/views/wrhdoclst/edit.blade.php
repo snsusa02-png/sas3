@@ -43,7 +43,7 @@
             $inputMode = " readonly";
         }
         $ri_InputMode = "";
-        if (!$usrrights['refitm.edit']) {
+        if (!$usrrights['refitm.edit'] or $showCompound) {
             $ri_InputMode = " readonly";
         }
         $PriceInputMode = "";
@@ -89,63 +89,20 @@
                                 {{ Form::hidden('cmpnd_ownorgid', $rec->cmpnd_ownorgid,['id'=>'cmpnd_ownorgid']) }}
                                 {{ Form::hidden('cmpnd_on_date', $rec->cmpnd_on_date,['id'=>'cmpnd_on_date']) }}
 
-                                <div class="form-group">
-                                    <label for="refitmid">Товар:&nbsp;</label>
-                                    <div class="input-group mb-3 input-group-sm">
-
-                                        <input type="text" class="form-control text-center ac_id"
-                                               style="max-width:120px;"
-                                               name="code"
-                                               id="code"
-                                               value="{{$rec->refitem->id}}" readonly>
-                                        <input type="text" class="form-control font-weight-bold ac_refitm_name"
-                                               name="refitmname"
-                                               id="refitmname"
-                                               value="{{$ri_name}}"
-                                            {{$ri_InputMode}}
-                                        />
-                                        <input type="text" class="form-control text-center small"
-                                               style="display: none; border: #d7f3e3;" id="ac_refitmid" readonly>
-                                        <input type="hidden" name="refitmid" id="refitmid" class="ac_id"
-                                               value="{{$rec->refitmid}}">
-
-
-                                        @if ($usrrights['refitm.edit'])
-                                            <div class="input-group-append">
-                                                <a onclick="callListRefItems({{$rec->wrhdoc->ownorgid}},{{($rec->wrhdoc->doctype->forstock==-1)?$rec->wrhdoc->boxid:0}})"
-                                                   title="Выбор из справочника товаров"
-                                                   class="btn btn-sm btn-primary">
-                                                    <i class="fa fa-search" aria-hidden="true"></i>
-                                                </a>
-                                            </div>
-                                        @endif
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="specinfo">доп. характеристики:&nbsp;</label>
-                                    <div class="input-group mb-3 input-group-sm small offset-md-1">
-
-                                        <span id="specinfo" style="border: 1px solid silver;">
-{{--										   {{$rec->refitem->RI_specinfo('; ')}}--}}
-                                            {{$rec->refitem->descript}}
-									</span>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="offset-md-0 col-md-6 col-sm-7 col-xs-8">
-                                        @if ($showCompound)
+                                @if ($showCompound)
+                                    <div class="row">
+                                        <div class="offset-md-0 col-md-12">
                                             <div class="form-group list-inline">
                                                 <label for="">Изготовлено по составу:</label>
                                                 <div class="input-group">
                                                     @if( 1==0)
                                                         {{ Form::hidden('cmpndid', $rec->cmpndid, ['id'=>'cmpnd_on_date', 'class'=>'ac_id']) }}
-                                                        {{$rec->cmpndid}}
+                                                        {{$rec->cmpnd_name}}
                                                     @else
                                                         <div class="input-group mb-3 ">
                                                             <input type="text" name="cmpnd_name" id="cmpnd_name"
                                                                    class="ac_name ac_cmpnd_name form-control font-weight-bold"
+                                                                   {{$inputMode}}
                                                                    value="{{old('cmpnd_name',$rec->cmpnd_name)}}">
                                                             <input type="text"
                                                                    class="form-control text-center small ac_status"
@@ -164,10 +121,65 @@
                                                     @endif
                                                 </div>
                                             </div>
-                                        @endif
+                                        </div>
                                     </div>
+                                @endif
 
-                                    <div class="offset-md-2 col-md-3 offset-sm-4 col-sm-4 col-xs-6">
+
+                                <div class="row">
+                                    <div class="offset-md-0 col-md-12">
+                                        <div class="form-group">
+                                            <label for="refitmid">Товар:&nbsp;</label>
+                                            <div class="input-group mb-3 input-group-sm">
+
+                                                <input type="text" class="form-control text-center ac_id"
+                                                       style="max-width:120px;"
+                                                       name="code"
+                                                       id="code"
+                                                       value="{{$rec->refitem->id}}" readonly>
+                                                <input type="text" class="form-control font-weight-bold ac_refitm_name"
+                                                       name="refitmname"
+                                                       id="refitmname"
+                                                       value="{{$ri_name}}"
+                                                    {{$ri_InputMode}}
+                                                />
+                                                <input type="text" class="form-control text-center small"
+                                                       style="display: none; border: #d7f3e3;" id="ac_refitmid"
+                                                       readonly>
+                                                <input type="hidden" name="refitmid" id="refitmid" class="ac_id"
+                                                       value="{{$rec->refitmid}}">
+
+
+                                                @if ($usrrights['refitm.edit'] and !$showCompound)
+                                                    <div class="input-group-append">
+                                                        <a onclick="callListRefItems({{$rec->wrhdoc->ownorgid}},{{($rec->wrhdoc->doctype->forstock==-1)?$rec->wrhdoc->boxid:0}})"
+                                                           title="Выбор из справочника товаров"
+                                                           class="btn btn-sm btn-primary">
+                                                            <i class="fa fa-search" aria-hidden="true"></i>
+                                                        </a>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @if (isset($rec->refitem->descript))
+                                    <div class="form-group">
+                                        <label for="specinfo">доп. характеристики:&nbsp;</label>
+                                        <div class="input-group mb-3 input-group-sm small offset-md-1">
+
+                                        <span id="specinfo" style="border: 1px solid silver;">
+{{--										   {{$rec->refitem->RI_specinfo('; ')}}--}}
+                                            {{$rec->refitem->descript}}
+									</span>
+                                        </div>
+                                    </div>
+                                @endif
+
+                                <div class="row">
+
+                                    <div class="offset-md-6 col-md-3 offset-sm-4 col-sm-4 col-xs-6">
                                         <div class="form-group list-inline">
                                             <label for="">Количество, <span class="font-weight-bold"
                                                                             id="unit_html">{{$rec->refitem->unittype->name?:'еи'}}</span>:</label>
@@ -181,10 +193,9 @@
                                                            id="qty" name="qty"
                                                            value="{{$rec->qty}}"
                                                     />
-
                                                 @endif
-                                                @if ($showPreQry)
 
+                                                @if ($showPreQry)
                                                     <div class="input-group-prepend">
 													<span class="input-group-text"
                                                           id="basic-addon1"
@@ -199,7 +210,7 @@
                                         </div>
                                     </div>
                                     @if ($showPrice)
-                                        <div class="offset-md-8 col-md-3 col-sm-4 col-xs-6">
+                                        <div class="offset-md-0 col-md-3 col-sm-4 col-xs-6">
                                             <div class="form-group list-inline">
                                                 <label for="price">Цена, &#x20bd;:</label>
                                                 <input type="text" class="form-control text-right bold"
@@ -212,6 +223,7 @@
 
                                 </div>
 
+                                <hr>
                                 <div class="actions">
                                     @if ($usrrights['save'])
                                         <button type="submit" class="btn btn-success">
