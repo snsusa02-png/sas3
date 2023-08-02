@@ -1178,8 +1178,9 @@ class WrhdocController extends Controller
         $doc = wrhdoc::where('doctypeid', $chld_doctypeid)
             ->where('predocid', $srcdoc->id)
             ->first();
+
         // Если целевой документ уже утвержден, то выходим
-        if ($doc->docsigned == 1)
+        if ( isset($doc) and $doc->docsigned == 1)
             return false;
 
         //Определим есть ли позиции с рецептами в составе исходного документа, и все ли рецепты утверждены
