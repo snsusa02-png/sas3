@@ -23,6 +23,7 @@
             $showRelWrh = ($rec->doctype->need_relwrh == 1);
             $showPreDoc = ($rec->doctype->need_predoc == 1);
             $showRespStaff = ($rec->doctype->need_respstaffid == 1);
+            $showSaleOrg = ($rec->doctypeid == 3);
             $showOrg = ($rec->doctype->need_org == 1);
             $isDocSigned = ($rec->docsigned == 1);
 
@@ -33,6 +34,7 @@
             $showRelWrh = false;
             $showPreDoc = false;
             $showRespStaff = false;
+            $showSaleOrg = false;
             $showOrg = false;
             $isDocSigned = false;
         }
@@ -68,7 +70,7 @@
         </style>
         <div class="container">
             <div class="row">
-                <div class="col-md-8">
+                <div class="col-md-9">
                     <div class="card mt-3">
 
                         @include('layouts.edit_msgs')
@@ -103,42 +105,27 @@
                                   action="{{ route('wrhdocs.update', $rec->id) }}">
                                 @method('PUT')
                                 @csrf
-
-                                @if($rec->id==-1)
-                                    <div class="row">
-
-                                        <div class="col-md-8">
-                                            <div class="form-group">
-                                                <label for="doctypeid" class="required">Тип документа:</label>
-                                                @if ($usrrights['doctype.edit'])
-                                                    {!! Form::select('doctypeid', $rec->doctypes??[], old('doctypeid', $rec->doctypeid)
-                                                    ,['id' => 'doctypeid','class' => 'form-control', 'placeholder'=>'','required'=>'required']) !!}
-                                                @else
-                                                    {{ Form::hidden('doctypeid', $rec->doctypeid) }}
-                                                    <p><b>{{$rec->doctype->name}}</b></p>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                @else
-                                    <input type="hidden" id="doctypeid" name="doctypeid" value="{{$rec->doctypeid}}">
-                                @endif
+                                <input type="hidden" id="sale_dir">
 
                                 <div class="row">
-
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="ownorg" id="ownorg_label">Владелец:</label>
-                                            @if ($usrrights['ownorg.edit'])
-                                                {!! Form::select('ownorgid', $rec->ownorgs, $rec->ownorgid
-                                                ,['class' => 'form-control','required'=>'required']) !!}
+                                            <label for="doctypeid" class="required">Тип документа:</label>
+                                            @if ($usrrights['doctype.edit'])
+                                                {!! Form::select('doctypeid', $rec->doctypes??[], old('doctypeid', $rec->doctypeid)
+                                                ,['id' => 'doctypeid','class' => 'form-control', 'placeholder'=>'','required'=>'required']) !!}
                                             @else
-                                                {{ Form::hidden('ownorgid', $rec->ownorgid) }}
-                                                <p><b>{{$rec->ownorg->name}}</b></p>
+                                                {{ Form::hidden('doctypeid', $rec->doctypeid) }}
+                                                <p><b>{{$rec->doctype->name}}</b></p>
                                             @endif
                                         </div>
                                     </div>
+                                    {{--                                    @if($rec->id==-1)--}}
 
+                                    {{--                                    @else--}}
+                                    {{--                                        <input type="hidden" id="doctypeid" name="doctypeid"--}}
+                                    {{--                                               value="{{$rec->doctypeid}}">--}}
+                                    {{--                                    @endif--}}
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="docdate" class="required">Дата:</label>
@@ -171,8 +158,25 @@
                                     </div>
                                 </div>
 
-                                <div class="row" style="">
+                                <div class="row">
+
                                     <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="ownorg" id="ownorg_label">Владелец:</label>
+                                            @if ($usrrights['ownorg.edit'])
+                                                {!! Form::select('ownorgid', $rec->ownorgs, $rec->ownorgid
+                                                ,['class' => 'form-control','required'=>'required']) !!}
+                                            @else
+                                                {{ Form::hidden('ownorgid', $rec->ownorgid) }}
+                                                <p><b>{{$rec->ownorg->name}}</b></p>
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="row" style="">
+                                    <div class="col-md-6" id="wrh">
                                         <div class="form-group">
                                             <label for="wrhid" id="wrh_label"
                                                    class="required">{{$rec->doctype->wrh_label?:'Склад'}}
@@ -188,7 +192,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-6" style="display:none;">
+                                    <div class="col-md-6" id="box" style="display:none;">
                                         <div class="form-group">
                                             <label for="boxid"
                                                    id="box_label" class="required">{{'Отделение'}}
@@ -300,6 +304,37 @@
                                 <div class="row">
                                     <?php
                                     $t_style = "display:none;";
+                                    if ($showSaleOrg) $t_style = "display:block;";
+                                    ?>
+
+                                    <div class="col-md-7" id="saleorg" class="" style="{{$t_style}}">
+                                        <label for="name" class="required"><span id="lbl_org">Продавец</span>:</label>
+                                        @if ($usrrights['safe_save']??false)
+                                            <div class="input-group mb-3 ">
+                                                <input type="text" name="saleorg_name" id="saleorg_name"
+                                                       class="ac_name ac_org_name form-control font-weight-bold"
+                                                       data-gk="{{$rec->saleorg_gk}}"
+                                                       value="{{old('saleorg_name',$rec->saleorg->info)}}">
+                                                <input type="text" class="form-control text-center small ac_status"
+                                                       title=""
+                                                       style="display: none; border: #d7f3e3; max-width: 30px" readonly>
+                                                <input type="hidden" name="saleorgid" class="ac_id" id="saleorgid"
+                                                       value="{{old('saleorgid',$rec->saleorgid)}}">
+                                                <a class="btn btn-light id_lnk" data-id="saleorgid" data-obj="orgs"
+                                                   target="_blank">
+                                                    <i class="fa fa-info text-info" aria-hidden="true"></i>
+                                                </a>
+                                            </div>
+                                            <div></div>
+                                        @else
+                                            <div class="font-weight-bold">{{$rec->saleorg->info}}</div>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <?php
+                                    $t_style = "display:none;";
                                     if ($showOrg) $t_style = "display:block;";
                                     ?>
 
@@ -309,12 +344,12 @@
                                             <div class="input-group mb-3 ">
                                                 <input type="text" name="org_name" id="org_name"
                                                        class="ac_name ac_org_name form-control font-weight-bold"
+                                                       data-gk="{{$rec->org_gk}}"
                                                        value="{{old('org_name',$rec->org->info)}}">
                                                 <input type="text" class="form-control text-center small ac_status"
                                                        title=""
                                                        style="display: none; border: #d7f3e3; max-width: 30px" readonly>
                                                 <input type="hidden" name="orgid" class="ac_id" id="orgid"
-                                                       data-gk="{{$rec->org_gk}}"
                                                        value="{{old('orgid',$rec->orgid)}}">
                                                 <a class="btn btn-light id_lnk" data-id="orgid" data-obj="orgs"
                                                    target="_blank">
@@ -343,7 +378,7 @@
                                 @if ($showRespStaff)
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="doctypeid">Ответственный сотрудник:</label>
+                                            <label for="respstaffid">Ответственный сотрудник:</label>
                                             @if (!$isDocSigned)
                                                 {!! Form::select('respstaffid', $rec->respstafflst ,$rec->respstaffid, ['class' => 'form-control']) !!}
                                             @else
@@ -621,6 +656,8 @@
                         </div>
                     </div>
                 @endif
+
+                @include('obj_finopers._finopers')
 
             @endif
 

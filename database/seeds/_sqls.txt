@@ -1,4 +1,12 @@
 ﻿--------------------------------------------------------------------------------------------------
+2023.08.04
+
+ALTER TABLE `wrhdocs`
+ADD COLUMN `saleorgid` BIGINT UNSIGNED NULL COMMENT 'Компания-продавец' AFTER `ownorgid`,
+CHANGE COLUMN `ownorgid` `ownorgid` BIGINT UNSIGNED NULL DEFAULT NULL COMMENT 'Владедец' ,
+CHANGE COLUMN `orgid` `orgid` BIGINT UNSIGNED NULL DEFAULT NULL COMMENT 'Контрагент' ;
+
+--------------------------------------------------------------------------------------------------
 2023.07.20
 
 UPDATE `srs_hr_items` SET `hr_day_rate` = '500', `hr_night_rate` = '500' WHERE (`id` = '14');

@@ -55,6 +55,12 @@ class wrhdoc extends Model
             ->withDefault();
     }
 
+    public function saleorg()
+    {
+        return $this->hasOne(org::class, 'id', 'saleorgid')
+            ->withDefault();
+    }
+
     public function org()
     {
         return $this->hasOne(org::class, 'id', 'orgid')
@@ -135,7 +141,7 @@ class wrhdoc extends Model
     {
         $rslt = null;
         if (isset($this->id)) {
-            $rslt = $this->doctype->name.' № ' . ($this->docnum??'-') . ' от ' . date_create($this->docdate)->format('d.m.Y');
+            $rslt = $this->doctype->name . ' № ' . ($this->docnum ?? '-') . ' от ' . date_create($this->docdate)->format('d.m.Y');
         }
         return $rslt;
     }
@@ -1366,6 +1372,8 @@ class wrhdoc extends Model
 
         //dd($rec, self::$sysobjid, $rec->id, $rec->doctype->need_org);
         if ($rec->doctype->need_org == 1) {
+
+            // Передача товара от продавца (если указан) или владельца товара - сразу конечному покупателю
             //сформируем фин. операцию --------------------------------------------------------------
             obj_finoper::addOrUpdate(
                 ['sysobjid' => self::$sysobjid, 'objid' => $rec->id, 'mark' => 1],
@@ -1376,7 +1384,7 @@ class wrhdoc extends Model
                     , 'price' => $rec->docsum
                     , 'descript' => 'Отпуск товара' // $rec->refitem->name . ', ' . $rec->refitem->unittype->name
                     , 'sumtypeid' => 2  //1-деньги, 2-товар
-                    , 'srcorgid' => $rec->ownorgid
+                    , 'srcorgid' => $rec->saleorgid ?? $rec->ownorgid   //продавца (если указан) или владельца товара
                     , 'tgtorgid' => $rec->orgid
 //                , 'contractid' => $rec->contractid
 //                , 'opertypeid' => $rec->mchn_raid->opertypeid
@@ -1384,7 +1392,7 @@ class wrhdoc extends Model
                     , 'updated_at' => now()
                 ]);
         }
-        //удалим записи из obj_finopers, для которых уже нет соответствующих записей в mr_opers
+        //удалим записи из obj_finopers, для которых уже нет соответствующих записей в wrhdocs
         obj_finoper::from('obj_finopers as f')
             ->where('sysobjid', self::$sysobjid)
             ->whereRaw("not exists (select 1 from wrhdocs as d where d.id=f.objid)")

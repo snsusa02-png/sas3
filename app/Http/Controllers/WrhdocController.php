@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\obj_finoper;
 use App\objlog;
 use App\order;
 use App\orditem;
@@ -410,6 +411,7 @@ class WrhdocController extends Controller
         } else {
             $rec->respstafflst = ["", ""];
         }
+        $rec->saleorg_gk = 1;
 
         $items = wrhdoclst::from('wrhdoclst as dl')
             ->join('refitems as ri', 'ri.id', 'dl.refitmid')
@@ -515,6 +517,24 @@ class WrhdocController extends Controller
 
         $auxinfo = wrhdoc::AuxInfo($id);
 
+        if (1==1 or $userid == 12)
+            $rec->finopers = obj_finoper::from('obj_finopers as fo')
+                ->join('orgs as s_o', 's_o.id', 'fo.srcorgid')
+                ->join('orgs as t_o', 't_o.id', 'fo.tgtorgid')
+                ->leftjoin('opertypes as ot', 'ot.id', 'fo.opertypeid')
+                ->leftjoin('contracts as c', 'c.id', 'fo.contractid')
+                ->where('sysobjid', $this->sysobjid)
+                ->where('fo.objid', $rec->id)
+                ->select('fo.*'
+                    , 's_o.name as srcorg_name'
+                    , 't_o.name as tgtorg_name'
+                    , 'ot.name as opertype_name'
+                )
+                ->orderBy('fo.operdate')
+                ->get();
+
+        //dd($rec->finopers);
+
         return view($this->sysobjcode . '.edit',
             compact('rec', 'items', 'auxinfo', 'usrrights'));
     }
@@ -618,6 +638,7 @@ class WrhdocController extends Controller
         $rec->docnum = $docnum;
         $rec->docdate = $docdate;
         $rec->ownorgid = $request->get('ownorgid');
+        $rec->saleorgid = $request->get('saleorgid');
         $rec->orgid = $request->get('orgid');
         $rec->respstaffid = $request->get('respstaffid');
         $rec->remarks = $request->get('remarks');

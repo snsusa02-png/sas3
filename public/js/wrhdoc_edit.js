@@ -3,44 +3,57 @@ $(document).ready(function () {
     $("#doctypeid").change(function () {
         $.get("/stock/wrhdoctypes/params/", {doctypeid: $("#doctypeid").val()},
             function (data) {
-                //console.log(data);
+                console.log(data);
+
+                $("#sale_dir").val(data.forsale);
 
                 lbl = data.ownorg_label;
                 if (lbl == '') lbl = 'Владелец';
                 $("#ownorg_label").html(lbl + ':');
 
-                lbl = data.wrh_label;
-                if (lbl == '') lbl = 'Склад';
-                $("#wrh_label").html(lbl + ':');
-
-                lbl = data.box_label;
-                if (lbl == '') lbl = 'Отделение';
-                $("#box_label").html(lbl + ':');
-
-                if (data.need_relwrh == "1") {
-                    lbl = data.relwrh_label;
-                    if (lbl == '') lbl = 'Связанный склад';
-                    $("#relwrh_label").html(lbl + ':');
-                    $("#relwrh").show()
-
-                    lbl = data.relbox_label;
-                    if (!lbl || lbl == '') lbl = 'Связанное отделение';
-                    $("#relbox_label").html(lbl + ':');
-                    $("#relbox").show()
+                if (data.forstock == "0") {
+                    $("#wrh").hide()
                 } else {
-                    $("#relwrh").hide();
-                    $("#relbox").hide()
+
+                    $("#wrh").show()
+
+                    lbl = data.wrh_label;
+                    // if (lbl === '') lbl = 'Склад1';
+                    if (!lbl) lbl = 'Склад';
+                    $("#wrh_label").html(lbl + ':');
+
+                    lbl = data.box_label;
+                    if (lbl == '') lbl = 'Отделение';
+                    $("#box_label").html(lbl + ':');
+
+                    if (data.need_relwrh == "1") {
+                        lbl = data.relwrh_label;
+                        if (lbl == '') lbl = 'Связанный склад';
+                        $("#relwrh_label").html(lbl + ':');
+                        $("#relwrh").show()
+
+                        lbl = data.relbox_label;
+                        if (!lbl || lbl == '') lbl = 'Связанное отделение';
+                        $("#relbox_label").html(lbl + ':');
+                        $("#relbox").show()
+                    } else {
+                        $("#relwrh").hide();
+                        $("#relbox").hide()
+                    }
                 }
 
                 if (data.need_predoc == "1") {
                     $("#predoc").show()
-                }
-                else $("#predoc").hide();
+                } else $("#predoc").hide();
 
                 if (data.need_org == "1") {
                     $("#org").show()
-                }
-                else $("#org").hide();
+                } else $("#org").hide();
+
+                //временно завяжемся на конкретный тип документа, но нужен спец-флаг wrhdoctypes.dif_saleorg = 1
+                if ($("#doctypeid").val() == "3")
+                    $("#saleorg").show()
+                else $("#saleorg").hide();
             }
         )
     });
@@ -94,9 +107,9 @@ $(document).ready(function () {
         //Поиск контрагента
         $(".ac_org_name").autocomplete({
 
-
             source: function (request, response) {
-                var ft = ($("#sale_dir").val() == -1 || $("#sale_dir").val() == 0) ? 12 : null;
+                //console.log(this.element.attr('data-gk'))
+                var ft = (this.element.attr('data-gk') == 1) ? 12 : null;
 
                 $.ajax({
                     //url: "/orgs/autocomplete/search",
