@@ -117,11 +117,25 @@ class DriverWorkReportController extends Controller
         $s_month = $search_params['s_month'];
 
         if ($s_year <> '' and $s_month <> '') {
+            $s_yr_mn = $s_year . '-' . str_pad($s_month, 2,'0',STR_PAD_LEFT);
+            $s_begdate = $s_yr_mn . '-01';
 
             $sql = " select staffid, os.name as staff_name, os.lname as staff_lname, os.fname as staff_fname, os.mname as staff_mname
-            , os.postname, a.* from (
+            , os.postname
+            , (select count(distinct v.selected_date) as cnt from
+                (select adddate('{$s_begdate}', t1.i*10 + t0.i) selected_date from
+                 (select 0 i union select 1 union select 2 union select 3 ) t1,
+                 (select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t0
+                 ) v
+                 join driver_works dw1 on v.selected_date between date(dw1.wrkbegdt) and date(dw1.wrkenddt)
+                 where 1=1
+                    and dw1.staffid=a.staffid
+                    and date_format(dw1.wrkdate,'%Y-%m') = '{$s_yr_mn}'
+                    and date_format(v.selected_date, '%Y-%m')='{$s_yr_mn}'
+                   ) as wrkdays
+                   , a.* from (
     SELECT dw.staffid, DATE_FORMAT(dw.wrkdate,'%Y-%m') as ym
-        , count( distinct dw.wrkdate) as wrkdate_cnt
+        /*, count( distinct dw.wrkdate) as wrkdate_cnt*/
         , sum(dw.day_wrkhrs) day_wrkhrs
         , sum(dw.day_wrkhrs*dw.day_hr_rate) day_hr_sum
         , sum(dw.night_wrkhrs) night_wrkhrs
@@ -135,13 +149,12 @@ class DriverWorkReportController extends Controller
         , SUM( (select sum(day_hrs+night_hrs) from dw_breaks b where b.dw_id=dw.id and b.wrktypeid=22)) as brk_22_hrs
         FROM `driver_works` as dw
         where 1=1
-            and year(dw.wrkdate)={$s_year}
-            and month(dw.wrkdate)={$s_month}
+            and date_format(dw.wrkdate,'%Y-%m') = '{$s_yr_mn}'
         group by dw.staffid, ym
      ) as a
     join orgstaff as os on os.id=a.staffid
     order by staff_name";
-
+ //dd($s_begdate, $s_yr_mn, $sql);
             $recs = DB::select(DB::raw($sql));
             // dd($sql, $recs);
 
@@ -206,7 +219,7 @@ class DriverWorkReportController extends Controller
         $cd = $curdate->format('Y-m-d');
         $month = date("n");
         $yearQuarter = ceil($month / 3);
-        $year_month=$year.'-'.$month;
+        $year_month = $year . '-' . $month;
 
         $param_names = [
             's_pageitmcnt' => 20
@@ -234,9 +247,9 @@ class DriverWorkReportController extends Controller
         $enddate = $tstdate->format('Y-m-t');
         //dd( $tstdate, $begdate, $enddate, $tstdate->format('t'));
 
-        $tmp_arr = explode ("-", $year_month);
-        $search_params['s_year'] = $tmp_arr[0]??'';
-        $search_params['s_month'] = $tmp_arr[1]??'';
+        $tmp_arr = explode("-", $year_month);
+        $search_params['s_year'] = $tmp_arr[0] ?? '';
+        $search_params['s_month'] = $tmp_arr[1] ?? '';
 //        dd($search_params);
 
         if ($begdate <> '' and $enddate <> '') {
@@ -307,7 +320,7 @@ class DriverWorkReportController extends Controller
 //        dd($yms);
         $data->yms = [];
         foreach ($yms as $ym) {
-            $data->yms[$ym->year.'-'.$ym->month] = $ym->year.', '.$month_names[$ym->month];
+            $data->yms[$ym->year . '-' . $ym->month] = $ym->year . ', ' . $month_names[$ym->month];
         }
         //dd($data->yms);
 

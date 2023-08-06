@@ -209,7 +209,7 @@ $action_url = route('reports.rep' . $thisObjId);
                         <tr>
                             <td rowspan="2" class="small text-right">#пп</td>
                             <td rowspan="2">Работник</td>
-                            <td rowspan="2" class="text-center">Раб.<br>drдней</td>
+                            <td rowspan="2" class="text-center">Раб.<br>дней</td>
                             <td rowspan="1" colspan="2" class="text-center">Работа, час</td>
                             <td rowspan="1" colspan="4" class="text-center">Простой, час</td>
                             <td rowspan="2" class="text-center">Сумма, руб</td>
@@ -247,7 +247,7 @@ $action_url = route('reports.rep' . $thisObjId);
                                 <td><a href="{{route('orgstaff.edit',$itm->staffid)}}"
                                        target="_blank">{{$itm->staff_name}}</a>, <span
                                         class="small ml-2"> {{$itm->postname}}</span></td>
-                                <td class="text-right">{{number_format($itm->wrkdate_cnt,0)}}</td>
+                                <td class="text-right">{{$itm->wrkdays}} </td>
                                 <td class="text-right">{{number_format($itm->day_wrkhrs,2)}}</td>
                                 <td class="text-right">{{number_format($itm->night_wrkhrs,2)}}</td>
                                 <td class="text-right">{{number_format($itm->brkhrs,2)}}</td>
