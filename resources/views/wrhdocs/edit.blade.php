@@ -478,7 +478,7 @@
 
                                 @if ($usrrights['docsign'])
                                     <button type="submit"
-                                            class="btn btn-warning"
+                                            class="btn btn-warning hide_chngd"
                                             style="margin-left:24px"
                                             formaction="{{ route('wrhdocs.sign', $rec->id)}}"
                                             formmethod="post"

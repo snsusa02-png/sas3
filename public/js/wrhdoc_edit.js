@@ -254,5 +254,10 @@ $(document).ready(function () {
         }
     });
 
+    //скроем кнопки с классом "hide_chngd" при любом изменении данных в форме
+    $(":input").change(function () {
+        //triggers change in all input fields including text type
+        $(".hide_chngd").hide();
+    });
 
 });
