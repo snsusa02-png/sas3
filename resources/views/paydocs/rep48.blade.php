@@ -185,6 +185,8 @@ $thisTitle = $report->title ?? $report->name;
                                 $ref_url = route('paydocs.edit', $rec->objid);
                             elseif ($rec->sysobjid == 1107)
                                 $ref_url = route('mr_opers.edit', $rec->objid);
+                            elseif ($rec->sysobjid == 204)
+                                $ref_url = route('wrhdocs.edit', $rec->objid);
                             else
                                 $ref_url = null;
 
