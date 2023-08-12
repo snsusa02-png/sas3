@@ -455,18 +455,15 @@ $action_url = route('reports.rep' . $thisObjId);
                             <td rowspan="2" class="text-right">Кол-во рейсов</td>
                             <td colspan="2" class="text-center">ЗП</td>
                             <td colspan="2" class="text-center">Оплач. простой</td>
-                            <td colspan="2" class="text-center">Ремонт</td>
-                            <td rowspan="2" class="text-center">Всего</td>
+                            <td rowspan="2" class="text-center">Всего, &#8381;</td>
                         </tr>
                         <tr>
-                            <td class="text-center small">За рейс, &#8381;</td>
-                            <td class="text-center small">Сумма, &#8381;</td>
-
                             <td class="text-center small">Время, ч</td>
                             <td class="text-center small">Сумма, &#8381;</td>
 
                             <td class="text-center small">Время, ч</td>
                             <td class="text-center small">Сумма, &#8381;</td>
+
                         </tr>
 
                         </thead>
@@ -475,8 +472,8 @@ $action_url = route('reports.rep' . $thisObjId);
                         $npp = 0;
                         $totRaidQty = 0;
                         $totSalarySum = 0;
-                        $totPDTHrs = $totPDTSum = 0;
-                        $totRepairHrs = $totRepairSum = 0;
+                        $totWrkHrs = $totBrkHrs = 0;
+                        $totWrkSum = $totBrkSum = 0;
                         $totSum = 0;
                         ?>
                         @foreach($recs3 as $rec)
@@ -487,28 +484,25 @@ $action_url = route('reports.rep' . $thisObjId);
                                 </td>
 
                                 <td class="text-right ">{{number_format($rec->raid_qty,0)}}
-                                <td class="text-right small">{{number_format(($rec->raid_qty>0)?$rec->salary/$rec->raid_qty:0,2)}}
-                                <td class="text-right ">{{number_format($rec->salary,2)}}
+                                <td class="text-right small">{{number_format($rec->wrkhrs,1)}}
+                                <td class="text-right ">{{number_format($rec->hr_sum,2)}}
 
-                                <td class="text-right small text-secondary">{{number_format($rec->pdt_hrs,1)}}
-                                <td class="text-right ">{{number_format($rec->pdt_sum,2)}}
+                                <td class="text-right small text-secondary">{{number_format($rec->brkhrs,1)}}
+                                <td class="text-right ">{{number_format($rec->breaks_sum,2)}}
 
-                                <td class="text-right small text-secondary">{{number_format($rec->repair_hrs,1)}}
-                                <td class="text-right ">{{number_format($rec->repair_sum,2)}}
-
-                                <td class="text-right ">{{number_format($rec->salary+$rec->pdt_sum+$rec->repair_sum,2)}}
+                                <td class="text-right ">{{number_format($rec->hr_sum+$rec->breaks_sum,2)}}
                             </tr>
                             <?php
                             $totRaidQty += $rec->raid_qty;
-                            $totSalarySum += $rec->salary;
+                            $totSalarySum += $rec->hr_sum;
 
-                            $totPDTHrs += $rec->pdt_hrs;
-                            $totPDTSum += $rec->pdt_sum;
+                            $totWrkHrs += $rec->wrkhrs;
+                            $totWrkSum += $rec->hr_sum;
 
-                            $totRepairHrs += $rec->repair_hrs;
-                            $totRepairSum += $rec->repair_sum;
+                            $totBrkHrs += $rec->brkhrs;
+                            $totBrkSum += $rec->breaks_sum;
 
-                            $totSum += $rec->salary + $rec->pdt_sum + $rec->repair_sum;
+                            $totSum += $rec->hr_sum + $rec->breaks_sum;
                             ?>
                         @endforeach
 
@@ -519,14 +513,12 @@ $action_url = route('reports.rep' . $thisObjId);
                             <tr>
                                 <td colspan="1" class="text-right">Всего:</td>
                                 <td class="text-right font-weight-bold small">{{number_format($totRaidQty,0)}}</td>
-                                <td></td>
-                                <td class="text-right font-weight-bold">{{number_format($totSalarySum,2)}}</td>
 
-                                <td class="text-right font-weight-bold small">{{number_format($totPDTHrs,1)}}</td>
-                                <td class="text-right font-weight-bold">{{number_format($totPDTSum,2)}}</td>
+                                <td class="text-right font-weight-bold small">{{number_format($totWrkHrs,1)}}</td>
+                                <td class="text-right font-weight-bold">{{number_format($totWrkSum,2)}}</td>
 
-                                <td class="text-right font-weight-bold small">{{number_format($totRepairHrs,1)}}</td>
-                                <td class="text-right font-weight-bold">{{number_format($totRepairSum,2)}}</td>
+                                <td class="text-right font-weight-bold small">{{number_format($totBrkHrs,1)}}</td>
+                                <td class="text-right font-weight-bold">{{number_format($totBrkSum,2)}}</td>
 
                                 <td class="text-right font-weight-bold">{{number_format($totSum,2)}}</td>
                             </tr>
@@ -534,7 +526,7 @@ $action_url = route('reports.rep' . $thisObjId);
                                 <td colspan="9" class="text-left pl-2"></td>
                             </tr>
                             <tr>
-                                <td colspan="8" class="text-right">
+                                <td colspan="6" class="text-right">
                                     Баланс, &#8381;:
                                 </td>
                                 <td class="text-right font-weight-bold">{{number_format($totUnloadSum-$totLoadSum-$totSum,2)}}</td>

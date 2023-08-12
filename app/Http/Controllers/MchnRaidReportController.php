@@ -379,6 +379,7 @@ class MchnRaidReportController extends Controller
         $sc1 = " and 1=1";
         $sc2 = " and 1=1";
         $sc3 = " and 1=1";
+        $sc4 = " and 1=1";
 
         foreach ($search_params as $item => $val) {
             if (isset($val) and strlen($val) > 0) {
@@ -401,9 +402,11 @@ class MchnRaidReportController extends Controller
 
                 } elseif ($item == 's_begdate') {
                     $sc = $sc . " and mr.wrkdate >= '{$val}'";
+                    $sc4 = $sc4 . " and dw.wrkdate >= '{$val}'";
 
                 } elseif ($item == 's_enddate') {
                     $sc = $sc . " and mr.wrkdate <= '{$val}'";
+                    $sc4 = $sc4 . " and dw.wrkdate <= '{$val}'";
 
                 } elseif ($item == 's_month') {
                     //$sc = $sc . " and month(mr.docdate) = '{$val}'";
@@ -451,7 +454,9 @@ class MchnRaidReportController extends Controller
                 , db::raw("max(mr.wrkdate) as max_wrkdate")
             )
                 //->groupBy(['mr.wrkdate', 'mro.suporgid', 'mro.orgid', 'mro.disp_staffid', 'mro.org_placeid', 'mro.refitmid'])
-                ->groupBy(['mro.suporgid', 'mro.orgid', 'mro.disp_staffid', 'mro.org_placeid', 'mro.refitmid', 'mro.itm_price'])
+                ->groupBy(['mro.suporgid', 'mro.orgid', 'mro.disp_staffid'
+                    , 'mro.org_placeid', db::raw("lcase(mro.org_placename)")
+                    , 'mro.refitmid', 'mro.itm_price'])
                 //->orderby('mr.wrkdate', 'asc')
                 ->orderby('ownorgname', 'asc')
                 ->orderby('suporgid', 'asc')
@@ -492,7 +497,7 @@ class MchnRaidReportController extends Controller
 
 
             //3-й набор - итоги по машинам/водителям
-            $recs3 = mchn_raid::from('mchn_raids as mr')
+            /*$recs3 = mchn_raid::from('mchn_raids as mr')
                 //->join('mr_opers as mro', 'mro.mr_id', 'mr.id')
                 ->join('machines as m', 'm.id', 'mr.machineid')
                 ->join('orgstaff as os', 'os.id', 'mr.driverid')
@@ -512,7 +517,30 @@ class MchnRaidReportController extends Controller
                 ->groupBy('mr.driverid')
                 ->orderBy('driver_name')
                 ->get();
-            //dd($sc, $recs3);
+            */
+
+            $recs3 = driver_work::from('driver_works as dw')
+                ->join('machines as m', 'm.id', 'dw.machineid')
+                ->join('orgstaff as os', 'os.id', 'dw.staffid')
+//                ->whereRaw($sc . $sc3)
+                ->whereRaw('1=1 ' . $sc4)
+                ->select(
+                    'dw.machineid', db::raw("concat(m.name,' ',m.regnum) as machine_name")
+                    , 'dw.staffid as driverid', 'os.name as driver_name'
+                    , db::raw("sum( (select sum(mr.raid_qty) from mchn_raids as mr where mr.dw_id = dw.id)) as raid_qty")
+                    //, db::raw("sum(dw.day_wrkhrs) day_wrkhrs")
+                    //, db::raw("sum(dw.night_wrkhrs) night_wrkhrs")
+                    , db::raw("sum(dw.day_wrkhrs + dw.night_wrkhrs) wrkhrs")
+                    , db::raw("sum(dw.day_wrkhrs*dw.day_hr_rate + dw.night_wrkhrs*dw.night_hr_rate) hr_sum")
+                    , db::raw("sum(dw.day_brkhrs + dw.night_brkhrs) brkhrs")
+                    , db::raw("sum(dw.breaks_sum) breaks_sum")
+                )
+                ->groupBy('dw.machineid')
+                ->groupBy('dw.staffid')
+                ->orderBy('driver_name')
+                ->get();
+//            dd($sc, $recs3);
+
 
             //обновим счетчик использования отчета
             report::updUseCnt($report_id, $userid, \Auth::user()->name);
