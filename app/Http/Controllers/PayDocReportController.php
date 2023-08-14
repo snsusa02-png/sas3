@@ -480,7 +480,7 @@ class PayDocReportController extends Controller
                     , db::raw("concat('отгрузка ', ri.name, ', ', ri.unit) as descript")
                     , 'i.price as itm_price'
                     , db::raw("sum(i.qty) as qty")
-                    , db::raw("sum(dt.forsale*i.qty*i.price ) as opersum")
+                    , db::raw("sum(-dt.forsale*i.qty*i.price ) as opersum")
                     , db::raw("null as notes")
                     , db::raw("null as raid_qty")
                 )
