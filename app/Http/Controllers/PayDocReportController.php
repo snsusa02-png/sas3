@@ -34,6 +34,7 @@ use App\Traits\SearchDataTrait;
 use App\User;
 use App\user_template;
 use App\usrsysright;
+use App\wrhdoc;
 use http\Env\Response;
 use Illuminate\Http\Request;
 use DB;
@@ -465,6 +466,26 @@ class PayDocReportController extends Controller
                 )
                 ->groupBy('operdate', 'sysobjid', 'org_placename', 'mro.refitmid', 'mro.itm_price');
 
+            $wrh_sells = wrhdoc::from('wrhdocs as d')
+                ->join('wrhdoctypes as dt', 'dt.id', 'd.doctypeid')
+                ->join('wrhs as w', 'w.id', 'd.wrhid')
+                ->join('wrhdoclst as i', 'i.docid', 'd.id')
+                ->join('refitems as ri', 'ri.id', 'i.refitmid')
+                ->where('dt.forsale', '<>', 0)
+                ->where(['d.ownorgid' => $ownorgid])
+                ->whereRaw("ifnull(d.saleorgid, d.orgid) = {$orgid}")
+                ->select('d.docdate as operdate', db::raw('2 as sumtypeid')
+                    , db::raw("204 as sysobjid")
+                    , db::raw('w.name as org_placename')
+                    , db::raw("concat('отгрузка ', ri.name, ', ', ri.unit) as descript")
+                    , 'i.price as itm_price'
+                    , db::raw("sum(i.qty) as qty")
+                    , db::raw("sum(dt.forsale*i.qty*i.price ) as opersum")
+                    , db::raw("null as notes")
+                    , db::raw("null as raid_qty")
+                )
+                ->groupBy('operdate', 'sysobjid', 'org_placename', 'i.refitmid', 'i.price');
+
             $recs = paydoc::from('paydocs as pd')
                 ->where(['pd.ownorgid' => $ownorgid, 'pd.orgid' => $orgid, 'pd.active' => 1])
                 ->whereRaw($sc2)
@@ -480,6 +501,7 @@ class PayDocReportController extends Controller
                 )
                 ->unionall($sells)
                 ->unionall($buys)
+                ->unionall($wrh_sells)
                 ->orderBy('operdate')
                 ->get();
             //dd($recs);

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\obj_finoper;
+use App\objflag;
 use App\objlog;
 use App\order;
 use App\orditem;
@@ -757,7 +758,9 @@ class WrhdocController extends Controller
                     return redirect($route)->with($sd);
                 }
 
-                $limit_stock = true; //todo: сделать преференцию "Не снижать запас ниже 0"
+                //$limit_stock = true; //todo: сделать преференцию "Не снижать запас ниже 0"
+                // Преференция для владельца товара: FlagTypeID = 190: Если есть, то можно снижать товарный запас < 0
+                $limit_stock = ! objflag::IsSetObjFlag(111,$rec->ownorgid, 190);
 
                 DB::beginTransaction();
 
@@ -804,8 +807,17 @@ class WrhdocController extends Controller
                             //значение для документа
                             $itm_forstock = $forstock;
 
+                        $sc1 = '';
+                        // если документ снижает товарный запас
+                        // И нельзя снижать запас ниже 0
+                        // И можно брать товар из запасов любой организации (СПОРНО!!!),
+                        // то, отсечем записи с 0 кол-вом в wrh_stocks
+                        if ($itm_forstock < 0 and $limit_stock and $rec->doctype->any_ownorg == 1) {
+                            $sc1 .= ' and qty > 0';
+                        }
+
                         $stock = wrh_stock::where('refitmid', $itm->refitmid)
-                            ->whereRaw($sc)
+                            ->whereRaw($sc . $sc1)
                             ->first();
 
                         if (!isset($stock)) {
