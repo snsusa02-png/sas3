@@ -293,7 +293,7 @@ class MrOperController extends Controller
 
         //$rec->driver_sum = $request->get('driver_sum') ?? 0;
         // Только для операции "Продажа" и вида работ "Тралы и Манипуляторы"
-        if ($rec->sale_dir = 1 and ($rec->mchn_raid->opertypeid = 3 or $rec->mchn_raid->opertypeid = 4)) {
+        if ($rec->sale_dir == 1 and ($rec->mchn_raid->opertypeid == 3 or $rec->mchn_raid->opertypeid == 4)) {
             $rec->driver_sum = $request->get('driver_sum') ?? 0;
         } else
             $rec->driver_sum = 0;
