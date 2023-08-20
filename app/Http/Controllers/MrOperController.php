@@ -154,7 +154,7 @@ class MrOperController extends Controller
             $rec = mr_oper::from('mr_opers as mro')->where('id', $id)->first();
             if (!isset($rec))
                 return redirect(route($this->sysobjcode . '.index'))
-                    ->with(['error'=>'Запись не найдена!']);
+                    ->with(['error' => 'Запись не найдена!']);
 
             $rec->sup_places = org_place::lstFor([
                 'orgid' => $rec->suporgid
@@ -175,8 +175,8 @@ class MrOperController extends Controller
         //dd($rec->linked_paydocs);
 
         //Коррекция прав с учетом менеджерства
-        $usrrights['save'] = ($usrrights['save'] and ($rec->created_by == $userid or $usrrights['manager']) );
-        $usrrights['delete'] = ($usrrights['delete'] and ($rec->created_by == $userid or $usrrights['manager']) );
+        $usrrights['save'] = ($usrrights['save'] and ($rec->created_by == $userid or $usrrights['manager']));
+        $usrrights['delete'] = ($usrrights['delete'] and ($rec->created_by == $userid or $usrrights['manager']));
         //dd($rec->created_by == $userid, $usrrights['save']);
 
         return view('mr_opers.edit', compact('rec', "usrrights"));
@@ -291,7 +291,12 @@ class MrOperController extends Controller
 
         $rec->agent_sum = $request->get('agent_sum') ?? 0;
 
-        $rec->driver_sum = $request->get('driver_sum') ?? 0;
+        //$rec->driver_sum = $request->get('driver_sum') ?? 0;
+        // Только для операции "Продажа" и вида работ "Тралы и Манипуляторы"
+        if ($rec->sale_dir = 1 and ($rec->mchn_raid->opertypeid = 3 or $rec->mchn_raid->opertypeid = 4)) {
+            $rec->driver_sum = $request->get('driver_sum') ?? 0;
+        } else
+            $rec->driver_sum = 0;
 
         $rec->disp_staffid = $request->get('disp_staffid');
 

@@ -44,9 +44,10 @@ $(document).ready(function () {
 
 
     function recalc_driver_sum() {
-
+        const sale_dir = $("#sale_dir").val();
         const opertypeid = $("#opertypeid").val();
-        if (opertypeid == 3 || opertypeid == 4) {
+        if ( sale_dir == +1 && (opertypeid == 3 || opertypeid == 4) ) {
+            //alert(sale_dir);
             $(".driver_sum_info").show();
             const itm_sum = parseFloat($("#itm_sum").val()) ?? 0;
             var agent_sum = parseFloat($("#agent_sum").val()) ?? 0;
