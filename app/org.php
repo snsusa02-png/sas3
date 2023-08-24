@@ -1329,6 +1329,16 @@ class org extends Model
                             . " exists (select 1 from wrh_stocks as ws
                                     where ws.ownorgid=o.id and ws.qty>0)";
 
+                    } elseif ($key == 'in_wrhdocs_ownorg') {
+                        // использовалась в документах склада как Компания-владелец склада
+                        $sc .= " and " . (($val == 0) ? "not" : "")
+                            . " exists (select 1 from wrhdocs as d where d.ownorgid=o.id)";
+
+                    } elseif ($key == 'in_wrhdocs_org') {
+                        // использовалась в документах склада как Компания-контрагент
+                        $sc .= " and " . (($val == 0) ? "not" : "")
+                            . " exists (select 1 from wrhdocs as d  where d.orgid=o.id)";
+
                     } elseif ($key == 'in_mchn_raids_ownorgid') {
                         //организация указана в  mchn_raids.ownorgid
                         $sc .= " and " . (($val == 0) ? "not" : "")

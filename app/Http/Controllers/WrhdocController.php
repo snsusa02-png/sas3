@@ -164,6 +164,8 @@ class WrhdocController extends Controller
             , 's_wrhid' => ''
             , 's_statuscode' => ''
             , 's_inpout' => ''
+            , 's_ownorgid' => ''
+            , 's_orgid' => ''
         ];
 
         $search_params = $this->search_params($request, $param_names);
@@ -196,6 +198,12 @@ class WrhdocController extends Controller
 
                 } elseif ($item == 's_docnum') {
                     $sc .= " and wd.docnum like '" . mb_strtoupper($val) . "%'";
+
+                } elseif ($item == 's_ownorgid') {
+                    $sc .= " and wd.ownorgid={$val}";
+
+                } elseif ($item == 's_orgid') {
+                    $sc .= " and wd.orgid={$val}";
 
                 } elseif ($item == 's_wrhid') {
                     $sc .= " and wd.wrhid={$val}";
@@ -254,6 +262,8 @@ class WrhdocController extends Controller
 
         $data->search_params = $search_params;
 
+        $data->ownorgs = org::lstFor_cached(['in_wrhdocs_ownorg' => 1]);  //Владельцы из документов склада
+        $data->orgs = org::lstFor_cached(['in_wrhdocs_org' => 1]);  //Контрагенты из документов склада
         $data->s_wrhs = wrh::listUsed();
         $data->s_doctypes = wrhdoctype::listUsed();
 

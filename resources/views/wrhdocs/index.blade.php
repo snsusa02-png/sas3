@@ -50,6 +50,37 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="row mb-3">
+                        <div class="offset-md-2 col-md-4 ">
+                            <div class="form-group">
+                                <label for="lname">Владелец:</label>
+                                {!! Form::select('s_ownorgid', $data->ownorgs??[], $data->search_params['s_ownorgid']??'',
+                                    [
+                                    'class' => 'form-control small',
+                                    'placeholder' => '-все-',
+                                    'id' => 's_ownorgid',
+                                    'onchange' => 'form.submit()',
+                                    ])
+                                !!}
+                            </div>
+                        </div>
+
+                        <div class="offset-md-0 col-md-4 ">
+                            <div class="form-group">
+                                <label for="lname">Контрагент:</label>
+                                {!! Form::select('s_orgid', $data->orgs??[], $data->search_params['s_orgid']??'',
+                                    [
+                                    'class' => 'form-control small',
+                                    'placeholder' => '-все-',
+                                    'id' => 's_orgid',
+                                    'onchange' => 'form.submit()',
+                                    ])
+                                !!}
+                            </div>
+
+                        </div>
+                    </div>
                     <div>
                         <table data-toggle="table" class="table display table-striped table-condensed">
                             <thead>
