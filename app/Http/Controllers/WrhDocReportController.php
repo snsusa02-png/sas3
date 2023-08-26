@@ -323,4 +323,90 @@ class WrhDocReportController extends Controller
         return view('wrhdocs.rep' . $report_id, compact('search_params', 'recs', 'recs2', 'data'));
     }
 
+    function rep60(Request $request)
+    {
+        //Детализация отгрузки продукции по контрагенту
+
+        $report_id = 60;
+
+        $returl = $request->get('returl') ?? route('home');
+        $userid = Auth::user()->id;
+        $export2xls = $request->get('xls') ?? 0;
+
+        $param_names = [
+            's_ownorgid' => null,
+            's_orgid' => null,
+            's_begdate' => null,
+            's_enddate' => null,
+        ];
+
+        $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);
+
+        $s_orgid = $search_params['s_orgid'];
+        $s_begdate = $search_params['s_begdate'];
+        $s_enddate = $search_params['s_enddate'];
+
+        $data = new \stdClass();
+        $data->org_name = org::find($s_orgid)->name;
+        $data->returl = $returl;
+
+        $data->ownorgs = org::lstFor_cached(['in_wrhdocs_ownorg' => 1]);  //Владельцы из документов склада
+        $data->orgs = org::lstFor_cached(['in_wrhdocs_org' => 1]);  //Контрагенты из документов склада
+
+        if ($s_orgid <> '') {
+
+            $sc = "d.orgid = {$s_orgid}";
+
+            if (isset($s_begdate))
+                $sc .= " and d.docdate >= '{$s_begdate}'";
+
+            if (isset($s_enddate))
+                $sc .= " and d.docdate <= '{$s_enddate}'";
+
+            $recs = wrhdoc::from('wrhdoclst as dl')
+                //->join('wrhdocs as d', 'd.id', 'dl.docid')
+                ->join('wrhdocs as d', function ($join) {
+                    $join->on('d.id', '=', 'dl.docid')
+                        ->where('d.docsigned', 1);
+                })
+                ->join('orgs as oo', 'oo.id', 'd.ownorgid')
+                ->join('orgs as o', 'o.id', 'd.orgid')
+                ->join('wrhdoctypes as t', function ($join) {
+                    $join->on('t.id', '=', 'd.doctypeid')
+                        ->where('t.forsale', '<>', 0);
+                })
+                ->join('refitems as ri', 'ri.id', 'dl.refitmid')
+                ->whereRaw($sc)
+                ->select('d.ownorgid', 'oo.name as ownorg_name'
+                    , 'd.orgid', 'o.name as org_name'
+                    , 'd.docdate'
+                    , 'dl.refitmid', 'ri.name as refitm_name', 'ri.unit as refitm_unit'
+                    , 'dl.price'
+                    , db::raw("sum(t.forsale * dl.qty) as qty")
+                    , db::raw("sum(t.forsale * dl.qty * dl.price) as sale_sum"))
+                ->groupBy('d.ownorgid', 'd.orgid', 'd.docdate', 'dl.refitmid', 'dl.price')
+                ->orderBy('ownorg_name', 'asc')
+                ->orderBy('d.ownorgid', 'asc')
+                ->orderBy('d.docdate', 'asc')
+                ->orderBy('refitm_name', 'asc')
+                ->get();
+
+            //dd($date,$recs);
+
+            //занесем в журнал
+            objlog::log_info(855, $report_id, 'запрошен отчет; ' . $s_orgid);
+//        if ($export2xls == "1") {
+//            $response = Excel::download(new rep54Export($recs, $data), "Платежи за " . Str::slug($data->$date) . ".xlsx", \Maatwebsite\Excel\Excel::XLSX);
+//
+//            //$response= Excel::download(new InvoicesExport, 'invoices.xls', \Maatwebsite\Excel\Excel::XLS);
+//            //HERE IS THE MAGIC FOLKS
+//            ob_end_clean();
+//            return $response;
+//        }
+
+        } else {
+            $recs = null;
+        }
+        return view('wrhdocs.rep' . $report_id, compact('search_params', 'recs', 'data'));
+    }
 }
