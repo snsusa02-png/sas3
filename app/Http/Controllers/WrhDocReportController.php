@@ -347,13 +347,14 @@ class WrhDocReportController extends Controller
         $s_enddate = $search_params['s_enddate'];
 
         $data = new \stdClass();
-        $data->org_name = org::find($s_orgid)->name;
         $data->returl = $returl;
 
         $data->ownorgs = org::lstFor_cached(['in_wrhdocs_ownorg' => 1]);  //Владельцы из документов склада
         $data->orgs = org::lstFor_cached(['in_wrhdocs_org' => 1]);  //Контрагенты из документов склада
 
         if ($s_orgid <> '') {
+
+            $data->org_name = org::find($s_orgid)->name ?? '';
 
             $sc = "d.orgid = {$s_orgid}";
 
