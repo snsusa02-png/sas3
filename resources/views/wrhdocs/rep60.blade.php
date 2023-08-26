@@ -65,7 +65,7 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                                                 'class' => 'form-control small',
                                                 'placeholder' => '-все-',
                                                 'id' => 's_orgid',
-                                                'onchange0' => 'form.submit()',
+                                                'onchange' => 'form.submit()',
                                                 ])
                                             !!}
                                         </div>
@@ -102,9 +102,9 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                                         </div>
                                     @endif
 
-                                    @if(1==0)
+                                    @if(1==1)
                                         <div class="form-group col-md-3">
-                                            <label for="s_ownorgid" class="">Организация:</label>
+                                            <label for="s_ownorgid" class="">Склад от:</label>
                                             {!! Form::select('s_ownorgid', $data->ownorgs, $search_params['s_ownorgid'],
                                                             [
                                                             'class' => 'form-control',
@@ -117,6 +117,21 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                                     <?php
                                     $s_orgname = $search_params['s_orgname'] ?? '';
                                     ?>
+                                </div>
+
+                                <div class="row">
+                                    <div class="offset-md-6 col-md-5 ">
+                                        <div class="form-group">
+                                            <label for="lname">Товар:</label>
+                                            {!! Form::select('s_refitmid', $data->refitems??[], $search_params['s_refitmid']??'',
+                                                [
+                                                'class' => 'form-control small',
+                                                'placeholder' => '-все-',
+                                                'id' => 's_orgid',
+                                                ])
+                                            !!}
+                                        </div>
+                                    </div>
                                 </div>
                             @endif
 
@@ -177,31 +192,7 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                 <div class="mt-2 text-center"
                      style="font-size: 18px;">
                     <h4>{{$thisTitle}}</h4>
-                    <?php
-                    $repInfo = "Контрагент: <b>{$data->org_name}</b><br>";
-
-                    $dates = '';
-                    $begdate = $search_params['s_begdate'] ?? null;
-                    $enddate = $search_params['s_enddate'] ?? null;
-                    if (isset($begdate) or isset($enddate)) {
-                        if (isset($begdate))
-                            $dates .= "<b>" . date_create($begdate)->format('d.m.Y') . "</b>";
-                        else
-                            $dates .= "...";
-
-                        $dates .= ' - ';
-
-                        if (isset($enddate)) {
-                            $dates .= "<b>" . date_create($enddate)->format('d.m.Y') . "</b>";
-                        } else
-                            $dates .= "...";
-
-                        $repInfo .= "за период: {$dates}";
-                    }else
-                    ?>
-
-                    <div>{!! $repInfo !!}</div>
-
+                    <div>{!! $data->repInfo !!}</div>
                     <span class="small"><br>по состоянию на {{now()}}</span>
                     @if(1==0)
                         <button class="btn btn-primary btn-sm d-print-none" type="button" data-toggle="collapse"

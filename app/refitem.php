@@ -1385,10 +1385,13 @@ class refitem extends Model
                             $sc .= ')';
                         }
 
-
                     } elseif ($key == 'in_mchn_raids') {
                         $sc .= " and " . (($val == 1) ? '' : 'not') .
                             " exists (select 1 from mchn_raids as mr where ri.id in (mr.load_refitmid, mr.unload_refitmid))";
+
+                    } elseif ($key == 'in_wrhdocs') {
+                        $sc .= " and " . (($val == 1) ? '' : 'not') .
+                            " exists (select 1 from wrhdoclst as dl where dl.refitmid = ri.id )";
 
                     } elseif ($key == 'in_compounds') {
                         $sc .= " and " . (($val == 1) ? '' : 'not')
@@ -1464,7 +1467,7 @@ class refitem extends Model
 
             $hash = md5(serialize($params));
 
-            //Cache::forget('lstFor_' . $hash);
+            //Cache::forget(self::$prefix . '_lstFor_' . $hash);
             return Cache::remember(self::$prefix . '_lstFor_' . $hash, now()->addMinutes($cache_minutes ?? 5)
                 , function () use ($params, $ret_flds) {
                     return self::lstFor($params, $ret_flds);

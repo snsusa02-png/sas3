@@ -18,6 +18,7 @@ use App\orgplnpay_item;
 use App\orgstaff;
 use App\pay_category;
 use App\paydoc;
+use App\refitem;
 use App\task;
 use App\prodplan_fact;
 use App\report;
@@ -211,7 +212,9 @@ class WrhDocReportController extends Controller
 
         //занесем в журнал
         objlog::log_info(855, $report_id, 'запрошен отчет; ' . $date);
-//        if ($export2xls == "1") {
+        report::updUseCnt($report_id);
+
+        //        if ($export2xls == "1") {
 //            $response = Excel::download(new rep54Export($recs, $data), "Платежи за " . Str::slug($data->$date) . ".xlsx", \Maatwebsite\Excel\Excel::XLSX);
 //
 //            //$response= Excel::download(new InvoicesExport, 'invoices.xls', \Maatwebsite\Excel\Excel::XLS);
@@ -308,7 +311,9 @@ class WrhDocReportController extends Controller
                 $recs2 = null;
             //занесем в журнал
             objlog::log_info(855, $report_id, 'запрошен отчет; ' . $s_begdate);
-//        if ($export2xls == "1") {
+            report::updUseCnt($report_id);
+
+            //        if ($export2xls == "1") {
 //            $response = Excel::download(new rep54Export($recs, $data), "Платежи за " . Str::slug($data->$date) . ".xlsx", \Maatwebsite\Excel\Excel::XLSX);
 //
 //            //$response= Excel::download(new InvoicesExport, 'invoices.xls', \Maatwebsite\Excel\Excel::XLS);
@@ -338,31 +343,61 @@ class WrhDocReportController extends Controller
             's_orgid' => null,
             's_begdate' => null,
             's_enddate' => null,
+            's_refitmid' => null,
         ];
 
         $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);
 
-        $s_orgid = $search_params['s_orgid'];
-        $s_begdate = $search_params['s_begdate'];
-        $s_enddate = $search_params['s_enddate'];
-
         $data = new \stdClass();
         $data->returl = $returl;
+        $data->repInfo = '';
 
         $data->ownorgs = org::lstFor_cached(['in_wrhdocs_ownorg' => 1]);  //Владельцы из документов склада
         $data->orgs = org::lstFor_cached(['in_wrhdocs_org' => 1]);  //Контрагенты из документов склада
+        $data->refitems = refitem::lstFor_cached(['in_wrhdocs' => 1]);  //Товары из документов склада
 
-        if ($s_orgid <> '') {
+        if ($search_params['s_orgid'] <> '') {
 
-            $data->org_name = org::find($s_orgid)->name ?? '';
+            $s_orgid = $search_params['s_orgid'];
+            $s_ownorgid = $search_params['s_ownorgid'];
+            $s_begdate = $search_params['s_begdate'];
+            $s_enddate = $search_params['s_enddate'];
+            $s_refitmid = $search_params['s_refitmid'];
 
             $sc = "d.orgid = {$s_orgid}";
+            $data->org_name = org::find($s_orgid)->name ?? '';
+            $data->repInfo = "Контрагент: <b>{$data->org_name}</b>";
 
-            if (isset($s_begdate))
-                $sc .= " and d.docdate >= '{$s_begdate}'";
+            if (isset($s_ownorgid)) {
+                $sc .= " and d.ownorgid = {$s_ownorgid}";
+                $data->ownorg_name = org::find($s_ownorgid)->name ?? '';
+                $data->repInfo .= "<br>со склада: <b>{$data->ownorg_name}</b><br>";
+            }
 
-            if (isset($s_enddate))
-                $sc .= " and d.docdate <= '{$s_enddate}'";
+            $dates = '';
+            if (isset($s_begdate) or isset($s_enddate)) {
+                if (isset($s_begdate)) {
+                    $sc .= " and d.docdate >= '{$s_begdate}'";
+                    $dates .= "<b>" . date_create($s_begdate)->format('d.m.Y') . "</b>";
+                } else
+                    $dates .= "...";
+
+                $dates .= ' - ';
+
+                if (isset($s_enddate)) {
+                    $sc .= " and d.docdate <= '{$s_enddate}'";
+                    $dates .= "<b>" . date_create($s_enddate)->format('d.m.Y') . "</b>";
+                } else
+                    $dates .= "...";
+
+                $data->repInfo .= "<br>за период: {$dates}";
+            }
+
+            if (isset($s_refitmid)) {
+                $sc .= " and dl.refitmid = {$s_refitmid}";
+                $data->ri_name = refitem::find($s_refitmid)->name ?? '';
+                $data->repInfo .= "<br>товар: <b>{$data->ri_name}</b><br>";
+            }
 
             $recs = wrhdoc::from('wrhdoclst as dl')
                 //->join('wrhdocs as d', 'd.id', 'dl.docid')
@@ -396,6 +431,9 @@ class WrhDocReportController extends Controller
 
             //занесем в журнал
             objlog::log_info(855, $report_id, 'запрошен отчет; ' . $s_orgid);
+            //обновим счетчик использования отчета
+            report::updUseCnt($report_id);
+
 //        if ($export2xls == "1") {
 //            $response = Excel::download(new rep54Export($recs, $data), "Платежи за " . Str::slug($data->$date) . ".xlsx", \Maatwebsite\Excel\Excel::XLSX);
 //
