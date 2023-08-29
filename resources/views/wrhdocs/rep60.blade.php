@@ -223,7 +223,8 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                     $npp = 0;
                     $cur_ownorgid = -1;
                     $cur_date = '-1';
-                    $totSum = $totOwnOrgSum = $totDaySum = 0;
+                    $totSum = $totOwnOrgSum = $totDaySum = $totQty = 0;
+                    $s_refitmid = $search_params['s_refitmid'] ?? -1;
                     ?>
                     @foreach($recs as $rec)
                         @if ($rec->ownorgid <> $cur_ownorgid)
@@ -288,6 +289,9 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                         $n_qty = (isset($rec->qty)) ? $rec->qty : 0;
                         $n_sale_sum = (isset($rec->sale_sum)) ? $rec->sale_sum : 0;
 
+                        if ($rec->refitmid == $s_refitmid) {
+                            $totQty += $n_qty;
+                        }
                         //                            if ($rec->sysobjid == 520)
                         if (1 == 1)
                             $ref_url = null; //route('paydocs.edit', $rec->objid);
@@ -338,6 +342,9 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                     @endforeach
                     @if(1==1)
                         <?php
+                        if ($s_refitmid == -1)
+                            $totQty = '';
+
                         $td_class = '';
                         $tdс_class = '';
                         ?>
@@ -359,7 +366,8 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                             </tr>
                         @endif
                         <tr>
-                            <td colspan="6" class="text-right" data-npp="{{$npp++}}">Всего:</td>
+                            <td colspan="5" class="text-right" data-npp="{{$npp++}}">Всего:</td>
+                            <td class="text-right font-weight-bold">{{$totQty}}</td>
                             <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totSum,2)}}</td>
                         </tr>
                     @endif
