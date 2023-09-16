@@ -344,6 +344,7 @@ class WrhDocReportController extends Controller
             's_begdate' => null,
             's_enddate' => null,
             's_refitmid' => null,
+            's_grp_docdate' => 1,
         ];
 
         $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);

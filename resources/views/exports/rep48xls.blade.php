@@ -59,7 +59,14 @@
         ?>
         <tr>
             <td>{{ $itm->operdate }}</td>
-            <td>{{ $itm->descript}}/ {{ $itm->org_placename }}</td>
+            <td>{{ $itm->descript}}/ {{ $itm->org_placename }}
+                @if(isset($itm->mchn_regnums))
+                    / {{$itm->mchn_regnums}}
+                @endif
+                @if(isset($itm->notes))
+                    / {{$itm->notes}}
+                @endif
+            </td>
             <td>{{ $itm->raid_qty }}</td>
             <td>{{ $itm->qty }}</td>
             <td>{{ $itm->price }}</td>
