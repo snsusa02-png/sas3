@@ -34,7 +34,6 @@
         $td_class = ($line_sum < 0) ? 'text-danger' : (($line_sum > 0) ? 'text-success' : '');
         ?>
 
-        {{--                            <tr class="text-left collapse show date_{{$tr_date}} multi-collapse">--}}
         <tr class="text-left collapse show date_{{$tr_date??''}} multi-collapse">
             <td width="15">{{$rec->regnum}}</td>
             <td x:num width="15">{{$rec->sale_sum}}</td>

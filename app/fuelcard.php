@@ -38,6 +38,12 @@ class fuelcard extends Model
             ->withDefault();
     }
 
+    public function ref_machine()
+    {
+        return $this->hasOne(machine::class, 'id', 'ref_machineid')
+            ->withDefault();
+    }
+
     public function getInfoAttribute()
     {
         if (isset($this->id)) {

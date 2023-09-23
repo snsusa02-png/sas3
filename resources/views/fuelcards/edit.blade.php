@@ -81,7 +81,7 @@
                                 <div class="form-group">
                                     <label for="descript">Описание:</label>
                                     <textarea class="form-control rounded-0" name="notes" id="notes"
-                                              rows="3">{{ $rec->notes }}</textarea>
+                                              rows="2">{{ $rec->notes }}</textarea>
                                 </div>
 
                                 <div class="row">
@@ -118,7 +118,33 @@
                                             <div class="font-weight-bold">{{$rec->org->info??''}}</div>
                                         @endif
                                     </div>
+                                </div>
 
+                                <div class="row">
+                                    <div class="form-group offset-md-3 col-md-9">
+                                        <label for="name" class="">Карта закреплена за авто:</label>
+                                        @if ($usrrights['save'])
+                                            <div class="input-group mb-3 ">
+                                                <input type="text" name="machine_name" id="machine_name"
+                                                       class="ac_name machine_name form-control font-weight-bold"
+                                                       value="{{old('machine_name',$rec->ref_machine->RegNumName)}}">
+                                                <input type="text" class="form-control text-center small ac_status"
+                                                       style="display: none; border: #d7f3e3; max-width: 30px" readonly>
+                                                <input type="hidden" name="ref_machineid" class="ac_id machineid"
+                                                       id="ref_machineid"
+                                                       value="{{old('ref_machineid',$rec->ref_machineid)}}">
+                                                <a class="btn btn-light id_lnk" id="machineid_lnk"
+                                                   data-id="ref_machineid" data-obj="machines" target="_blank">
+                                                    <i class="fa fa-info text-info" aria-hidden="true"></i>
+                                                </a>
+                                            </div>
+                                        @else
+                                            <div class="font-weight-bold">{{$rec->ref_machine->RegNumName}}</div>
+                                            <input type="hidden" name="ref_machineid" id="ref_machineid"
+                                                   value="{{$rec->ref_machineid}}">
+                                        @endif
+
+                                    </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="active" style="color: rgb(73, 80, 87);">Активная:</label>

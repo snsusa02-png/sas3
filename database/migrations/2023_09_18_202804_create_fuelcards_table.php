@@ -19,8 +19,11 @@ class CreateFuelcardsTable extends Migration
             $table->string('num',16)->comment('Номер карты');
             $table->string('name',60)->nullable()->comment('Название/тип карты');
 
-            $table->bigInteger('orgid')->unsigned()->comment('Компания-владелец');
+            $table->bigInteger('orgid')->unsigned()->comment('Компания-владелец карты')->index('orgid');
 		$table->foreign('orgid')->references('id')->on('orgs');
+
+            $table->bigInteger('ref_machineid')->unsigned()->nullable();
+		$table->foreign('ref_machineid')->references('id')->on('machines');
 
             $table->string('notes',300)->nullable()->comment('Примечание');
 

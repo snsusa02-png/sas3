@@ -228,6 +228,7 @@ class FuelcardController extends Controller
         $rec->num = $request->get('num');
         $rec->notes = mb_substr($request->get('notes'), 0, 160);
         $rec->orgid = $request->get('orgid');
+        $rec->ref_machineid = $request->get('ref_machineid');
         $rec->active = $request->get('active', 0);
         $rec->updated_by = $userid;
         $rec->updated_at = now();
