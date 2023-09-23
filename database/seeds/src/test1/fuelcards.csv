@@ -1,4 +1,4 @@
-id,num,name,ownorgid,notes,active,created_at,created_by,updated_at,updated_by
+id,num,name,orgid,notes,active,created_at,created_by,updated_at,updated_by
 1,5080,NULL,35,NULL,1,"2023-09-18 11:20:52",1,"2023-09-18 11:20:52",1
 2,6372,NULL,35,NULL,1,"2023-09-18 11:21:22",1,"2023-09-18 11:21:22",1
 3,6373,NULL,35,NULL,1,"2023-09-18 11:21:22",1,"2023-09-18 11:21:22",1

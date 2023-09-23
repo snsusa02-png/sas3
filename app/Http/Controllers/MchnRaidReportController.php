@@ -928,6 +928,8 @@ class MchnRaidReportController extends Controller
         $ldom = new DateTime('last day of this month');
         $ldomc = $ldom->format('Y-m-d');
         $curdate = new DateTime();
+        $yesterday = new DateTime('yesterday');
+        $pd = $yesterday->format('Y-m-d');
         $cd = $curdate->format('Y-m-d');
 
         $month = date("n");
@@ -937,8 +939,8 @@ class MchnRaidReportController extends Controller
             's_pageitmcnt' => 20
             , 's_ownorgid' => '' //Auth::user()->curorgid
             , 's_period_type' => 1
-            , 's_begdate' => $cd //$fdomc
-            , 's_enddate' => $cd //$ldomc
+            , 's_begdate' => $pd //$fdomc
+            , 's_enddate' => $pd //$ldomc
             , 's_month' => $month
             , 's_quarter' => $yearQuarter
             , 's_year' => $year
