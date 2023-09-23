@@ -18,15 +18,13 @@
 
 			<div class="container">
 
-				<div class="row">
-					<div class="col-md-12">
-						<nav class="breadcrumb">
-							<a class="breadcrumb-item" href="/nsi">Данные</a>
-							<a class="breadcrumb-item" href="/nsi?tab=nsi-stock">Склад</a>
-							<span class="breadcrumb-item active">{{$thisTitle}}</span>
-						</nav>
-					</div>
-				</div>
+                <?php
+                $breadcrumbs = [
+                    'Справочники' => "/admin?tab=nsi-dic",
+                    $thisTitle => null,
+                ];
+                ?>
+                @includeIf('layouts.breadcrumbs')
 
 				<div class="row justify-content-center">
 					<div class="col-md-9">

@@ -68,6 +68,12 @@
             </a>
         @endif
 
+        @if (\App\usrsysright::isUserHasRightByCode(\Auth::user()->id,'paydocs.read'))
+            <a href="{{route('fuelcards.index')}}"
+               class="list-group-item list-group-item-action">Топливные карты
+            </a>
+        @endif
+
         @if (\App\usrsysright::isUserHasRightByCode(\Auth::user()->id,'reports.read'))
             <a href="{{route('reports.index').'#reports'}}"
                class="list-group-item list-group-item-action">Отчеты

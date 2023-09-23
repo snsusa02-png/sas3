@@ -1425,7 +1425,13 @@ class org extends Model
                         //организация указана в ri_sup_prices.orgid
                         $sc .= " and " . (($val == 0) ? "not" : "")
                             . " exists (select 1 from ri_sup_prices as rsp where rsp.orgid=o.id)";
+
+                    } elseif ($key == 'in_fuelcards') {
+                        //организация указана в fuelcards
+                        $sc .= " and " . (($val == 0) ? "not" : "")
+                            . " exists (select 1 from fuelcards as fc where fc.orgid=o.id)";
                     }
+
                 }
 
             }

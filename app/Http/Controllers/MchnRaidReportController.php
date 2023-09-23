@@ -995,6 +995,7 @@ class MchnRaidReportController extends Controller
         $need_search = false;
         $sc1 = "1=1";
         $sc2 = "1=1";
+        $sc3 = "1=1";
 
         foreach ($search_params as $item => $val) {
             if (isset($val) and strlen($val) > 0) {
@@ -1010,10 +1011,12 @@ class MchnRaidReportController extends Controller
                 } elseif ($item == 's_begdate') {
                     $sc1 = $sc1 . " and mr.wrkdate >= '{$val}'";
                     $sc2 = $sc2 . " and dw.wrkdate >= '{$val}'";
+                    $sc3 = $sc3 . " and fcp.paydate >= '{$val}'";
 
                 } elseif ($item == 's_enddate') {
                     $sc1 = $sc1 . " and mr.wrkdate <= '{$val}'";
                     $sc2 = $sc2 . " and dw.wrkdate <= '{$val}'";
+                    $sc3 = $sc3 . " and fcp.paydate <= '{$val}'";
 
                 } elseif ($item == 's_month') {
                     //$sc = $sc . " and month(mr.docdate) = '{$val}'";
@@ -1034,13 +1037,14 @@ class MchnRaidReportController extends Controller
 	, sum(sale_sum) as sale_sum
     , sum(buy_sum) as buy_sum
     , sum(salary_sum) as salary_sum
-    , 0 as fuel_sum
-    , sum(sale_sum) - sum(buy_sum) - sum(salary_sum) - 0 as income_sum
+    , sum(fuel_sum) as fuel_sum
+    , sum(sale_sum) - sum(buy_sum) - sum(salary_sum) - sum(fuel_sum) as income_sum
     from (
 SELECT mr.machineid
 	, sum(if(mro.sale_dir=1,1,0)*mro.itm_sum) as sale_sum
     , sum(if(mro.sale_dir=-1,1,0)*mro.itm_sum) as buy_sum
-    , null as salary_sum
+    , 0 as salary_sum
+    , 0 as fuel_sum
 	FROM mr_opers as mro
 	join mchn_raids as mr on mr.id=mro.mr_id
     where " . $sc1
@@ -1048,11 +1052,16 @@ SELECT mr.machineid
                 . " group by mr.machineid"
                 . " union
 SELECT dw.machineid
-	, null, null, sum(dw.salary_sum) as  salary_sum
+	, 0, 0, sum(dw.salary_sum) as  salary_sum, 0
 FROM driver_works dw
  where " . $sc2
                 . " group by machineid
- ) a
+ union
+SELECT fcp.machineid
+	, 0, 0, 0, sum(fcp.paysum) as  fuel_sum
+FROM fuelcard_pays fcp
+ where " . $sc3
+. " group by machineid) a
      join machines as m on m.id=a.machineid
 	group by machineid
 order by income_sum desc";

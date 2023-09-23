@@ -60,6 +60,12 @@ $userid = \Auth::user()->id;
                 'title' => 'Рабочее время водителей',
                 'sysobjid' => '1107',
             ],
+            [
+                'right' => 'mchn_raids.read',
+                'route' => 'fuelcard_pays.index',
+                'title' => 'Заправки',
+                'sysobjid' => '562',
+            ],
         ];
         ?>
         @foreach($menu_itms as $mnu)

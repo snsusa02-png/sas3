@@ -426,6 +426,9 @@ class machine extends Model
                     } elseif ($key == 'in_mchn_raids') {
                         $sc .= " and " . (($val == 1) ? '' : 'not') . " exists(select 1 from mchn_raids as mr where mr.machineid=m.id)";
 
+                    } elseif ($key == 'in_fuelcard_pays') {
+                        $sc .= " and " . (($val == 1) ? '' : 'not') . " exists(select 1 from fuelcard_pays as fcp where fcp.machineid=m.id)";
+
                     } elseif ($key == 'opertypeid') {
                         $sc .= " and exists(select 1 from mchn_opertypes as mot where mot.machineid=m.id and mot.opertypeid={$val})";
 

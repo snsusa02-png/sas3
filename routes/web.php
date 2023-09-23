@@ -778,7 +778,26 @@ Route::get('dw_breaks/{id}', 'DwBreakController@edit')->name('dw_breaks.edit');
 Route::match(array('POST', 'PUT'), 'dw_breaks/{id}', "DwBreakController@update")->name('dw_breaks.update');
 Route::get('dw_breaks/{id}/delete', "DwBreakController@destroy")->name("dw_breaks.delete");
 
-//// Отчет о работе ------------------------------------------------------------------------------------------------------
+// fuelcards - топливные карты ------------------------------------------------------------------------------------
+Route::match(array('GET', 'POST'), '/fuelcards', "FuelcardController@index")->name('fuelcards.index');
+Route::get('/fuelcards/sort/{field}', 'FuelcardController@index_sort')->name('fuelcards.sort');
+Route::get('fuelcards/create', "FuelcardController@create")->name('fuelcards.create');
+Route::get('fuelcards/{id}', 'FuelcardController@edit')->name('fuelcards.edit');
+Route::match(array('POST', 'PUT'), 'fuelcards/{id}', "FuelcardController@update")->name('fuelcards.update');
+Route::put('fuelcards/{id}/delete', "FuelcardController@destroy")->name("fuelcards.delete");
+Route::put('fuelcards/{id}/admindelete', "FuelcardController@admindelete")->name("fuelcards.admindelete");
+
+// fuelcard_pays - Учет операций с топливными картами -----------------------------------------------------------------
+Route::match(array('GET', 'POST'), '/fuelcard_pays/', "FuelcardPayController@index")->name('fuelcard_pays.index');
+Route::get('fuelcard_pays/create', "FuelcardPayController@create")->name('fuelcard_pays.create');
+Route::get('fuelcard_pays/{id}', 'FuelcardPayController@edit')->name('fuelcard_pays.edit');
+Route::match(array('POST', 'PUT'), 'fuelcard_pays/{id}', "FuelcardPayController@update")->name('fuelcard_pays.update');
+Route::put('fuelcard_pays/{id}/delete', "FuelcardPayController@destroy")->name("fuelcard_pays.delete");
+Route::put('fuelcard_pays/{id}/admindelete', "FuelcardPayController@admindelete")->name("fuelcard_pays.admindelete");
+Route::get('fuelcard_pays/{id}/make_template', "FuelcardPayController@make_template")->name('fuelcard_pays.make_template');
+Route::get('fuelcard_pays/{id}/clone', "FuelcardPayController@clone")->name('fuelcard_pays.clone');
+
+//// Отчет о работе ----------------------------------------------------------------------------------------------------
 //Route::match(array('GET', 'POST'), '/wrkreps/', "WrkrepController@index")->name('wrkreps.index');
 //Route::get('wrkreps/create', "WrkrepController@create")->name('wrkreps.create');
 //Route::get('wrkreps/{id}', 'WrkrepController@edit')->name('wrkreps.edit');
