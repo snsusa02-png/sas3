@@ -1060,6 +1060,7 @@ Route::get('/orgs/addrs/params/', 'OrgPlaceController@addrs_params');
 Route::get('/api/doctypes/ac_/', 'DoctypeController@get_for');
 Route::get('/api/doctypes/params/', 'DoctypeController@list_for');
 Route::get('/api/orgstaff/ac_/', 'orgstaffController@get_for');
+Route::get('/api/fuelcards/data_for_card/', 'FuelcardController@data_for_card');
 
 Route::get('/api/contracts/params/', 'ContractController@listcontracts');
 Route::get('/api/contracts/buildopertypeid/', 'ContractController@list_for_buildopertypeid');

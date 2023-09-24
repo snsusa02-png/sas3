@@ -68,9 +68,10 @@
                                 <td>Владелец</td>
                                 <td>
                                     <a href="{{ route('set_sort',['field' => 'fc.num','retroute'=>'fuelcards.index']) }}"
-                                       class="btn btn-sm"
-                                       title="Сортировать">№ и название {!! sort_mark('fc.num',$sort_params) !!}</a>
+                                       class="btn "
+                                       title="Сортировать">№ карты и название {!! sort_mark('fc.num',$sort_params) !!}</a>
                                 </td>
+                                <td>Закреплена за</td>
 
                                 <td style="text-align: center;">
                                     @if ($usrrights['create'])
@@ -113,6 +114,18 @@
                                         <input type="text" class="form-control c" name="s_name"
                                                value="{{ $search_params['s_name'] ?? ''}}"
                                                placeholder="-название-"/>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="input-group">
+                                        {!! Form::select('s_ref_machineid', $data->ref_machines??[], $search_params['s_ref_machineid']??'',
+                                                        [
+                                                        'class' => 'form-control small',
+                                                        'placeholder' => '-все-',
+                                                        'onChange' => 'this.form.submit()',
+                                                        ])
+                                                        !!}
                                     </div>
                                 </td>
 
@@ -168,6 +181,7 @@
                                             {{$item->notes}}
                                         </div>
                                     </td>
+                                    <td>{{$item->ref_machine_name}}</td>
                                     <td style="text-align: center;">
                                         <a href="{{ route('fuelcards.edit',$item->id)}}"
                                            class="btn btn-sm btn-primary"

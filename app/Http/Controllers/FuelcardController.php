@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\fuelcard;
 use App\group;
+use App\machine;
 use App\objflag;
 use App\objlog;
 use App\org;
@@ -79,6 +80,7 @@ class FuelcardController extends Controller
             , 's_name' => ''
             , 's_num' => ''
             , 's_orgid' => ''
+            , 's_ref_machineid' => ''
         ];
 
         $search_params = $this->search_params($request, $param_names);
@@ -97,6 +99,9 @@ class FuelcardController extends Controller
                 } elseif ($item == 's_orgid') {
                     $sc = $sc . " and fc.orgid = '{$val}'";
 
+                } elseif ($item == 's_ref_machineid') {
+                    $sc = $sc . " and fc.ref_machineid = '{$val}'";
+
                 }
             }
         }
@@ -107,8 +112,15 @@ class FuelcardController extends Controller
             ->leftJoin('orgs as o', function ($j) {
                 $j->on('o.id', 'fc.orgid');
             })
+            ->leftJoin('machines as m', function ($j) {
+                $j->on('m.id', 'fc.ref_machineid');
+            })
+            ->leftJoin('orgs as mo', function ($j) {
+                $j->on('mo.id', 'm.orgid');
+            })
             ->whereraw($sc)
-            ->select('fc.id', 'fc.num', 'fc.name', 'fc.active', 'fc.orgid', 'o.name as org_name' );
+            ->select('fc.id', 'fc.num', 'fc.name', 'fc.active', 'fc.orgid', 'o.name as org_name'
+                , db::raw("concat(m.regnum, ' (', m.name, ', ', mo.name, ')' ) as ref_machine_name") );
 
         //Сортировка пользователя ----------------------------------------
         $sort_params = session('sort_params_' . $this->objcode . '.index');
@@ -134,9 +146,11 @@ class FuelcardController extends Controller
 
         $data->orgs = org::lstFor(['in_fuelcards' => 1]);
 
+        $data->ref_machines = machine::lstFor(['in_fuelcards' => 1]);
+
         $objgroups = group::lstOrgGroups_cache();
 
-        $usedflags = objflag::lstUsedFlagsForSysObj_cache( $this->sysobjid );
+        $usedflags = objflag::lstUsedFlagsForSysObj_cache($this->sysobjid);
 
         //dd($usrrights);
 
@@ -248,7 +262,7 @@ class FuelcardController extends Controller
         objlog::log_info($this->sysobjid, $rec->id, $rslt_msg, 5);
         //connectify('success', $rec->name, $msg_simple);
 
-        if (1==0 and $id == -1) {
+        if (1 == 0 and $id == -1) {
             return redirect(route($this->sysobjcode . '.edit', $rec->id));
         } else {
             $pageno = session($this->sysobjcode . '_pageno');
@@ -274,7 +288,7 @@ class FuelcardController extends Controller
             connectify('error', $res->obj['name'], $res->msg);
         } else {
             $sd['success'] = 'Запись о карте (' . $id . ': '
-                . $res->obj['num'] . ' - '. $res->obj['name'] . ') удалена';
+                . $res->obj['num'] . ' - ' . $res->obj['name'] . ') удалена';
             objlog::log_info($this->sysobjid, 0, $sd['success'], 5);
 
             $pageno = session($this->objcode . '_pageno');
@@ -284,7 +298,7 @@ class FuelcardController extends Controller
         return redirect($route)->with($sd);
     }
 
-     static public function list_for(Request $request)
+    static public function list_for(Request $request)
     {
         //2021-04-05 SNS. Список для select-ов {id,name}
 
@@ -392,6 +406,44 @@ class FuelcardController extends Controller
         }
 
         return view($this->sysobjcode . '.load', compact('rec', "usrrights"));
+    }
+
+    static public function data_for_card(Request $request)
+    {
+        //2023-09-24 SNS. Данные разные
+
+        $result = "";
+        try {
+
+            $list = fuelcard::from('fuelcards as fc')
+                ->leftJoin('orgs as o', function ($j) {
+                    $j->on('o.id', 'fc.orgid');
+                })
+                ->leftJoin('machines as m', function ($j) {
+                    $j->on('m.id', 'fc.ref_machineid');
+                })
+                ->leftJoin('orgs as mo', function ($j) {
+                    $j->on('mo.id', 'm.orgid');
+                })
+                ->where([
+                    'fc.id' => $request->cardid,
+//                'active' => 1,
+                ])
+                ->select(
+                    'fc.orgid', 'o.name as org_name'
+                    , 'fc.ref_machineid', db::raw("concat(m.regnum, ' (', m.name, ', ', mo.name, ')' ) as ref_machine_name")
+                )
+                ->first()->toArray();
+
+//            dd($list);
+
+            $result = array('data' => $list);
+            //Log::info(implode('; ', $list));
+
+        } catch (\Exception $e) {
+            Log::error('fuelcard::data_for_card:' . $e->getMessage());
+        }
+        return response()->json($result);
     }
 
 }

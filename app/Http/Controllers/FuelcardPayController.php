@@ -20,6 +20,7 @@ use App\usrsysright;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use DateTime;
 
 class FuelcardPayController extends Controller
 {
@@ -257,7 +258,10 @@ class FuelcardPayController extends Controller
                 //Значения "по-умолчанию" для новой записи ----------------
 
                 $paydate = $request->get('paydate');
-                $paydate = (isset($paydate)) ? strftime('%Y-%m-%d', strtotime($paydate)) : '';
+                $yesterday = new DateTime('yesterday');
+                $pd = $yesterday->format('Y-m-d');
+
+                $paydate = (isset($paydate)) ? strftime('%Y-%m-%d', strtotime($paydate)) : $pd;
 
                 $newData = [];
 

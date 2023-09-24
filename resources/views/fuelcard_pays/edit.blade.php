@@ -37,7 +37,7 @@
             @includeIf('layouts.edit_msgs')
 
             <div class="row ">
-                <div class="col-md-10">
+                <div class="col-md-8">
                     <div class="card p-2 my-2 my-md-3" style="background-color: #f8f8f8">
                         <div class="card-header">
                             <i class="fa fa-truck text-info" aria-hidden="true"></i>
@@ -114,6 +114,9 @@
                                             <div class="font-weight-bold">{{$rec->paysum}}</div>
                                         @endif
                                     </div>
+                                </div>
+
+                                <div class="row">
 
                                     <div class="form-group offset-md-0 col-md-3">
                                         <label for="name" class="required">Топливная карта:</label>
@@ -130,10 +133,7 @@
                                         @endif
                                     </div>
 
-                                </div>
-
-                                <div class="row">
-                                    <div class="form-group offset-md-0 col-md-6">
+                                    <div class="form-group offset-md-0 col-md-9">
                                         <label for="name" class="required">Техника:</label>
                                         @if ($usrrights['edit'])
                                             <div class="input-group mb-3 ">
@@ -157,6 +157,9 @@
                                         @endif
 
                                     </div>
+                                </div>
+
+                                <div class="row">
 
                                     @if(1==0)
                                         <div class="form-group col-md-6 driver_info" style="{{$in_gk_hide}}">
@@ -185,7 +188,7 @@
                                         </div>
                                     @endif
 
-                                    <div class="offset-md-0 col-md-6">
+                                    <div class="offset-md-3 col-md-9">
                                         <div class="form-group">
                                             <label for="decision">Примечание:</label>
                                             @if ($usrrights['edit'] or $usrrights['change_status'])
@@ -300,7 +303,7 @@
 
         <link href="{{ asset('css/jquery-ui.css') }}" rel="stylesheet">
         <script src="{{ asset('js/jquery-ui.js') }}" defer></script>
-        <script src="{{ asset('js/mchn_raid_edit.js') }}" defer></script>
+        <script src="{{ asset('js/fuelcard_pay_edit.js') }}" defer></script>
 
     @endif
 @endsection

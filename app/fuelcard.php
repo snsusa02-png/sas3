@@ -205,15 +205,9 @@ class fuelcard extends Model
                 $lst = self::from('fuelcards as fc')
                     ->whereRaw($sc)
                     ->select('id', 'num as name')
+                    ->orderby('num')
                     ->get()
                     ->pluck('name', 'id')->toArray();
-            } else {
-                //Временно - 2021-08-03 - убрать через месяц
-                $lst = self::from('fuelcards as m')
-                    ->leftJoin('orgs as oo', 'oo.id', 'fc.ownorgid')
-                    ->whereRaw($sc)
-                    ->select('fc.id', 'fc.name', 'fc.num', 'fc.ownorgid', 'oo.name as ownorgname')
-                    ->get();
             }
             //dd($sc,$lst);
             return $lst;

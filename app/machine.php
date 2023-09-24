@@ -426,6 +426,9 @@ class machine extends Model
                     } elseif ($key == 'in_mchn_raids') {
                         $sc .= " and " . (($val == 1) ? '' : 'not') . " exists(select 1 from mchn_raids as mr where mr.machineid=m.id)";
 
+                    } elseif ($key == 'in_fuelcards') {
+                        $sc .= " and " . (($val == 1) ? '' : 'not') . " exists(select 1 from fuelcards as fc where fc.ref_machineid=m.id)";
+
                     } elseif ($key == 'in_fuelcard_pays') {
                         $sc .= " and " . (($val == 1) ? '' : 'not') . " exists(select 1 from fuelcard_pays as fcp where fcp.machineid=m.id)";
 
@@ -456,7 +459,7 @@ class machine extends Model
             if (1 == 1) {
                 $lst = self::from('machines as m')
                     ->whereRaw($sc)
-                    ->select('id', 'name')
+                    ->select('id', db::raw("concat(m.regnum, ' - ', m.name ) as name") )
                     ->get()
                     ->pluck('name', 'id')->toArray();
             } else {
