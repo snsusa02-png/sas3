@@ -302,7 +302,7 @@
                 </div>
             </div>
         </div>
-        <script src="{{ asset('js/fuelcard_pay_index.js') }}" defer></script>
+        <script src="{{ asset('js/fuelcard_pays_index.js') }}" defer></script>
 
     </form>
 @endsection

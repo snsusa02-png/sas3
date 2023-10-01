@@ -138,9 +138,9 @@ class FuelcardPayController extends Controller
                     elseif ($val == 4) //с начала текущего месяца
                         $sc .= " and extract(year_month from fcp.paydate) = extract(year_month from curdate())";
                     elseif ($val == 5
-                        and DateTime::createFromFormat('Y-m-d', $search_params['s_wrkdate']) !== false) {
+                        and DateTime::createFromFormat('Y-m-d', $search_params['s_paydate']) !== false) {
                         //конкретная дата
-                        $sc .= " and fcp.paydate = '" . $search_params['s_wrkdate'] . "'";
+                        $sc .= " and fcp.paydate = '" . $search_params['s_paydate'] . "'";
                     }
 
                 } elseif ($item == 's_paytypeid') {
