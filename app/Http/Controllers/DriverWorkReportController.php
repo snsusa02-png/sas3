@@ -136,6 +136,10 @@ class DriverWorkReportController extends Controller
                    , a.* from (
     SELECT dw.staffid, DATE_FORMAT(dw.wrkdate,'%Y-%m') as ym
         /*, count( distinct dw.wrkdate) as wrkdate_cnt*/
+        , max(dw.day_hr_rate) as day_hr_rate
+        , min(dw.day_hr_rate) as day_hr_rate_min
+        , max(dw.night_hr_rate) as night_hr_rate
+        , min(dw.night_hr_rate) as night_hr_rate_min
         , sum(dw.day_wrkhrs) day_wrkhrs
         , sum(dw.day_wrkhrs*dw.day_hr_rate) day_hr_sum
         , sum(dw.night_wrkhrs) night_wrkhrs

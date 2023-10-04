@@ -241,12 +241,25 @@ $action_url = route('reports.rep' . $thisObjId);
                                 if (isset($itm->staff_mname))
                                     $staff_name .= mb_substr($itm->staff_mname, 0, 1) . '.';
                             }
+                            $day_hr_rate = $itm->day_hr_rate;
+                            $day_hr_rate_min = $itm->day_hr_rate_min;
+                            if ($day_hr_rate_min <> $day_hr_rate)
+                                $day_hr_rate = $day_hr_rate_min . ' .. ' . $day_hr_rate;
+
+                            $night_hr_rate = $itm->night_hr_rate;
+                            $night_hr_rate_min = $itm->night_hr_rate_min;
+                            if ($night_hr_rate_min <> $night_hr_rate)
+                                $night_hr_rate = $night_hr_rate_min . ' .. ' . $night_hr_rate;
                             ?>
                             <tr>
                                 <td class="small text-right">{{++$npp}}</td>
                                 <td><a href="{{route('orgstaff.edit',$itm->staffid)}}"
                                        target="_blank">{{$itm->staff_name}}</a>, <span
-                                        class="small ml-2"> {{$itm->postname}}</span></td>
+                                        class="small ml-2"> {{$itm->postname}}</span>
+                                <div class="float-right small">
+                                    Ставка день: <b>{{$day_hr_rate}}</b>,
+                                    ночь: <b>{{$night_hr_rate}}</b>
+                                </div> </td>
                                 <td class="text-right">{{$itm->wrkdays}} </td>
                                 <td class="text-right">{{number_format($itm->day_wrkhrs,2)}}</td>
                                 <td class="text-right">{{number_format($itm->night_wrkhrs,2)}}</td>
