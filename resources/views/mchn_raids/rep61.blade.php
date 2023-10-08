@@ -248,6 +248,7 @@ $action_url = route('reports.rep' . $thisObjId);
                             <td class="text-right">Выручка, &#8381;</td>
                             <td class="text-right">Инертные, &#8381;</td>
                             <td class="text-right">Топливо, &#8381;</td>
+                            <td class="text-right">Запчасти, &#8381;</td>
                             <td class="text-right">ЗП водителя, &#8381;</td>
                             <td class="text-right">Заработок, &#8381;</td>
                         </tr>
@@ -256,11 +257,11 @@ $action_url = route('reports.rep' . $thisObjId);
                         <tbody>
                         <?php
                         $npp = 0;
-                        $totSum = 0;
+                        $saleSum = $buySum = $fuelSum = $salarySum = $spareSum = $totSum = 0;
                         ?>
                         @foreach($recs as $rec)
                             <?php
-                            $line_sum = $rec->sale_sum - $rec->buy_sum - $rec->fuel_sum - $rec->salary_sum;
+                            $line_sum = $rec->sale_sum - $rec->buy_sum - $rec->fuel_sum - $rec->spare_sum - $rec->salary_sum;
                             $td_class = ($line_sum < 0) ? 'text-danger' : (($line_sum > 0) ? 'text-success' : '');
                             ?>
 
@@ -274,11 +275,17 @@ $action_url = route('reports.rep' . $thisObjId);
                                 <td class="text-right">{{number_format($rec->sale_sum,2)}}
                                 <td class="text-right">{{number_format($rec->buy_sum,2)}}
                                 <td class="text-right">{{number_format($rec->fuel_sum,2)}}
+                                <td class="text-right">{{number_format($rec->spare_sum,2)}}
                                 <td class="text-right">{{number_format($rec->salary_sum,2)}}
                                 <td class="text-right {{$td_class}}">{{number_format($line_sum,2)}}
 
                             </tr>
                             <?php
+                            $saleSum += $rec->sale_sum;
+                            $buySum += $rec->buy_sum;
+                            $fuelSum += $rec->fuel_sum;
+                            $spareSum += $rec->spare_sum;
+                            $salarySum += $rec->salary_sum;
                             $totSum += $line_sum;
                             ?>
                         @endforeach
@@ -289,7 +296,12 @@ $action_url = route('reports.rep' . $thisObjId);
                                 <td colspan="9" class="text-left pl-2"></td>
                             </tr>
                             <tr>
-                                <td colspan="5" class="text-right">Всего:</td>
+                                <td colspan="1" class="text-right">Всего:</td>
+                                <td class="text-right font-weight-bold">{{number_format($saleSum,2)}}</td>
+                                <td class="text-right font-weight-bold">{{number_format($buySum,2)}}</td>
+                                <td class="text-right font-weight-bold">{{number_format($fuelSum,2)}}</td>
+                                <td class="text-right font-weight-bold">{{number_format($spareSum,2)}}</td>
+                                <td class="text-right font-weight-bold">{{number_format($salarySum,2)}}</td>
                                 <td class="text-right font-weight-bold">{{number_format($totSum,2)}}</td>
                             </tr>
                         @endif

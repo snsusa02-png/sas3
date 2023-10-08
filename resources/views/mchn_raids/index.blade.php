@@ -55,6 +55,14 @@
                                             <li><a href="{{route('driver_works.index')}}"
                                                    title="Учет работы водителей">Учет работы</a></li>
                                         @endif
+                                        @if(\App\usrsysright::isUserHasRightByCode_cached($userid,'paydocs.read'))
+                                            <li><a href="{{route('fuelcard_pays.index')}}"
+                                                   title="Учет заправок транспорта">Заправки</a></li>
+                                        @endif
+                                        @if(\App\usrsysright::isUserHasRightByCode_cached($userid,'mchn_spare_usages.read'))
+                                            <li><a href="{{route('mchn_spare_usages.index')}}"
+                                                   title="Учет перевозок">Запчасти</a></li>
+                                        @endif
                                         @if(\App\usrsysright::isUserHasRightByCode_cached($userid,'machines.read'))
                                             <li><a href="{{route('machines.index')}}"
                                                    title="Спецтехника">Спецтехника</a></li>

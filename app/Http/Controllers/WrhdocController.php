@@ -422,6 +422,7 @@ class WrhdocController extends Controller
         } else {
             $rec->respstafflst = ["", ""];
         }
+        //dd( $rec->respstafflst);
         $rec->saleorg_gk = 1;
 
         $items = wrhdoclst::from('wrhdoclst as dl')
@@ -545,6 +546,7 @@ class WrhdocController extends Controller
                 ->get();
 
         //dd($rec->finopers);
+//        dd($usrrights);
 
         return view($this->sysobjcode . '.edit',
             compact('rec', 'items', 'auxinfo', 'usrrights'));

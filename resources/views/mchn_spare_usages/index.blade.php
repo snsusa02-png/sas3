@@ -1,8 +1,8 @@
 @extends('layouts.app')
 @section('content')
     <?php
-    $thisTitle = "Учет заправок";
-    $thisSysObjCode = 'fuelcard_pays';
+    $thisTitle = "Учет запчастей";
+    $thisSysObjCode = 'mchn_spare_usages';
 
     $statuses = [
         0 => 'черновик',
@@ -35,30 +35,26 @@
                 <div class="col-md-12">
                     <div class="container-fluid">
                         <div class="row">
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <h3>{{$thisTitle}}</h3>
                             </div>
-                            <div class="col-md-9">
+                            <div class="col-md-8">
                                 <div class="subnav shift">
                                     <ul>
                                         <li><a href="{{route('reports.rep61')}}" target="_blank"
                                                title="Сводка расходов/доходов авто">Отчет по доходам/расходам</a>
                                         </li>
-                                        @if(\App\usrsysright::isUserHasRightByCode_cached($userid,'paydocs.read'))
-                                            <li><a href="{{route('fuelcards.index')}}"
-                                                   title="Топливные карты">Карты</a></li>
-                                        @endif
                                         @if(\App\usrsysright::isUserHasRightByCode_cached($userid,'machines.read'))
                                             <li><a href="{{route('machines.index')}}"
                                                    title="Спецтехника">Спецтехника</a></li>
                                         @endif
+                                        @if(\App\usrsysright::isUserHasRightByCode_cached($userid,'paydocs.read'))
+                                            <li><a href="{{route('fuelcard_pays.index')}}"
+                                                   title="Учет перевозок">Заправки</a></li>
+                                        @endif
                                         @if(\App\usrsysright::isUserHasRightByCode_cached($userid,'mchn_raids.read'))
                                             <li><a href="{{route('mchn_raids.index')}}"
                                                    title="Учет перевозок">Рейсы</a></li>
-                                        @endif
-                                        @if(\App\usrsysright::isUserHasRightByCode_cached($userid,'mchn_spare_usages.read'))
-                                            <li><a href="{{route('mchn_spare_usages.index')}}"
-                                                   title="Учет перевозок">Запчасти</a></li>
                                         @endif
                                         @if(\App\usrsysright::isUserHasRightByCode_cached($userid,'orgstaff.read'))
                                             <li><a href="{{route('orgstaff.index')}}"
@@ -72,7 +68,7 @@
                                             </li>
                                         @endif
                                         @if(1==0 and $usrrights['finopers_refresh']??false)
-                                            <li><a href="{{route('fuelcard_pays.rfr_all_finopers')}}"
+                                            <li><a href="{{route('mchn_spare_usages.rfr_all_finopers')}}"
                                                    title="Пересчет фин. транзакций для всех документов">
                                                     <i class="fa fa-money fa-1" aria-hidden="true"></i>
                                                     <i class="fa fa-refresh fa-1"
@@ -107,8 +103,7 @@
                                 <td>#</td>
                                 <td>Дата</td>
                                 <td>Авто</td>
-                                <td># карты</td>
-                                <td>Объем, л</td>
+                                <td>Запчасти</td>
                                 <td>Сумма, &#8381;</td>
                                 <td class="text-center;">
 
@@ -149,9 +144,9 @@
                                             ])
                                         !!}
                                     </div>
-                                    <input type="date" class="form-control c" name="s_paydate"
-                                           id="s_paydate"
-                                           value="{{ $search_params['s_paydate'] ?? ''}}"
+                                    <input type="date" class="form-control c" name="s_operdate"
+                                           id="s_operdate"
+                                           value="{{ $search_params['s_operdate'] ?? ''}}"
                                            placeholder="-название-"
                                            STYLE="display: none;"/>
 
@@ -168,28 +163,7 @@
                                                 @endforeach
                                             </datalist>
                                         </div>
-                                        <div class="col-md-6">
-                                            {!! Form::select('s_driverid', $data->drivers
-                                            , $search_params['s_driverid'],
-                                                 [
-                                                 'class' => 'form-control',
-                                                 'placeholder' => '-все-',
-                                                 'onchange' => 'form.submit()',
-                                                 ]) !!}
-
-                                        </div>
                                     </div>
-
-
-                                </td>
-                                <td>
-                                    {!! Form::select('s_cardid', $data->cards??[]
-                                            , $search_params['s_cardid']??'',
-                                                 [
-                                                 'class' => 'form-control',
-                                                 'placeholder' => '-все-',
-                                                 'onchange' => 'form.submit()',
-                                                 ]) !!}
                                 </td>
                                 <td>
                                 </td>
@@ -213,14 +187,13 @@
                             , '#aaccaa', '#bbccbb');
 
                             $rec0 = $recs->currentPage() * $recs->perPage() - $recs->perPage() + 1;
-                            $cur_paydate = -1;
+                            $cur_operdate = -1;
                             $cur_id = -1;
                             $curDocID = "";
                             $npp = 0;
                             $curDate = date_format(date_create(), 'Y-m-d');
                             $cur_opertypeid = -1;
                             $userid = \Auth()->user()->id;
-                            $saledirs = \App\fuelcard_pay::paydirs();
                             ?>
                             @foreach($recs as $item)
                                 <?php
@@ -241,13 +214,13 @@
 
                                 @if(isset($item->id))
 
-                                    @if($item->paydate<>$cur_paydate)
+                                    @if($item->operdate<>$cur_operdate)
                                         <tr style="background-color: #ccfcfb">
-                                            <td colspan="6"><b>{{date_format(date_create($item->paydate),"d.m.Y")}}</b>
+                                            <td colspan="5"><b>{{date_format(date_create($item->operdate),"d.m.Y")}}</b>
                                             </td>
                                             <td>
                                                 @if ($usrrights['create'])
-                                                    <a href="{{ route($thisSysObjCode.'.create')."?paydate={$item->paydate}"}}"
+                                                    <a href="{{ route($thisSysObjCode.'.create')."?operdate={$item->operdate}"}}"
                                                        class="btn btn-warning btn-sm"
                                                        title="Добавить запись">
                                                         <i class="fa fa-plus"></i>
@@ -256,7 +229,7 @@
                                             </td>
                                         </tr>
                                         <?php
-                                        $cur_paydate = $item->paydate;
+                                        $cur_operdate = $item->operdate;
                                         $cur_id = -1;
                                         $cur_opertypeid = -1;
                                         $npp = 0;
@@ -274,19 +247,13 @@
                                                title="Просмотреть/Изменить запись">
                                                 {{$item->machine_name}}
                                             </a>
-                                            @if (isset($item->driver_name))
-                                                / {{$item->driver_name}}
-                                            @endif
                                             <div class="float-right small">{{$item->notes}}</div>
                                         </td>
-                                        <td class="text-center">
-                                            {{$item->card_num}}
-                                        </td>
-                                        <td class="text-center">
-                                            {{number_format($item->fuel_qty,0)}}
+                                        <td>
+                                            {{$item->spare_name}}
                                         </td>
                                         <td class="text-right">
-                                            {{number_format($item->paysum,2)}}
+                                            {{number_format($item->spare_sum,2)}}
                                         </td>
 
                                         <td class="text-right">
@@ -310,7 +277,7 @@
                 </div>
             </div>
         </div>
-        <script src="{{ asset('js/fuelcard_pays_index.js') }}" defer></script>
+        <script src="{{ asset('js/mchn_spare_usages_index.js') }}" defer></script>
 
     </form>
 @endsection

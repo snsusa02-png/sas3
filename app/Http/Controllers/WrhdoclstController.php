@@ -68,6 +68,7 @@ class WrhdoclstController extends Controller
                 if (!$docsigned) {
                     $usrrights['save'] = usrsysright::isUserHasRightByCode($userid, $acl_sysobjcode . '.update');;
                     $usrrights['delete'] = usrsysright::isUserHasRightByCode($userid, $acl_sysobjcode . '.delete');;
+
                 }
                 //запрет изменения состава для документа, созданного из документа-предшественника
                 $MayEditRefItm = (!$rec->wrhdoc->doctype->need_predoc == 1);
@@ -141,7 +142,6 @@ class WrhdoclstController extends Controller
 
             $rec->sysobjs = sysobj::lst_sysobjs4grptypes_cache();
 
-
             return view('' . $this->sysobjcode . '.edit', compact(['rec', 'usrrights']));
         }
     }
@@ -188,7 +188,6 @@ class WrhdoclstController extends Controller
         }
         //dd($rules);
         Validator::make($request->all(), $rules, $messages)->validate();
-
 
         $userid = \Auth::user()->id;
         if ($id == -1) {

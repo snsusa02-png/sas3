@@ -797,6 +797,16 @@ Route::put('fuelcard_pays/{id}/admindelete', "FuelcardPayController@admindelete"
 Route::get('fuelcard_pays/{id}/make_template', "FuelcardPayController@make_template")->name('fuelcard_pays.make_template');
 Route::get('fuelcard_pays/{id}/clone', "FuelcardPayController@clone")->name('fuelcard_pays.clone');
 
+// mchn_spare_usages - Учет операций с запасыми частями ----------------------------------------------------------------
+Route::match(array('GET', 'POST'), '/mchn_spare_usages/', "MchnSpareUsageController@index")->name('mchn_spare_usages.index');
+Route::get('mchn_spare_usages/create', "MchnSpareUsageController@create")->name('mchn_spare_usages.create');
+Route::get('mchn_spare_usages/{id}', 'MchnSpareUsageController@edit')->name('mchn_spare_usages.edit');
+Route::match(array('POST', 'PUT'), 'mchn_spare_usages/{id}', "MchnSpareUsageController@update")->name('mchn_spare_usages.update');
+Route::put('mchn_spare_usages/{id}/delete', "MchnSpareUsageController@destroy")->name("mchn_spare_usages.delete");
+Route::put('mchn_spare_usages/{id}/admindelete', "MchnSpareUsageController@admindelete")->name("mchn_spare_usages.admindelete");
+Route::get('mchn_spare_usages/{id}/make_template', "MchnSpareUsageController@make_template")->name('mchn_spare_usages.make_template');
+Route::get('mchn_spare_usages/{id}/clone', "MchnSpareUsageController@clone")->name('mchn_spare_usages.clone');
+
 //// Отчет о работе ----------------------------------------------------------------------------------------------------
 //Route::match(array('GET', 'POST'), '/wrkreps/', "WrkrepController@index")->name('wrkreps.index');
 //Route::get('wrkreps/create', "WrkrepController@create")->name('wrkreps.create');
@@ -1239,6 +1249,13 @@ Route::get('stf_chrg_calcs/{staffid}/create', "StfChrgCalcController@create")->n
 Route::get('stf_chrg_calcs/{id}/edit', "StfChrgCalcController@edit")->name('stf_chrg_calcs.edit');
 Route::match(array('POST', 'PUT'), 'stf_chrg_calcs/{id}', "StfChrgCalcController@update")->name('stf_chrg_calcs.update');
 Route::get('stf_chrg_calcs/{id}/delete', "StfChrgCalcController@destroy")->name("stf_chrg_calcs.delete");
+
+// stf_wrkhrs - учет рабочих часов сотрудника
+Route::match(array('GET', 'POST'), '/stf_wrkhrs', "StfWrkhrController@index")->name('stf_wrkhrs.index');
+Route::get('stf_wrkhrs/{staffid}/create', "StfWrkhrController@create")->name('stf_wrkhrs.create');
+Route::get('stf_wrkhrs/{id}/edit', "StfWrkhrController@edit")->name('stf_wrkhrs.edit');
+Route::match(array('POST', 'PUT'), 'StfWrkhrController/{id}', "StfWrkhrController@update")->name('stf_wrkhrs.update');
+Route::get('stf_wrkhrs/{id}/delete', "StfWrkhrController@destroy")->name("stf_wrkhrs.delete");
 
 //stf_salaries - ЗП сотрудников
 Route::get('stf_salaries/{staffid}/create', "StfSalaryController@create")->name('stf_salaries.create');

@@ -66,6 +66,12 @@ $userid = \Auth::user()->id;
                 'title' => 'Заправки',
                 'sysobjid' => '562',
             ],
+            [
+                'right' => 'mchn_spare_usages.read',
+                'route' => 'mchn_spare_usages.index',
+                'title' => 'Запчасти',
+                'sysobjid' => '489',
+            ],
         ];
         ?>
         @foreach($menu_itms as $mnu)
