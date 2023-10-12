@@ -290,7 +290,8 @@ class WrhdocController extends Controller
                 'title' => 'Получение материала на объекте'
             ]);
         }
-        if (usrsysright::isUserHasRightByCode($userid, 'admin-global')) {
+//        if (usrsysright::isUserHasRightByCode($userid, 'admin-global')) {
+        if (usrsysright::isUserHasRightByCode($userid, 'wrhdocs.sign')) {
             $t_coll->push((object)[
                 'name' => 'recalc stock',
                 'url' => route('recalc_stock'),
