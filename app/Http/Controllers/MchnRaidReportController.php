@@ -569,9 +569,12 @@ class MchnRaidReportController extends Controller
         $data->ownorgs = org::lstFor_cached([
             'in_mchn_raids_ownorgid' => 1,
         ]);
+//        $data->orgs = org::lstFor_cached([
+//            'in_mr_opers' => 1,
+//            'not_flagtypeid' => 12,
+//        ]);
         $data->orgs = org::lstFor_cached([
-            'in_mr_opers' => 1,
-            'not_flagtypeid' => 12,
+            'in_mr_opers_orgid' => 1,
         ]);
 
         $s_period_type = $search_params['s_period_type'] ?? '';
