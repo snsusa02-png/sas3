@@ -1343,7 +1343,9 @@ class org extends Model
                         //организация указана в  mchn_raids.ownorgid
                         $sc .= " and " . (($val == 0) ? "not" : "")
 //                            . " exists (select 1 from mchn_raids as mr where mr.load_ownorgid=o.id)";
-                            . " exists (select 1 from mchn_raids as mr where mr.suporgid=o.id)";
+                            //. " exists (select 1 from mchn_raids as mr where mr.suporgid=o.id)";
+                            //2023-10-17
+                            . " exists (select 1 from mr_opers as mro where mro.suporgid=o.id and sale_dir=1)";
 
                     } elseif ($key == 'in_mchn_raids_orgid') {
                         //организация указана в  mchn_raids.ownorgid
