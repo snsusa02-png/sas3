@@ -221,7 +221,6 @@ class ChargetypeController extends Controller
      */
     public function edit($id, $parid = null)
     {
-
         $usrrights = $this->setInterfaceRight($id);
         if (!$usrrights['read']) return view('home'); // Справочник доступен если у пользователя есть право
 
@@ -305,6 +304,7 @@ class ChargetypeController extends Controller
         $chargetype->active = $request->get('active', 0);
 //        $chargetype->photourl = $request->get('photourl');
         $chargetype->ordr = $request->get('ordr', 255);
+        $chargetype->use_price = $request->get('use_price', 0);
         $chargetype->updated_at = now();
         $chargetype->updated_by = $userid;
         $chargetype->save();

@@ -1018,7 +1018,7 @@ Route::put('srs_hr_items/{id}/delete', "SrsHrItemController@destroy")->name("srs
 Route::match(array('GET', 'POST'), '/chargetypes', "ChargetypeController@index")->name("chargetypes.index");
 Route::get('/chargetypes/create/{parid}', "ChargetypeController@create")->name('chargetypes.create');
 Route::get('chargetypes/{id}', 'ChargetypeController@edit')->name('chargetypes.edit');
-Route::match(array('POST', 'PUT'), 'chargetypes/{id}', "ChargetypeController@update")
+Route::match(array('POST', 'PUT'), 'chargetypes/{id}/upd', "ChargetypeController@update")
     ->name('chargetypes.update');
 Route::put('chargetypes/{id}/delete', "ChargetypeController@destroy")->name("chargetypes.delete");
 //Route::put('chargetypes/{id}/admindelete', "ChargetypeController@admindelete")->name("chargetypes.admindelete");

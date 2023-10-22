@@ -115,6 +115,13 @@
                                         <textarea class="form-control rounded-0" name="descript" id="descript"
                                                   rows="3">{{ old('descript',$rec->descript) }}</textarea>
                                     </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="active" style="color:rgb(73, 80, 87);"
+                                               title="Расчет от ставки">Расчет от ставки:</label>
+                                        {!! Form::checkbox('use_price', 1, $rec->use_price==1
+,['class'=>'form-control',
+'title'=>'Расчет от ставки и количества']) !!}
+                                    </div>
                                     @if(1==0)
                                         <div class="form-group">
                                             <label for="quantity">Ссылка на фотографию:</label>
@@ -172,7 +179,7 @@
                     @if($rec->id<>-1)
                         <div class="col-md-5">
 
-                            @include('chargetypes.it_subtypes')
+{{--                            @include('chargetypes.it_subtypes')--}}
 
                             {{--						@include('chargetypes.it_specs')--}}
 
