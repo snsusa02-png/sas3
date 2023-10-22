@@ -42,6 +42,12 @@
             </a>
         @endif
 
+        @if (\App\usrsysright::isUserHasRightByCode(\Auth::user()->id,'stf_wrkhrs.read'))
+            <a href="{{route('stf_wrkhrs.index')}}"
+               class="list-group-item list-group-item-action">Учет рабочих часов сотрудников
+            </a>
+        @endif
+
 
     </div>
 </div>

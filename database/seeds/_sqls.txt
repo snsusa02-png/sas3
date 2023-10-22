@@ -1,4 +1,33 @@
-﻿--------------------------------------------------------------------------------------------------
+﻿-- 2023.10.21 ---------------------------------------------------------------------------------
+
+ALTER TABLE `stf_chrg_calcs`
+    ADD COLUMN `ref_sysobjid` BIGINT UNSIGNED NULL AFTER `active`,
+    ADD COLUMN `ref_objid` BIGINT UNSIGNED NULL AFTER `ref_sysobjid`;
+
+ALTER TABLE `stf_chrg_calcs`
+    ADD INDEX `stf_chrg_calcs_refsysobj_fk_idx` (`ref_sysobjid` ASC) VISIBLE;
+
+ALTER TABLE `stf_chrg_calcs`
+    ADD CONSTRAINT `stf_chrg_calcs_refsysobj_fk`
+        FOREIGN KEY (`ref_sysobjid`)
+        REFERENCES `sysobjs` (`id`)
+        ON DELETE NO ACTION
+        ON UPDATE NO ACTION;
+
+--ALTER TABLE `stf_wrkhrs`
+--    ADD COLUMN `stfchrgcalcid` BIGINT UNSIGNED NULL COMMENT 'ссылка на stf_chrg_calcs.id' AFTER `active`;
+
+ALTER TABLE stf_wrkhrs` CHANGE COLUMN `yr` `yr` INT NULL ;
+ALTER TABLE stf_wrkhrs` CHANGE COLUMN `mn` `mn` INT NULL ;
+
+INSERT INTO `payrolltypes` (`id`, `name`, `descript`, `active`, `ordr`) VALUES ('4', 'Начисление по часам, не водители', 'день', '1', '4');
+INSERT INTO `salary_rate_sets` (`id`, `name`, `payrolltypeid`, `begdate`, `active`) VALUES ('5', 'не водители', '4', '2023-10-01', '1');
+INSERT INTO `srs_hr_items` (`srs_id`, `wrktypeid`, `min_wrkexp`, `max_wrkexp`, `hr_day_rate`, `hr_night_rate`) VALUES ('5', '1', '0', '99.9', '200', '200');
+
+INSERT INTO `chargetypes` (`id`, `dir`, `name`, `active`, `ordr`) VALUES ('52', '1', 'Премия от рейсов без прицепа', '1', '2');
+INSERT INTO `org_charges` (`orgid`, `chargetypeid`, `begdate`, `charge_sum`, `active`) VALUES ('35', '52', '2023-10-01', '0', '1');
+
+--------------------------------------------------------------------------------------------------
 2023.09.24
 
 ALTER TABLE `fuelcards`

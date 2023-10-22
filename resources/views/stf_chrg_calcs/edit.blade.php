@@ -70,6 +70,7 @@
                                                 <div class="input-group mb-3 ">
                                                     <input type="text" name="staff_name" id="staff_name"
                                                            class="staff_name form-control ac_name font-weight-bold"
+                                                           {{$inputReadOnly}}
                                                            value="{{old('staff_name',$rec->_obj_info)}}">
                                                     <input type="text" class="form-control text-center small ac_status"
                                                            style="display: none; border: #d7f3e3; max-width: 30px" readonly>
@@ -92,7 +93,7 @@
                                             <label for="orgcharge_name" class="required">Тип
                                                 начисления/удержания:</label>
                                             <div class="input-group">
-                                                @if ($usrrights['edit'])
+                                                @if ($usrrights['save'])
                                                     <div class="input-group mb-3 "><input type="text"
                                                                                           name="orgcharge_name"
                                                                                           id="orgcharge_name"
@@ -111,7 +112,7 @@
                                                         </a>
                                                     </div>
                                                 @else
-                                                    <div class="font-weight-bold">{{$rec->org_charge->name}}</div>
+                                                    <div class="font-weight-bold">{{$rec->org_charge->chargetype->name}}</div>
                                                     <input type="hidden" name="orgchargeid" id="orgchargeid"
                                                            value="{{$rec->orgchargeid}}">
                                                 @endif
@@ -119,7 +120,7 @@
                                         </div>
                                         <div class="form-group offset-md-0 col-md-3">
                                             <label for="charge_sum" class="required">Сумма, &#8381;:</label>
-                                            @if ($usrrights['edit'])
+                                            @if ($usrrights['save'])
                                                 <input type="number" class="charge_sum form-control font-weight-bold text-right"
                                                        name="charge_sum"
                                                        value="{{ old('charge_sum',$rec->charge_sum) }}"/>
@@ -135,7 +136,7 @@
                                     <div class="row">
                                         <div class="form-group offset-md-0 col-md-4">
                                             <label for="name" class="required">Дата:</label>
-                                            @if ($usrrights['edit'])
+                                            @if ($usrrights['save'])
                                                 <input type="date" class="form-control text-center font-weight-bold"
                                                        name="docdate" id="docdate"
                                                        min="{{$rec->wrkdate_min}}"
@@ -165,8 +166,15 @@
 {{--                                        </div>--}}
                                         <div class="form-group offset-md-0 col-md-8">
                                             <label for="name" class="">Примечание:</label>
+                                            @if ($usrrights['save'])
                                             <input type="text" class="form-control" name="notes" maxlength="160"
                                                    value="{{ old('notes',$rec->notes) }}"/>
+                                            @else
+                                                <div
+                                                    class="font-weight-bold text-center">
+                                                    {{$rec->notes}}
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
 

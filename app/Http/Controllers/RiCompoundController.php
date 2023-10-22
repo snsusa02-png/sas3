@@ -712,7 +712,7 @@ class RiCompoundController extends Controller
                 'signed' => $request->signed,
                 'active' => $request->active,
             ],
-                ['ric.id', 'ri.name', 'ric.notes', 'ric.refitmid', 'ri.name as refitmname']);
+                ['ric.id', 'ri.name', 'ric.notes', 'ric.refitmid', 'ri.name as refitmname', 'ri.price']);
 
             $result = $list;
 

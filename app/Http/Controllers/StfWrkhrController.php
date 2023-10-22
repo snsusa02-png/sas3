@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\mchn_spare_usage;
 use App\objlog;
 use App\org;
 use App\org_charge;
+use App\orgstaff;
+use App\stf_chrg_calc;
 use App\stf_wrkhr;
 use App\sysobj;
 use App\Traits\SearchDataTrait;
@@ -78,7 +81,6 @@ class StfWrkhrController extends Controller
             return view('home');
         }
 
-
         session([$this->sysobjcode . '_pageno' => $request->page ?? 1]);
 
         // - параметры поиска: массив из имени и значения по-умолчанию -----------------------------------------------
@@ -102,6 +104,9 @@ class StfWrkhrController extends Controller
             ->select('swh.id', 'swh.staffid', 'swh.yr', 'swh.mn'
                 , db::raw("concat(os.lname, ' ', ifnull(os.fname,''), ' ', ifnull(os.mname,'')) as stf_name")
                 , 'swh.day_hrs'
+                , 'swh.day_tot_hrs'
+                , 'swh.day_hr_cost'
+                , 'swh.tot_sum'
                 , 'os.orgid', 'o.name as org_name'
             );
 
@@ -110,14 +115,13 @@ class StfWrkhrController extends Controller
 
         $recs = $recs->orderBy('org_name', 'asc');
         $recs = $recs->orderBy('os.orgid', 'asc');
-        $recs = $recs->orderBy('stf_name', 'asc');
-        $recs = $recs->orderBy('swh.staffid', 'asc');
+        $recs = $recs->orderBy('swh.yr', 'desc');
+        $recs = $recs->orderBy('swh.mn', 'desc');
         if (isset($sort_params)) {
             foreach ($sort_params as $prm)
                 $recs = $recs->orderBy($prm['field'], $prm['dir']);
         } else {
-            $recs = $recs->orderBy('swh.yr', 'desc');
-            $recs = $recs->orderBy('swh.mn', 'desc');
+            $recs = $recs->orderBy('stf_name', 'asc');
         }
         //----------------------------------------------------------------
 
@@ -138,8 +142,9 @@ class StfWrkhrController extends Controller
         $data->search_params = $search_params;
 
         $data->ownorgs = org::lstFor([
-            'in_org_charge' => 1,
+            'in_stf_wrkhrs' => 1,
             //'flagtypeid' => $search_params['s_orgflagid'] ?? '',
+            'flagtypeid' => '12',
         ]);
 
         $data->dirs = [1 => 'начисление', -1 => 'удержание'];
@@ -186,6 +191,10 @@ class StfWrkhrController extends Controller
         if (!$usrrights['read'])
             return redirect()->back()->with('error', 'У вас нет права на доступ к этой информации!');
 
+        $usrrights['edit_date'] = false;
+
+        $retURL = $request->get('returl');
+
         if ($id == -1) {
             if ($usrrights['create'] ?? false) {
 
@@ -197,22 +206,31 @@ class StfWrkhrController extends Controller
                     'active' => 1,
                     'created_by' => $userid,
                 ]);
+                $usrrights['edit_date'] = true;
             } else {
                 $rslt = ['error' => 'У вас нет права на это действие!'];
                 if (isset($staffid))
-                    return redirect(route('orgstaff.edit', $staffid))->with($rslt);
+//                    return redirect(route('orgstaff.edit', $staffid))->with($rslt);
+                    return redirect(route('stf_wrkhrs.index'))->with($rslt);
                 else
-                    return redirect(route('orgstaff.index'))->with($rslt);
+                    return redirect(route('stf_wrkhrs.index'))->with($rslt);
             }
         } else {
             $rec = $this->model::find($id);
+            if (!isset($rec)){
+                $rslt = ['error' => 'Указанная запись не найдена!'];
+                return redirect(route('stf_wrkhrs.index'))->with($rslt);
+            }
         }
+        //$usrrights['edit_date'] = false;
 
         $rec->orgid = $rec->orgstaff->orgid;
         $rec->_obj_info = $rec->orgstaff->Info;
 
         $begdate = date('Y-m-d', strtotime($rec->yr . '-' . $rec->mn . '-01'));
         $enddate = date('Y-m-d', strtotime($begdate . ' +1 Months -1 days'));
+        $rec->begdate = $begdate;
+        $rec->enddate = $enddate;
         $rec->endday = date('d', strtotime($enddate)) + 0;
 
         if (!isset($rec))
@@ -220,7 +238,8 @@ class StfWrkhrController extends Controller
 
         $rec->dhr = explode(';', $rec->day_hrs);
 
-        $rec->retURL = $request->get('returl') ?? route('orgstaff.edit', $rec->staffid);
+        $rec->retURL = $retURL ?? route('stf_wrkhrs.index');
+        //dd($rec->retURL );
 
         return view($this->sysobjcode . '.edit', compact('rec', "usrrights"));
     }
@@ -235,28 +254,20 @@ class StfWrkhrController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $dhr = $request->day_hr;
-        //$day_hr = array_flip($request->day_hr);
-        $day_hrs = implode(';', $request->day_hr);
-        $day_hr_qty = 0;
-        foreach ($dhr as $hr){
-            $day_hr_qty += $hr;
-        }
-        dd($dhr, $day_hrs, $day_hr_qty);
         //
         $messages = [
             'staffid.required' => 'Укажите сотрудника',
-            'orgchargeid.required' => 'Укажите вид начисления/удержания',
-            'forbegdate.required' => 'Укажите начало периода работы',
-            'forenddate.required' => 'Укажите окончание периода работы',
-            'charge_sum.required' => 'Укажите сумму',
+//            'orgchargeid.required' => 'Укажите вид начисления/удержания',
+            'begdate.required' => 'Укажите дату в пределах учетного периода работы',
+//            'forenddate.required' => 'Укажите окончание периода работы',
+            'day_hr_cost.required' => 'Укажите ставку руб/час',
         ];
 
         $rules = [
             "staffid" => "required",
-            "orgchargeid" => "required",
-            "charge_sum" => "required",
-//            "forbegdate" => "required",
+            //"orgchargeid" => "required",
+            "day_hr_cost" => "required",
+            "begdate" => "required",
 //            "forenddate" => "required",
         ];
 
@@ -279,32 +290,107 @@ class StfWrkhrController extends Controller
             $rec = $this->model::find($id);
             $mess = "Запись обновлена";
         }
+        //$begdate = date_create(date_create($request->get('begdate'))->format('Y-m-01'));
+        $basedate = $request->get('begdate');
+        if (isset($basedate)) {
+            $begdate = date_create($basedate);
+            $rec->yr = $begdate->format("Y");
+            $rec->mn = $begdate->format("m");
 
+            //$basedate = $request->begdate;
+            $d_max = date('t', strtotime($basedate)) + 0;
+            //dd($basedate, $d_max);
+            $dhr = $request->day_hr;
+            //$day_hr = array_flip($request->day_hr);
+            //$day_hrs = implode(';', $request->day_hr);
+            $day_hr_qty = 0;
+            $d = 1;
+            $day_hrs = '';
+            if (isset($dhr)) {
+                foreach ($dhr as $hr) {
+//                    if ($d>0 and $d <= $d_max) {
+                    if ($d <= $d_max) {
+                        $day_hr_qty += $hr;
+                        $day_hrs .= ';' . $hr;
+                    }
+                    $d++;
+                }
+                $day_hrs = substr($day_hrs, 1);
+                $rec->day_hrs = $day_hrs;   // список
+                $rec->day_tot_hrs = $day_hr_qty;
+                $rec->night_tot_hrs = 0;
+
+                //dd($basedate, $dhr, $day_hrs, $day_hr_qty);
+            }
+
+        } else {
+            $rec->yr = '';
+            $rec->mn = '';
+            $rec->day_hrs = '';
+            $rec->day_tot_hrs = 0;
+            $rec->night_hrs = '';
+            $rec->night_tot_hrs = 0;
+        }
         $rec->staffid = $staffid;
-        $rec->orgchargeid = $request->get('orgchargeid');
-        $rec->charge_dir = $rec->org_charge->chargetype->dir;
-        $rec->charge_sum = $request->get('charge_sum');
-        $rec->docdate = $request->get('docdate') ?? date_create()->format('Y-m-d');
-        $rec->docnum = $request->get('docnum');
+        $rec->day_hr_cost = $request->get('day_hr_cost');
+        $rec->notes = $request->get('notes');
+
+        $rec->day_tot_sum = $rec->day_tot_hrs * $rec->day_hr_cost;
+        $rec->night_tot_sum = $rec->night_tot_hrs * $rec->night_hr_cost;
+        $rec->tot_sum = $rec->day_tot_sum + $rec->night_tot_sum;
 
         //$rec->forbegdate = $request->get('forbegdate');
         //$rec->forenddate = $request->get('forenddate');
-        //ЦУУпрощенный вариант, вычислим  от даты начисления/удержания
-        $rec->forbegdate = '' . date_create($rec->docdate)->format('Y-m-01');
-        $rec->forenddate = '' . date_create($rec->docdate)->format('Y-m-t');
+        //Упрощенный вариант, вычислим  от даты начисления/удержания
+//        $rec->forbegdate = '' . date_create($rec->begdate)->format('Y-m-01');
+//        $rec->forenddate = '' . date_create($rec->begdate)->format('Y-m-t');
         //$rec->forenddate = $request->get('forenddate');
 
         $rec->active = $request->get('active') ?? 1;
 
         $rec->updated_by = $userid;
         $rec->updated_at = now();
+        //dd($rec);
         $rec->save();
-
         objlog::log_info($this->sysobjid, $rec->id, $mess, 5);
+
+
+        //Выполним действия после обновления записи ---------------------------------------------
+        stf_wrkhr::on_update($rec);
+
+        $stfchrgcalc = stf_chrg_calc::where(['ref_sysobjid' => $this->sysobjid
+            , 'ref_objid' => $rec->id])->first();
+
+        if (!isset($stfchrgcalc)) {
+
+            $orgid = $rec->orgstaff->orgid;
+            $orgchargeid = org_charge::where(['orgid' => $orgid, 'chargetypeid' => 11])->first()->id;
+
+            $stfchrgcalc = new stf_chrg_calc([
+                "staffid" => $staffid,
+                "orgchargeid" => $orgchargeid,
+                "charge_dir" => 1,
+                "docdate" => $basedate,
+                "forbegdate" => date_create($basedate)->format('Y-m-01'),
+                "forenddate" => date_create($basedate)->format('Y-m-t'),
+                "created_by" => $userid,
+                "created_at" => now(),
+                "ref_sysobjid" => $this->sysobjid,
+                "ref_objid" => $rec->id,
+            ]);
+        }
+        $stfchrgcalc->staffid = $rec->staffid;
+        $stfchrgcalc->charge_sum = $rec->tot_sum;
+        $stfchrgcalc->updated_by = $userid;
+        $stfchrgcalc->updated_at = now();
+        $stfchrgcalc->save();
+
+        //---------------------------------------------------------------------------------------
 
         //Cache::forget("user_{$usrid}_has_acs_{$rec->acsid}");
 
-        $retURL = $request->get('retURL') ?? route('orgstaff.edit', $rec->staffid) . '?#chrg_calcs';
+        //$retURL = $request->get('retURL') ?? route('orgstaff.edit', $rec->staffid) . '?#chrg_calcs';
+        $retURL = route($this->sysobjcode . '.edit', $rec->id);
         return redirect($retURL)->with('success', $mess);
 
     }
@@ -315,7 +401,8 @@ class StfWrkhrController extends Controller
      * @param \App\user_ac $rec
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public
+    function destroy($id)
     {
         $res = $this->model::delete_by_id($id, $this->sysobjid);
 
@@ -326,13 +413,16 @@ class StfWrkhrController extends Controller
             $sd["error"] = $res->msg;
         } else {
             $parobjid = $res->obj['staffid'];
-            objlog::log_info($this->parsysobjid, $parobjid, 'Удалена запись о начислении ЗП', 5);
+            objlog::log_info($this->parsysobjid, $parobjid, 'Удалена запись о рабочих часах сотрудника', 5);
             objlog::log_info($this->sysobjid, $id, 'Запись удалена', 5);
 
+            //Выполним действия после обновления записи ---------------------------------------------
+            stf_wrkhr::on_delete($res->rec);
+            //---------------------------------------------------------------------------------------
             //забудем кэшированные данные про ...:
             //Cache::forget("user_{$usrid}_has_acs_{$acsid}");
 
-            $route = route('orgstaff.edit', $parobjid);
+            $route = route('stf_wrkhrs.index');
             $sd['success'] = 'Запись удалена';
         }
         return redirect($route)->with($sd);

@@ -211,6 +211,9 @@ class StfChrgCalcController extends Controller
             $rec = $this->model::find($id);
         }
 
+        if (!isset($rec))
+            return redirect(route('orgstaff.edit', $staffid));
+
         $rec->orgid = $rec->orgstaff->orgid;
         $rec->_obj_info = $rec->orgstaff->Info;
 
@@ -221,8 +224,11 @@ class StfChrgCalcController extends Controller
             'active_or_current' => $rec->orgchargeid ?? -1,
         ]);
 
-        if (!isset($rec))
-            return redirect(route('orgstaff.edit', $staffid));
+        if (isset($rec->ref_sysobjid)) {
+            //Запрещаем изменять/удалять запись, если она была создана из другого места
+            $usrrights['save'] = false;
+            $usrrights['delete'] = false;
+        }
 
         $rec->retURL = $request->get('returl') ?? route('orgstaff.edit', $rec->staffid);
 

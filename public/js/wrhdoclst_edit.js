@@ -7,15 +7,14 @@ $(document).ready(function () {
             $(this).val(v);
         }
 
-        if ( $("#max_qty").val() == ''){
+        if ($("#max_qty").val() == '') {
             $("#max_qty").val(v);
         }
 
     });
 
 
-
-    if (1==0 && $(".ac_refitm_name").length > 0) {
+    if (1 == 0 && $(".ac_refitm_name").length > 0) {
 
         //Поиск контрагента
         $(".ac_refitm_name").autocomplete({
@@ -27,9 +26,9 @@ $(document).ready(function () {
                     dataType: "json",
                     data: {
                         name: request.term,
-                        in_compounds:  $("#ri_produced").val(),
-                        cmpnd_ownorgid:  $("#cmpnd_ownorgid").val(),
-                        cmpnd_on_date:  $("#cmpnd_on_date").val()
+                        in_compounds: $("#ri_produced").val(),
+                        cmpnd_ownorgid: $("#cmpnd_ownorgid").val(),
+                        cmpnd_on_date: $("#cmpnd_on_date").val()
                     },
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -166,8 +165,8 @@ $(document).ready(function () {
                         //2023-08-02 Так как в форме выбор refitmid заблокирован, то заполняем refitmid только от рецептуры,
                         //и нам не нужно ограничивать выбор рецептов только ранее выбранным товаром. Поэтому заблокируем передачу refitmid
                         // refitmid:  $("#refitmid").val(),
-                        cmpnd_ownorgid:  $("#cmpnd_ownorgid").val(),
-                        cmpnd_on_date:  $("#cmpnd_on_date").val()
+                        cmpnd_ownorgid: $("#cmpnd_ownorgid").val(),
+                        cmpnd_on_date: $("#cmpnd_on_date").val()
                     },
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -186,7 +185,9 @@ $(document).ready(function () {
                             if (index > 16) return null;
 
                             //var lbl = item.code + " - " + item.name;
-                            var lbl = item.name + " - " + item.notes;
+                            var lbl = item.name
+                                    + " - " + (item.notes ?? ' ')
+                                    + " - " + (item.price ?? '');
                             return {
                                 label: lbl,
                                 value: item.name,
@@ -194,6 +195,7 @@ $(document).ready(function () {
                                 notes: item.notes,
                                 refitmid: item.refitmid,
                                 refitmname: item.refitmname,
+                                ri_price: item.price,
                             }
                         }));
                     }
@@ -217,6 +219,7 @@ $(document).ready(function () {
                     $("#code").val(ui.item.refitmid);
                     $("#refitmid").val(ui.item.refitmid);
                     $("#refitmname").val(ui.item.refitmname);
+                    $("#price").val(ui.item.ri_price);
                     //---------------------------------------------------
 
 

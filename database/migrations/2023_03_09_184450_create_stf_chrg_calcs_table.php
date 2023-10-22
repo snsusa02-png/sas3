@@ -34,6 +34,10 @@ class CreateStfChrgCalcsTable extends Migration
 
             $table->boolean('active')->default(true);
 
+	    $table->unsignedBigInteger('ref_sysobjid')->nullable();
+		      $table->foreign('ref_sysobjid')->references('id')->on('sysobjs')
+			->onDelete('cascade');
+	    $table->unsignedBigInteger('ref_objid')->nullable();
 
             $table->timestamp('created_at')->nullable()->useCurrent=true;
             $table->bigInteger('created_by')->nullable()->unsigned()->default(1)

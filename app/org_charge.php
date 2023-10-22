@@ -261,7 +261,7 @@ class org_charge extends Model
                         $sc = $sc . " and concat(ct.name,' ',ifnull(oc.notes,' ')) like '%" . mb_strtoupper($val) . "%'";
 
                     } elseif ($key == 's_orgflagid') {
-                        $sc .= " and exists(select 1 from objflags f where f.sysobjid=111 and f.objid=os.orgid and f.flagtypeid={$val})";
+                        $sc .= " and exists(select 1 from objflags f where f.sysobjid=111 and f.objid=oc.orgid and f.flagtypeid={$val})";
 
                     } elseif ($key == 's_file_doctypeid') {
                         $tsysobjid = self::sysobjid;

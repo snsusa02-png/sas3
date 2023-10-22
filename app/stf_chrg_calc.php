@@ -9,7 +9,7 @@ class stf_chrg_calc extends Model
 {
     use DeleteTrait;
 
-    static public $prefix = 'stf_salary';
+    static public $prefix = 'stf_chrg_calc';
     static public $sysobjid = 1213;
 
     protected $guarded = [];

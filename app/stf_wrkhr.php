@@ -4,6 +4,7 @@ namespace App;
 
 use App\Traits\DeleteTrait;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 class stf_wrkhr extends Model
 {
@@ -31,6 +32,7 @@ class stf_wrkhr extends Model
         return $this->hasOne(orgstaff::class, 'id', 'staffid')->withDefault();;
     }
 
+
     static public function isLocked($id)
     {
         //Попадает ли нужная запись в заблокированный период?
@@ -43,6 +45,38 @@ class stf_wrkhr extends Model
             }
         }
         return false;
+    }
+
+    public static function on_update($rec)
+    {
+        // Доп. действия при изменении записи
+
+
+        //Забудем связанный кэш -----------------
+        self::cache_clear();
+    }
+
+    public static function on_delete($rec = null)
+    {
+        // Доп. действия при удалении записи
+
+        //удалим записи из stf_chrg_calcs, для которых уже нет соответствующих записей в stf_wrkhrs
+        stf_chrg_calc::from('stf_chrg_calcs as scc')
+            ->where('ref_sysobjid', self::$sysobjid)
+            ->whereRaw("not exists (select 1 from stf_wrkhrs as swh where swh.id=scc.ref_objid)")
+            ->delete();
+
+        //Забудем связанный кэш -----------------
+        self::cache_clear($rec);
+
+    }
+
+    public static function cache_clear($rec = null)
+    {
+        //для вызова при изменении / удалении записей
+        if (isset($rec)) {
+        }
+        Cache::forget('mchn_raids.years');
     }
 
     static public function search_cond($params)
