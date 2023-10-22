@@ -19,8 +19,8 @@ class CreateStfWrkhrsTable extends Migration
             $table->bigInteger('staffid')->unsigned()->comment('id сотрудника')->index('staffid');
 		$table->foreign('staffid')->references('id')->on('orgstaff');
 
-            $table->int('yr');
-            $table->tinyint('mn');
+            $table->integer('yr');
+            $table->tinyinteger('mn');
             $table->date('forbegdate')->comment('начислено за период, начало');
             $table->date('forenddate')->comment('начислено за период, конец');
 
