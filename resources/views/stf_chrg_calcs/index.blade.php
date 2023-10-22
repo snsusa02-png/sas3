@@ -182,7 +182,7 @@
                                 @endif
                                 <tr>
                                     <td class="small" style="text-align: right'">
-{{--                                        {{$data->rec0++}}--}}
+                                        {{--                                        {{$data->rec0++}}--}}
                                         {{$npp++}}
                                     </td>
                                     <td></td>
@@ -191,7 +191,9 @@
                                     <td class="small">{{date_format(date_create($rec->docdate), 'd.m.Y')}}</td>
 
                                     {{--                                    <td>{{$data->dirs[$rec->charge_dir]??'-'}}: {{$rec->chargetype_name}}</td>--}}
-                                    <td>{{$rec->chargetype_name}}</td>
+                                    <td><a href="{{ route('stf_chrg_calcs.edit',$rec->id)}}?returl={{$retURL}}"
+                                           class="">{{$rec->chargetype_name}}</a>
+                                    </td>
 
                                     @if($rec->charge_dir > 0 )
                                         <td class="text-right" style="color:darkgreen;">{{$rec->charge_sum}}</td>

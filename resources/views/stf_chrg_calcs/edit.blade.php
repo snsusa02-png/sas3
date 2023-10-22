@@ -33,6 +33,17 @@
             //для блокировки текстовых полей пользователям, не имеющим право на редактирование
             $inputReadOnly = "readonly";
             if ($usrrights['save']) $inputReadOnly = "";
+
+            //Отображать или нет Цену/Сумму определяется типом документа
+            //$showPrice = ($rec->orgcharge->chargetype->useprice == 1);
+               // dd($rec->org_charge->chargetype->use_price);
+            $showPrice = ($rec->org_charge->chargetype->use_price == 1);
+            //$usrrights['save'] = (1 == 0);
+
+            $sum_ro = '';
+            if ($showPrice) {
+                $sum_ro = 'readonly';
+            }
             ?>
 
             <div class="container">
@@ -73,7 +84,8 @@
                                                            {{$inputReadOnly}}
                                                            value="{{old('staff_name',$rec->_obj_info)}}">
                                                     <input type="text" class="form-control text-center small ac_status"
-                                                           style="display: none; border: #d7f3e3; max-width: 30px" readonly>
+                                                           style="display: none; border: #d7f3e3; max-width: 30px"
+                                                           readonly>
                                                     <input type="hidden" name="staffid" class="ac_id" id="staffid"
                                                            value="{{old('staffid', $rec->staffid)}}">
                                                 </div>
@@ -89,7 +101,7 @@
 
 
                                     <div class="row">
-                                        <div class="form-group col-md-9">
+                                        <div class="form-group col-md-12">
                                             <label for="orgcharge_name" class="required">Тип
                                                 начисления/удержания:</label>
                                             <div class="input-group">
@@ -112,17 +124,61 @@
                                                         </a>
                                                     </div>
                                                 @else
-                                                    <div class="font-weight-bold">{{$rec->org_charge->chargetype->name}}</div>
+                                                    <div
+                                                        class="font-weight-bold">{{$rec->org_charge->chargetype->name}}</div>
                                                     <input type="hidden" name="orgchargeid" id="orgchargeid"
                                                            value="{{$rec->orgchargeid}}">
                                                 @endif
                                             </div>
                                         </div>
+                                    </div>
+                                    <div class="row">
+                                        @if ($showPrice)
+                                            <div class="offset-md-3 col-md-3 offset-sm-4 col-sm-4 col-xs-6">
+                                                <div class="form-group list-inline">
+                                                    <label for="">Количество, ЕИ:</label>
+                                                    @if ($usrrights['save'])
+                                                        <input type="text"
+                                                               class="form-control text-right "
+                                                               id="charge_qty" name="charge_qty"
+                                                               value="{{$rec->charge_qty}}"
+                                                        />
+                                                    @else
+                                                        <div
+                                                            class="font-weight-bold text-right">
+                                                            {{number_format($rec->charge_qty,2)}}
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <div class="offset-md-0 col-md-3 col-sm-4 col-xs-6">
+                                                <div class="form-group list-inline">
+                                                    <label for="price">Ставка, &#x20bd;/ЕИ:</label>
+                                                    @if ($usrrights['save'])
+                                                        <input type="text" class="form-control text-right bold"
+                                                               id="charge_price" name="charge_price"
+                                                               value="{{$rec->charge_price}}"
+                                                        />
+                                                    @else
+                                                        <div
+                                                            class="font-weight-bold text-right">
+                                                            {{number_format($rec->charge_price,2)}}
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        @else
+                                            <div class="offset-md-3 col-md-6 col-sm-4 col-xs-6">
+                                            </div>
+                                        @endif
+
                                         <div class="form-group offset-md-0 col-md-3">
                                             <label for="charge_sum" class="required">Сумма, &#8381;:</label>
                                             @if ($usrrights['save'])
-                                                <input type="number" class="charge_sum form-control font-weight-bold text-right"
-                                                       name="charge_sum"
+                                                <input type="number"
+                                                       class="charge_sum form-control font-weight-bold text-right"
+                                                       name="charge_sum" id="charge_sum"
+                                                       {{$sum_ro}}
                                                        value="{{ old('charge_sum',$rec->charge_sum) }}"/>
                                             @else
                                                 <div
@@ -150,25 +206,25 @@
                                                 </div>
                                             @endif
                                         </div>
-{{--                                        <div class="form-group offset-md-0 col-md-4">--}}
-{{--                                            <label for="name" class="required">№ документа:</label>--}}
-{{--                                            @if ($usrrights['edit'])--}}
-{{--                                                <input type="text" class="form-control text-center font-weight-bold"--}}
-{{--                                                       name="docnum" id="docnum"--}}
-{{--                                                       value="{{old('docnum',$rec->docnum)}}"/>--}}
-{{--                                            @else--}}
-{{--                                                <div--}}
-{{--                                                    class="font-weight-bold text-center">--}}
-{{--                                                    {{$rec->docnum}}--}}
-{{--                                                    {{ Form::hidden('docnum', $rec->docnum,['id'=>'docnum']) }}--}}
-{{--                                                </div>--}}
-{{--                                            @endif--}}
-{{--                                        </div>--}}
+                                        {{--                                        <div class="form-group offset-md-0 col-md-4">--}}
+                                        {{--                                            <label for="name" class="required">№ документа:</label>--}}
+                                        {{--                                            @if ($usrrights['edit'])--}}
+                                        {{--                                                <input type="text" class="form-control text-center font-weight-bold"--}}
+                                        {{--                                                       name="docnum" id="docnum"--}}
+                                        {{--                                                       value="{{old('docnum',$rec->docnum)}}"/>--}}
+                                        {{--                                            @else--}}
+                                        {{--                                                <div--}}
+                                        {{--                                                    class="font-weight-bold text-center">--}}
+                                        {{--                                                    {{$rec->docnum}}--}}
+                                        {{--                                                    {{ Form::hidden('docnum', $rec->docnum,['id'=>'docnum']) }}--}}
+                                        {{--                                                </div>--}}
+                                        {{--                                            @endif--}}
+                                        {{--                                        </div>--}}
                                         <div class="form-group offset-md-0 col-md-8">
                                             <label for="name" class="">Примечание:</label>
                                             @if ($usrrights['save'])
-                                            <input type="text" class="form-control" name="notes" maxlength="160"
-                                                   value="{{ old('notes',$rec->notes) }}"/>
+                                                <input type="text" class="form-control" name="notes" maxlength="160"
+                                                       value="{{ old('notes',$rec->notes) }}"/>
                                             @else
                                                 <div
                                                     class="font-weight-bold text-center">
@@ -178,46 +234,46 @@
                                         </div>
                                     </div>
 
-{{--                                    <div class="row">--}}
-{{--                                        <div class="form-group offset-md-4 col-md-8">--}}
-{{--                                            <label for="name" class="required">За период работы:</label>--}}
-{{--                                            @if ($usrrights['edit'])--}}
-{{--                                                <div class="input-group">--}}
-{{--                                                    <input type="date" class="form-control text-center font-weight-bold"--}}
-{{--                                                           name="forbegdate" id="forbegdate" required--}}
-{{--                                                           min="{{$rec->wrkdate_min}}"--}}
-{{--                                                           max="{{today()->format('Y-m-d')}}"--}}
-{{--                                                           value="{{old('forbegdate',$rec->forbegdate)}}"/>--}}
-{{--                                                    &nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;--}}
-{{--                                                    <input type="date" class="form-control text-center font-weight-bold"--}}
-{{--                                                           name="forenddate" id="forenddate" required--}}
-{{--                                                           min="{{$rec->wrkdate_max}}"--}}
-{{--                                                           --}}{{--                                                           max="{{today()->format('Y-m-d')}}"--}}
-{{--                                                           value="{{old('forenddate',$rec->forenddate)}}"/>--}}
-{{--                                                </div>--}}
-{{--                                            @else--}}
-{{--                                                <div--}}
-{{--                                                    class="font-weight-bold text-center">--}}
-{{--                                                    {{date_create($rec->forbegdate)->format('d.m.Y')}} ---}}
-{{--                                                    {{date_create($rec->forenddate)->format('d.m.Y')}}--}}
-{{--                                                    {{ Form::hidden('forbegdate', $rec->begdate,['id'=>'forbegdate']) }}--}}
-{{--                                                    {{ Form::hidden('forenddate', $rec->forenddate,['id'=>'forenddate']) }}--}}
-{{--                                                </div>--}}
-{{--                                            @endif--}}
-{{--                                        </div>--}}
-{{--                                        --}}{{--                                        <div class="form-group offset-md-0 col-md-2">--}}
-{{--                                        --}}{{--                                            <label for="active" style="color:rgb(73, 80, 87);">Действует:</label>--}}
-{{--                                        --}}{{--                                            {!! Form::checkbox('active', 1, $rec->active==1,['class'=>'form-control']) !!}--}}
-{{--                                        --}}{{--                                        </div>--}}
-{{--                                    </div>--}}
+                                    {{--                                    <div class="row">--}}
+                                    {{--                                        <div class="form-group offset-md-4 col-md-8">--}}
+                                    {{--                                            <label for="name" class="required">За период работы:</label>--}}
+                                    {{--                                            @if ($usrrights['edit'])--}}
+                                    {{--                                                <div class="input-group">--}}
+                                    {{--                                                    <input type="date" class="form-control text-center font-weight-bold"--}}
+                                    {{--                                                           name="forbegdate" id="forbegdate" required--}}
+                                    {{--                                                           min="{{$rec->wrkdate_min}}"--}}
+                                    {{--                                                           max="{{today()->format('Y-m-d')}}"--}}
+                                    {{--                                                           value="{{old('forbegdate',$rec->forbegdate)}}"/>--}}
+                                    {{--                                                    &nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;--}}
+                                    {{--                                                    <input type="date" class="form-control text-center font-weight-bold"--}}
+                                    {{--                                                           name="forenddate" id="forenddate" required--}}
+                                    {{--                                                           min="{{$rec->wrkdate_max}}"--}}
+                                    {{--                                                           --}}{{--                                                           max="{{today()->format('Y-m-d')}}"--}}
+                                    {{--                                                           value="{{old('forenddate',$rec->forenddate)}}"/>--}}
+                                    {{--                                                </div>--}}
+                                    {{--                                            @else--}}
+                                    {{--                                                <div--}}
+                                    {{--                                                    class="font-weight-bold text-center">--}}
+                                    {{--                                                    {{date_create($rec->forbegdate)->format('d.m.Y')}} ---}}
+                                    {{--                                                    {{date_create($rec->forenddate)->format('d.m.Y')}}--}}
+                                    {{--                                                    {{ Form::hidden('forbegdate', $rec->begdate,['id'=>'forbegdate']) }}--}}
+                                    {{--                                                    {{ Form::hidden('forenddate', $rec->forenddate,['id'=>'forenddate']) }}--}}
+                                    {{--                                                </div>--}}
+                                    {{--                                            @endif--}}
+                                    {{--                                        </div>--}}
+                                    {{--                                        --}}{{--                                        <div class="form-group offset-md-0 col-md-2">--}}
+                                    {{--                                        --}}{{--                                            <label for="active" style="color:rgb(73, 80, 87);">Действует:</label>--}}
+                                    {{--                                        --}}{{--                                            {!! Form::checkbox('active', 1, $rec->active==1,['class'=>'form-control']) !!}--}}
+                                    {{--                                        --}}{{--                                        </div>--}}
+                                    {{--                                    </div>--}}
 
-{{--                                    <div class="row">--}}
-{{--                                        <div class="form-group offset-md-0 col-md-12">--}}
-{{--                                            <label for="name" class="">Примечание:</label>--}}
-{{--                                            <input type="text" class="form-control" name="notes" maxlength="160"--}}
-{{--                                                   value="{{ old('notes',$rec->notes) }}"/>--}}
-{{--                                        </div>--}}
-{{--                                    </div>--}}
+                                    {{--                                    <div class="row">--}}
+                                    {{--                                        <div class="form-group offset-md-0 col-md-12">--}}
+                                    {{--                                            <label for="name" class="">Примечание:</label>--}}
+                                    {{--                                            <input type="text" class="form-control" name="notes" maxlength="160"--}}
+                                    {{--                                                   value="{{ old('notes',$rec->notes) }}"/>--}}
+                                    {{--                                        </div>--}}
+                                    {{--                                    </div>--}}
 
 
                                     @if ($usrrights['save'])

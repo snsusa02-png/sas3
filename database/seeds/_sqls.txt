@@ -1,4 +1,11 @@
-﻿-- 2023.10.21 ---------------------------------------------------------------------------------
+﻿-- 2023.10.22 ---------------------------------------------------------------------------------
+
+ALTER TABLE `stf_chrg_calcs`
+ADD COLUMN `charge_price` DECIMAL(12,2) NULL AFTER `charge_dir`,
+ADD COLUMN `charge_qty` DECIMAL(4,1) NULL AFTER `charge_price`;
+
+
+-- 2023.10.21 ---------------------------------------------------------------------------------
 
 ALTER TABLE `stf_chrg_calcs`
     ADD COLUMN `ref_sysobjid` BIGINT UNSIGNED NULL AFTER `active`,
@@ -26,6 +33,8 @@ INSERT INTO `srs_hr_items` (`srs_id`, `wrktypeid`, `min_wrkexp`, `max_wrkexp`, `
 
 INSERT INTO `chargetypes` (`id`, `dir`, `name`, `active`, `ordr`) VALUES ('52', '1', 'Премия от рейсов без прицепа', '1', '2');
 INSERT INTO `org_charges` (`orgid`, `chargetypeid`, `begdate`, `charge_sum`, `active`) VALUES ('35', '52', '2023-10-01', '0', '1');
+
+
 
 --------------------------------------------------------------------------------------------------
 2023.09.24

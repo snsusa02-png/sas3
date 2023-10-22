@@ -285,6 +285,8 @@ class StfChrgCalcController extends Controller
         $rec->staffid = $staffid;
         $rec->orgchargeid = $request->get('orgchargeid');
         $rec->charge_dir = $rec->org_charge->chargetype->dir;
+        $rec->charge_price = $request->get('charge_price');
+        $rec->charge_qty = $request->get('charge_qty');
         $rec->charge_sum = $request->get('charge_sum');
         $rec->docdate = $request->get('docdate') ?? date_create()->format('Y-m-d');
         $rec->docnum = $request->get('docnum');

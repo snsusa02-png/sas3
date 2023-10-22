@@ -4,6 +4,17 @@ $(document).ready(function () {
         $(this).data('val', $(this).val());
     });
 
+    function calc_sum() {
+        const price = parseFloat($("#charge_price").val());
+        const qty = parseFloat($("#charge_qty").val());
+        const sum = Math.round(price * qty * 100) / 100;
+        $("#charge_sum").val(sum);
+    }
+
+    $("#charge_price, #charge_qty").change(function () {
+        calc_sum();
+    });
+
     $("#opertypeid").change(function () {
 
         const opertypeid = $(this).val();
@@ -195,7 +206,7 @@ $(document).ready(function () {
                     dataType: "json",
                     data: {
                         q: request.term,
-                       //flagid: 187,    //признак водителя
+                        //flagid: 187,    //признак водителя
                     },
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')

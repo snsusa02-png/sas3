@@ -105,7 +105,8 @@
                                         <input type="text" class="form-control" name="stf_name"
                                                value="{{$data->search_params['stf_name']??''}}"/>
                                     </div>
-
+                                </td>
+                                <td>
                                 </td>
                                 <td>
                                 </td>
