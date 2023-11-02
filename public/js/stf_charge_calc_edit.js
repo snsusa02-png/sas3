@@ -28,8 +28,8 @@ $(document).ready(function () {
                 , docdate: $("#docdate").val()
             },
             function (data) {
-                console.log('get data raid_info_rfr--------------------------------')
-                console.log(data);
+                // console.log('get data raid_info_rfr--------------------------------')
+                // console.log(data);
                 //console.log(data.data.raid_salary_sum);
                 $("#charge_qty").val(data.data.wrkhrs);
                 // $("#raid_sum").val(data.data.raid_salary_sum);

@@ -51,7 +51,6 @@
                 @include('layouts.edit_msgs')
 
                 <div class="row ">
-
                     <div class="col-md-7">
                         <div class="card mt-3">
                             <div class="card-header">
