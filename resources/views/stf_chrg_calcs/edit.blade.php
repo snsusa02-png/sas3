@@ -38,6 +38,7 @@
             //$showPrice = ($rec->orgcharge->chargetype->useprice == 1);
                // dd($rec->org_charge->chargetype->use_price);
             $showPrice = ($rec->org_charge->chargetype->use_price == 1);
+            var_dump($showPrice);
             //$usrrights['save'] = (1 == 0);
 
             $sum_ro = '';
