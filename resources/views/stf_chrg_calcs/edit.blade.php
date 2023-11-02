@@ -135,7 +135,7 @@
                                     <div class="row">
                                         @if ($showPrice)
                                             <div class="offset-md-3 col-md-3 offset-sm-4 col-sm-4 col-xs-6">
-                                                <div class="form-group list-inline">
+                                                <div class="form-group list-inline input-group">
                                                     <label for="">Количество, ЕИ:</label>
                                                     @if ($usrrights['save'])
                                                         <input type="text"
@@ -143,6 +143,13 @@
                                                                id="charge_qty" name="charge_qty"
                                                                value="{{$rec->charge_qty}}"
                                                         />
+                                                        <div class="input-group-append">
+                                                            <a id="refr_qty" onclick1="refrQty()" title="Поиск"
+                                                               class="btn btn-sm btn-secondary form-control">
+                                                                <i class="fa fa-refresh" aria-hidden="true"></i>
+                                                            </a>
+                                                        </div>
+
                                                     @else
                                                         <div
                                                             class="font-weight-bold text-right">

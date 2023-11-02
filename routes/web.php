@@ -1063,6 +1063,7 @@ Route::get('/api/machines/for_/', 'MachineController@list_for');
 Route::get('/api/machines/for_ac/', 'MachineController@list_for_ac');
 Route::get('/api/mchn_opertypes/for_/', 'MchnOpertypeController@list_for');
 Route::get('/api/mchn_raids/data_for_driver_works/', 'MchnRaidController@data_for_driver_works');
+Route::get('/api/mchn_raids/data_for_charge/', 'MchnRaidController@data_for_charge');
 Route::get('/orgstaff/staff/params/', 'orgstaffController@listorgstaff');
 Route::get('/orgstaff/fio_name/params/', 'orgstaffController@liststafffio');
 Route::get('/orgs/info/params/', 'orgController@info_params');

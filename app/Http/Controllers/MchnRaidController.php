@@ -14,6 +14,7 @@ use App\objlog;
 use App\objtag;
 use App\opertype;
 use App\org;
+use App\org_charge;
 use App\org_place;
 use App\orgstaff;
 use App\refitem;
@@ -1090,6 +1091,39 @@ class MchnRaidController extends Controller
 
         } catch (\Exception $e) {
             Log::error('mchn_raid::data_for_driver_works:' . $e->getMessage());
+        }
+        return response()->json($result);
+    }
+
+    static public function data_for_charge(Request $request)
+    {
+        //2023-11-01 SNS. Данные для начисления премии
+        $result = "";
+        try {
+
+            $chargetypeid = org_charge::where('id', $request->orgchargeid)->first()->chargetypeid ?? null;
+
+            if ($chargetypeid == 52) {
+                //-- Премия по показателям ----
+
+                $ym = date_create($request->docdate)->format('Y-m');
+
+                $list = driver_work::where([
+                    'staffid' => $request->staffid,
+                    'wrktypeid' => 1,
+                    'active' => 1,
+                ])
+                    ->whereRaw("DATE_FORMAT(wrkdate, '%Y-%m') = '{$ym}'")
+                    ->select(db::raw("sum(day_wrkhrs+night_wrkhrs) as wrkhrs"))
+                    ->first()->toArray();
+
+                $result = array('data' => $list);
+                //Log::info(implode('; ', $list));
+            } else
+                $result = array('data' => null);
+
+        } catch (\Exception $e) {
+            Log::error('driver_works::data_for_charge:' . $e->getMessage());
         }
         return response()->json($result);
     }

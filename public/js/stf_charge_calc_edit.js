@@ -15,6 +15,48 @@ $(document).ready(function () {
         calc_sum();
     });
 
+    function refrQty(){
+        const orgchargeid = $('#orgchargeid').val();
+        const staffid = $('#staffid').val();
+        //alert(orgchargeid + ' ' + staffid);
+        //получить данные по рейсам выбранного авто за указанный день -----
+        //console.log('before raid_info_rfr--------------------------------')
+        $.get("/api/mchn_raids/data_for_charge",
+            {
+                orgchargeid: $("#orgchargeid").val()
+                , staffid: $("#staffid").val()
+                , docdate: $("#docdate").val()
+            },
+            function (data) {
+                console.log('get data raid_info_rfr--------------------------------')
+                console.log(data);
+                //console.log(data.data.raid_salary_sum);
+                $("#charge_qty").val(data.data.wrkhrs);
+                // $("#raid_sum").val(data.data.raid_salary_sum);
+                // $("#day_hr_rate").val(data.data.hr_day_rate);
+                // $("#night_hr_rate").val(data.data.hr_night_rate);
+
+                //console.log(data.data.break_rates);
+                // var break_rates = data.data.break_rates;
+                // break_rates.forEach(function (item, i, break_rates) {
+                //     /*console.log( i + ": " + item.wrktypeid
+                //             + ", day_rate = " + item.hr_day_rate
+                //             + ", night_rate = " + item.hr_night_rate);*/
+                //     $("#hr_day_rate_wt" + item.wrktypeid).val(item.hr_day_rate);
+                //     $("#hr_night_rate_wt" + item.wrktypeid).val(item.hr_night_rate);
+            // });
+
+                // пересчитать ЗП от часов, начиная с расчета простоев
+                //calc_sum();
+                $("#charge_qty").change();
+            }
+        )
+
+    }
+    $("#refr_qty").click(function () {
+        refrQty();
+    });
+
     $("#opertypeid").change(function () {
 
         const opertypeid = $(this).val();
