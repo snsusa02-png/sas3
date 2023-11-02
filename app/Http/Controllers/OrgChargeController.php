@@ -514,7 +514,7 @@ class OrgChargeController extends Controller
                 'name' => $request->name,
                 'orgid' => $request->orgid,
             ],
-                ['oc.id', 'ct.name', 'ct.dir', 'oc.charge_sum']);
+                ['oc.id', 'ct.name', 'ct.dir', 'ct.use_price', 'oc.charge_sum']);
 
             $result = $list;
 

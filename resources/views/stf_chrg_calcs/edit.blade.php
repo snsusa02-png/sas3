@@ -36,14 +36,20 @@
 
             //Отображать или нет Цену/Сумму определяется типом документа
             //$showPrice = ($rec->orgcharge->chargetype->useprice == 1);
-               // dd($rec->org_charge->chargetype->use_price);
-            $showPrice = ($rec->org_charge->chargetype->use_price == 1);
-            var_dump($showPrice);
+            // dd($rec->org_charge->chargetype->use_price);
+            $use_price = $rec->org_charge->chargetype->use_price;
+            $showPrice = ($use_price == 1);
+            //$usrrightsvar_dump($showPrice);
             //$usrrights['save'] = (1 == 0);
 
             $sum_ro = '';
             if ($showPrice) {
                 $sum_ro = 'readonly';
+                $sum_class = 'offset-md-0';
+                $qty_class = 'd-block';
+            } else {
+                $sum_class = 'offset-md-9';
+                $qty_class = 'd-none';
             }
             ?>
 
@@ -122,6 +128,9 @@
                                                            target="_blank">
                                                             <i class="fa fa-info text-info" aria-hidden="true"></i>
                                                         </a>
+                                                        <input type="hidden" name="use_price" id="use_price"
+                                                               class="use_price"
+                                                               value="{{$use_price}}">
                                                     </div>
                                                 @else
                                                     <div
@@ -133,59 +142,54 @@
                                         </div>
                                     </div>
                                     <div class="row">
-                                        @if ($showPrice)
-                                            <div class="offset-md-3 col-md-3 offset-sm-4 col-sm-4 col-xs-6">
-                                                <div class="form-group list-inline input-group">
-                                                    <label for="">Количество, ЕИ:</label>
-                                                    @if ($usrrights['save'])
-                                                        <input type="text"
-                                                               class="form-control text-right "
-                                                               id="charge_qty" name="charge_qty"
-                                                               value="{{$rec->charge_qty}}"
-                                                        />
-                                                        <div class="input-group-append">
-                                                            <a id="refr_qty" onclick1="refrQty()" title="Поиск"
-                                                               class="btn btn-sm btn-secondary form-control">
-                                                                <i class="fa fa-refresh" aria-hidden="true"></i>
-                                                            </a>
-                                                        </div>
+                                        <div id="qty_div"
+                                             class="offset-md-3 col-md-3 offset-sm-4 col-sm-4 col-xs-6 {{$qty_class}}">
+                                            <div class="form-group list-inline input-group">
+                                                <label for="">Количество, ЕИ:</label>
+                                                @if ($usrrights['save'])
+                                                    <input type="text"
+                                                           class="form-control text-right font-weight-bold"
+                                                           id="charge_qty" name="charge_qty"
+                                                           value="{{$rec->charge_qty}}"
+                                                    />
+                                                    <div class="input-group-append">
+                                                        <a id="refr_qty" onclick1="refrQty()" title="Поиск"
+                                                           class="btn btn-sm btn-secondary form-control">
+                                                            <i class="fa fa-refresh" aria-hidden="true"></i>
+                                                        </a>
+                                                    </div>
 
-                                                    @else
-                                                        <div
-                                                            class="font-weight-bold text-right">
-                                                            {{number_format($rec->charge_qty,2)}}
-                                                        </div>
-                                                    @endif
-                                                </div>
+                                                @else
+                                                    <div
+                                                        class="font-weight-bold text-right">
+                                                        {{number_format($rec->charge_qty,2)}}
+                                                    </div>
+                                                @endif
                                             </div>
-                                            <div class="offset-md-0 col-md-3 col-sm-4 col-xs-6">
-                                                <div class="form-group list-inline">
-                                                    <label for="price">Ставка, &#x20bd;/ЕИ:</label>
-                                                    @if ($usrrights['save'])
-                                                        <input type="text" class="form-control text-right bold"
-                                                               id="charge_price" name="charge_price"
-                                                               value="{{$rec->charge_price}}"
-                                                        />
-                                                    @else
-                                                        <div
-                                                            class="font-weight-bold text-right">
-                                                            {{number_format($rec->charge_price,2)}}
-                                                        </div>
-                                                    @endif
-                                                </div>
+                                        </div>
+                                        <div id="price_div" class="offset-md-0 col-md-3  {{$qty_class}}">
+                                            <div class="form-group list-inline">
+                                                <label for="price">Ставка, &#x20bd;/ЕИ:</label>
+                                                @if ($usrrights['save'])
+                                                    <input type="text" class="form-control text-right bold"
+                                                           id="charge_price" name="charge_price"
+                                                           value="{{$rec->charge_price}}"
+                                                    />
+                                                @else
+                                                    <div
+                                                        class="font-weight-bold text-right">
+                                                        {{number_format($rec->charge_price,2)}}
+                                                    </div>
+                                                @endif
                                             </div>
-                                        @else
-                                            <div class="offset-md-3 col-md-6 col-sm-4 col-xs-6">
-                                            </div>
-                                        @endif
+                                        </div>
 
-                                        <div class="form-group offset-md-0 col-md-3">
+                                        <div id="sum_div" class="form-group col-md-3 {{$sum_class}}">
                                             <label for="charge_sum" class="required">Сумма, &#8381;:</label>
                                             @if ($usrrights['save'])
                                                 <input type="number"
                                                        class="charge_sum form-control font-weight-bold text-right"
                                                        name="charge_sum" id="charge_sum"
-                                                       {{$sum_ro}}
                                                        value="{{ old('charge_sum',$rec->charge_sum) }}"/>
                                             @else
                                                 <div

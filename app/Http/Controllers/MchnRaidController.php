@@ -1103,7 +1103,7 @@ class MchnRaidController extends Controller
 
             $chargetypeid = org_charge::where('id', $request->orgchargeid)->first()->chargetypeid ?? null;
 
-            if ($chargetypeid == 52) {
+            if ($chargetypeid == '52') {
                 //-- Премия по показателям ----
 
                 $ym = date_create($request->docdate)->format('Y-m');

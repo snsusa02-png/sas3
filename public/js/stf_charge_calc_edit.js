@@ -417,7 +417,7 @@ $(document).ready(function () {
                                 label: lbl,
                                 value: item.name,
                                 id: item.id,
-                                //orgid: item.orgid,
+                                use_price: item.use_price,
                                 charge_sum: item.charge_sum
                             }
                         }));
@@ -440,6 +440,30 @@ $(document).ready(function () {
                     //var charge_sum = $(this).parent().parent().find('.charge_sum');
                     var charge_sum = $('.charge_sum').first();
                     charge_sum.val(ui.item.charge_sum);
+
+                    var use_price = $('#use_price');
+                    //console.log(ui.item)
+                    use_price.val(ui.item.use_price);
+
+                    if( use_price.val() == 1){
+                        $('#qty_div').removeClass('d-none');
+                        $('#qty_div').addClass('d-block');
+                        $('#charge_qty').val('');
+                        $('#price_div').removeClass('d-none');
+                        $('#price_div').addClass('d-block');
+                        $('#charge_price').val('');
+                        $('#sum_div').removeClass('offset-md-9');
+                        $('#sum_div').addClass('offset-md-0');
+                        $('#charge_sum').prop('readonly', true);
+                    }else{
+                        $('#qty_div').removeClass('d-block');
+                        $('#qty_div').addClass('d-none');
+                        $('#price_div').removeClass('d-block');
+                        $('#price_div').addClass('d-none');
+                        $('#sum_div').removeClass('offset-md-0');
+                        $('#sum_div').addClass('offset-md-9');
+                        $('#charge_sum').prop('readonly', false);
+                    }
                     //----------------------------------------------------------------
 
                     $(this).val(ui.item.label);
