@@ -1,4 +1,38 @@
-﻿-- 2023.10.22 ---------------------------------------------------------------------------------
+﻿-- 2023.11.06 ---------------------------------------------------------------------------------
+SELECT *
+    -- delete
+    FROM stf_chrg_calcs
+    where orgchargeid in (select oc.id from org_charges oc join chargetypes ct on ct.id=oc.chargetypeid where ct.id=11)
+
+
+insert into stf_chrg_calcs
+    (staffid, orgchargeid, charge_dir, charge_sum, forbegdate, forenddate, docdate, ref_sysobjid, ref_objid, created_at, created_by, updated_at, updated_by)
+SELECT dw.staffid
+, oc.id as orgchargeid
+, 1 as charge_dir
+, sum(salary_sum) as charge_sum
+, min(wrkdate) as forbegdate
+, max(wrkdate) as forenddate
+, max(wrkdate) as docdate
+, 1141 as ref_sysobjid
+, 0 as ref_objid
+, now() as created_at
+, 12 as created_by
+, now() as updated_at
+, 12 as updated_by
+ FROM driver_works dw
+ join orgstaff os on os.id=dw.staffid -- and os.orgid=35
+ join org_charges oc on oc.orgid=os.orgid
+ join chargetypes ct on ct.id=oc.chargetypeid and ct.id=11
+	where 1=1
+    -- and wrktypeid=1
+   --  and staffid = 100
+     and wrkdate between '2023-07-01' and '2023-07-31'
+    -- and DATE_FORMAT(wrkdate, '%Y-%m') = '2023-07'
+    group by staffid, oc.id
+
+
+-- 2023.10.22 ---------------------------------------------------------------------------------
 
 ALTER TABLE `stf_chrg_calcs`
 ADD COLUMN `charge_price` DECIMAL(12,2) NULL AFTER `charge_dir`,

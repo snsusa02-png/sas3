@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\driver_work;
 use App\dw_break;
 use App\mchn_raid;
+use App\org_charge;
 use App\orgstaff;
 use App\srs_hr_item;
+use App\stf_chrg_calc;
 use App\sysobj;
 use App\usrsysright;
 use App\machine;
@@ -689,8 +691,8 @@ class DriverWorkController extends Controller
                 $minutes_to_add = 60;
             }
 //            dd($cur_dt, $day_hrs, $night_hrs);
-            $day_hrs = round($day_hrs,2);
-            $night_hrs = round($night_hrs,2);
+            $day_hrs = round($day_hrs, 2);
+            $night_hrs = round($night_hrs, 2);
 //            dd($cur_dt, $day_hrs, $night_hrs);
 
             $rec->wrktypeid = $request->get('wrktypeid');
@@ -827,9 +829,52 @@ class DriverWorkController extends Controller
         $rec->updated_at = now();
 
         $rec->save();
-        //dd($rec);
-
+//        dd($rec);
         objlog::log_info($this->sysobjid, $rec->id, $mess, 5);
+
+
+        // ----------------------------------------------------------------------------------------------
+        // Регистрация расчета ЗП
+
+        //Подсчитаем общую сумму ЗП сотрудника за весь месяц
+        $int_begdate = date_create($rec->wrkdate)->format('Y-m-01');
+        $int_enddate = date_create($rec->wrkdate)->format('Y-m-t');
+        $salary_sum = driver_work::where('staffid', $rec->staffid)
+            ->wherebetween('wrkdate', [$int_begdate, $int_enddate])
+            ->sum('salary_sum');
+
+        // Так как привязываем совокупную запись, то берем "общий" идентификатор - "0"
+        $stfchrgcalc = stf_chrg_calc::where([
+            'staffid' => $rec->staffid
+            , 'ref_sysobjid' => $this->sysobjid
+            , 'ref_objid' => 0
+        ])->first();
+        if (!isset($stfchrgcalc)) {
+
+            $orgid = $rec->orgstaff->orgid;
+            $orgchargeid = org_charge::where(['orgid' => $orgid, 'chargetypeid' => 11])->first()->id;
+
+            $stfchrgcalc = new stf_chrg_calc([
+                "staffid" => $rec->staffid,
+                "orgchargeid" => $orgchargeid,
+                "charge_dir" => 1,
+                "docdate" => $rec->wrkdate,
+                "forbegdate" => $int_begdate,
+                "forenddate" => $int_enddate,
+                "created_by" => $userid,
+                "created_at" => now(),
+                "ref_sysobjid" => $this->sysobjid,
+                "ref_objid" => 0,
+            ]);
+        }
+        $stfchrgcalc->staffid = $rec->staffid;
+        $stfchrgcalc->charge_sum = $salary_sum;
+        $stfchrgcalc->updated_by = $userid;
+        $stfchrgcalc->updated_at = now();
+        //dd($stfchrgcalc);
+        $stfchrgcalc->save();
+
+        //---------------------------------------------------------------------------------------
 
 
         //-------------------------------------------------------
