@@ -196,6 +196,7 @@
                                                 <input type="number"
                                                        class="charge_sum form-control font-weight-bold text-right"
                                                        name="day_hr_cost"
+                                                       id="day_hr_cost"
                                                        value="{{ old('day_hr_cost',$rec->day_hr_cost) }}"/>
                                             @else
                                                 <div
@@ -371,7 +372,7 @@
                     integrity="sha256-4iQZ6BVL4qNKlQ27TExEhBN1HFPvAvAMbFavKKosSWQ=" crossorigin="anonymous"></script>
             <link href="{{ asset('css/jquery-ui.css') }}" rel="stylesheet">
             <script src="{{ asset('js/jquery-ui.js') }}" defer></script>
-            <script src="{{ asset('js/stf_charge_calc_edit.js') }}" defer></script>
+            <script src="{{ asset('js/stf_wrkhrs_edit.js') }}" defer></script>
 
         @endif
     @endguest
