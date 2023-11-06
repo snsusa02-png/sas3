@@ -530,25 +530,20 @@ class OrgChargeController extends Controller
 
         $report_id = 56;
 
-        $returl = $request->get('returl') ?? route('home');
+        $returl = $request->get('returl') ?? route('stf_chrg_calcs.index');
         $userid = Auth::user()->id;
         $export2xls = $request->get('xls') ?? 0;
+
+
+        $data = new \stdClass();
+        $data->returl = $returl;
 
         $param_names = [
             's_ym' => null,
         ];
-
         $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);
 
-        $begdate = today();
-
         $s_ym = $search_params['s_ym'];
-        //$s_ym = null;
-
-        $data = new \stdClass();
-
-        $data->returl = $returl;
-
         if ($s_ym <> '') {
             //dd( $s_ym . '-01', date_create($s_ym . '-01' ) );
             $date = date_create($s_ym . '-01')->format('Y-m-d');
@@ -557,7 +552,6 @@ class OrgChargeController extends Controller
             $date = $date ?? date_create()->format('d-m-Y');
             $data->begdate = date_create($date)->format('Y-m-01');   //Первый день месяца
             $data->enddate = date_create($date)->format('Y-m-t');    //Последний день месяца
-
 
             // Какие виды начислений/Удержаний попали в рассматриваемый месяц
             $sql = "SELECT ct.id as id, ct.name, sum(scc.charge_sum) charge_sum

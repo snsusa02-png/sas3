@@ -4,7 +4,6 @@
 $thisTitle = "-";
 $thisSysObjId = 855;    //reports
 $thisObjId = 56;
-//$retURL = route('admin') . '#nsi-rep';
 $retURL = $data->returl ?? route('paydocs.index');
 
 $report = \App\report::find($thisObjId);
@@ -61,7 +60,7 @@ $first_col_id = null;
 
                                     <div class="form-group col-md-2 dpt_1" style="">
                                         <label for="s_month" class="required">Год-Месяц:</label>
-                                        {!! Form::select('s_ym', $data->yms??[], $search_params['s_ym'],
+                                        {!! Form::select('s_ym', $data->yms??[], $search_params['s_ym']??old('s_ym'),
                                                         [
                                                         'id' => 's_ym',
                                                         'class' => 'form-control',
@@ -94,6 +93,7 @@ $first_col_id = null;
                                     <i class="fa fa-refresh" aria-hidden="true"></i>
                                     Сформировать
                                 </button>
+
                                 <a class="btn btn-close btn-light btn-sm"
                                    href="{{ $retURL  }}">
                                     <i class="fa fa-window-close-o" aria-hidden="true"></i>
@@ -188,7 +188,7 @@ $first_col_id = null;
                     $totSum = $totInpSum = $totOutSum = 0;
                     $cur_orgid = -1;
                     $cur_staffid = -1;
-                    $line_sum=[];
+                    $line_sum = [];
                     ?>
                     @foreach($recs as $rec)
                         <?php
@@ -206,11 +206,11 @@ $first_col_id = null;
                             @if( $cur_staffid <> -1 )
                                 <?php
                                 foreach ($data->cols as $tcol) {
-                                    $sum = (is_null($line_sum[$tcol->id]))?'':number_format($line_sum[$tcol->id],0);
-                                    echo('<td class="text-right">' . $sum .'</td>');
+                                    $sum = (is_null($line_sum[$tcol->id])) ? '' : number_format($line_sum[$tcol->id], 0);
+                                    echo('<td class="text-right">' . $sum . '</td>');
                                 }
-                                echo('<td class="text-right font-weight-bold">' . number_format($totOutSum,0) .'</td>');
-                                echo ('</tr>');
+                                echo('<td class="text-right font-weight-bold">' . number_format($totOutSum, 0) . '</td>');
+                                echo('</tr>');
                                 ?>
                             @endif
 
@@ -230,35 +230,35 @@ $first_col_id = null;
                                 <td class="text-right small ">
                                     {{++$npp}}
                                 </td>
-                                <td class="text-left " data-npp="{{$npp}}">
+                                <td class="text-left small" data-npp="{{$npp}}">
                                     {{$rec->lname}} {{$rec->fname}} {{$rec->mname}}
                                     <a class="d-print-none "
                                        href="{{ route('stf_chrg_calcs.create', $rec->staffid)}}?returl={{Request::url()}}"
                                        title="Добавить запись">+</a>
                                 </td>
-                                <?php
-                                foreach ($data->cols as $tcol) {
-                                    $line_sum[$tcol->id] = null;
-                                }
-                                $totOutSum = 0;
-                                ?>
-                            @endif
-
                             <?php
-                            $totOutSum += ($rec->dir * $rec->charge_sum);
-                            $totSum += ($rec->dir * $rec->charge_sum);
-
-                            $line_sum[$rec->chargetypeid] = $rec->charge_sum;
+                            foreach ($data->cols as $tcol) {
+                                $line_sum[$tcol->id] = null;
+                            }
+                            $totOutSum = 0;
                             ?>
+                        @endif
+
+                        <?php
+                        $totOutSum += ($rec->dir * $rec->charge_sum);
+                        $totSum += ($rec->dir * $rec->charge_sum);
+
+                        $line_sum[$rec->chargetypeid] = $rec->charge_sum;
+                        ?>
                     @endforeach
                     @if( $cur_staffid <> -1 )
                         <?php
                         foreach ($data->cols as $tcol) {
-                            $sum = (is_null($line_sum[$tcol->id]))?'':number_format($line_sum[$tcol->id],0);
-                            echo('<td class="text-right">' . $sum .'</td>');
+                            $sum = (is_null($line_sum[$tcol->id])) ? '' : number_format($line_sum[$tcol->id], 0);
+                            echo('<td class="text-right">' . $sum . '</td>');
                         }
-                        echo('<td class="text-right font-weight-bold">' . number_format($totOutSum,0) .'</td>');
-                        echo ('</tr>');
+                        echo('<td class="text-right font-weight-bold">' . number_format($totOutSum, 0) . '</td>');
+                        echo('</tr>');
                         ?>
                     @endif
 
