@@ -230,7 +230,7 @@ class StfChrgCalcController extends Controller
             $usrrights['delete'] = false;
         }
 
-        $rec->retURL = $request->get('returl') ?? route('orgstaff.edit', $rec->staffid);
+        $rec->retURL = $request->get('returl') ?? route('stf_chrg_calcs.index');
 
         return view($this->sysobjcode . '.edit', compact('rec', "usrrights"));
     }
@@ -326,7 +326,7 @@ class StfChrgCalcController extends Controller
         $sd = array();
         if ($res->err == 1) {
             objlog::log_info($this->sysobjid, $id, 'Попытка удаления записи', 2);
-            $route = route('orgstaff.edit', $id);
+            $route = route('stf_chrg_calcs.edit', $id);
             $sd["error"] = $res->msg;
         } else {
             $parobjid = $res->obj['staffid'];
@@ -336,7 +336,7 @@ class StfChrgCalcController extends Controller
             //забудем кэшированные данные про ...:
             //Cache::forget("user_{$usrid}_has_acs_{$acsid}");
 
-            $route = route('orgstaff.edit', $parobjid);
+            $route = route('stf_chrg_calcs.index');
             $sd['success'] = 'Запись удалена';
         }
         return redirect($route)->with($sd);

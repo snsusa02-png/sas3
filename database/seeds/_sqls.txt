@@ -25,10 +25,7 @@ SELECT dw.staffid
  join org_charges oc on oc.orgid=os.orgid
  join chargetypes ct on ct.id=oc.chargetypeid and ct.id=11
 	where 1=1
-    -- and wrktypeid=1
-   --  and staffid = 100
-     and wrkdate between '2023-07-01' and '2023-07-31'
-    -- and DATE_FORMAT(wrkdate, '%Y-%m') = '2023-07'
+     and wrkdate between '2023-10-01' and '2023-10-31'
     group by staffid, oc.id
 
 
