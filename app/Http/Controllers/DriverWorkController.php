@@ -843,37 +843,38 @@ class DriverWorkController extends Controller
             ->wherebetween('wrkdate', [$int_begdate, $int_enddate])
             ->sum('salary_sum');
 
-        // Так как привязываем совокупную запись, то берем "общий" идентификатор - "0"
-        $stfchrgcalc = stf_chrg_calc::where([
-            'staffid' => $rec->staffid
-            , 'ref_sysobjid' => $this->sysobjid
-            , 'ref_objid' => 0
-        ])->first();
-        if (!isset($stfchrgcalc)) {
+        // Определим - существует ли необходимость привязки начисления этой организации к общей ведомости
+        $orgcharge = org_charge::where(['orgid' => $rec->orgstaff->orgid, 'chargetypeid' => 11])->first();
+        if (isset($orgcharge)) {
 
-            $orgid = $rec->orgstaff->orgid;
-            $orgchargeid = org_charge::where(['orgid' => $orgid, 'chargetypeid' => 11])->first()->id;
+            // Так как привязываем совокупную запись, то берем "общий" идентификатор - "0"
+            $stfchrgcalc = stf_chrg_calc::where([
+                'staffid' => $rec->staffid
+                , 'ref_sysobjid' => $this->sysobjid
+                , 'ref_objid' => 0
+            ])->first();
+            if (!isset($stfchrgcalc)) {
 
-            $stfchrgcalc = new stf_chrg_calc([
-                "staffid" => $rec->staffid,
-                "orgchargeid" => $orgchargeid,
-                "charge_dir" => 1,
-                "docdate" => $rec->wrkdate,
-                "forbegdate" => $int_begdate,
-                "forenddate" => $int_enddate,
-                "created_by" => $userid,
-                "created_at" => now(),
-                "ref_sysobjid" => $this->sysobjid,
-                "ref_objid" => 0,
-            ]);
+                $stfchrgcalc = new stf_chrg_calc([
+                    "staffid" => $rec->staffid,
+                    "orgchargeid" => $orgcharge->id,
+                    "charge_dir" => $orgcharge->chargetype->dir,
+                    "docdate" => $rec->wrkdate,
+                    "forbegdate" => $int_begdate,
+                    "forenddate" => $int_enddate,
+                    "created_by" => $userid,
+                    "created_at" => now(),
+                    "ref_sysobjid" => $this->sysobjid,
+                    "ref_objid" => 0,
+                ]);
+            }
+            $stfchrgcalc->staffid = $rec->staffid;
+            $stfchrgcalc->charge_sum = $salary_sum;
+            $stfchrgcalc->updated_by = $userid;
+            $stfchrgcalc->updated_at = now();
+            //dd($stfchrgcalc);
+            $stfchrgcalc->save();
         }
-        $stfchrgcalc->staffid = $rec->staffid;
-        $stfchrgcalc->charge_sum = $salary_sum;
-        $stfchrgcalc->updated_by = $userid;
-        $stfchrgcalc->updated_at = now();
-        //dd($stfchrgcalc);
-        $stfchrgcalc->save();
-
         //---------------------------------------------------------------------------------------
 
 

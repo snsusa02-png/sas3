@@ -217,7 +217,7 @@ class StfWrkhrController extends Controller
             }
         } else {
             $rec = $this->model::find($id);
-            if (!isset($rec)){
+            if (!isset($rec)) {
                 $rslt = ['error' => 'Указанная запись не найдена!'];
                 return redirect(route('stf_wrkhrs.index'))->with($rslt);
             }
@@ -358,32 +358,36 @@ class StfWrkhrController extends Controller
         //Выполним действия после обновления записи ---------------------------------------------
         stf_wrkhr::on_update($rec);
 
-        $stfchrgcalc = stf_chrg_calc::where(['ref_sysobjid' => $this->sysobjid
-            , 'ref_objid' => $rec->id])->first();
+        //Привязка начисления к общей ведомости наяислений и удержаний ----------------------------
+        //   проверим - есть ли у организации сотрудника начисление с ид 11 - "Заработная плата"
+        $orgcharge = org_charge::where(['orgid' => $rec->orgstaff->orgid, 'chargetypeid' => 11])->first();
+        if (isset($orgcharge)) {
 
-        if (!isset($stfchrgcalc)) {
+            $stfchrgcalc = stf_chrg_calc::where(
+                ['ref_sysobjid' => $this->sysobjid
+                , 'ref_objid' => $rec->id])->first();
 
-            $orgid = $rec->orgstaff->orgid;
-            $orgchargeid = org_charge::where(['orgid' => $orgid, 'chargetypeid' => 11])->first()->id;
+            if (!isset($stfchrgcalc)) {
 
-            $stfchrgcalc = new stf_chrg_calc([
-                "staffid" => $staffid,
-                "orgchargeid" => $orgchargeid,
-                "charge_dir" => 1,
-                "docdate" => $basedate,
-                "forbegdate" => date_create($basedate)->format('Y-m-01'),
-                "forenddate" => date_create($basedate)->format('Y-m-t'),
-                "created_by" => $userid,
-                "created_at" => now(),
-                "ref_sysobjid" => $this->sysobjid,
-                "ref_objid" => $rec->id,
-            ]);
+                $stfchrgcalc = new stf_chrg_calc([
+                    "staffid" => $staffid,
+                    "orgchargeid" => $orgcharge->id,
+                    "charge_dir" => $orgcharge->chargetype->dir,
+                    "docdate" => $basedate,
+                    "forbegdate" => date_create($basedate)->format('Y-m-01'),
+                    "forenddate" => date_create($basedate)->format('Y-m-t'),
+                    "created_by" => $userid,
+                    "created_at" => now(),
+                    "ref_sysobjid" => $this->sysobjid,
+                    "ref_objid" => $rec->id,
+                ]);
+            }
+            $stfchrgcalc->staffid = $rec->staffid;
+            $stfchrgcalc->charge_sum = $rec->tot_sum;
+            $stfchrgcalc->updated_by = $userid;
+            $stfchrgcalc->updated_at = now();
+            $stfchrgcalc->save();
         }
-        $stfchrgcalc->staffid = $rec->staffid;
-        $stfchrgcalc->charge_sum = $rec->tot_sum;
-        $stfchrgcalc->updated_by = $userid;
-        $stfchrgcalc->updated_at = now();
-        $stfchrgcalc->save();
 
         //---------------------------------------------------------------------------------------
 
