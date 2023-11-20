@@ -842,9 +842,10 @@ class DriverWorkController extends Controller
         $salary_sum = driver_work::where('staffid', $rec->staffid)
             ->wherebetween('wrkdate', [$int_begdate, $int_enddate])
             ->sum('salary_sum');
-
+//dd($salary_sum);
         // Определим - существует ли необходимость привязки начисления этой организации к общей ведомости
         $orgcharge = org_charge::where(['orgid' => $rec->orgstaff->orgid, 'chargetypeid' => 11])->first();
+
         if (isset($orgcharge)) {
 
             // Так как привязываем совокупную запись, то берем "общий" идентификатор - "0"
@@ -852,6 +853,7 @@ class DriverWorkController extends Controller
                 'staffid' => $rec->staffid
                 , 'ref_sysobjid' => $this->sysobjid
                 , 'ref_objid' => 0
+                , 'docdate' => $int_begdate
             ])->first();
             if (!isset($stfchrgcalc)) {
 
@@ -859,7 +861,7 @@ class DriverWorkController extends Controller
                     "staffid" => $rec->staffid,
                     "orgchargeid" => $orgcharge->id,
                     "charge_dir" => $orgcharge->chargetype->dir,
-                    "docdate" => $rec->wrkdate,
+                    "docdate" => $int_begdate,
                     "forbegdate" => $int_begdate,
                     "forenddate" => $int_enddate,
                     "created_by" => $userid,
