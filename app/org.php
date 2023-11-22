@@ -1158,6 +1158,13 @@ class org extends Model
                                     and exists(select 1 from stf_wrkhrs as swh where swh.staffid=os.id)
                                         )";
 
+                    } elseif ($key == 'in_stf_chrg_calcs') {
+                        // сотрудники указанной организации имеют записи в in_stf_chrg_calcs
+                        $sc .= " and " . (($val == 0) ? "not" : "")
+                            . " exists (select 1 from orgstaff as os where os.orgid=o.id
+                                    and exists(select 1 from stf_chrg_calcs as scs where scs.staffid=os.id)
+                                        )";
+
                     } elseif ($key == 'in_driver_works_ownorgid') {
                         // сотрудники указанной организации имеют записи в driver_works
                         $sc .= " and " . (($val == 0) ? "not" : "")

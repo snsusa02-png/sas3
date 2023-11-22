@@ -1,4 +1,22 @@
-﻿-- 2023.11.06 ---------------------------------------------------------------------------------
+﻿-- 2023.11.20 ---------------------------------------------------------------------------------
+delete from stf_chrg_calcs c where orgchargeid in (7, 8, 12, 13);
+
+insert into stf_chrg_calcs (staffid,orgchargeid,docdate,charge_dir,charge_sum, forbegdate,forenddate    )
+select a.staffid, orgchargeid, docdate, 1 as charge_dir, charge_sum
+    , docdate as forbegdate, LAST_DAY(docdate) as forenddate
+    from (
+        SELECT oc.id as orgchargeid, DATE_ADD(dw.wrkdate, INTERVAL -DAY(dw.wrkdate)+1 DAY)  as docdate
+            , staffid, sum(dw.salary_sum) as charge_sum
+        FROM `driver_works` dw
+        join orgstaff os on os.id=dw.staffid
+        join org_charges oc on oc.orgid=os.orgid and oc.chargetypeid=11
+        group by 1, 2, staffid
+        ) a
+    where charge_sum>0
+    order by 1 desc;
+
+
+-- 2023.11.06 ---------------------------------------------------------------------------------
 SELECT *
     -- delete
     FROM stf_chrg_calcs

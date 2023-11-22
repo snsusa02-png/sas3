@@ -540,10 +540,15 @@ class OrgChargeController extends Controller
 
         $param_names = [
             's_ym' => null,
+            's_ownorgid' => null,
+            's_stf_name' => null,
         ];
         $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);
 
         $s_ym = $search_params['s_ym'];
+        $s_ownorgid = $search_params['s_ownorgid'];
+        $s_stf_name = $search_params['s_stf_name'];
+
         if ($s_ym <> '') {
             //dd( $s_ym . '-01', date_create($s_ym . '-01' ) );
             $date = date_create($s_ym . '-01')->format('Y-m-d');
@@ -560,11 +565,18 @@ class OrgChargeController extends Controller
                     join org_charges as oc 	on oc.id=scc.orgchargeid
                     join chargetypes as ct on ct.id=oc.chargetypeid
                     where forbegdate <= '" . date_create($data->enddate)->format('Y-m-d') . "'"
-                . " and forEndDate >= '" . date_create($data->begdate)->format('Y-m-d') . "'
-                    group by ct.id
+                . " and forEndDate >= '" . date_create($data->begdate)->format('Y-m-d') . "'";
+
+            if (isset($s_ownorgid))
+                $sql .= " and os.orgid={$s_ownorgid}";
+
+            if (isset($s_stf_name))
+                $sql .= " and concat(' ', os.lname, ' ', os.fname, ' ', os.mname) like '% {$s_stf_name}%'";
+
+            $sql .= " group by ct.id
                     order by ct.dir desc, ct.ordr";
             $data->cols = DB::select(DB::raw($sql));
-//dd($sql, $data->cols);
+            //dd($sql, $data->cols);
 
             $sql = "SELECT scc.staffid, os.lname, os.fname, os.mname
                     , os.orgid, o.name as org_name, ct.dir, oc.chargetypeid, ct.name as chargetype_name
@@ -575,8 +587,15 @@ class OrgChargeController extends Controller
                     join org_charges as oc 	on oc.id=scc.orgchargeid
                     join chargetypes as ct on ct.id=oc.chargetypeid
                     where forbegdate <= '" . date_create($data->enddate)->format('Y-m-d') . "'"
-                . " and forEndDate >= '" . date_create($data->begdate)->format('Y-m-d') . "'
-                     group by scc.staffid, oc.chargetypeid
+                . " and forEndDate >= '" . date_create($data->begdate)->format('Y-m-d') . "'";
+
+            if (isset($s_ownorgid))
+                $sql .= " and os.orgid={$s_ownorgid}";
+
+            if (isset($s_stf_name))
+                $sql .= " and concat(' ', os.lname, ' ', os.fname, ' ', os.mname) like '% {$s_stf_name}%'";
+            
+            $sql .= " group by scc.staffid, oc.chargetypeid
                     order by o.name, os.lname, os.fname, os.id, ct.dir desc, ct.ordr";
 
             $recs = DB::select(DB::raw($sql));
@@ -602,6 +621,8 @@ class OrgChargeController extends Controller
         }
         //dd($data->yms);
         //dd($data, $sql, $recs);
+
+        $data->ownorgs = org::lstFor_cached(['in_stf_chrg_calcs' => 1]);
 
         //занесем в журнал
         objlog::log_info(855, $report_id, 'запрошен отчет;');

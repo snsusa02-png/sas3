@@ -69,13 +69,24 @@ $first_col_id = null;
                                                         !!}
                                     </div>
 
-                                    @if(1==0)
+                                    @if(1==1)
                                         <div class="form-group col-md-3">
                                             <label for="s_ownorgid" class="">Организация:</label>
                                             {!! Form::select('s_ownorgid', $data->ownorgs, $search_params['s_ownorgid'],
                                                             [
                                                             'class' => 'form-control',
                                                             'placeholder' => '-все-',
+                                                            ])
+                                                            !!}
+                                        </div>
+                                    @endif
+                                    @if(1==1)
+                                        <div class="form-group col-md-3">
+                                            <label for="s_ownorgid" class="">Сотрудник:</label>
+                                            {!! Form::text('s_stf_name', $search_params['s_stf_name'],
+                                                            [
+                                                            'class' => 'form-control',
+                                                            'placeholder' => '-ФИО-',
                                                             ])
                                                             !!}
                                         </div>
