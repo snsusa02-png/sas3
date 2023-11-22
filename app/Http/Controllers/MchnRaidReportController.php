@@ -739,9 +739,10 @@ class MchnRaidReportController extends Controller
 
         $data = new \stdClass();
 
+        Cache::forget('driver_works_years');
         $data->years = Cache::remember('driver_works_years', now()->addMinutes(55)
             , function () {
-                return driver_work::selectRaw("year(wrkdate) as year")->distinct()->orderby('year')
+                return driver_work::selectRaw("year(wrkdate) as year")->distinct()->orderby('year', 'desc')
                     ->get()->pluck('year', 'year')->toArray();
             });
         //dd($data->years);
