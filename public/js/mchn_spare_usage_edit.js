@@ -1,14 +1,45 @@
 $(document).ready(function () {
 
-    function calc_spare_sum(){
-        var qty = parseFloat( $("#qty").val());
-        if (isNaN(qty))
-            return null;
-        var price = parseFloat( $("#price").val());
-        if (isNaN(price))
-            return null;
+    function calc_spare_sum() {
+        var qty = parseFloat($("#qty").val());
+        if (isNaN(qty)) {
+            qty = 1;
+            $("#qty").val(qty);
+        }
 
-        $("#spare_sum").val( qty * price);
+        var price = parseFloat($("#price").val());
+        if (isNaN(price)) {
+            sum = parseFloat($("#spare_sum").val());
+            if (isNaN(sum))
+                sum = 0
+
+            price = sum / qty;
+            $("#price").val(price);
+        }
+
+        $("#spare_sum").val(qty * price);
+    }
+
+    function calc_price_qty() {
+
+        var qty = parseFloat($("#qty").val());
+        if (isNaN(qty)) {
+            qty = 1;
+            $("#qty").val(qty);
+        }
+
+        var price = parseFloat($("#price").val());
+        if (isNaN(price))
+            price = 0;
+
+        var sum = parseFloat($("#spare_sum").val());
+        if (isNaN(sum)) {
+            sum = qty * price;
+            $("#spare_sum").val(sum);
+        }
+
+        price = Math.round(100 * sum / qty) / 100;
+        $("#price").val(price);
     }
 
     $("#qty").change(function () {
@@ -18,6 +49,9 @@ $(document).ready(function () {
 
     $("#price").change(function () {
         calc_spare_sum();
+    });
+    $("#spare_sum").change(function () {
+        calc_price_qty();
     });
 
 

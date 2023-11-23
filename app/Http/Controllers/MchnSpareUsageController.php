@@ -246,6 +246,7 @@ class MchnSpareUsageController extends Controller
                 $newData['operdate'] = $newData['operdate'] ?? $paydate;
                 $newData['active'] = 1;
                 $newData['created_by'] = $userid;
+                $newData['qty'] = 1;
 
                 $rec = new mchn_spare_usage($newData);
                 //---------------------------------------------------------
@@ -322,7 +323,8 @@ class MchnSpareUsageController extends Controller
                 "created_by" => $userid,
                 "created_at" => now(),
                 "updated_by" => $userid,
-                "updated_at" => now()]);
+                "updated_at" => now()
+            ]);
             $mess = "Запись создана";
         } else {
             $rec = mchn_spare_usage::find($id);
