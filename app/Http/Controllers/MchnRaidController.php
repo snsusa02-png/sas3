@@ -1108,7 +1108,7 @@ class MchnRaidController extends Controller
 
                 //$ym = date_create($request->docdate)->format('Y-m');
                 $begdate = date_create($request->begdate)->format('Y-m-d');
-                $enddate = date_create($request->begdate)->format('Y-m-d');
+                $enddate = date_create($request->enddate)->format('Y-m-d');
 
                 $list = driver_work::where([
                     'staffid' => $request->staffid,
