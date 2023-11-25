@@ -33,7 +33,8 @@ $(document).ready(function () {
                 // console.log('get data raid_info_rfr--------------------------------')
                 // console.log(data);
                 //console.log(data.data.raid_salary_sum);
-                $("#charge_qty").val(data.data.wrkhrs);
+                var q = Math.round(data.data.wrkhrs*10)/10;
+                $("#charge_qty").val(q);
                 // $("#raid_sum").val(data.data.raid_salary_sum);
                 // $("#day_hr_rate").val(data.data.hr_day_rate);
                 // $("#night_hr_rate").val(data.data.hr_night_rate);
@@ -454,8 +455,7 @@ $(document).ready(function () {
                         $('#qty_div').removeClass('d-none').addClass('d-block');
 
                         $('#charge_qty').val('');
-                        $('#price_div').removeClass('d-none');
-                        $('#price_div').addClass('d-block');
+                        $('#price_div').removeClass('d-none').addClass('d-block');
                         $('#charge_price').val('');
 
                         //$('#sum_div').removeClass('offset-md-9').addClass('offset-md-0');
@@ -466,8 +466,8 @@ $(document).ready(function () {
 
                         $('#qty_div').removeClass('d-block').addClass('d-none');
 
-                        $('#price_div').removeClass('d-block');
-                        $('#price_div').addClass('d-none');
+                        $('#price_div').removeClass('d-block').addClass('d-none');
+
                         //$('#sum_div').removeClass('offset-md-0').addClass('offset-md-9');
                         $('#charge_sum').prop('readonly', false);
                     }

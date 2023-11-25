@@ -223,7 +223,7 @@
                                             @if ($usrrights['save'])
                                                 <input type="number"
                                                        class="charge_sum form-control font-weight-bold text-right"
-                                                       name="charge_sum" id="charge_sum"
+                                                       name="charge_sum" id="charge_sum" {{$sum_ro}}
                                                        value="{{ old('charge_sum',$rec->charge_sum) }}"/>
                                             @else
                                                 <div
