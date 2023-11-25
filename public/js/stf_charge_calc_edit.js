@@ -25,7 +25,9 @@ $(document).ready(function () {
             {
                 orgchargeid: $("#orgchargeid").val()
                 , staffid: $("#staffid").val()
-                , docdate: $("#docdate").val()
+                //, docdate: $("#docdate").val()
+                , begdate: $("#calcbegdate").val()
+                , enddate: $("#calcenddate").val()
             },
             function (data) {
                 // console.log('get data raid_info_rfr--------------------------------')
@@ -446,22 +448,27 @@ $(document).ready(function () {
                     use_price.val(ui.item.use_price);
 
                     if( use_price.val() == 1){
-                        $('#qty_div').removeClass('d-none');
-                        $('#qty_div').addClass('d-block');
+                        $('#calcbegdate_div').removeClass('d-none').addClass('d-block');
+                        $('#calcenddate_div').removeClass('d-none').addClass('d-block');
+
+                        $('#qty_div').removeClass('d-none').addClass('d-block');
+
                         $('#charge_qty').val('');
                         $('#price_div').removeClass('d-none');
                         $('#price_div').addClass('d-block');
                         $('#charge_price').val('');
-                        $('#sum_div').removeClass('offset-md-9');
-                        $('#sum_div').addClass('offset-md-0');
+
+                        //$('#sum_div').removeClass('offset-md-9').addClass('offset-md-0');
                         $('#charge_sum').prop('readonly', true);
                     }else{
-                        $('#qty_div').removeClass('d-block');
-                        $('#qty_div').addClass('d-none');
+                        $('#calcbegdate_div').removeClass('d-block').addClass('d-none');
+                        $('#calcenddate_div').removeClass('d-block').addClass('d-none');
+
+                        $('#qty_div').removeClass('d-block').addClass('d-none');
+
                         $('#price_div').removeClass('d-block');
                         $('#price_div').addClass('d-none');
-                        $('#sum_div').removeClass('offset-md-0');
-                        $('#sum_div').addClass('offset-md-9');
+                        //$('#sum_div').removeClass('offset-md-0').addClass('offset-md-9');
                         $('#charge_sum').prop('readonly', false);
                     }
                     //----------------------------------------------------------------

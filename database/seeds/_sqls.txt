@@ -1,4 +1,9 @@
-﻿-- 2023.11.20 ---------------------------------------------------------------------------------
+﻿-- 2023.11.25 ---------------------------------------------------------------------------------
+ALTER TABLE `stf_chrg_calcs`
+ADD COLUMN `calcbegdate` DATE NULL AFTER `forenddate`,
+ADD COLUMN `calcenddate` DATE NULL COMMENT 'Период первичных данных для расчета' AFTER `calcbegdate`;
+
+-- 2023.11.20 ---------------------------------------------------------------------------------
 delete from stf_chrg_calcs c where orgchargeid in (7, 8, 12, 13);
 
 insert into stf_chrg_calcs (staffid,orgchargeid,docdate,charge_dir,charge_sum, forbegdate,forenddate    )

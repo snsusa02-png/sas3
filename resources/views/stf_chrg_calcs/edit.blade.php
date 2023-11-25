@@ -141,9 +141,39 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="row">
+                                    <div class="row" id="calc_dates_div ">
+                                        <div class="offset-md-0 col-md-3 {{$qty_class}}" id="calcbegdate_div">
+                                            <label for="name" class="required">За период с:</label>
+                                            @if ($usrrights['save'])
+                                                <input type="date" class="form-control text-center font-weight-bold"
+                                                       name="calcbegdate" id="calcbegdate"
+                                                       max="{{today()->format('Y-m-d')}}"
+                                                       value="{{old('calcbegdate',$rec->calcbegdate)}}"/>
+                                            @else
+                                                <div
+                                                    class="font-weight-bold text-center ">
+                                                    {{date_create($rec->calcbegddate)->format('d.m.Y')}}
+                                                    {{ Form::hidden('calcbegddate', $rec->calcbegdate,['id'=>'calcbegdate']) }}
+                                                </div>
+                                            @endif
+                                        </div>
+                                        <div class="offset-md-0 col-md-3 {{$qty_class}}" id="calcenddate_div">
+                                            <label for="name" class="required">по:</label>
+                                            @if ($usrrights['save'])
+                                                <input type="date" class="form-control text-center font-weight-bold"
+                                                       name="calcenddate" id="calcenddate"
+                                                       max="{{today()->format('Y-m-d')}}"
+                                                       value="{{old('calcenddate',$rec->calcenddate)}}"/>
+                                            @else
+                                                <div
+                                                    class="font-weight-bold text-center">
+                                                    {{date_create($rec->calcenddate)->format('d.m.Y')}}
+                                                    {{ Form::hidden('calcenddate', $rec->calcenddate,['id'=>'calcbegddate']) }}
+                                                </div>
+                                            @endif
+                                        </div>
                                         <div id="qty_div"
-                                             class="offset-md-3 col-md-3 offset-sm-4 col-sm-4 col-xs-6 {{$qty_class}}">
+                                             class="offset-md-0 col-md-3 {{$qty_class}}">
                                             <div class="form-group list-inline input-group">
                                                 <label for="">Количество, ЕИ:</label>
                                                 @if ($usrrights['save'])
@@ -167,6 +197,7 @@
                                                 @endif
                                             </div>
                                         </div>
+
                                         <div id="price_div" class="offset-md-0 col-md-3  {{$qty_class}}">
                                             <div class="form-group list-inline">
                                                 <label for="price">Ставка, &#x20bd;/ЕИ:</label>
@@ -183,8 +214,11 @@
                                                 @endif
                                             </div>
                                         </div>
+                                    </div>
 
-                                        <div id="sum_div" class="form-group col-md-3 {{$sum_class}}">
+                                    <div class="row">
+
+                                        <div id="sum_div" class="offset-md-9 form-group col-md-3 {{$sum_class}}">
                                             <label for="charge_sum" class="required">Сумма, &#8381;:</label>
                                             @if ($usrrights['save'])
                                                 <input type="number"

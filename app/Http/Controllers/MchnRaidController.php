@@ -1106,14 +1106,17 @@ class MchnRaidController extends Controller
             if ($chargetypeid == '52') {
                 //-- Премия по показателям ----
 
-                $ym = date_create($request->docdate)->format('Y-m');
+                //$ym = date_create($request->docdate)->format('Y-m');
+                $begdate = date_create($request->begdate)->format('Y-m-d');
+                $enddate = date_create($request->begdate)->format('Y-m-d');
 
                 $list = driver_work::where([
                     'staffid' => $request->staffid,
                     'wrktypeid' => 1,
                     'active' => 1,
                 ])
-                    ->whereRaw("DATE_FORMAT(wrkdate, '%Y-%m') = '{$ym}'")
+                    //->whereRaw("DATE_FORMAT(wrkdate, '%Y-%m') = '{$ym}'")
+                    ->wherebetween('wrkdate', [$begdate, $enddate])
                     ->select(db::raw("sum(day_wrkhrs+night_wrkhrs) as wrkhrs"))
                     ->first()->toArray();
 

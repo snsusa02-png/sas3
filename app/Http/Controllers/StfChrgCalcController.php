@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\doctype;
 use App\objlog;
 use App\org;
 use App\org_charge;
@@ -197,6 +196,8 @@ class StfChrgCalcController extends Controller
                     'staffid' => $staffid,
                     'docdate' => date_create()->format('Y-m-d'),
                     'forenddate' => date_create()->format('Y-m-d'),
+                    'calcbegdate' => date_create()->format('Y-m-01'),
+                    'calcenddate' => date_create()->format('Y-m-t'),
                     'active' => 1,
                     'created_by' => $userid,
                 ]);
@@ -285,6 +286,8 @@ class StfChrgCalcController extends Controller
         $rec->staffid = $staffid;
         $rec->orgchargeid = $request->get('orgchargeid');
         $rec->charge_dir = $rec->org_charge->chargetype->dir;
+        $rec->calcbegdate = $request->get('calcbegdate');
+        $rec->calcenddate = $request->get('calcenddate');
         $rec->charge_price = $request->get('charge_price');
         $rec->charge_qty = $request->get('charge_qty');
         $rec->charge_sum = $request->get('charge_sum');
@@ -293,7 +296,7 @@ class StfChrgCalcController extends Controller
 
         //$rec->forbegdate = $request->get('forbegdate');
         //$rec->forenddate = $request->get('forenddate');
-        //ЦУУпрощенный вариант, вычислим  от даты начисления/удержания
+        //Упрощенный вариант, вычислим  от даты начисления/удержания
         $rec->forbegdate = '' . date_create($rec->docdate)->format('Y-m-01');
         $rec->forenddate = '' . date_create($rec->docdate)->format('Y-m-t');
         //$rec->forenddate = $request->get('forenddate');
