@@ -34,7 +34,6 @@ class MrOperController extends Controller
         $this->sysobjid = 1107;
         $this->sysobjcode = 'mr_opers';
         $this->acl_sysobjcode = sysobj::acl_sysobjcode($this->sysobjcode);
-
     }
 
     /*

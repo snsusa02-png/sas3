@@ -226,7 +226,7 @@
                                             <div class="input-group mb-3 ">
                                                 <input type="number" name="itm_qty" id="itm_qty"
                                                        class="form-control text-right font-weight-bold" required
-                                                       min="0" step="0.001" max="999"
+                                                       min="0" step="0.001" max="99999"
                                                        value="{{old('itm_qty',$rec->itm_qty)}}">
                                             </div>
                                         @else

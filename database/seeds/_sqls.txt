@@ -1,4 +1,8 @@
-﻿-- 2023.11.25 ---------------------------------------------------------------------------------
+﻿-- 2023.11.27 ---------------------------------------------------------------------------------
+ALTER TABLE `mr_opers`
+CHANGE COLUMN `itm_qty` `itm_qty` DECIMAL(10,3) NOT NULL COMMENT 'кол-во товара (в единицах qty_unit)' ;
+
+-- 2023.11.25 ---------------------------------------------------------------------------------
 ALTER TABLE `stf_chrg_calcs`
 ADD COLUMN `calcbegdate` DATE NULL AFTER `forenddate`,
 ADD COLUMN `calcenddate` DATE NULL COMMENT 'Период первичных данных для расчета' AFTER `calcbegdate`;
