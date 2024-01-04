@@ -731,7 +731,10 @@ class DriverWorkController extends Controller
             $rec->day_brkhrs = $day_brkhrs;
             $rec->night_brkhrs = $night_brkhrs;
             // Нужно исправить - сейчас "с натяжкой" всю сумму за доп-работу ставим в сумму ремонта.
-            $rec->repair_sum = $aux_sum;
+            //$rec->repair_sum = $aux_sum;
+            //2024-01-04 Исправил на breaks_sum
+            $rec->breaks_sum = $aux_sum;
+            $rec->repair_sum = 0; // для совместимости
             //---------------------------------------------------------------------------------------------
 
             // Скорректируем кол-во рабочих часов с учетом часов простоя/ремонта/сна
@@ -750,9 +753,10 @@ class DriverWorkController extends Controller
             //dd( $rec->hrs_salary);
             //-------------------------------------------------------
 
-            //$rec->mchnwrkhrs = $request->get('mchnwrkhrs');
+            //2024-01-04 - Кажется мешает расчету чуть выше
+            //$rec->breaks_sum = $request->get('breaks_sum') ?? 0;
 
-            $rec->breaks_sum = $request->get('breaks_sum') ?? 0;
+            //$rec->mchnwrkhrs = $request->get('mchnwrkhrs');
 
             //Получим текущие данные от рейсов:
             $raid_info = mchn_raid::where('dw_id', $rec->id)
@@ -760,7 +764,6 @@ class DriverWorkController extends Controller
             //dd($raid_info);
             $rec->raid_qty = $raid_info->qty;
             $rec->raid_sum = $raid_info->sum;
-
 
 //            $rec->pdt_hrs = $request->get('pdt_hrs');
 //            $rec->pdt_cost = $request->get('pdt_cost');
@@ -771,6 +774,7 @@ class DriverWorkController extends Controller
 //            $rec->repair_sum = $rec->repair_hrs * $rec->repair_cost;
 
             $rec->salary_sum = $rec->hrs_salary + $rec->raid_sum + $rec->breaks_sum;
+
 
             $rec->meter_begqty = $request->get('meter_begqty');
             $rec->meter_endqty = $request->get('meter_endqty');

@@ -187,7 +187,7 @@ SELECT
     , day_wrkhrs* day_hr_rate+ night_wrkhrs* night_hr_rate as calc_hrs_sum
     , breaks_sum
 FROM `driver_works` as dw
-WHERE wrkdate between '2023-06-01' and '2023-06-30'
+WHERE wrkdate between '2023-12-01' and '2023-12-31'
 and  (day_wrkhrs * day_hr_rate + night_wrkhrs * night_hr_rate + if(breaks_sum is null, 0, breaks_sum)) <> salary_sum
 
 
