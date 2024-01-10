@@ -238,12 +238,13 @@ class WrhDocReportController extends Controller
 
         $param_names = [
             's_begdate' => null,
-            's_enddate' => null,
+            's_enddate' => strftime('%Y-%m-%d', strtotime(now())),
         ];
 
         $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);
 
         $s_begdate = $search_params['s_begdate'];
+        //$search_params['s_enddate'] = $search_params['s_enddate']??strftime('%Y-%m-%d', strtotime(now()));
         $s_enddate = $search_params['s_enddate'];
 
 //        dd($s_begdate, isset($s_begdate), is_null($s_begdate));
