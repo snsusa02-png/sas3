@@ -244,7 +244,6 @@ class WrhDocReportController extends Controller
         $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);
 
         $s_begdate = $search_params['s_begdate'];
-        //$search_params['s_enddate'] = $search_params['s_enddate']??strftime('%Y-%m-%d', strtotime(now()));
         $s_enddate = $search_params['s_enddate'];
 
 //        dd($s_begdate, isset($s_begdate), is_null($s_begdate));
@@ -331,6 +330,65 @@ class WrhDocReportController extends Controller
             $recs2 = null;
         }
         return view('wrhdocs.rep' . $report_id, compact('search_params', 'recs', 'recs2', 'data'));
+    }
+
+    function rep57_i(Request $request)
+    {
+        //Детализация производства и отгрузки продукции за период
+
+        $report_id = 57;
+
+        $returl = $request->get('returl') ?? route('home');
+        $userid = Auth::user()->id;
+        $export2xls = $request->get('xls') ?? 0;
+
+        $param_names = [
+            's_begdate' => null,
+            's_enddate' => strftime('%Y-%m-%d', strtotime(now())),
+        ];
+
+        $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);
+
+        $s_begdate = $search_params['s_begdate'];
+        $s_enddate = $search_params['s_enddate'];
+        $s_refitmid = $request->ri_id;
+
+        $data = new \stdClass();
+        $data->returl = $returl;
+
+        //dd($search_params, $data);
+
+        if (isset($s_refitmid) and $s_begdate <> '') {
+            $ri = refitem::where('id',$s_refitmid)->select('name', 'unit')->first();
+            $data->refitm_name = $ri->name;
+            $data->refitm_unit = $ri->unit;
+
+            $sql = "SELECT d.docdate
+                , i.price
+                , sum(i.qty) as qty
+                , sum(qty*i.price) as sum
+                FROM wrhdoclst as i
+                INNER JOIN wrhdocs as d ON d.id = i.docid
+                INNER JOIN wrhdoctypes as t ON t.id = d.doctypeid AND t.forstock <> 0
+                WHERE d.docsigned=1
+                                    and d.docdate between '{$s_begdate}' and '{$s_enddate}'
+                and i.refitmid={$s_refitmid}
+                and t.forStock= 1
+                group by d.docdate, i.price
+                order by d.docdate, i.price";
+
+            $recs = DB::select(DB::raw($sql));
+
+//            dd($sql,$recs);
+
+            //занесем в журнал
+//            objlog::log_info(855, $report_id, 'запрошен отчет; ' . $s_begdate);
+//            report::updUseCnt($report_id);
+
+        } else {
+            $recs = null;
+        }
+        return view('wrhdocs.rep' . $report_id . '_i', compact('search_params', 'recs', 'data'));
     }
 
     function rep60(Request $request)

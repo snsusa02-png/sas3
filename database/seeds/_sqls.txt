@@ -1,4 +1,22 @@
-﻿-- 2023.11.27 ---------------------------------------------------------------------------------
+﻿-- 2024.01.10 ---------------------------------------------------------------------------------
+-- Расшифровка прихода на склад для отчета 57
+
+-- 1640
+SELECT d.docdate
+, i.price
+, sum(i.qty) as qty
+, sum(qty*i.price) as inp_sum
+FROM wrhdoclst as i
+INNER JOIN wrhdocs as d ON d.id = i.docid
+INNER JOIN wrhdoctypes as t ON t.id = d.doctypeid AND t.forstock <> 0
+WHERE d.docsigned=1
+and d.docdate between '2023-09-01' and '2024-01-10'
+and i.refitmid=1640
+and t.forStock= 1
+group by d.docdate, i.price
+order by d.docdate
+
+-- 2023.11.27 ---------------------------------------------------------------------------------
 ALTER TABLE `mr_opers`
 CHANGE COLUMN `itm_qty` `itm_qty` DECIMAL(10,3) NOT NULL COMMENT 'кол-во товара (в единицах qty_unit)' ;
 

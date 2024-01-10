@@ -223,6 +223,11 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                         else
                             $ref_url = null;
 
+                        if ($n_inp_qty > 0)
+                            $inp_ref_url = route('reports.rep57_i').'?ri_id='.$rec->refitmid;
+                        else
+                            $inp_ref_url = null;
+
                         if ($n_sale_sum > 0)
                             $sale_ref_url = null; //route('paydocs.edit', $rec->objid);
                         else
@@ -248,9 +253,9 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                                     {{$pre_qty}}
                                 @endif
                             </td>
-                            <td class="text-right small calced" data-num="{{$n_inp_qty}}">
-                                @if(isset($ref_url))
-                                    <a href="{{$ref_url}}" target="_blank">{{$inp_qty}}</a>
+                            <td class="text-right small calced0" data-num0="{{0}}">
+                                @if(isset($inp_ref_url))
+                                    <a href="{{$inp_ref_url}}" target="_blank">{{$inp_qty}}</a>
                                 @else
                                     {{$inp_qty}}
                                 @endif
