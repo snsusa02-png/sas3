@@ -254,12 +254,15 @@ class WrhDocReportController extends Controller
 
         if ($s_begdate <> '') {
             $sql = "select a.refitmid, ri.name as refitm_name, ri.unit as refitm_unit
-	            , sum(a.pre_qty) as pre_qty, sum(a.inp_qty) as inp_qty
-	            , sum(a.out_qty) as out_qty, sum(a.sale_sum) as sale_sum
+	            , sum(a.pre_qty) as pre_qty
+	            , sum(a.inp_qty) as inp_qty
+	            , sum(a.out_qty) as out_qty
+	            , sum(a.inp_sum) as inp_sum
+	            , sum(a.sale_sum) as sale_sum
                 from (
                     SELECT i.refitmid
                         , SUM(IF(t.forStock=1, i.qty, 0) - IF(t.forStock=-1, i.qty, 0)) as pre_qty
-                        , null as inp_qty, null as out_qty, null as sale_sum
+                        , null as inp_qty, null as out_qty,null as inp_sum, null as sale_sum
                     FROM wrhdoclst as i
                     INNER JOIN wrhdocs as d ON d.id = i.docid
                     INNER JOIN wrhdoctypes as t ON t.id = d.doctypeid AND t.forstock <> 0
@@ -269,6 +272,7 @@ class WrhDocReportController extends Controller
                     SELECT     i.refitmid, null as pre_qty
                         , SUM(IF(t.forStock= 1, i.qty, null )) as inp_qty
                         , SUM(IF(t.forStock=-1, i.qty, null)) as out_qty
+                        , SUM(IF(t.forStock=+1, i.qty*i.price, null)) as inp_sum
                         , SUM(IF(t.forSale= 1, i.qty*i.price, null)) as sale_sum
                     FROM wrhdoclst as i
                     INNER JOIN wrhdocs as d ON d.id = i.docid
