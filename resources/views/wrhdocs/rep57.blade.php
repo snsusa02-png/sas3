@@ -183,6 +183,7 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                         <td class="text-right">Вх. остаток, ЕИ</td>
                         <td class="text-right">Приход, ЕИ</td>
                         <td class="text-right">Расход, ЕИ</td>
+                        <td class="text-right">Приход, руб</td>
                         <td class="text-right">Отгрузка, руб</td>
                         <td class="text-right">Исх. остаток, ЕИ</td>
                     </tr>
@@ -203,12 +204,14 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                         $pre_qty = (isset($rec->pre_qty)) ? number_format($rec->pre_qty, 0) : '';
                         $inp_qty = (isset($rec->inp_qty)) ? number_format($rec->inp_qty, 0) : '';
                         $out_qty = (isset($rec->out_qty)) ? number_format($rec->out_qty, 0) : '';
+                        $inp_sum = (isset($rec->inp_sum)) ? number_format($rec->inp_sum, 2) : '';
                         $sale_sum = (isset($rec->sale_sum)) ? number_format($rec->sale_sum, 2) : '';
 
 
                         $n_pre_qty = (isset($rec->pre_qty)) ? $rec->pre_qty : 0;
                         $n_inp_qty = (isset($rec->inp_qty)) ? $rec->inp_qty : 0;
                         $n_out_qty = (isset($rec->out_qty)) ? $rec->out_qty : 0;
+                        $n_inp_sum = (isset($rec->inp_sum)) ? $rec->inp_sum : 0;
                         $n_sale_sum = (isset($rec->sale_sum)) ? $rec->sale_sum : 0;
 
                         $n_end_qty = $rec->pre_qty + $rec->inp_qty - $rec->out_qty;
@@ -259,7 +262,13 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                                     {{$out_qty}}
                                 @endif
                             </td>
-                            <td class="text-right small calced" data-num="{{$n_sale_sum}}">
+                            <td class="text-right small calced" data-num="{{$n_inp_sum}}">
+                                @if(isset($inp_ref_url))
+                                    <a href="{{$inp_ref_url}}" target="_blank">{{$inp_sum}}</a>
+                                @else
+                                    {{$inp_sum}}
+                                @endif
+                            </td>                            <td class="text-right small calced" data-num="{{$n_sale_sum}}">
                                 @if(isset($sale_ref_url))
                                     <a href="{{$sale_ref_url}}" target="_blank">{{$sale_sum}}</a>
                                 @else
@@ -271,6 +280,7 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                             </td>
                         </tr>
                         <?php
+                        $totInpSum += $rec->inp_sum;
                         $totOutSum += $rec->sale_sum;
                         ?>
                     @endforeach
@@ -281,6 +291,7 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                         ?>
                         <tr>
                             <td colspan="6" class="text-right" data-npp="{{$npp++}}">Итого:</td>
+                            <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totInpSum,2)}}</td>
                             <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totOutSum,2)}}</td>
                         </tr>
                     @endif
