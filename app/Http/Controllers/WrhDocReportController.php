@@ -363,18 +363,23 @@ class WrhDocReportController extends Controller
             $data->refitm_name = $ri->name;
             $data->refitm_unit = $ri->unit;
 
-            $sql = "SELECT d.docdate
+            $sql = "SELECT d.id as docid
+                , d.docdate
+                , d.docnum
+                , t.name as doctype_name
                 , i.price
-                , sum(i.qty) as qty
-                , sum(qty*i.price) as sum
+                , i.qty as qty
+                , qty*i.price as sum
+                , d.orgid
+                , o.name as org_name
                 FROM wrhdoclst as i
                 INNER JOIN wrhdocs as d ON d.id = i.docid
                 INNER JOIN wrhdoctypes as t ON t.id = d.doctypeid AND t.forstock <> 0
+                left join orgs o on o.id=d.orgid
                 WHERE d.docsigned=1
-                                    and d.docdate between '{$s_begdate}' and '{$s_enddate}'
+                and d.docdate between '{$s_begdate}' and '{$s_enddate}'
                 and i.refitmid={$s_refitmid}
                 and t.forStock= 1
-                group by d.docdate, i.price
                 order by d.docdate, i.price";
 
             $recs = DB::select(DB::raw($sql));

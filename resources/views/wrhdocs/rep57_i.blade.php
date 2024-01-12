@@ -96,6 +96,7 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                         <td class="text-right">Кол-во, ЕИ</td>
                         <td class="text-right">Цена, руб</td>
                         <td class="text-right">Сумма, руб</td>
+                        <td class="text-left">Основание</td>
                     </tr>
                     </thead>
 
@@ -136,6 +137,9 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                             </td>
                             <td class="text-right calced" data-num="{{$n_sum}}">
                                 {{$sum}}
+                            </td>
+                            <td class="text-ledt small">
+                                <a href="{{route("wrhdocs.edit",$rec->docid)}}" target="_blank">{{$rec->doctype_name}} № {{$rec->docnum}}</a> {{$rec->org_name}}
                             </td>
                         </tr>
                         <?php
