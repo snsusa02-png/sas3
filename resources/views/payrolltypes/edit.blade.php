@@ -1,6 +1,5 @@
 @extends('layouts.edit')
 
-
 @section('content')
 
     <style>

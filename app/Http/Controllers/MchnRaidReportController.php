@@ -293,7 +293,6 @@ class MchnRaidReportController extends Controller
     public function rep46(Request $request)
     {
         //
-
         $report_id = 46;
 
         $userid = \Auth::user()->id;
@@ -421,8 +420,9 @@ class MchnRaidReportController extends Controller
                 }
             }
         }
+//var_dump( $sc,$sc1, $sc2, $sc3, $sc4, $search_params['s_begdate'], $search_params['s_enddate']);
 
-        $recs = $recs2 = $recs3 = null;
+        $recs = $recs2 = $recs3 = $recs4 = null;
 
         if ($need_search) {
 
@@ -542,6 +542,43 @@ class MchnRaidReportController extends Controller
                 ->get();
 //            dd($sc, $recs3);
 
+            //2024-02-11 Поступления и реализация на склад
+            $s_begdate = $search_params['s_begdate'];
+            $s_enddate = $search_params['s_enddate'];
+            $sql = "select a.refitmid, ri.name as refitm_name, ri.unit as refitm_unit
+	            , sum(a.pre_qty) as pre_qty
+	            , sum(a.inp_qty) as inp_qty
+	            , sum(a.out_qty) as out_qty
+	            , sum(a.inp_sum) as inp_sum
+	            , sum(a.sale_sum) as sale_sum
+                from (
+                    SELECT i.refitmid
+                        , SUM(IF(t.forStock=1, i.qty, 0) - IF(t.forStock=-1, i.qty, 0)) as pre_qty
+                        , null as inp_qty, null as out_qty,null as inp_sum, null as sale_sum
+                    FROM wrhdoclst as i
+                    INNER JOIN wrhdocs as d ON d.id = i.docid
+                    INNER JOIN wrhdoctypes as t ON t.id = d.doctypeid AND t.forstock <> 0
+                    WHERE d.docsigned=1 and  d.docdate < '{$s_begdate}'
+                    GROUP BY refitmid
+                    union all
+                    SELECT     i.refitmid, null as pre_qty
+                        , SUM(IF(t.forStock= 1, i.qty, null )) as inp_qty
+                        , SUM(IF(t.forStock=-1, i.qty, null)) as out_qty
+                        , SUM(IF(t.forStock=+1, i.qty*i.price, null)) as inp_sum
+                        , SUM(IF(t.forSale= 1, i.qty*i.price, null)) as sale_sum
+                    FROM wrhdoclst as i
+                    INNER JOIN wrhdocs as d ON d.id = i.docid
+                    INNER JOIN wrhdoctypes as t ON t.id = d.doctypeid AND t.forstock <> 0
+                    WHERE d.docsigned=1
+                    and d.docdate between '{$s_begdate}' and '{$s_enddate}'
+                    GROUP BY refitmid
+                    ) as a
+                INNER JOIN  refitems as ri ON ri.id = a.refitmid
+                GROUP BY refitmid
+                order by refitm_name";
+
+            $recs4 = DB::select(DB::raw($sql));
+
 
             //обновим счетчик использования отчета
             report::updUseCnt($report_id, $userid, \Auth::user()->name);
@@ -585,22 +622,26 @@ class MchnRaidReportController extends Controller
 
         //dd($search_params['s_year']);
         $data->period_title = '';
+        $data->period_subtitle = '';
 
         if ($s_period_type == 1) {
             $data->period_title = 'за ' . date_format(date_create($s_begdate), 'd.m.Y');
-        } elseif ($s_period_type == 2)
+        } elseif ($s_period_type == 2) {
             $data->period_title = ($data->monthes[$search_params['s_month']] ?? '') . ' ' . ($search_params['s_year'] ?? '');
-        elseif ($s_period_type == 3)
+            $data->period_subtitle = date_format(date_create($s_begdate), 'd.m.Y') . ' - ' . date_format(date_create($s_enddate), 'd.m.Y');
+        } elseif ($s_period_type == 3) {
             $data->period_title = $search_params['s_quarter'] . ' квартал ' . ($search_params['s_year'] ?? '');
-        elseif ($s_period_type == 4)
+            $data->period_subtitle = date_format(date_create($s_begdate), 'd.m.Y') . ' - ' . date_format(date_create($s_enddate), 'd.m.Y');
+        } elseif ($s_period_type == 4) {
             $data->period_title = ($search_params['s_year'] ?? '') . ' год';
-        else {
+            $data->period_subtitle = date_format(date_create($s_begdate), 'd.m.Y') . ' - ' . date_format(date_create($s_enddate), 'd.m.Y');
+        } else {
             if (isset($s_begdate) and $s_begdate <> '')
                 $data->period_title .= ' с ' . date_format(date_create($s_begdate), 'd.m.Y');
             if (isset($s_enddate) and $s_enddate <> '')
                 $data->period_title .= ' по ' . date_format(date_create($s_enddate), 'd.m.Y');
         }
-        //dd($s_period_type,$s_begdate, $s_enddate, $data->period_title,  date_format(date_create($s_begdate), 'd.m.Y'));
+//dd($s_period_type,$s_begdate, $s_enddate, $data->period_title,  date_format(date_create($s_begdate), 'd.m.Y'));
 
         if ($export2xls == "1") {
             $response = Excel::download(new rep46Export($data, $recs, $recs2, $recs3), "rep_daily.xlsx", \Maatwebsite\Excel\Excel::XLSX);
@@ -611,11 +652,12 @@ class MchnRaidReportController extends Controller
             return $response;
         }
 
-        return view('mchn_raids.rep' . $report_id, compact('recs', 'recs2', 'recs3', 'search_params', 'data'));
+        return view('mchn_raids.rep' . $report_id, compact('recs', 'recs2', 'recs3', 'recs4', 'search_params', 'data'));
     }
 
 
-    public function rep51(Request $request)
+    public
+    function rep51(Request $request)
     {
         //
         $report_id = 51;
@@ -766,7 +808,8 @@ class MchnRaidReportController extends Controller
         return view('driver_works.rep' . $report_id, compact('recs', 'search_params', 'data'));
     }
 
-    public function rep52(Request $request)
+    public
+    function rep52(Request $request)
     {
         //
         $report_id = 52;
@@ -871,7 +914,8 @@ class MchnRaidReportController extends Controller
     }
 
 
-    public function prnt_table(Request $request, $docid)
+    public
+    function prnt_table(Request $request, $docid)
     {
         //dd($docid);
         $prodplan = prodplan::find($docid);
@@ -912,7 +956,8 @@ class MchnRaidReportController extends Controller
         return view('prodplans.prnt_table', compact('prodplan', 'items'));
     }
 
-    public function rep61(Request $request)
+    public
+    function rep61(Request $request)
     {
         //
         $report_id = 61;
@@ -1071,7 +1116,7 @@ SELECT fcp.machineid
 	, 0, 0, 0, sum(fcp.paysum) as  fuel_sum, 0
 FROM fuelcard_pays fcp
  where " . $sc3
-. " group by machineid
+                . " group by machineid
  union
     SELECT machineid, 0, 0, 0, 0, sum(msu.spare_sum) as  spare_sum
     FROM mchn_spare_usages msu
@@ -1138,7 +1183,7 @@ order by income_sum desc";
         //dd($s_period_type,$s_begdate, $s_enddate, $data->period_title,  date_format(date_create($s_begdate), 'd.m.Y'));
 
         if ($export2xls == "1") {
-            $response = Excel::download(new rep61Export( $recs, $data), "rep_income_daily.xlsx", \Maatwebsite\Excel\Excel::XLSX);
+            $response = Excel::download(new rep61Export($recs, $data), "rep_income_daily.xlsx", \Maatwebsite\Excel\Excel::XLSX);
 
             //$response= Excel::download(new InvoicesExport, 'invoices.xls', \Maatwebsite\Excel\Excel::XLS);
             //HERE IS THE MAGIC FOLKS

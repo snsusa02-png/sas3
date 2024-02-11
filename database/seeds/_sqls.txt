@@ -1,4 +1,12 @@
-﻿-- 2024.01.10 ---------------------------------------------------------------------------------
+﻿-- 2024-02-05
+-- Клонирование ставок ЗП для вида начисления для другого периода
+
+insert into srs_hr_items (srs_id, wrktypeid, min_wrkexp, max_wrkexp, hr_day_rate,hr_night_rate)
+	SELECT 5 as srs_id, wrktypeid, min_wrkexp, max_wrkexp, hr_day_rate+50,hr_night_rate+50
+		FROM `srs_hr_items` t
+		where srs_id=1
+
+-- 2024.01.10 ---------------------------------------------------------------------------------
 -- Расшифровка прихода на склад для отчета 57
 
 -- 1640

@@ -191,7 +191,7 @@ class PayrolltypeController extends Controller
                 'active' => 1,
                 'created_by' => $userid,
             ]);
-            //dd($rec);
+            $rec->id = $id; // not fillable
         } else
             $rec = payrolltype::find($id);
 
@@ -239,8 +239,9 @@ class PayrolltypeController extends Controller
 
             }
         }
+//dd($rec);
 
-        return view($this->sysobjcode.'.edit', compact(['rec', 'usrrights']));
+        return view($this->sysobjcode . '.edit', compact(['rec', 'usrrights']));
     }
 
     /**
@@ -343,7 +344,7 @@ class PayrolltypeController extends Controller
                 $sd["error"] = $res->msg;
             } else {
 
-                $retURL = $request->get('returl') ?? route($this->sysobjcode.'.index');
+                $retURL = $request->get('returl') ?? route($this->sysobjcode . '.index');
                 $sd['success'] = 'Запись о сотруднике удалена';
             }
         } else {
