@@ -536,146 +536,279 @@ $action_url = route('reports.rep' . $thisObjId);
                         <tfoot>
                     </table>
 
-                    {{-- 2024-02-11 Отчет по отгрузкам и поступлениям на склад --}}
-                    <br>
-                    <h4 class="text-center">Отгрузки и поступления на склад</h4>
-                    {{--                    <table id="results4"--}}
-                    {{--                           class="table table-sm table-striped rep-data mt-3"--}}
-                    {{--                           style="background-color: snow; font-size:16px; max-width:960px; align-self: center">--}}
-                    <table class="table table-sm table-striped rep-data mt-3"
-                           style="background-color: snow; font-size:16px; width:960px"
-                           align=center>
-                        <thead>
-                        <tr class="text-left small" style="vertical-align:middle;">
-                            <td class="text-right small" style="width: 38px">№п/п</td>
-                            <td class="text-center">Наименование продукции</td>
-                            <td class="text-center">ЕИ</td>
-                            <td class="text-right">Вх. остаток, ЕИ</td>
-                            <td class="text-right">Приход, ЕИ</td>
-                            <td class="text-right">Расход, ЕИ</td>
-                            <td class="text-right">Приход, руб</td>
-                            <td class="text-right">Отгрузка, руб</td>
-                            <td class="text-right">Исх. остаток, ЕИ</td>
-                        </tr>
-                        </thead>
+                    @if(1==0)
+                        {{-- 2024-02-11 Отчет по отгрузкам и поступлениям на склад --}}
+                        <br>
+                        <h4 class="text-center">Отгрузки и поступления на склад</h4>
+                        {{--                    <table id="results4"--}}
+                        {{--                           class="table table-sm table-striped rep-data mt-3"--}}
+                        {{--                           style="background-color: snow; font-size:16px; max-width:960px; align-self: center">--}}
+                        <table class="table table-sm table-striped rep-data mt-3"
+                               style="background-color: snow; font-size:16px; width:960px"
+                               align=center>
+                            <thead>
+                            <tr class="text-left small" style="vertical-align:middle;">
+                                <td class="text-right small" style="width: 38px">№п/п</td>
+                                <td class="text-center">Наименование продукции</td>
+                                <td class="text-center">ЕИ</td>
+                                <td class="text-right">Вх. остаток, ЕИ</td>
+                                <td class="text-right">Приход, ЕИ</td>
+                                <td class="text-right">Расход, ЕИ</td>
+                                <td class="text-right">Приход, руб</td>
+                                <td class="text-right">Отгрузка, руб</td>
+                                <td class="text-right">Исх. остаток, ЕИ</td>
+                            </tr>
+                            </thead>
 
-                        <tbody>
-                        <?php
-                        $npp = 0;
-                        $totSum = $totInpSum = $totOutSum = 0;
-                        ?>
-                        @foreach($recs4 as $rec)
+                            <tbody>
                             <?php
+                            $npp = 0;
+                            $totSum = $totInpSum = $totOutSum = 0;
+                            ?>
+                            @foreach($recs4 as $rec)
+                                <?php
 
-                            $tr_class = "";
-                            $td_class = "";
-                            $tdс_class = "";
+                                $tr_class = "";
+                                $td_class = "";
+                                $tdс_class = "";
 
-                            $pre_qty = (isset($rec->pre_qty)) ? number_format($rec->pre_qty, 0) : '';
-                            $inp_qty = (isset($rec->inp_qty)) ? number_format($rec->inp_qty, 0) : '';
-                            $out_qty = (isset($rec->out_qty)) ? number_format($rec->out_qty, 0) : '';
-                            $inp_sum = (isset($rec->inp_sum)) ? number_format($rec->inp_sum, 2) : '';
-                            $sale_sum = (isset($rec->sale_sum)) ? number_format($rec->sale_sum, 2) : '';
+                                $pre_qty = (isset($rec->pre_qty)) ? number_format($rec->pre_qty, 0) : '';
+                                $inp_qty = (isset($rec->inp_qty)) ? number_format($rec->inp_qty, 0) : '';
+                                $out_qty = (isset($rec->out_qty)) ? number_format($rec->out_qty, 0) : '';
+                                $inp_sum = (isset($rec->inp_sum)) ? number_format($rec->inp_sum, 2) : '';
+                                $sale_sum = (isset($rec->sale_sum)) ? number_format($rec->sale_sum, 2) : '';
 
 
-                            $n_pre_qty = (isset($rec->pre_qty)) ? $rec->pre_qty : 0;
-                            $n_inp_qty = (isset($rec->inp_qty)) ? $rec->inp_qty : 0;
-                            $n_out_qty = (isset($rec->out_qty)) ? $rec->out_qty : 0;
-                            $n_inp_sum = (isset($rec->inp_sum)) ? $rec->inp_sum : 0;
-                            $n_sale_sum = (isset($rec->sale_sum)) ? $rec->sale_sum : 0;
+                                $n_pre_qty = (isset($rec->pre_qty)) ? $rec->pre_qty : 0;
+                                $n_inp_qty = (isset($rec->inp_qty)) ? $rec->inp_qty : 0;
+                                $n_out_qty = (isset($rec->out_qty)) ? $rec->out_qty : 0;
+                                $n_inp_sum = (isset($rec->inp_sum)) ? $rec->inp_sum : 0;
+                                $n_sale_sum = (isset($rec->sale_sum)) ? $rec->sale_sum : 0;
 
-                            $n_end_qty = $rec->pre_qty + $rec->inp_qty - $rec->out_qty;
-                            $end_qty = number_format($n_end_qty, 0);
+                                $n_end_qty = $rec->pre_qty + $rec->inp_qty - $rec->out_qty;
+                                $end_qty = number_format($n_end_qty, 0);
 
-                            //                            if ($rec->sysobjid == 520)
-                            if (1 == 1)
-                                $ref_url = null; //route('paydocs.edit', $rec->objid);
-                            else
+                                //                            if ($rec->sysobjid == 520)
+                                if (1 == 1)
+                                    $ref_url = null; //route('paydocs.edit', $rec->objid);
+                                else
+                                    $ref_url = null;
+
+                                if ($n_inp_qty > 0)
+                                    $inp_ref_url = route('reports.rep57_i') . '?ri_id=' . $rec->refitmid;
+                                else
+                                    $inp_ref_url = null;
+
+                                if ($n_sale_sum > 0)
+                                    $sale_ref_url = null; //route('paydocs.edit', $rec->objid);
+                                else
+                                    $sale_ref_url = null;
+
+
+                                $tstyle = ($rec->inp_qty + $rec->out_qty > 0) ? 'background-color:#ffff94' : '';
+                                ?>
+                                <tr class="text-left {{$tr_class}}" style="{{$tstyle}}">
+                                    <td class="text-right small ">
+                                        {{++$npp}}
+                                    </td>
+                                    <td class="text-left " data-npp="{{$npp}}">
+                                        {{$rec->refitm_name}}
+                                    </td>
+                                    <td class="text-center small">
+                                        {{$rec->refitm_unit}}
+                                    </td>
+                                    <td class="text-right small calced" data-num="{{$n_pre_qty}}">
+                                        @if(isset($ref_url))
+                                            <a href="{{$ref_url}}" target="_blank">{{$pre_qty}}</a>
+                                        @else
+                                            {{$pre_qty}}
+                                        @endif
+                                    </td>
+                                    <td class="text-right small calced0" data-num0="{{0}}">
+                                        @if(isset($inp_ref_url))
+                                            <a href="{{$inp_ref_url}}" target="_blank">{{$inp_qty}}</a>
+                                        @else
+                                            {{$inp_qty}}
+                                        @endif
+                                    </td>
+                                    <td class="text-right small calced" data-num="-{{$n_out_qty}}">
+                                        @if(isset($ref_url))
+                                            <a href="{{$ref_url}}" target="_blank">{{$out_qty}}</a>
+                                        @else
+                                            {{$out_qty}}
+                                        @endif
+                                    </td>
+                                    <td class="text-right small calced" data-num="{{$n_inp_sum}}">
+                                        @if(isset($inp_ref_url))
+                                            <a href="{{$inp_ref_url}}" target="_blank">{{$inp_sum}}</a>
+                                        @else
+                                            {{$inp_sum}}
+                                        @endif
+                                    </td>
+                                    <td class="text-right small calced" data-num="{{$n_sale_sum}}">
+                                        @if(isset($sale_ref_url))
+                                            <a href="{{$sale_ref_url}}" target="_blank">{{$sale_sum}}</a>
+                                        @else
+                                            {{$sale_sum}}
+                                        @endif
+                                    </td>
+                                    <td class="text-right small calced" data-num="{{$n_end_qty}}">
+                                        {{$end_qty}}
+                                    </td>
+                                </tr>
+                                <?php
+                                $totInpSum += $rec->inp_sum;
+                                $totOutSum += $rec->sale_sum;
+                                ?>
+                            @endforeach
+                            @if(1==1)
+                                <?php
+                                $td_class = '';
+                                $tdс_class = '';
+                                ?>
+                                <tr>
+                                    <td colspan="6" class="text-right" data-npp="{{$npp++}}">Итого:</td>
+                                    <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totInpSum,2)}}</td>
+                                    <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totOutSum,2)}}</td>
+                                </tr>
+                            @endif
+                            </tbody>
+                            <tfoot>
+                        </table>
+                    @endif
+
+                    @if(1==1 and isset($recs4))
+                        {{-- 2024-02-18 Отчет по отгрузкам со склада --}}
+                        <br>
+                        <h4 class="text-center">Поступление и отгрузки со склада</h4>
+                        <table class="table table-sm table-striped rep-data mt-3"
+                               style="background-color: snow; font-size:16px; width:960px"
+                               align=center>
+                            <thead>
+                            <tr class="text-left small" style="vertical-align:middle;">
+                                <td class="text-right small" style="width: 38px">№п/п</td>
+                                <td class="text-center">Владелец</td>
+                                <td class="text-center">Контрагент(Получатель)</td>
+                                <td class="text-center">Наименование продукции</td>
+                                <td class="text-center">ЕИ</td>
+                                <td class="text-right">Кол-во, ЕИ</td>
+                                <td class="text-right">Цена, руб</td>
+                                <td class="text-right">Сумма, руб</td>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                            <?php
+                            $npp = 0;
+                            $totSum = $totInpSum = $totOutSum = $curSum = 0;
+                            $curOwnOrgID = $curOrgID = -1;
+                            $curDate = '';
+                            $curForStock = '';
+                            $tstyle = '';
+                            $curTrStyle = '';
+                            ?>
+                            @foreach($recs4 as $rec)
+                                @if($rec->docdate <> $curDate or $rec->forstock <> $curForStock)
+                                    @if($curDate<>'' and $curSum <> 0)
+                                        <tr>
+                                            <td colspan="7" class="text-right">Итого по разделу ({{$curForStock_name}}):</td>
+                                            <td class="text-right font-weight-bold">{{number_format($curSum,2)}}</td>
+                                        </tr>
+                                    @endif
+                                    <?php
+                                    $curSum = 0;
+                                    $curDate = $rec->docdate;
+                                    $curForStock = $rec->forstock;
+                                    if($curForStock == 1){
+                                        $curForStock_name = 'Поступление на склад';
+                                        $curTrStyle = 'background-color:aliceblue;';
+                                            }
+                                    else{
+                                        $curForStock_name = 'Отгрузка со склада';
+                                        $curTrStyle = 'background-color:#edffdb;';
+                                        }
+                                    ?>
+                                    <tr style="{{$curTrStyle}}">
+                                        <td colspan="8">{{date_create($rec->docdate)->format('d.m.y')}}: <b>{{$curForStock_name}}</b></td>
+                                    </tr>
+                                @endif
+                                <?php
+                                $tr_class = "";
+                                $td_class = "";
+                                $tdс_class = "";
+
+                                $qty = (isset($rec->qty)) ? number_format($rec->qty, 0) : '';
+                                $sum = (isset($rec->sum)) ? number_format($rec->sum, 2) : '';
+
+
+                                $n_qty = (isset($rec->qty)) ? $rec->qty : 0;
+                                $n_sum = (isset($rec->sum)) ? $rec->sum : 0;
+
                                 $ref_url = null;
-
-                            if ($n_inp_qty > 0)
-                                $inp_ref_url = route('reports.rep57_i') . '?ri_id=' . $rec->refitmid;
-                            else
                                 $inp_ref_url = null;
-
-                            if ($n_sale_sum > 0)
-                                $sale_ref_url = null; //route('paydocs.edit', $rec->objid);
-                            else
                                 $sale_ref_url = null;
 
+                                //$tstyle = ($rec->qty > 0) ? 'background-color:#ffff94' : '';
+                                ?>
+                                <tr class="text-left {{$tr_class}}" style="{{$tstyle}}">
+                                    <td class="text-right small ">
+                                        {{++$npp}}
+                                    </td>
+                                    <td class="text-left " data-npp="{{$npp}}">
+                                        {{$rec->ownorg_name}}
+                                    </td>
+                                    <td class="text-left " data-npp="{{$npp}}">
+                                        {{$rec->org_name}}
+                                    </td>
+                                    <td class="text-left " data-npp="{{$npp}}">
+                                        {{$rec->refitm_name}}
+                                    </td>
+                                    <td class="text-center small">
+                                        {{$rec->refitm_unit}}
+                                    </td>
+                                    <td class="text-right small calced" data-num="{{$n_qty}}">
+                                            {{$qty}}
+                                    </td>
+                                    <td class="text-right small">
+                                            {{$rec->price}}
+                                    </td>
+                                    <td class="text-right small calced" data-num="{{$n_sum}}">
+                                            {{$sum}}
+                                    </td>
+                                </tr>
+                                <?php
+                                $curSum += $rec->sum;
+                                if($rec->forstock==1)
+                                    $totInpSum += $rec->sum;
+                                else
+                                    $totOutSum += $rec->sum;
+                                ?>
+                            @endforeach
+                            @if($curDate<>'' and $curSum <> 0)
+                                <tr>
+                                    <td colspan="7" class="text-right">Итого по разделу ({{$curForStock_name}}):</td>
+                                    <td class="text-right font-weight-bold">{{number_format($curSum,2)}}</td>
+                                </tr>
+                            @endif
+                            @if(1==1)
+                                <?php
+                                $td_class = '';
+                                $tdс_class = '';
+                                ?>
+                                <tr>
+                                    <td colspan="7" class="text-right" data-npp="{{$npp++}}">Всего "Поступление на склад":</td>
+                                    <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totInpSum,2)}}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="7" class="text-right" data-npp="{{$npp++}}">Всего "Отгрузка со склада":</td>
+                                    <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totOutSum,2)}}</td>
+                                </tr>
+                            @endif
+                            </tbody>
+                            <tfoot>
+                        </table>
 
-                            $tstyle = ($rec->inp_qty + $rec->out_qty > 0) ? 'background-color:#ffff94' : '';
-                            ?>
-                            <tr class="text-left {{$tr_class}}" style="{{$tstyle}}">
-                                <td class="text-right small ">
-                                    {{++$npp}}
-                                </td>
-                                <td class="text-left " data-npp="{{$npp}}">
-                                    {{$rec->refitm_name}}
-                                </td>
-                                <td class="text-center small">
-                                    {{$rec->refitm_unit}}
-                                </td>
-                                <td class="text-right small calced" data-num="{{$n_pre_qty}}">
-                                    @if(isset($ref_url))
-                                        <a href="{{$ref_url}}" target="_blank">{{$pre_qty}}</a>
-                                    @else
-                                        {{$pre_qty}}
-                                    @endif
-                                </td>
-                                <td class="text-right small calced0" data-num0="{{0}}">
-                                    @if(isset($inp_ref_url))
-                                        <a href="{{$inp_ref_url}}" target="_blank">{{$inp_qty}}</a>
-                                    @else
-                                        {{$inp_qty}}
-                                    @endif
-                                </td>
-                                <td class="text-right small calced" data-num="-{{$n_out_qty}}">
-                                    @if(isset($ref_url))
-                                        <a href="{{$ref_url}}" target="_blank">{{$out_qty}}</a>
-                                    @else
-                                        {{$out_qty}}
-                                    @endif
-                                </td>
-                                <td class="text-right small calced" data-num="{{$n_inp_sum}}">
-                                    @if(isset($inp_ref_url))
-                                        <a href="{{$inp_ref_url}}" target="_blank">{{$inp_sum}}</a>
-                                    @else
-                                        {{$inp_sum}}
-                                    @endif
-                                </td>
-                                <td class="text-right small calced" data-num="{{$n_sale_sum}}">
-                                    @if(isset($sale_ref_url))
-                                        <a href="{{$sale_ref_url}}" target="_blank">{{$sale_sum}}</a>
-                                    @else
-                                        {{$sale_sum}}
-                                    @endif
-                                </td>
-                                <td class="text-right small calced" data-num="{{$n_end_qty}}">
-                                    {{$end_qty}}
-                                </td>
-                            </tr>
-                            <?php
-                            $totInpSum += $rec->inp_sum;
-                            $totOutSum += $rec->sale_sum;
-                            ?>
-                        @endforeach
-                        @if(1==1)
-                            <?php
-                            $td_class = '';
-                            $tdс_class = '';
-                            ?>
-                            <tr>
-                                <td colspan="6" class="text-right" data-npp="{{$npp++}}">Итого:</td>
-                                <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totInpSum,2)}}</td>
-                                <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totOutSum,2)}}</td>
-                            </tr>
-                        @endif
-                        </tbody>
-                        <tfoot>
-                    </table>
-
-
+                    @endif
                 </div>
             @endif
         @endif

@@ -545,7 +545,8 @@ class MchnRaidReportController extends Controller
             //2024-02-11 Поступления и реализация на склад
             $s_begdate = $search_params['s_begdate'];
             $s_enddate = $search_params['s_enddate'];
-            $sql = "select a.refitmid, ri.name as refitm_name, ri.unit as refitm_unit
+            if (1 == 0) {
+                $sql = "select a.refitmid, ri.name as refitm_name, ri.unit as refitm_unit
 	            , sum(a.pre_qty) as pre_qty
 	            , sum(a.inp_qty) as inp_qty
 	            , sum(a.out_qty) as out_qty
@@ -577,8 +578,28 @@ class MchnRaidReportController extends Controller
                 GROUP BY refitmid
                 order by refitm_name";
 
-            $recs4 = DB::select(DB::raw($sql));
+                $recs4 = DB::select(DB::raw($sql));
+            }
 
+            //2024-02-18 Реализация со склада:
+            $sql = "SELECT oo.name as ownorg_name, o.name as org_name
+                    , dt.forstock, dt.forsale, wd.docdate
+                    , ri.name as refitm_name
+                    , ri.unit as refitm_unit
+                    , dl.qty, dl.price, dl.qty * dl.price as sum
+                    FROM `wrhdocs` as wd
+                    join wrhdoctypes as dt on dt.id=wd.doctypeid
+                    join wrhdoclst dl on dl.docid=wd.id
+                    join refitems as ri on ri.id=dl.refitmid
+                    left join orgs as oo on oo.id = wd.ownorgid
+                    left join orgs as o on o.id = wd.orgid
+                    WHERE 1
+                        and wd.docdate between '{$s_begdate}' and '{$s_enddate}'
+                        and dt.forstock<>0
+                    order by wd.docdate asc, dt.forstock desc
+	                    , ownorg_name, wd.ownorgid
+	                    , org_name, wd.orgid, refitm_name";
+            $recs4 = DB::select(DB::raw($sql));
 
             //обновим счетчик использования отчета
             report::updUseCnt($report_id, $userid, \Auth::user()->name);
