@@ -554,8 +554,8 @@ $action_url = route('reports.rep' . $thisObjId);
                                 <td class="text-right">Вх. остаток, ЕИ</td>
                                 <td class="text-right">Приход, ЕИ</td>
                                 <td class="text-right">Расход, ЕИ</td>
-                                <td class="text-right">Приход, руб</td>
-                                <td class="text-right">Отгрузка, руб</td>
+                                <td class="text-right">Приход, &#8381;</td>
+                                <td class="text-right">Отгрузка, &#8381;</td>
                                 <td class="text-right">Исх. остаток, ЕИ</td>
                             </tr>
                             </thead>
@@ -692,8 +692,8 @@ $action_url = route('reports.rep' . $thisObjId);
                                 <td class="text-center">Наименование продукции</td>
                                 <td class="text-center">ЕИ</td>
                                 <td class="text-right">Кол-во, ЕИ</td>
-                                <td class="text-right">Цена, руб</td>
-                                <td class="text-right">Сумма, руб</td>
+                                <td class="text-right">Цена, &#8381;</td>
+                                <td class="text-right">Сумма, &#8381;</td>
                             </tr>
                             </thead>
 
@@ -712,7 +712,7 @@ $action_url = route('reports.rep' . $thisObjId);
                                     @if($curDate<>'' and $curSum <> 0)
                                         <tr>
                                             <td colspan="7" class="text-right">Итого по разделу ({{$curForStock_name}}):</td>
-                                            <td class="text-right font-weight-bold">{{number_format($curSum,2)}}</td>
+                                            <td class="text-right font-weight-bold">{{number_format($curSum,2)}} &#8381;</td>
                                         </tr>
                                     @endif
                                     <?php
@@ -754,13 +754,13 @@ $action_url = route('reports.rep' . $thisObjId);
                                     <td class="text-right small ">
                                         {{++$npp}}
                                     </td>
-                                    <td class="text-left " data-npp="{{$npp}}">
+                                    <td class="text-left small" data-npp="{{$npp}}">
                                         {{$rec->ownorg_name}}
                                     </td>
-                                    <td class="text-left " data-npp="{{$npp}}">
+                                    <td class="text-left small" data-npp="{{$npp}}">
                                         {{$rec->org_name}}
                                     </td>
-                                    <td class="text-left " data-npp="{{$npp}}">
+                                    <td class="text-left small" data-npp="{{$npp}}">
                                         {{$rec->refitm_name}}
                                     </td>
                                     <td class="text-center small">
@@ -787,7 +787,7 @@ $action_url = route('reports.rep' . $thisObjId);
                             @if($curDate<>'' and $curSum <> 0)
                                 <tr>
                                     <td colspan="7" class="text-right">Итого по разделу ({{$curForStock_name}}):</td>
-                                    <td class="text-right font-weight-bold">{{number_format($curSum,2)}}</td>
+                                    <td class="text-right font-weight-bold">{{number_format($curSum,2)}} &#8381;</td>
                                 </tr>
                             @endif
                             @if(1==1)
@@ -795,13 +795,13 @@ $action_url = route('reports.rep' . $thisObjId);
                                 $td_class = '';
                                 $tdс_class = '';
                                 ?>
-                                <tr>
+                                <tr style="background-color:aliceblue;">
                                     <td colspan="7" class="text-right" data-npp="{{$npp++}}">Всего "Поступление на склад":</td>
-                                    <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totInpSum,2)}}</td>
+                                    <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totInpSum,2)}} &#8381;</td>
                                 </tr>
-                                <tr>
+                                <tr style="background-color:#edffdb;">
                                     <td colspan="7" class="text-right" data-npp="{{$npp++}}">Всего "Отгрузка со склада":</td>
-                                    <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totOutSum,2)}}</td>
+                                    <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totOutSum,2)}} &#8381;</td>
                                 </tr>
                             @endif
                             </tbody>
