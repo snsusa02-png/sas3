@@ -700,7 +700,7 @@ $action_url = route('reports.rep' . $thisObjId);
                             <tbody>
                             <?php
                             $npp = 0;
-                            $totSum = $totInpSum = $totOutSum = $curSum = 0;
+                            $totSum = $totInpSum = $totOutSum = $curOrgsSum = $curSum = 0;
                             $curOwnOrgID = $curOrgID = -1;
                             $curDate = '';
                             $curForStock = '';
@@ -711,26 +711,58 @@ $action_url = route('reports.rep' . $thisObjId);
                                 @if($rec->docdate <> $curDate or $rec->forstock <> $curForStock)
                                     @if($curDate<>'' and $curSum <> 0)
                                         <tr>
-                                            <td colspan="7" class="text-right">Итого по разделу ({{$curForStock_name}}):</td>
-                                            <td class="text-right font-weight-bold">{{number_format($curSum,2)}} &#8381;</td>
+                                            <td colspan="7" class="text-right">Итого по разделу ({{$curForStock_name}}
+                                                ):
+                                            </td>
+                                            <td class="text-right font-weight-bold">{{number_format($curSum,2)}}
+                                                &#8381;
+                                            </td>
                                         </tr>
                                     @endif
                                     <?php
+                                    $npp = 0;
                                     $curSum = 0;
                                     $curDate = $rec->docdate;
                                     $curForStock = $rec->forstock;
-                                    if($curForStock == 1){
+                                    if ($curForStock == 1) {
                                         $curForStock_name = 'Поступление на склад';
                                         $curTrStyle = 'background-color:aliceblue;';
-                                            }
-                                    else{
+                                    } else {
                                         $curForStock_name = 'Отгрузка со склада';
                                         $curTrStyle = 'background-color:#edffdb;';
-                                        }
+                                    }
                                     ?>
                                     <tr style="{{$curTrStyle}}">
-                                        <td colspan="8">{{date_create($rec->docdate)->format('d.m.y')}}: <b>{{$curForStock_name}}</b></td>
+                                        <td colspan="8">{{date_create($rec->docdate)->format('d.m.y')}}:
+                                            <b>{{$curForStock_name}}</b></td>
                                     </tr>
+                                @endif
+                                @if ($rec->orgid <> $curOrgID or $rec->ownorgid <> $curOwnOrgID)
+                                    @if($curOrgID<>-1 and $curOwnOrgID<>-1)
+                                        <tr>
+                                            <td colspan="7" class="text-right">Итого по клиенту:
+                                            </td>
+                                            <td class="text-right font-weight-bold">{{number_format($curOrgsSum,2)}}
+                                                &#8381;
+                                            </td>
+                                        </tr>
+                                    @endif
+                                    <tr>
+                                        <td colspan="8" class="text-centerwr">"{{$rec->ownorg_name}}" ->
+                                            "{{$rec->org_name}}"
+                                            @if(isset($rec->orgid) and $rec->orgid <> $rec->ownorgid)
+                                                ,  сальдо за дату: <b>{{number_format($rec->org_saldo,2)}}</b>
+                                                <a href="{{route('reports.rep48', [$rec->ownorgid, $rec->orgid])}}"
+                                                   target="_blank" title="Подробности">...</a>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    <?php
+                                    $curOrgID = $rec->orgid;
+                                    $curOwnOrgID = $rec->ownorgid;
+                                    $npp = 0;
+                                    $curOrgsSum = 0;
+                                    ?>
                                 @endif
                                 <?php
                                 $tr_class = "";
@@ -755,10 +787,10 @@ $action_url = route('reports.rep' . $thisObjId);
                                         {{++$npp}}
                                     </td>
                                     <td class="text-left small" data-npp="{{$npp}}">
-                                        {{$rec->ownorg_name}}
+{{--                                        {{$rec->ownorg_name}}--}}
                                     </td>
                                     <td class="text-left small" data-npp="{{$npp}}">
-                                        {{$rec->org_name}}
+{{--                                        {{$rec->org_name}}--}}
                                     </td>
                                     <td class="text-left small" data-npp="{{$npp}}">
                                         {{$rec->refitm_name}}
@@ -767,23 +799,35 @@ $action_url = route('reports.rep' . $thisObjId);
                                         {{$rec->refitm_unit}}
                                     </td>
                                     <td class="text-right small calced" data-num="{{$n_qty}}">
-                                            {{$qty}}
+                                        {{$qty}}
                                     </td>
                                     <td class="text-right small">
-                                            {{$rec->price}}
+                                        {{$rec->price}}
                                     </td>
                                     <td class="text-right small calced" data-num="{{$n_sum}}">
-                                            {{$sum}}
+                                        {{$sum}}
                                     </td>
                                 </tr>
                                 <?php
                                 $curSum += $rec->sum;
-                                if($rec->forstock==1)
+                                if ($rec->forstock == 1) {
                                     $totInpSum += $rec->sum;
-                                else
+                                    $curOrgsSum += $rec->sum;
+                                } else {
                                     $totOutSum += $rec->sum;
+                                    $curOrgsSum -= $rec->sum;
+                                }
                                 ?>
                             @endforeach
+                            @if($curOrgID<>-1 and $curOwnOrgID<>-1)
+                                <tr>
+                                    <td colspan="7" class="text-right">Итого по клиенту:
+                                    </td>
+                                    <td class="text-right font-weight-bold">{{number_format($curOrgsSum,2)}}
+                                        &#8381;
+                                    </td>
+                                </tr>
+                            @endif
                             @if($curDate<>'' and $curSum <> 0)
                                 <tr>
                                     <td colspan="7" class="text-right">Итого по разделу ({{$curForStock_name}}):</td>
@@ -796,12 +840,20 @@ $action_url = route('reports.rep' . $thisObjId);
                                 $tdс_class = '';
                                 ?>
                                 <tr style="background-color:aliceblue;">
-                                    <td colspan="7" class="text-right" data-npp="{{$npp++}}">Всего "Поступление на склад":</td>
-                                    <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totInpSum,2)}} &#8381;</td>
+                                    <td colspan="7" class="text-right" data-npp="{{$npp++}}">Всего "Поступление на
+                                        склад":
+                                    </td>
+                                    <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totInpSum,2)}}
+                                        &#8381;
+                                    </td>
                                 </tr>
                                 <tr style="background-color:#edffdb;">
-                                    <td colspan="7" class="text-right" data-npp="{{$npp++}}">Всего "Отгрузка со склада":</td>
-                                    <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totOutSum,2)}} &#8381;</td>
+                                    <td colspan="7" class="text-right" data-npp="{{$npp++}}">Всего "Отгрузка со
+                                        склада":
+                                    </td>
+                                    <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totOutSum,2)}}
+                                        &#8381;
+                                    </td>
                                 </tr>
                             @endif
                             </tbody>

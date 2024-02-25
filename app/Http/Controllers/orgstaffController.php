@@ -497,6 +497,10 @@ class orgstaffController extends Controller
 
         //$os->active = $request->get('active',1);
         $os->active = $request->get('active') ?? 0;
+        //2024-02-24 Если указана дата увольнения, и она в прошлом, то отменить признак Действующего сотрудника
+        if(!is_null($os->enddate) and date_create($os->enddate) <= today())
+            $os->active = 0;
+
         $os->userid = $request->get('userid');
         $os->updated_by = $userid;
         $os->save();

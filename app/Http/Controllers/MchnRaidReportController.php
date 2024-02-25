@@ -582,16 +582,18 @@ class MchnRaidReportController extends Controller
             }
 
             //2024-02-18 Реализация со склада:
-            $sql = "SELECT oo.name as ownorg_name, o.name as org_name
+            $sql = "SELECT ifnull(wd.saleorgid, wd.ownorgid) as ownorgid, oo.name as ownorg_name
+                    , wd.orgid, o.name as org_name
                     , dt.forstock, dt.forsale, wd.docdate
                     , ri.name as refitm_name
                     , ri.unit as refitm_unit
                     , dl.qty, dl.price, dl.qty * dl.price as sum
+                    , orgSaldo_onDate(wd.orgid, ifnull(wd.saleorgid, wd.ownorgid), wd.docdate) as org_saldo
                     FROM `wrhdocs` as wd
                     join wrhdoctypes as dt on dt.id=wd.doctypeid
                     join wrhdoclst dl on dl.docid=wd.id
                     join refitems as ri on ri.id=dl.refitmid
-                    left join orgs as oo on oo.id = wd.ownorgid
+                    left join orgs as oo on oo.id = ifnull(wd.saleorgid, wd.ownorgid)
                     left join orgs as o on o.id = wd.orgid
                     WHERE 1
                         and wd.docdate between '{$s_begdate}' and '{$s_enddate}'

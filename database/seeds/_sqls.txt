@@ -1,4 +1,9 @@
-﻿-- 2024-02-05
+﻿-- 2024-02-24
+--Уволенные сотрудники
+update `orgstaff` as os set active=0 WHERE os.active=1 and os.enddate is not null
+
+
+-- 2024-02-05
 -- Клонирование ставок ЗП для вида начисления для другого периода
 
 insert into srs_hr_items (srs_id, wrktypeid, min_wrkexp, max_wrkexp, hr_day_rate,hr_night_rate)
