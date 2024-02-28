@@ -691,14 +691,6 @@ class MchnRaidReportController extends Controller
             return redirect(route('home'))
                 ->with(['error' => 'У вас нет полномочий для работы с платежами для этой организации!']);
 
-        // временная корректировка расхождений -------------------------------
-        /*$cmd = "update driver_works as dw"
-            . " set salary_sum = (if(hrs_salary is null, 0, hrs_salary) + if(breaks_sum is null, 0, breaks_sum))"
-            . " where 1=1 and dw.wrkdate >= '2023-06-01' and dw.wrkdate <= '2023-06-30'"
-            . " and if(salary_sum is null, 0, salary_sum)<>( if(hrs_salary is null, 0, hrs_salary) + if(breaks_sum is null, 0, breaks_sum) )";
-        DB::statement($cmd);
-        */
-        //--------------------------------------------------------------------
 
         // - параметры поиска: массив из имени и значения по-умолчанию -----------------------------------------------
         $fdom = new DateTime('first day of this month');
@@ -730,10 +722,22 @@ class MchnRaidReportController extends Controller
         //месяц/год
         $year = $search_params['s_year'];
         $month = $search_params['s_month'];
-        $begdate = new DateTime($year . '-' . $month . '-1 00:00:00');
+        if (isset($year) and isset($month)) {
+            $begdate = new DateTime($year . '-' . $month . '-1 00:00:00');
 
-        $search_params['s_begdate'] = $begdate->format('Y-m-d');
-        $search_params['s_enddate'] = $begdate->format('Y-m-t');
+            $search_params['s_begdate'] = $begdate->format('Y-m-d');
+            $search_params['s_enddate'] = $begdate->format('Y-m-t');
+
+            // временная корректировка расхождений -------------------------------
+            $bdate = $search_params['s_begdate'];
+            $edate = $search_params['s_enddate'];
+            $cmd = "update driver_works as dw"
+                . " set salary_sum = (if(hrs_salary is null, 0, hrs_salary) + if(breaks_sum is null, 0, breaks_sum))"
+                . " where 1=1 and dw.wrkdate >= '{$bdate}' and dw.wrkdate <= '{$edate}'"
+                . " and if(salary_sum is null, 0, salary_sum)<>( if(hrs_salary is null, 0, hrs_salary) + if(breaks_sum is null, 0, breaks_sum) )";
+             DB::statement($cmd);
+            //--------------------------------------------------------------------
+        }
 
         $need_search = false;
         $sc = "1=1";
