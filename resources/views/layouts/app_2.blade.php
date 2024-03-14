@@ -36,7 +36,7 @@ $userorgid = (\Auth::user()->active ?? 0 == 1) ? \Auth::user()->curorgid : null;
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
+{{--    <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">--}}
 
     <!-- Icons -->
     <link rel="stylesheet" href="/css/font-awesome-4.7.0/css/font-awesome.css">

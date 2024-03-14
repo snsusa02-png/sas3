@@ -1,4 +1,15 @@
-﻿-- 2024-02-24
+﻿--2024-03-11
+-- затраты материала (бетона (куашеьшв=1481)) для накладной на производство №101 (id=1015)
+SELECT dl.refitmid, ri.name, dl.qty as product_qty, ci.min_qty as unit_raw_qty, dl.qty*ci.min_qty as tot_raw_qty
+-- sum(dl.qty*ci.min_qty)
+FROM `wrhdoclst` dl
+join refitems ri on ri.id=dl.refitmid
+JOIN ri_cmpnd_items AS ci on ci.cmpndid=dl.cmpndid and ci.refitmid=1481
+where dl.docid=1015
+
+ -------------------------------------------------------------------------
+
+-- 2024-02-24
 --Уволенные сотрудники
 update `orgstaff` as os set active=0 WHERE os.active=1 and os.enddate is not null
 
