@@ -159,7 +159,7 @@
                                         </div>
                                         <div class="offset-md-0 col-md-3 {{$qty_class}}" id="calcenddate_div">
                                             <label for="name" class="required">по:</label>
-                                            @if ($usrrights['save'])
+                                            @if ($usrrights['save'] and $showPrice)
                                                 <input type="date" class="form-control text-center font-weight-bold"
                                                        name="calcenddate" id="calcenddate"
                                                        max="{{today()->format('Y-m-d')}}"
