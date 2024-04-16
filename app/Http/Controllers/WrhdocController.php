@@ -166,6 +166,8 @@ class WrhdocController extends Controller
             , 's_inpout' => ''
             , 's_ownorgid' => ''
             , 's_orgid' => ''
+            , 's_refitmid' => ''
+            , 's_ri_name' => ''
         ];
 
         $search_params = $this->search_params($request, $param_names);
@@ -213,6 +215,14 @@ class WrhdocController extends Controller
 
                 } elseif ($item == 's_inpout') {
                     $sc .= " and dt.forstock={$val}";
+
+                } elseif ($item == 's_refitmid') {
+                    $sc .= " and exists( select 1 from wrhdoclst dl where dl.docid=wd.id and dl.refitmid={$val})";
+
+                } elseif ($item == 's_ri_name') {
+                    $sc .= " and exists( select 1 from wrhdoclst dl
+                                            join refitems ri on ri.id=dl.refitmid
+                                            where dl.docid=wd.id and ri.name like '%{$val}%')";
                 }
             }
         }

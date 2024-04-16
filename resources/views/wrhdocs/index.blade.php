@@ -52,7 +52,7 @@
                     </div>
 
                     <div class="row mb-3">
-                        <div class="offset-md-2 col-md-4 ">
+                        <div class="offset-md-1 col-md-3 ">
                             <div class="form-group">
                                 <label for="lname">Владелец:</label>
                                 {!! Form::select('s_ownorgid', $data->ownorgs??[], $data->search_params['s_ownorgid']??'',
@@ -77,6 +77,17 @@
                                     'onchange' => 'form.submit()',
                                     ])
                                 !!}
+                            </div>
+                        </div>
+                        <div class="offset-md-0 col-md-3 ">
+                            <div class="form-group">
+                                <label for="lname">Номенклатура:</label>
+                                {!! Form::text('s_ri_name', $data->search_params['s_ri_name'],
+                                                [
+                                                'class' => 'form-control',
+                                                'placeholder' => '-Название товара-',
+                                                ])
+                                                !!}
                             </div>
                         </div>
                     </div>
@@ -105,24 +116,20 @@
                                         {!! Form::select('s_timestatuscode', $data->timestatuses??[], $data->search_params['s_timestatuscode']??'',
                                             [
                                             'class' => 'form-control small',
-                                            'placeholder' => '-все-',
+                                            'placeholder' => '-дата: любая-',
                                             'id' => 's_timestatuscode',
                                             'onchange' => 'form.submit()',
                                             ])
                                         !!}
-                                    </div>
-                                    <input type="date" class="form-control c" name="s_docdate"
-                                           id="s_docdate"
-                                           value="{{ $data->search_params['s_docdate'] ?? ''}}"
-                                           placeholder="-название-"
-                                           STYLE="display: none;"/>
-                                </td>
-                                <td>
-                                    <div class="input-group">
                                         {!! Form::select('s_inpout',
-                                         $data->s_inpouts??[],
-                                         $data->search_params['s_inpout'] ?? '',
-                                        ['class' => 'form-control']) !!}
+                                       $data->s_inpouts??[],
+                                       $data->search_params['s_inpout'] ?? '',
+                                      ['class' => 'form-control']) !!}
+                                        <input type="date" class="form-control c" name="s_docdate"
+                                               id="s_docdate"
+                                               value="{{ $data->search_params['s_docdate'] ?? ''}}"
+                                               placeholder="-дата док-та-"
+                                               STYLE="display: none;"/>
 
                                         {!! Form::select('s_doctypeid',
                                          $data->s_doctypes??[],
@@ -130,7 +137,8 @@
                                         ['class' => 'form-control']) !!}
 
                                         <input type="text" class="form-control c" name="s_docnum"
-                                               value="{{$data->search_params['s_docnum'] ?? ''}}"/>
+                                               value="{{$data->search_params['s_docnum'] ?? ''}}"
+                                               placeholder="№ док-та"/>
                                     </div>
                                 </td>
                                 <td>
@@ -147,10 +155,11 @@
                                     <div class="input-group">
                                         {!! Form::select('s_statuscode',
                                          $data->s_statuscodes??[],
-                                         $search_params['s_statuscode'] ?? '',
+                                         $data->search_params['s_statuscode'] ?? '',
                                         ['class' => 'form-control']) !!}
                                     </div>
                                 </td>
+
                                 <td class="text-right">
                                     <div class="input-group-btn">
                                         <button type="submit" class="btn btn-sm btn-outline-secondary"
@@ -195,6 +204,7 @@
                                     $trStyle = "";
                                     if ($item->docsigned == 1) {
                                         $trStyle = "background-color: #CCECF9";
+                                        $status_name_class = "font-weight-bold small";
                                     }
                                     ?>
                                     <tr style="{{$trStyle}}">
@@ -208,13 +218,15 @@
                                         </td>
                                         <td class="c">{{$item->wrh->name}}</td>
                                         <td class="text-center">
-                                            {{$item->statusname}}
+                                            <span class="{{$status_name_class}}"> {{$item->statusname}}</span>
+
                                             <a href="{{ route($thisSysObjCode.'.clone',$item->id)}}"
                                                class="btn btn-sm btn-warning ml-1"
                                                title="Создать копию записи"
                                                onclick="return confirm('Создать копию записи?')">
                                                 <i class="fa fa-files-o" aria-hidden="true"></i>
-                                            </a></td>
+                                            </a>
+                                        </td>
                                         <td class="text-right">
                                             <a href="{{ route('wrhdocs.edit',$item->id)}}"
                                                class="btn btn-sm btn-primary"

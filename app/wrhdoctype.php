@@ -29,7 +29,7 @@ class wrhdoctype extends Model
                     ->whereRaw('wd.doctypeid = t.id');
             })
             ->orderBy('name')
-            ->get()->pluck("name", "id")->prepend("-любой-", "");
+            ->get()->pluck("name", "id")->prepend("-тип: любой-", "");
         return $recs;
     }
 
