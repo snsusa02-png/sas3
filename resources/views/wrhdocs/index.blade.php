@@ -202,6 +202,7 @@
                                     @endif
                                     <?php
                                     $trStyle = "";
+                                    $status_name_class = "";
                                     if ($item->docsigned == 1) {
                                         $trStyle = "background-color: #CCECF9";
                                         $status_name_class = "font-weight-bold small";
