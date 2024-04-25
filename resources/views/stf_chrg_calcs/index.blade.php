@@ -193,6 +193,9 @@
                                     {{--                                    <td>{{$data->dirs[$rec->charge_dir]??'-'}}: {{$rec->chargetype_name}}</td>--}}
                                     <td><a href="{{ route('stf_chrg_calcs.edit',$rec->id)}}?returl={{$retURL}}"
                                            class="">{{$rec->chargetype_name}}</a>
+                                        <div class="small" style="margin-left:16px; color:gray;">
+                                            <?php echo str_replace(chr(13) . chr(10), '<br>', $rec->notes) ?>
+                                        </div>
                                     </td>
 
                                     @if($rec->charge_dir > 0 )

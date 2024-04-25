@@ -107,6 +107,7 @@ class StfChrgCalcController extends Controller
                 , db::raw("concat(os.lname, ' ', ifnull(os.fname,''), ' ', ifnull(os.mname,'')) as stf_name")
                 , 'oc.chargetypeid', 'ct.name as chargetype_name', 'ct.dir as charge_dir'
                 , 'os.orgid', 'o.name as org_name'
+                , 'scc.notes'
             );
 
         //Сортировка пользователя ----------------------------------------
@@ -293,6 +294,7 @@ class StfChrgCalcController extends Controller
         $rec->charge_sum = $request->get('charge_sum');
         $rec->docdate = $request->get('docdate') ?? date_create()->format('Y-m-d');
         $rec->docnum = $request->get('docnum');
+        $rec->notes = $request->get('notes');
 
         //$rec->forbegdate = $request->get('forbegdate');
         //$rec->forenddate = $request->get('forenddate');
