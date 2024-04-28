@@ -258,17 +258,23 @@ class driver_work extends Model
     {
         $result = 0.00;
         if (isset($wrkdate) and isset($staffid)) {
+
+            // не используется ----
             $sql = "select i.hr_day_rate, i.hr_night_rate"
                 . " from salary_rate_sets srs"
                 . " join srs_hr_items i	on i.srs_id = srs.id"
                 . " join orgstaff os on os.id={$staffid}"
+                . " join stf_payrolltypes spt"
+                . "   on spt.staffid=os.id"
+                . "  and p_wrkdate between spt.begdate and ifnull(spt.enddate, '{$wrkdate}')"
                 . " where ifnull(srs.ownorgid,os.orgid)=os.orgid"
-                . " and srs.payrolltypeid=1"
+                . " and srs.payrolltypeid = spt.payrolltypeid"
                 . " and i.wrktypeid={$wrktypeid}"
                 . " and '{$wrkdate}' between srs.begdate and ifnull(srs.enddate,'{$wrkdate}')"
                 . " and TIMESTAMPDIFF(year, ifnull(os.begdate,'{$wrkdate}'), '{$wrkdate}' ) between i.min_wrkexp and i.max_wrkexp-0.001";
 //            $rates = DB::select(DB::raw($sql));
 
+            // сначала определим схему начисления ЗП, действующую на дату работы
             $payrolltypeid = stf_payrolltype::from('stf_payrolltypes as spt')
                     ->where('staffid', $staffid)
                     ->whereRaw("'{$wrkdate}' between spt.begdate and ifnull(spt.enddate,'{$wrkdate}')")
@@ -276,15 +282,11 @@ class driver_work extends Model
                     ->payrolltypeid ?? 1;
 //dd($payrolltypeid);
 
+            // теперь готовы определить ставки, действующие на дату работы
             $rates = srs_hr_item::from('srs_hr_items as i')
                 ->join('salary_rate_sets as srs', 'srs.id', 'i.srs_id')
                 ->join('orgstaff as os', 'os.id', '=', DB::raw($staffid))
-//                ->leftJoin('stf_payrolltypes as spt', function ($j) use ($wrkdate) {
-//                    $j->on('spt.staffid', '=', 'os.id')
-//                        ->whereRaw("'{$wrkdate}' between spt.begdate and ifnull(spt.enddate,'{$wrkdate}')");
-//                })
                 ->where('i.wrktypeid', $wrktypeid)
-//                ->where('srs.payrolltypeid', db::raw("ifnull(spt.payrolltypeid, 1)"))
                 ->where('srs.payrolltypeid', $payrolltypeid)
                 ->whereRaw('ifnull(srs.ownorgid,os.orgid)=os.orgid')
                 ->whereRaw("'{$wrkdate}' between srs.begdate and ifnull(srs.enddate,'{$wrkdate}')")
@@ -297,7 +299,8 @@ class driver_work extends Model
                     //dd($day_wrkhrs, $rate->hr_day_rate, $day_wrkhrs * $rate->hr_day_rate);
                     //dd($night_wrkhrs, $rate->hr_night_rate, $night_wrkhrs * $rate->hr_night_rate);
                     $result = $day_wrkhrs * $rate->hr_day_rate
-                        + $night_wrkhrs * $rate->hr_night_rate//+ $aux_equipment * ($day_wrkhrs + $night_wrkhrs) * $rate->hr_aux_rate
+                        + $night_wrkhrs * $rate->hr_night_rate
+                        // + $aux_equipment * ($day_wrkhrs + $night_wrkhrs) * $rate->hr_aux_rate
                     ;
 
                     break;
