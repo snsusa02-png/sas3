@@ -322,12 +322,11 @@ class MrOperController extends Controller
         // ----------------------------------------------------------------------------------------------
         // Регистрация расчета ЗП
         // 2024-04-30 To-Do - Нужно сделать на подобие как в DriverWork
-        if (1==0 and $rec->sale_dir == 1
+        if ( $rec->sale_dir == 1
             and (  $rec->mchn_raid->opertypeid == 3
                 or $rec->mchn_raid->opertypeid == 4
                 or $rec->mchn_raid->opertypeid == 9)
         ) {
-            dd(111);
             // Определим - существует ли необходимость привязки начисления этой организации к общей ведомости
             $orgcharge = org_charge::where(['orgid' => $rec->mchn_raid->driver->orgid, 'chargetypeid' => 11])->first();
             if (isset($orgcharge)) {
