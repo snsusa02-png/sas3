@@ -375,7 +375,24 @@
                                 </div>
 
                                 <div class="row">
-                                    <div class="form-group offset-md-2 col-md-4 agent_sum_info">
+                                    <div class="form-group offset-md-0 col-md-4 auxsvc_sum_info">
+                                        <label for="name" class="">Доп. услуги, &#8381;:</label>
+                                        @if ($usrrights['edit'])
+                                            <?php
+                                            //$readonly = ($rec->sup_gk == 0) ? 'readonly' : '';
+                                            ?>
+                                            <div class="input-group mb-3 ">
+                                                <input type="number" name="auxsvc_sum" id="auxsvc_sum"
+                                                       class="form-control text-right font-weight-bold"
+                                                       min="0" step="0.01"
+                                                       value="{{old('auxsvc_sum',$rec->auxsvc_sum)}}">
+                                            </div>
+                                        @else
+                                            <div class="font-weight-bold">{{number_format($rec->auxsvc_sum,2)}}</div>
+                                        @endif
+                                    </div>
+
+                                    <div class="form-group offset-md-0 col-md-4 agent_sum_info">
                                         <label for="name" class="">Вознаграждение агента, &#8381;:</label>
                                         @if ($usrrights['edit'])
                                             <?php
@@ -392,7 +409,7 @@
                                         @endif
                                     </div>
 
-                                    <div class="form-group offset-md-2 col-md-4 driver_sum_info">
+                                    <div class="form-group offset-md-0 col-md-4 driver_sum_info">
                                         <label for="name" class="">ЗП водителя, &#8381;:</label>
                                             <?php
                                             $readonly = (1==0) ? 'readonly' : '';

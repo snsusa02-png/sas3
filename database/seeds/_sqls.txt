@@ -1,4 +1,17 @@
-﻿--2024-04-28
+﻿--2024-04-30 -------------
+
+ALTER TABLE `mr_opers`
+ADD COLUMN `auxsvc_sum` DECIMAL(12,2) NULL COMMENT 'Сумма доп. услуг. Входит в Itm_Sum' AFTER `raid_qty`;
+
+INSERT INTO `opertypes` (`id`, `name`, `active`, `need_rightid`) VALUES ('9', 'Рефрижераторные перевозки', '1', '643');
+
+INSERT INTO mchn_opertypes (`machineid`,`opertypeid`,`name`,`descript`,`hour_work_cost`,`hour_fuel_cost`,`active`)
+SELECT `machineid`, 9 as opertypeid, 'Рефрижераторные перевозки' as `name`
+	,`descript`,`hour_work_cost`,`hour_fuel_cost`,`active`
+	FROM mchn_opertypes where opertypeid=3
+
+
+--2024-04-28 -------------
 
 -- "лечение" суммы начисленной ЗП, расчитаной по устаревшим почасовым ставкам
 -- 1 восстановление ставки за день

@@ -10,9 +10,11 @@ use App\obj_link;
 use App\objflag;
 use App\objlog;
 use App\objtag;
+use App\org_charge;
 use App\org_place;
 use App\orgstaff;
 use App\paydoc;
+use App\stf_chrg_calc;
 use App\sysobj;
 use App\Traits\SearchDataTrait;
 use App\Traits\snsTrait;
@@ -288,11 +290,15 @@ class MrOperController extends Controller
         $rec->paytypeid = $request->get('paytypeid');
         $rec->raid_qty = $request->get('raid_qty');
 
+        $rec->auxsvc_sum = $request->get('auxsvc_sum') ?? 0;
         $rec->agent_sum = $request->get('agent_sum') ?? 0;
 
-        //$rec->driver_sum = $request->get('driver_sum') ?? 0;
-        // Только для операции "Продажа" и вида работ "Тралы и Манипуляторы"
-        if ($rec->sale_dir == 1 and ($rec->mchn_raid->opertypeid == 3 or $rec->mchn_raid->opertypeid == 4)) {
+        // Только для операции "Продажа" и вида работ "Тралы" - 3, "Манипуляторы" - 4, "Реф.перевозки" - 9
+        if ($rec->sale_dir == 1
+                and (   $rec->mchn_raid->opertypeid == 3
+                     or $rec->mchn_raid->opertypeid == 4
+                     or $rec->mchn_raid->opertypeid == 9)
+            ) {
             $rec->driver_sum = $request->get('driver_sum') ?? 0;
         } else
             $rec->driver_sum = 0;
@@ -311,6 +317,65 @@ class MrOperController extends Controller
         //Выполним действия после обновления записи ---------------------------------------------
         mr_oper::on_update($rec);
         //---------------------------------------------------------------------------------------
+
+
+        // ----------------------------------------------------------------------------------------------
+        // Регистрация расчета ЗП
+        // 2024-04-30 To-Do - Нужно сделать на подобие как в DriverWork
+        if ($rec->sale_dir == 1
+            and (  $rec->mchn_raid->opertypeid == 3
+                or $rec->mchn_raid->opertypeid == 4
+                or $rec->mchn_raid->opertypeid == 9)
+        ) {
+            // Определим - существует ли необходимость привязки начисления этой организации к общей ведомости
+            $orgcharge = org_charge::where(['orgid' => $rec->mchn_raid->driver->orgid, 'chargetypeid' => 11])->first();
+            if (isset($orgcharge)) {
+
+                //Подсчитаем общую сумму ЗП сотрудника за весь месяц
+                $int_begdate = date_create($rec->wrkdate)->format('Y-m-01');
+                $int_enddate = date_create($rec->wrkdate)->format('Y-m-t');
+                $staffid = $rec->mchn_raid->driverid;
+                $salary_sum = mchn_raid::from('mchn_raids as mr')
+                    ->join('mr_opers as mro', 'mro.mr_id', 'mr.id')
+                    ->where('driverid', $staffid)
+                    ->wherebetween('wrkdate', [$int_begdate, $int_enddate])
+                    ->wherein('opertypeid',[3,4,9])
+                    ->where('sale_dir',1)
+                    ->sum('mro.driver_sum');
+
+                // Так как привязываем совокупную запись, то берем "общий" идентификатор - "0"
+                $stfchrgcalc = stf_chrg_calc::where([
+                    'staffid' => $staffid
+                    , 'ref_sysobjid' => $this->sysobjid
+                    , 'ref_objid' => 0
+                    , 'docdate' => $int_begdate
+                ])->first();
+                if (!isset($stfchrgcalc)) {
+
+                    $stfchrgcalc = new stf_chrg_calc([
+                        "staffid" => $staffid,
+                        "orgchargeid" => $orgcharge->id,
+                        "charge_dir" => $orgcharge->chargetype->dir,
+                        "docdate" => $int_begdate,
+                        "forbegdate" => $int_begdate,
+                        "forenddate" => $int_enddate,
+                        "created_by" => $userid,
+                        "created_at" => now(),
+                        "ref_sysobjid" => $this->sysobjid,
+                        "ref_objid" => 0,
+                    ]);
+                }
+                $stfchrgcalc->staffid = $staffid;
+                $stfchrgcalc->charge_sum = $salary_sum;
+                $stfchrgcalc->notes = 'Трал/Манипулятор/Реф';
+                $stfchrgcalc->updated_by = $userid;
+                $stfchrgcalc->updated_at = now();
+                //dd($stfchrgcalc);
+                $stfchrgcalc->save();
+            }
+        }
+        // ----------------------------------------------------------------------------------------------
+
 
         //Временно(? до модификации отчетов), для совместимости - модификация mchn_raids ------------------------------
         $raid = $rec->mchn_raid;
