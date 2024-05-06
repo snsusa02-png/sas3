@@ -887,7 +887,7 @@ class MchnRaidReportController extends Controller
         where mro.driver_sum >0
             and year(mr.wrkdate)={$s_year}
             and month(mr.wrkdate)={$s_month}
-            and mr.opertypeid in(3,4)
+            and mr.opertypeid in(3,4,9)
         group by mr.driverid,ym
     union all
     select staffid, DATE_FORMAT(ss.wrkbegdate,'%Y-%m') as ym , null as driver_sum, sum(ss.salary_sum) as salary_sum
