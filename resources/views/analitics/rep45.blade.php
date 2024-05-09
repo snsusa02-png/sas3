@@ -89,7 +89,8 @@
                                         <div class="col-md-8">
                                             <table class="">
                                                 <tr align="center">
-                                                    <td style="min-width:248px;" ><label class="required">Основной период</label>
+                                                    <td style="min-width:248px;"><label class="required">Основной
+                                                            период</label>
                                                         <?php
                                                         $TimeSelTypes = [1 => 'год/месяц', 2 => 'дата'];
                                                         ?>
@@ -633,7 +634,7 @@
                                 {{--                                <td>Часы</td>--}}
                                 <td>Сумма</td>
                                 <td>Кол-во рейсов</td>
-                                    <td>В среднем за рейс</td>
+                                <td>В среднем за рейс</td>
                                 <td>Кол-во товара</td>
                             @endif
 
@@ -724,7 +725,7 @@
                                         $itm->itmsum,
                                         $itm->raid_qty,
                                         ($itm->raid_qty > 0) ? round($itm->itmsum / $itm->raid_qty, 2) : 0,
-                                        $itm->ri_qty??0,
+                                        $itm->ri_qty ?? 0,
                                     ];
 
                                     $ds = $itm->dataset;
@@ -783,11 +784,17 @@
 
                                     for ($ds = 1; $ds <= $datasetCnt; $ds++) {
                                         //echo('<td class="text-right">' . $lineData[$ds][0] . '</td>');
-                                        echo('<td class="text-right">' . number_format($lineData[$ds][1], 2) . '</td>');
-                                        echo('<td class="text-right">' . $lineData[$ds][2] . '</td>');
-                                        echo('<td class="text-right">' . number_format($lineData[$ds][3], 2) . '</td>');
 
-                                        echo('<td class="text-right brg">' . number_format($lineData[$ds][4], 3) . '</td>');
+                                        //echo('<td class="text-right">' . number_format($lineData[$ds][1], 2) . '</td>');
+                                        echo('<td class="text-right">' . number_format($lineData[$ds][1], 2, ',', '') . '</td>');
+
+                                        echo('<td class="text-right">' . $lineData[$ds][2] . '</td>');
+
+                                        //echo('<td class="text-right">' . number_format($lineData[$ds][3], 2) . '</td>');
+                                        echo('<td class="text-right">' . number_format($lineData[$ds][3], 2, ',', '') . '</td>');
+
+                                        //echo('<td class="text-right brg">' . number_format($lineData[$ds][4], 3) . '</td>');
+                                        echo('<td class="text-right brg">' . number_format($lineData[$ds][4], 3, ',', '') . '</td>');
                                     }
 
                                     //Прирост ------------------------------------------------------------------------
@@ -976,16 +983,20 @@
 
                             for ($ds = 1; $ds <= $datasetCnt; $ds++) {
                                 //echo('<td class="text-right">' . $lineData[$ds][0] . '</td>');
-                                echo('<td class="text-right">' . number_format($lineData[$ds][1], 2) . '</td>');
+                                //echo('<td class="text-right">' . number_format($lineData[$ds][1], 2) . '</td>');
+                                echo('<td class="text-right">' . number_format($lineData[$ds][1], 2, ',', '') . '</td>');
+
                                 echo('<td class="text-right">' . $lineData[$ds][2] . '</td>');
-                                echo('<td class="text-right">' . number_format($lineData[$ds][3], 2) . '</td>');
+                                //echo('<td class="text-right">' . number_format($lineData[$ds][3], 2) . '</td>');
+                                echo('<td class="text-right">' . number_format($lineData[$ds][3], 2, ',', '') . '</td>');
                                 //2023-06-03
-                                echo('<td class="text-right brg">' . number_format($lineData[$ds][4], 3) . '</td>');
+//                                echo('<td class="text-right brg">' . number_format($lineData[$ds][4], 3) . '</td>');
+                                echo('<td class="text-right brg">' . number_format($lineData[$ds][4], 3, ',', '') . '</td>');
                             }
                             //--------------------------------------------------------------------
 
                             //Прирост ------------------------------------------------------------------------
-                            if ( $datasetCnt > 1) {
+                            if ($datasetCnt > 1) {
 //                                for ($i = 0; $i < 3; $i++) {
                                 for ($i = 1; $i < 5; $i++) {
                                     if ($lineData[1][$i] == 0) {
@@ -1001,7 +1012,7 @@
                                         $dif = number_format(($lineData[2][$i] - $lineData[1][$i]) / $lineData[1][$i] * 100, 1)
                                             //. ' ---' .$lineData[1][$i]
                                             //. ' ///' .$lineData[2][$i]
-                                            ;
+                                        ;
 
                                         $bg = ($dif <= 0) ? "#ffeee8" : "#daffda";
                                     }
