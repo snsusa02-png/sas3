@@ -67,6 +67,11 @@ class wrhdoc extends Model
             ->withDefault();
     }
 
+    public function dispatcher()
+    {
+        return $this->hasOne(orgstaff::class, 'id', 'disp_staffid')->withDefault();
+    }
+
     public function respstaff()
     {
         return $this->hasOne(orgstaff::class, 'id', 'respstaffid')

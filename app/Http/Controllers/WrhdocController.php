@@ -168,6 +168,7 @@ class WrhdocController extends Controller
             , 's_orgid' => ''
             , 's_refitmid' => ''
             , 's_ri_name' => ''
+            , 's_disp_staffid' => ''
         ];
 
         $search_params = $this->search_params($request, $param_names);
@@ -223,6 +224,9 @@ class WrhdocController extends Controller
                     $sc .= " and exists( select 1 from wrhdoclst dl
                                             join refitems ri on ri.id=dl.refitmid
                                             where dl.docid=wd.id and ri.name like '%{$val}%')";
+
+                } elseif ($item == 's_disp_staffid') {
+                    $sc .= " and wd.disp_staffid={$val}";
                 }
             }
         }
@@ -276,6 +280,7 @@ class WrhdocController extends Controller
         $data->orgs = org::lstFor_cached(['in_wrhdocs_org' => 1]);  //Контрагенты из документов склада
         $data->s_wrhs = wrh::listUsed();
         $data->s_doctypes = wrhdoctype::listUsed();
+        $data->s_disp_staffids = orgstaff::lstFor_cached(['dispatcher_in_wrhdocs' => 1]);
 
         $data->timestatuses = [1 => 'сегодня', 2 => 'вчера', 3 => 'за неделю', 4 => 'за месяц', 5 => 'календарь'];
         $data->s_statuscodes = array('' => '-любой-', '0' => 'не утвержден', '1' => 'утвержден');
@@ -665,6 +670,7 @@ class WrhdocController extends Controller
         $rec->saleorgid = $request->get('saleorgid');
         $rec->orgid = $request->get('orgid');
         $rec->respstaffid = $request->get('respstaffid');
+        $rec->disp_staffid = $request->get('disp_staffid');
         $rec->remarks = $request->get('remarks');
 
         //$rec->active = $request->get('active', 0);

@@ -1,4 +1,9 @@
-﻿--2024-04-30 -------------
+﻿--2024-05-13 -------------
+ALTER TABLE `wrhdocs`
+ADD COLUMN `disp_staffid` BIGINT NULL COMMENT 'Диспетчер' AFTER `respstaffid`;
+
+
+--2024-04-30 -------------
 
 ALTER TABLE `mr_opers`
 ADD COLUMN `auxsvc_sum` DECIMAL(12,2) NULL COMMENT 'Сумма доп. услуг. Входит в Itm_Sum' AFTER `raid_qty`;

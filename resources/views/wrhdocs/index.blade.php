@@ -52,7 +52,7 @@
                     </div>
 
                     <div class="row mb-3">
-                        <div class="offset-md-1 col-md-3 ">
+                        <div class="offset-md-0 col-md-3 ">
                             <div class="form-group">
                                 <label for="lname">Владелец:</label>
                                 {!! Form::select('s_ownorgid', $data->ownorgs??[], $data->search_params['s_ownorgid']??'',
@@ -66,7 +66,7 @@
                             </div>
                         </div>
 
-                        <div class="offset-md-0 col-md-4 ">
+                        <div class="offset-md-0 col-md-3 ">
                             <div class="form-group">
                                 <label for="lname">Контрагент:</label>
                                 {!! Form::select('s_orgid', $data->orgs??[], $data->search_params['s_orgid']??'',
@@ -88,6 +88,19 @@
                                                 'placeholder' => '-Название товара-',
                                                 ])
                                                 !!}
+                            </div>
+                        </div>
+                        <div class="offset-md-0 col-md-3 ">
+                            <div class="form-group">
+                                <label for="lname">Диспетчер:</label>
+                                {!! Form::select('s_disp_staffid', $data->s_disp_staffids??[], $data->search_params['s_disp_staffid']??'',
+                                   [
+                                   'class' => 'form-control small',
+                                   'placeholder' => '-все-',
+                                   'id' => 's_disp_staffid',
+                                   'onchange' => 'form.submit()',
+                                   ])
+                               !!}
                             </div>
                         </div>
                     </div>
