@@ -34,7 +34,9 @@
                                     <td class="small text-left">
                                         <a href="{{ route('wrhdocs.edit',$itm->id)}}?returl={{Request::url()}}">
                                             {{$itm->info}}
-                                            </i>
+                                            @if($itm->docsigned==1)
+                                                &nbsp; (<b>Утвержден</b>)
+                                            @endif
                                         </a>
 
                                     </td>

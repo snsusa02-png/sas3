@@ -224,7 +224,7 @@
                                     <tr style="{{$trStyle}}">
                                         <td scope="row" class="small text-right">{{$loop->index+1+$rec0}}</td>
                                         <td><a href="{{ route('wrhdocs.edit',$item->id)}}"
-                                               target="_self">№{{$item->docnum}} от </a>
+                                               target="_self">№{{$item->docnum}} от <span class="small">{{date_format(date_create($item->docdate),'d.m.Y')}}</span></a>
                                             <div class="small">{{$item->doctype->name}}</div>
                                             <div class="">{{$item->ownorg_name}}</div>
                                             <div class="">{{$item->org_name}}</div>
