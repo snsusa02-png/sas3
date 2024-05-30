@@ -390,6 +390,8 @@ class MrOperController extends Controller
             $raid->load_price = $rec->itm_price;
             $raid->load_sum = $rec->load_sum;
             $raid->load_ownorgid = $rec->orgid;
+            $raid->updated_by = $userid;    //2024-05-30
+            $raid->updated_at = now();
             $raid->save();
 
         } elseif ($rec->sale_dir == +1) {
@@ -406,6 +408,8 @@ class MrOperController extends Controller
             $raid->unload_sum = $rec->load_sum;
 
             $raid->paytypeid = $rec->paytypeid;
+            $raid->updated_by = $userid;    //2024-05-30
+            $raid->updated_at = now();
             $raid->save();
         }
 
