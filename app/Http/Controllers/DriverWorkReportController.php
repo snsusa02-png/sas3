@@ -122,6 +122,7 @@ class DriverWorkReportController extends Controller
 
             $sql = " select staffid, os.name as staff_name, os.lname as staff_lname, os.fname as staff_fname, os.mname as staff_mname
             , os.postname
+            , wt.name as wrktype_name
             , (select count(distinct v.selected_date) as cnt from
                 (select adddate('{$s_begdate}', t1.i*10 + t0.i) selected_date from
                  (select 0 i union select 1 union select 2 union select 3 ) t1,
@@ -134,7 +135,7 @@ class DriverWorkReportController extends Controller
                     and date_format(v.selected_date, '%Y-%m')='{$s_yr_mn}'
                    ) as wrkdays
                    , a.* from (
-    SELECT dw.staffid, DATE_FORMAT(dw.wrkdate,'%Y-%m') as ym
+    SELECT dw.staffid, DATE_FORMAT(dw.wrkdate,'%Y-%m') as ym, dw.wrktypeid
         /*, count( distinct dw.wrkdate) as wrkdate_cnt*/
         , max(dw.day_hr_rate) as day_hr_rate
         , min(dw.day_hr_rate) as day_hr_rate_min
@@ -151,13 +152,17 @@ class DriverWorkReportController extends Controller
         , SUM( (select sum(day_hrs+night_hrs) from dw_breaks b where b.dw_id=dw.id and b.wrktypeid=11)) as brk_11_hrs
         , SUM( (select sum(day_hrs+night_hrs) from dw_breaks b where b.dw_id=dw.id and b.wrktypeid=21)) as brk_21_hrs
         , SUM( (select sum(day_hrs+night_hrs) from dw_breaks b where b.dw_id=dw.id and b.wrktypeid=22)) as brk_22_hrs
+        , SUM( (select sum(brk_sum) from dw_breaks b where b.dw_id=dw.id and b.wrktypeid=11)) as brk_11_sum
+        , SUM( (select sum(brk_sum) from dw_breaks b where b.dw_id=dw.id and b.wrktypeid=21)) as brk_21_sum
+        , SUM( (select sum(brk_sum) from dw_breaks b where b.dw_id=dw.id and b.wrktypeid=22)) as brk_22_sum
         FROM `driver_works` as dw
         where 1=1
             and date_format(dw.wrkdate,'%Y-%m') = '{$s_yr_mn}'
-        group by dw.staffid, ym
+        group by dw.staffid, ym, dw.wrktypeid
      ) as a
     join orgstaff as os on os.id=a.staffid
-    order by staff_name";
+    join wrktypes as wt on wt.id=a.wrktypeid
+    order by staff_name, wt.name";
  //dd($s_begdate, $s_yr_mn, $sql);
             $recs = DB::select(DB::raw($sql));
             // dd($sql, $recs);

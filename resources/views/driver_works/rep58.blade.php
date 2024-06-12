@@ -256,18 +256,26 @@ $action_url = route('reports.rep' . $thisObjId);
                                 <td><a href="{{route('orgstaff.edit',$itm->staffid)}}"
                                        target="_blank">{{$itm->staff_name}}</a>, <span
                                         class="small ml-2"> {{$itm->postname}}</span>
+
                                 <div class="float-right small">
+                                    "<b>{{$itm->wrktype_name}}</b>",
                                     Ставка день: <b>{{$day_hr_rate}}</b>,
                                     ночь: <b>{{$night_hr_rate}}</b>
                                 </div> </td>
                                 <td class="text-right">{{$itm->wrkdays}} </td>
-                                <td class="text-right">{{number_format($itm->day_wrkhrs,2)}}</td>
-                                <td class="text-right">{{number_format($itm->night_wrkhrs,2)}}</td>
-                                <td class="text-right">{{number_format($itm->brkhrs,2)}}</td>
-                                <td class="text-right small">{{number_format($itm->brk_11_hrs,2)}}</td>
-                                <td class="text-right small">{{number_format($itm->brk_21_hrs,2)}}</td>
-                                <td class="text-right small">{{number_format($itm->brk_22_hrs,2)}}</td>
-                                <td class="text-right small">{{number_format($itm->day_hr_sum + $itm->night_hr_sum + $itm->breaks_sum,2)}}</td>
+                                <td class="text-right">{{number_format($itm->day_wrkhrs,2)}}
+                                <br><small>{{number_format($itm->day_hr_sum,2)}}</small></td>
+                                <td class="text-right">{{number_format($itm->night_wrkhrs,2)}}
+                                    <br><small>{{number_format($itm->night_hr_sum,2)}}</small></td>
+                                <td class="text-right">{{number_format($itm->brkhrs,2)}}
+                                    <br><small>{{number_format($itm->breaks_sum,2)}}</small></td>
+                                <td class="text-right small">{{number_format($itm->brk_11_hrs,2)}}
+                                    <br><small>{{number_format($itm->brk_11_sum,2)}}</small></td>
+                                <td class="text-right small">{{number_format($itm->brk_21_hrs,2)}}
+                                    <br><small>{{number_format($itm->brk_21_sum,2)}}</small></td>
+                                <td class="text-right small">{{number_format($itm->brk_22_hrs,2)}}
+                                    <br><small>{{number_format($itm->brk_22_sum,2)}}</small></td>
+                                <td class="text-right">{{number_format($itm->day_hr_sum + $itm->night_hr_sum + $itm->breaks_sum,2)}}</td>
                             </tr>
                             <?php
                             $totDayWrkHrs += $itm->day_wrkhrs;
