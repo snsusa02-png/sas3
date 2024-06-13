@@ -425,10 +425,11 @@ class PayDocReportController extends Controller
         $mindate = $org_saldo->ondate ?? null;
 
         //соберем все операции и платежи начиная с $mindate
-        $sc1 = $sc2 = "1=1";
+        $sc1 = $sc2 = $sc3 = "1=1";
         if (isset($mindate)) {
             $sc1 .= " and mr.wrkdate>='{$mindate}'";
             $sc2 .= " and pd.paydate>='{$mindate}'";
+            $sc3 .= " and d.docdate>='{$mindate}'";
         }
 
         if (1 == 1) {
@@ -474,6 +475,7 @@ class PayDocReportController extends Controller
                 ->where('dt.forsale', '<>', 0)
                 ->whereRaw("ifnull(d.saleorgid, d.ownorgid) = {$ownorgid}")
                 ->where(['d.orgid' => $orgid])
+                ->whereRaw($sc3)
                 ->select('d.docdate as operdate', db::raw('2 as sumtypeid')
                     , db::raw("204 as sysobjid")
                     , db::raw('w.name as org_placename')
