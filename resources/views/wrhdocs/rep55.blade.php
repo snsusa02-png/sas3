@@ -133,11 +133,11 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                         $td_class = "";
                         $tdс_class = "";
 
-                        $pre_qty = (isset($rec->pre_qty)) ? number_format($rec->pre_qty, 0) : '';
+                        $pre_qty = (isset($rec->pre_qty)) ? number_format($rec->pre_qty, 1) : '';
                         $pre_sum = (isset($rec->pre_sum)) ? number_format($rec->pre_sum, 2) : '';
-                        $inp_qty = (isset($rec->inp_qty)) ? number_format($rec->inp_qty, 0) : '';
+                        $inp_qty = (isset($rec->inp_qty)) ? number_format($rec->inp_qty, 1) : '';
                         $inp_sum = (isset($rec->inp_sum)) ? number_format($rec->inp_sum, 2) : '';
-                        $out_qty = (isset($rec->out_qty)) ? number_format($rec->out_qty, 0) : '';
+                        $out_qty = (isset($rec->out_qty)) ? number_format($rec->out_qty, 1) : '';
                         $out_sum = (isset($rec->out_sum)) ? number_format($rec->out_sum, 2) : '';
 
                         $n_pre_qty = (isset($rec->pre_qty)) ? $rec->pre_qty : 0;
@@ -150,7 +150,7 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                         $n_end_qty = $rec->pre_qty + $rec->inp_qty - $rec->out_qty;
                         //$n_end_sum = $rec->pre_sum + $rec->inp_sum - $rec->out_sum;
                         $n_end_sum = $rec->end_sum;
-                        $end_qty = number_format($n_end_qty, 0);
+                        $end_qty = number_format($n_end_qty, 1);
                         $end_sum = number_format($n_end_sum, 2);
 
                         //                            if ($rec->sysobjid == 520)
