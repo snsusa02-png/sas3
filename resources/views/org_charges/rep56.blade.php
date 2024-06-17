@@ -198,7 +198,9 @@ $first_col_id = null;
                     $npp = 0;
                     $totSum = $totInpSum = $totOutSum = 0;
                     $cur_orgid = -1;
+                    $cur_depname = '-1';
                     $cur_staffid = -1;
+
                     $line_sum = [];
                     ?>
                     @foreach($recs as $rec)
@@ -229,9 +231,20 @@ $first_col_id = null;
                                 <tr class="text-left">
                                     <td colspan={{3+$cols_count}}>{{$rec->org_name}}</td>
                                 </tr>
-                                @php($cur_orgid = $rec->orgid)
+                                <?php
+                                $cur_orgid = $rec->orgid;
+                                $cur_depname = '-1';
+                                ?>
                             @endif
 
+                            @if($rec->depname <> $cur_depname)
+                                <tr class="text-left">
+                                    <td colspan="{{3+$cols_count}}" class="small" style="background-color: #ecf6f9">
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        Подразделение: <b>{{(trim($rec->depname)=='')?'-не указано-':$rec->depname}}</b></td>
+                                </tr>
+                                @php($cur_depname = $rec->depname)
+                            @endif
                             <?php
                             $cur_staffid = $rec->staffid;
                             $pre_chargetypeid = $first_col_id;
