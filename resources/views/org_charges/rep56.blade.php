@@ -198,7 +198,7 @@ $first_col_id = null;
                     $npp = 0;
                     $totSum = $totInpSum = $totOutSum = 0;
                     $cur_orgid = -1;
-                    $cur_depname = '-1';
+                    $cur_dep_name = '-1';
                     $cur_staffid = -1;
 
                     $line_sum = [];
@@ -233,17 +233,17 @@ $first_col_id = null;
                                 </tr>
                                 <?php
                                 $cur_orgid = $rec->orgid;
-                                $cur_depname = '-1';
+                                $cur_dep_name = '-1';
                                 ?>
                             @endif
 
-                            @if($rec->depname <> $cur_depname)
+                            @if($rec->dep_name <> $cur_dep_name)
                                 <tr class="text-left">
                                     <td colspan="{{3+$cols_count}}" class="small" style="background-color: #ecf6f9">
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        Подразделение: <b>{{(trim($rec->depname)=='')?'-не указано-':$rec->depname}}</b></td>
+                                        Подразделение: <b>{{(trim($rec->dep_name)=='')?'-не указано-':$rec->dep_name}}</b></td>
                                 </tr>
-                                @php($cur_depname = $rec->depname)
+                                @php($cur_dep_name = $rec->dep_name)
                             @endif
                             <?php
                             $cur_staffid = $rec->staffid;

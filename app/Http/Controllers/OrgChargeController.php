@@ -580,7 +580,7 @@ class OrgChargeController extends Controller
 
             $sql = "SELECT scc.staffid, os.lname, os.fname, os.mname
                     , os.orgid, o.name as org_name
-                    , os.depname
+                    , upper (os.depname) as dep_name
                     , ct.dir, oc.chargetypeid, ct.name as chargetype_name
                     , sum(scc.charge_sum) charge_sum
                     FROM stf_chrg_calcs as scc
@@ -598,7 +598,7 @@ class OrgChargeController extends Controller
                 $sql .= " and concat(' ', os.lname, ' ', os.fname, ' ', os.mname) like '% {$s_stf_name}%'";
 
             $sql .= " group by scc.staffid, oc.chargetypeid
-                    order by o.name, os.depname, os.lname, os.fname, os.id, ct.dir desc, ct.ordr";
+                    order by o.name, dep_name, os.lname, os.fname, os.id, ct.dir desc, ct.ordr";
 
             $recs = DB::select(DB::raw($sql));
         } else {
