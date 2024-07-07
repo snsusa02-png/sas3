@@ -259,6 +259,79 @@
                 </div>
 
             </div>
+
+            @if ($rec->id>0 and isset($rec->cmpnd_lst))
+                <div class="row">
+                    <div class="col-md-7 offset-md-3">
+                        {{--                    @if (count($rec->cmpnd_lst)>0)--}}
+                        <?php
+                        //$curDate = date_format(date_create(), 'Y-m-d');
+                        $cur_wrkdate = -1;
+                        ?>
+                        <table class="table-sm table-striped mt-3" style="background-color: whitesmoke">
+                            <caption>
+                            </caption>
+                            <tr>
+                                <td colspan="4" class="text-right"><h6 class="mr-2">Планируемый расход материалов на
+                                        производство</h6></td>
+                            </tr>
+                            <tr>
+                                <th>Материал</th>
+                                <th>Ед.изм.</th>
+                                <th>Расход на 1 изделие</th>
+                                <th>Всего на {{trim(number_format($rec->qty,3),'0')}} изд.</th>
+
+                            </tr>
+                            @foreach($rec->cmpnd_lst as $item)
+                                <tr>
+                                    <td><span class="small">{{$item->refitmid}}</span> {{$item->name}}</td>
+                                    <td class="text-center">{{$item->unit}}</td>
+                                    <td class="text-right">{{$item->max_qty}}</td>
+                                    <td class="text-right">{{number_format($item->max_qty * $rec->qty, $item->decimal_dgts)}}</td>
+                            @endforeach
+                        </table>
+                    </div>
+                </div>
+            @endif
+
+            @if (isset($rec->raw_in_prod_lst))
+                <?php
+                $tot_raw_qty = 0;
+                $dec_dgts = $rec->refitem->unittype->decimal_dgts;
+                $raw_unit = $rec->refitem->unit;
+                ?>
+                <div class="row">
+                    <div class="col-md-7 offset-md-3">
+                        <table class="table-sm table-striped mt-3" style="background-color: #f6f6ec">
+                            <caption>
+                            </caption>
+                            <tr>
+                                <td colspan="4" class="text-right"><h6 class="mr-2">Расход материала "<b>{{$rec->refitem->name}}</b>" в произведенных изделиях</h6></td>
+                            </tr>
+                            <tr>
+                                <th>Изделие</th>
+                                <th>Кол-во изделий</th>
+                                <th>Расход на 1 изделие, {{$raw_unit}}</th>
+                                <th>Расход на все изд., {{$raw_unit}}</th>
+
+                            </tr>
+                            @foreach($rec->raw_in_prod_lst as $item)
+                                <tr>
+                                    <td><span class="small">{{$item->refitmid}}</span>
+                                        <a href="{{ route('wrhdoclst.edit', $item->id) }}">{{$item->refitm_name}}</a></td>
+                                    <td class="text-right">{{number_format($item->prod_qty, $item->prod_dec_dgts??3)}}</td>
+                                    <td class="text-right">{{number_format($item->max_qty, $dec_dgts)}}</td>
+                                    <td class="text-right">{{number_format($item->tot_qty, $dec_dgts)}}</td>
+                                @php($tot_raw_qty = $tot_raw_qty + $item->tot_qty )
+                            @endforeach
+                        <tr>
+                            <td colspan="3" class="text-right">Итого, {{$raw_unit}}:</td>
+                            <td class="text-right font-weight-bold">{{number_format($tot_raw_qty, $dec_dgts)}}</td>
+                        </tr>
+                        </table>
+                    </div>
+                </div>
+            @endif
         </div>
         <script src="{{ asset('js/wrhdoclst_edit.js') }}" defer></script>
     @endif

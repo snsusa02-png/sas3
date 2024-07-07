@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\group;
 use App\grptype;
+use App\ri_cmpnd_item;
 use App\ri_compound;
 use App\sysobj;
 use App\wrh_stock;
@@ -123,12 +124,46 @@ class WrhdoclstController extends Controller
                 $rec->subtypeid = (count($rec->subtypes) == 1) ? key($rec->subtypes) : null;
             }
 
-            $rec->ri_produced = $rec->wrhdoc->doctype->ri_produced??0;
+            $rec->ri_produced = $rec->wrhdoc->doctype->ri_produced ?? 0;
 
             if ($rec->ri_produced == 1) {
                 $rec->cmpnd_ownorgid = $rec->wrhdoc->ownorgid;
                 $rec->cmpnd_on_date = $rec->wrhdoc->docdate;
                 $rec->cmpnd_name = $rec->ri_compound->info;
+
+                // расходные материалы, согласно рецепта
+                $rec->cmpnd_lst = ri_cmpnd_item::from('ri_cmpnd_items as rici')
+                    ->join('refitems as ri', 'ri.id', 'rici.refitmid')
+                    ->join('unittypes as ut', 'ut.id', 'ri.unittypeid')
+                    ->where('rici.cmpndid', $rec->cmpndid)
+                    ->select('rici.refitmid', 'rici.max_qty'
+//                        , db::raw("concat(ri.name, ' : ', rici.max_qty, ' ', ri.unit) as name")
+                        , 'ri.name'
+                        , 'ri.unit'
+                        , 'ut.decimal_dgts'
+                    )
+                    ->get();
+                //dd($rec->cmpnd_lst);
+            }
+
+            // Если позиция нвходится в документе, который связан с документом на производство
+            if ($rec->wrhdoc->predoc->doctype->ri_produced ?? 0 == 1) {
+                //dd( $rec->wrhdoc->predocid, $rec->refitmid);
+                // то соберем - в какие произведенные изделия и в каких количествах был потрачен материал $rec->refitmid
+
+                $rec->raw_in_prod_lst = wrhdoclst::from('wrhdoclst as dl')
+                    ->join('refitems as ri', 'ri.id', 'dl.refitmid')
+                    ->join('unittypes as ut', 'ut.id', 'ri.unittypeid')
+                    ->join('ri_cmpnd_items as rci', 'rci.cmpndid', 'dl.cmpndid')
+                    ->where('dl.docid', $rec->wrhdoc->predocid) // по связанному документу (на производство)
+                    ->where('rci.refitmid', $rec->refitmid)
+                    ->select('dl.id', 'dl.refitmid as refitmid', 'ri.name as refitm_name'
+                        , 'dl.qty as prod_qty', 'ut.decimal_dgts as prod_dec_dgts'
+                        , 'rci.max_qty', db::raw("dl.qty*rci.max_qty  as tot_qty"))
+                    ->orderby('tot_qty', 'desc')
+                    ->orderby('refitm_name', 'asc')
+                    ->get();
+//                dd($rec->raw_in_prod_lst);
 
             }
             $rec->ri_compounds = ri_compound::from('ri_compounds as ric')
