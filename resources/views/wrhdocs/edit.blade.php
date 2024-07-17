@@ -193,7 +193,10 @@
                                                 </a>
                                             </div>
                                         @else
-                                            <div class="font-weight-bold">{{$rec->dispatcher->name}}</div>
+                                            <div class="font-weight-bold">{{$rec->dispatcher->name}}
+                                                <input type="hidden" name="disp_staffid" id="disp_staffid"
+                                                       value="{{$rec->disp_staffid}}">
+                                            </div>
                                         @endif
                                     </div>
                                 </div>
