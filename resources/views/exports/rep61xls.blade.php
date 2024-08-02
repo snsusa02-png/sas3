@@ -19,6 +19,7 @@
         <td class="text-right">Выручка, &#8381;</td>
         <td class="text-right">Инертные, &#8381;</td>
         <td class="text-right">Топливо, &#8381;</td>
+        <td class="text-right">Запчасти, &#8381;</td>
         <td class="text-right">ЗП водителя, &#8381;</td>
         <td class="text-right">Заработок, &#8381;</td>
     </tr>
@@ -39,6 +40,7 @@
             <td x:num width="15">{{$rec->sale_sum}}</td>
             <td x:num width="15">{{$rec->buy_sum}}</td>
             <td x:num width="15">{{$rec->fuel_sum}}</td>
+            <td x:num width="15">{{$rec->spare_sum}}
             <td x:num width="15">{{$rec->salary_sum}}</td>
             <td x:num width="15">{{$line_sum}}</td>
         </tr>
@@ -48,7 +50,7 @@
     @endforeach
 
     <tr>
-        <td colspan="5" align="right">Всего:</td>
+        <td colspan="6" align="right">Всего:</td>
         <td><b>{{ $totSum }}</b></td>
     </tr>
     </tbody>
