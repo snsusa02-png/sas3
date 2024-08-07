@@ -239,12 +239,14 @@ class WrhDocReportController extends Controller
         $param_names = [
             's_begdate' => null,
             's_enddate' => strftime('%Y-%m-%d', strtotime(now())),
+            's_itmtypeid' => null,
         ];
 
         $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);
 
         $s_begdate = $search_params['s_begdate'];
         $s_enddate = $search_params['s_enddate'];
+        $s_itmtypeid = $search_params['s_itmtypeid'];
 
 //        dd($s_begdate, isset($s_begdate), is_null($s_begdate));
         $data = new \stdClass();
@@ -253,6 +255,9 @@ class WrhDocReportController extends Controller
         //dd($search_params, $data);
 
         if ($s_begdate <> '') {
+            $cnd1 = "";
+            if (isset($s_itmtypeid))  $cnd1 = " and ri.itmtypeid = {$s_itmtypeid}";
+
             $sql = "select a.refitmid, ri.name as refitm_name, ri.unit as refitm_unit
 	            , sum(a.pre_qty) as pre_qty
 	            , sum(a.inp_qty) as inp_qty
@@ -266,7 +271,9 @@ class WrhDocReportController extends Controller
                     FROM wrhdoclst as i
                     INNER JOIN wrhdocs as d ON d.id = i.docid
                     INNER JOIN wrhdoctypes as t ON t.id = d.doctypeid AND t.forstock <> 0
+                    join refitems ri on ri.id=i.refitmid
                     WHERE d.docsigned=1 and  d.docdate < '{$s_begdate}'
+                    {$cnd1}
                     GROUP BY refitmid
                     union all
                     SELECT     i.refitmid, null as pre_qty
@@ -277,8 +284,10 @@ class WrhDocReportController extends Controller
                     FROM wrhdoclst as i
                     INNER JOIN wrhdocs as d ON d.id = i.docid
                     INNER JOIN wrhdoctypes as t ON t.id = d.doctypeid AND t.forstock <> 0
+                     join refitems ri on ri.id=i.refitmid
                     WHERE d.docsigned=1
                     and d.docdate between '{$s_begdate}' and '{$s_enddate}'
+                    {$cnd1}
                     GROUP BY refitmid
                     ) as a
                 INNER JOIN  refitems as ri ON ri.id = a.refitmid
@@ -329,6 +338,19 @@ class WrhDocReportController extends Controller
             $recs = null;
             $recs2 = null;
         }
+
+        $data->itmtypes = wrhdoclst::from("wrhdoclst as di")
+            ->join("wrhdocs as d","d.id","di.docid")
+            ->join("refitems as ri","ri.id","di.refitmid")
+            ->join("itmtypes as it","it.id","ri.itmtypeid")
+            ->select('it.id', 'it.name')
+            ->distinct()
+            ->orderby('name','asc')
+            ->get()
+            ->pluck('name','id');
+        // dd($data->itmtypes);
+
+
         return view('wrhdocs.rep' . $report_id, compact('search_params', 'recs', 'recs2', 'data'));
     }
 
@@ -359,7 +381,7 @@ class WrhDocReportController extends Controller
         //dd($search_params, $data);
 
         if (isset($s_refitmid) and $s_begdate <> '') {
-            $ri = refitem::where('id',$s_refitmid)->select('name', 'unit')->first();
+            $ri = refitem::where('id', $s_refitmid)->select('name', 'unit')->first();
             $data->refitm_name = $ri->name;
             $data->refitm_unit = $ri->unit;
 

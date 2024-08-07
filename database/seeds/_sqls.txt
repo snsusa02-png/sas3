@@ -1,4 +1,18 @@
-﻿--2024-05-13 -------------
+﻿--2024-07-13 -------------
+UPDATE `sysobjs` SET `acl_sysobjid` = NULL, `acl_sysobjcode` = 'Orders' WHERE (`id` = '132');
+
+ALTER TABLE `orders` ADD COLUMN `docsigned` TINYINT(1) UNSIGNED NULL default 0 COMMENT '1-признак подписанности, 0 - черновик' AFTER `updated_by`;
+
+INSERT INTO `sysfuncs` (`code`, `sysobjid`, `name`, `adminrightid`, `org_area`, `active`, `ordr`) VALUES ('orders.sign', '131', 'Согласование заказа', '1', '0', '1', '255');
+INSERT INTO `sysfuncs` (`code`, `sysobjid`, `name`, `adminrightid`, `org_area`, `active`, `ordr`) VALUES ('orders.unsign', '131', 'Разсогласование заказа', '1', '0', '1', '255');
+
+--2024-06-21 -------------
+ALTER TABLE `sysobj_lockdates`
+ADD COLUMN `ownorgid` BIGINT UNSIGNED NULL AFTER `sysobjid`,
+ADD COLUMN `orgid` BIGINT UNSIGNED NULL AFTER `ownorgid`;
+
+
+--2024-05-13 -------------
 ALTER TABLE `wrhdocs`
 ADD COLUMN `disp_staffid` BIGINT NULL COMMENT 'Диспетчер' AFTER `respstaffid`;
 

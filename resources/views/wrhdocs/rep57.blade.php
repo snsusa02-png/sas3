@@ -72,6 +72,15 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                                                    value="{{$search_params['s_enddate']??''}}"
                                             />
                                         </div>
+                                        <div class="form-group col-md-3">
+                                            <label for="s_categoryid">Категория:</label>
+                                            {!! Form::select('s_itmtypeid', $data->itmtypes, $search_params['s_itmtypeid']??'',
+                                                            [
+                                                            'class' => 'form-control',
+                                                            'placeholder' => '-все-',
+                                                            ])
+                                                            !!}
+                                        </div>
                                     @endif
                                     @if(1==0)
                                         <div class="form-group col-md-2 dpt_1" style="">
