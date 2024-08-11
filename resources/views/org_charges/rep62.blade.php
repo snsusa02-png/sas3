@@ -207,11 +207,10 @@ $first_col_id = null;
                                 <tr>
                                     <td class="text-right font-weight-bold">Итого к выдаче:</td>
                                     <td class="text-right font-weight-bold">{{number_format($totOutSum, 0)}}</td>
-                                    <td></td>
                                 </tr>
                                 <tr>
-                                    <td colspan="3">
-                                        <hr size="1">
+                                    <td colspan="2">
+                                        <Br>
                                     </td>
                                 </tr>
                             @endif
@@ -241,7 +240,7 @@ $first_col_id = null;
                             //echo('<hr>');var_dump('$pre_chargetypeid =', $pre_chargetypeid);
                             ?>
                             <tr class="text-left {{$tr_class}}" style="{{$tstyle}}">
-                                <td colspan="3" class="text-left" data-npp="{{$npp}}">
+                                <td colspan="2" class="text-left" data-npp="{{$npp}}">
 {{--                                    <span class="small">{{++$npp}}.</span>--}}
                                     <b>{{$rec->lname}} {{$rec->fname}} {{$rec->mname}}</b>,
                                     <div class="small"> должность: {{$rec->postname}},
@@ -258,10 +257,10 @@ $first_col_id = null;
                             <td class="text-left ">
                                 ({{$rec->dir==1?'+':'-'}})
                                 {{$rec->chargetype_name}}
-                                <span class="small float-right">({{date_format(date_create($rec->docdate),'d.m.Y')}})</span>
+                                <span class="small float-right">({{date_format(date_create($rec->docdate),'d.m.Y')}}
+                                    {{isset($rec->notes)?', '.$rec->notes:''}})</span>
                             </td>
                             <td class="text-right ">{{number_format($rec->charge_sum, 0)}}</td>
-                            <td class="text-left ">{{$rec->notes}}</td>
                         </tr>
 
                         <?php
@@ -275,7 +274,6 @@ $first_col_id = null;
                         <tr>
                             <td class="text-right font-weight-bold">Итого к выдаче:</td>
                             <td class="text-right font-weight-bold">{{number_format($totOutSum, 0)}}</td>
-                            <td></td>
                         </tr>
                     @endif
 
@@ -287,7 +285,6 @@ $first_col_id = null;
                         <tr>
                             <td colspan="1" class="text-right" data-npp="{{$npp++}}">Всего:</td>
                             <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totSum,0)}}</td>
-                            <td></td>
                         </tr>
                     @endif
                     </tbody>
