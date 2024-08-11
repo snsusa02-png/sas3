@@ -526,7 +526,7 @@ class OrgChargeController extends Controller
 
     function rep56(Request $request)
     {
-        //Детализация производства и отгрузки продукции за дату
+        //Начисления и удержания за месяц
 
         $report_id = 56;
 
@@ -599,6 +599,104 @@ class OrgChargeController extends Controller
 
             $sql .= " group by scc.staffid, oc.chargetypeid
                     order by o.name, dep_name, os.lname, os.fname, os.id, ct.dir desc, ct.ordr";
+
+            $recs = DB::select(DB::raw($sql));
+        } else {
+            $recs = null;
+        }
+
+        // Заполним массив "Год.Месяц" уникальными значениями из первичных данных
+        $month_names = Config::get('constants.monthes');
+        Cache::forget('stf_chrg_calc_monthes');
+        $data->yms = Cache::remember('stf_chrg_calc_monthes', now()->addMinutes(15)
+            , function () {
+                return stf_chrg_calc::selectRaw("date_format(forbegdate, '%Y-%m') as ym")->distinct()->orderby('ym', 'desc')
+                    ->get()->pluck('ym', 'ym')->toArray();
+            });
+        //dd($data->monthes);
+        foreach ($data->yms as $key => $val) {
+            $y = substr($val, 0, 4);
+            $m = 0 + substr($val, 5);
+
+            $data->yms[$val] = $month_names[$m] . ' ' . $y;
+            //dd($key,$val, $m, $y, $data->yms[$val]);
+        }
+        //dd($data->yms);
+        //dd($data, $sql, $recs);
+
+        $data->ownorgs = org::lstFor_cached(['in_stf_chrg_calcs' => 1]);
+
+        //занесем в журнал
+        objlog::log_info(855, $report_id, 'запрошен отчет;');
+//        if ($export2xls == "1") {
+//            $response = Excel::download(new rep54Export($recs, $data), "Платежи за " . Str::slug($data->$date) . ".xlsx", \Maatwebsite\Excel\Excel::XLSX);
+//
+//            //$response= Excel::download(new InvoicesExport, 'invoices.xls', \Maatwebsite\Excel\Excel::XLS);
+//            //HERE IS THE MAGIC FOLKS
+//            ob_end_clean();
+//            return $response;
+//        }
+
+        return view('org_charges.rep' . $report_id, compact('search_params', 'data', 'recs'));
+    }
+
+    function rep62(Request $request)
+    {
+        //Расчетки по ЗП (Начисления и удержания) за месяц
+
+        $report_id = 62;
+
+        $returl = $request->get('returl') ?? route('stf_chrg_calcs.index');
+        $userid = Auth::user()->id;
+        $export2xls = $request->get('xls') ?? 0;
+
+
+        $data = new \stdClass();
+        $data->returl = $returl;
+
+        $param_names = [
+            's_ym' => null,
+            's_ownorgid' => null,
+            's_stf_name' => null,
+        ];
+        $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);
+
+        $s_ym = $search_params['s_ym'];
+        $s_ownorgid = $search_params['s_ownorgid'];
+        $s_stf_name = $search_params['s_stf_name'];
+
+        if ($s_ym <> '') {
+            //dd( $s_ym . '-01', date_create($s_ym . '-01' ) );
+            $date = date_create($s_ym . '-01')->format('Y-m-d');
+            //dd($date);
+
+            $date = $date ?? date_create()->format('d-m-Y');
+            $data->begdate = date_create($date)->format('Y-m-01');   //Первый день месяца
+            $data->enddate = date_create($date)->format('Y-m-t');    //Последний день месяца
+
+            $sql = "SELECT scc.staffid, os.lname, os.fname, os.mname
+                    , os.orgid, o.name as org_name
+                    , upper (os.depname) as dep_name
+                    , os.postname
+                    , ct.dir, oc.chargetypeid, ct.name as chargetype_name
+                    , scc.charge_sum charge_sum
+                    , scc.docdate
+                    , scc.notes
+                    FROM stf_chrg_calcs as scc
+                    join orgstaff os on os.id=scc.staffid
+                    join orgs o on o.id=os.orgid
+                    join org_charges as oc 	on oc.id=scc.orgchargeid
+                    join chargetypes as ct on ct.id=oc.chargetypeid
+                    where forbegdate <= '" . date_create($data->enddate)->format('Y-m-d') . "'"
+                . " and forEndDate >= '" . date_create($data->begdate)->format('Y-m-d') . "'";
+
+            if (isset($s_ownorgid))
+                $sql .= " and os.orgid={$s_ownorgid}";
+
+            if (isset($s_stf_name))
+                $sql .= " and concat(' ', os.lname, ' ', os.fname, ' ', os.mname) like '% {$s_stf_name}%'";
+
+            $sql .= " order by o.name, dep_name, os.lname, os.fname, os.id, ct.dir desc, ct.ordr, scc.docdate";
 
             $recs = DB::select(DB::raw($sql));
         } else {

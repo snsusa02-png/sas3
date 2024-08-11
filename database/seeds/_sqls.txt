@@ -1,4 +1,9 @@
-﻿--2024-07-13 -------------
+﻿
+--2024-08-11 -------------
+INSERT INTO `reports` (`id`, `name`, `descript`, `acsid`, `acs_rightid`, `public`, `active`, `use_cnt`) VALUES ('62', 'Расчетки по ЗП', 'Начисления и удержания', '1', '1', '0', '1', '0');
+
+
+--2024-07-13 -------------
 UPDATE `sysobjs` SET `acl_sysobjid` = NULL, `acl_sysobjcode` = 'Orders' WHERE (`id` = '132');
 
 ALTER TABLE `orders` ADD COLUMN `docsigned` TINYINT(1) UNSIGNED NULL default 0 COMMENT '1-признак подписанности, 0 - черновик' AFTER `updated_by`;
