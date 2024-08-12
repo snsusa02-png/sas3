@@ -595,7 +595,7 @@ class OrgChargeController extends Controller
                 $sql .= " and os.orgid={$s_ownorgid}";
 
             if (isset($s_stf_name))
-                $sql .= " and concat(' ', os.lname, ' ', os.fname, ' ', os.mname) like '% {$s_stf_name}%'";
+                $sql .= " and concat(' ', os.lname, ' ', os.fname, ' ', ifnull(os.mname,' ')) like '% {$s_stf_name}%'";
 
             $sql .= " group by scc.staffid, oc.chargetypeid
                     order by o.name, dep_name, os.lname, os.fname, os.id, ct.dir desc, ct.ordr";
@@ -650,7 +650,6 @@ class OrgChargeController extends Controller
         $userid = Auth::user()->id;
         $export2xls = $request->get('xls') ?? 0;
 
-
         $data = new \stdClass();
         $data->returl = $returl;
 
@@ -694,9 +693,10 @@ class OrgChargeController extends Controller
                 $sql .= " and os.orgid={$s_ownorgid}";
 
             if (isset($s_stf_name))
-                $sql .= " and concat(' ', os.lname, ' ', os.fname, ' ', os.mname) like '% {$s_stf_name}%'";
+                $sql .= " and concat(' ', os.lname, ' ', os.fname, ' ', ifnull(os.mname, ' ')) like '% {$s_stf_name}%'";
 
-            $sql .= " order by o.name, dep_name, os.lname, os.fname, os.id, ct.dir desc, ct.ordr, scc.docdate";
+//            $sql .= " order by o.name, dep_name, os.lname, os.fname, os.id, ct.dir desc, ct.ordr, scc.docdate";
+            $sql .= " order by os.lname, os.fname, os.id, ct.dir desc, ct.ordr, scc.docdate";
 
             $recs = DB::select(DB::raw($sql));
         } else {
