@@ -1,4 +1,8 @@
-﻿
+﻿--2024-08-12 -------------
+ALTER TABLE `stf_chrg_calcs`
+CHANGE COLUMN `notes` `notes` VARCHAR(1024) CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_unicode_ci' NULL DEFAULT NULL COMMENT 'Примечание' ;
+
+
 --2024-08-11 -------------
 INSERT INTO `reports` (`id`, `name`, `descript`, `acsid`, `acs_rightid`, `public`, `active`, `use_cnt`) VALUES ('62', 'Расчетки по ЗП', 'Начисления и удержания', '1', '1', '0', '1', '0');
 

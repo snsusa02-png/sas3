@@ -852,6 +852,23 @@ class DriverWorkController extends Controller
 
         if (isset($orgcharge)) {
 
+            // Сформируем детали расчета - для сохранения в поле примечания (stf_chrg_calc.notes)
+            $staffid = $rec->staffid;
+            $sql = "select group_concat(notes separator '; ') notes from (SELECT concat(
+        		SUM(day_wrkhrs), ' ч * ', day_hr_rate, ' руб (день)'
+                , ' + ', SUM(night_wrkhrs), ' ч * ', night_hr_rate, ' руб (ночь)'
+                , ' + ', SUM(breaks_sum), ' руб (простой)'
+		        ) as notes
+                FROM driver_works as dw
+                where staffid={$staffid}
+                  and wrkdate between '{$int_begdate}' and '{$int_enddate}'
+                  and salary_sum>0
+                GROUP BY day_hr_rate, night_hr_rate) a";
+            $rslt = DB::select(DB::raw($sql));
+            $notes = $rslt[0]->notes??'';
+            //dd($sql, $notes);
+
+
             // Так как привязываем совокупную запись, то берем "общий" идентификатор - "0"
             $stfchrgcalc = stf_chrg_calc::where([
                 'staffid' => $rec->staffid
@@ -876,6 +893,8 @@ class DriverWorkController extends Controller
             }
             $stfchrgcalc->staffid = $rec->staffid;
             $stfchrgcalc->charge_sum = $salary_sum;
+            $stfchrgcalc->notes = $notes;
+
             $stfchrgcalc->updated_by = $userid;
             $stfchrgcalc->updated_at = now();
             //dd($stfchrgcalc);
