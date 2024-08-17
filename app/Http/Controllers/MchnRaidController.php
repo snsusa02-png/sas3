@@ -843,10 +843,23 @@ class MchnRaidController extends Controller
         $rec->updated_by = $userid;
         $rec->updated_at = now();
 
+//        $rec->save();
+//        objlog::log_info($this->sysobjid, $rec->id, $mess, 5);
+
+        //соберем строку с измененными полями -------------------------------------------------------------------
+        $diffs = $this->field_diff_list($rec, ['id', 'created_by', 'updated_by', 'created_at', 'updated_at']);
+        if ($diffs === '')
+            $msg_simple = $rslt_msg = "Запись пересохранена без изменений";
+        else {
+            $msg_simple = 'Запись ' . (($id == -1) ? 'создана' : 'изменена');
+            $rslt_msg = $msg_simple . ': ' . $diffs;
+        }
+        //-------------------------------------------------------------------------------------------------------
+
         $rec->save();
 
-        objlog::log_info($this->sysobjid, $rec->id, $mess, 5);
-
+        objlog::log_info($this->sysobjid, $rec->id, $rslt_msg, 5);
+        connectify('success', 'Сохранение изменений', $msg_simple);
 
         //для новой записи возьмем значения из шаблона ---------------------------------------------------
         if ($id == -1) {

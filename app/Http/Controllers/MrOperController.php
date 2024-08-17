@@ -241,7 +241,6 @@ class MrOperController extends Controller
         }
 
 
-        $mess = "";
         if ($id == -1) {
             $rec = new mr_oper([
                 "mr_id" => $request->get('mr_id'),
@@ -309,10 +308,22 @@ class MrOperController extends Controller
         $rec->updated_by = $userid;
         $rec->updated_at = now();
 
-        $rec->save();
-        //dd($rec);
+        //соберем строку с измененными полями -------------------------------------------------------------------
+        $diffs = $this->field_diff_list($rec, ['id', 'created_by', 'updated_by', 'created_at', 'updated_at']);
+        if ($diffs === '')
+            $msg_simple = $rslt_msg = "Запись пересохранена без изменений";
+        else {
+            $msg_simple = 'Запись ' . (($id == -1) ? 'создана' : 'изменена');
+            $rslt_msg = $msg_simple . ': ' . $diffs;
+        }
+        //-------------------------------------------------------------------------------------------------------
 
-        objlog::log_info($this->sysobjid, $rec->id, $mess, 5);
+        $rec->save();
+
+        objlog::log_info($this->sysobjid, $rec->id, $rslt_msg, 5);
+        connectify('success', 'Сохранение изменений', $msg_simple);
+        //-------------------------------------------------------------------------------------------------------
+
 
         //Выполним действия после обновления записи ---------------------------------------------
         mr_oper::on_update($rec);
