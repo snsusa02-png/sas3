@@ -67,7 +67,6 @@ class MrOperController extends Controller
         if ($recid > 0) {
             //для существующих записей проверим открытость периода
             if (mr_oper::isLocked($recid)) {
-
                 $usrrights['save'] = false;
                 $usrrights['delete'] = false;
                 $usrrights['admindelete'] = false;
@@ -403,7 +402,7 @@ class MrOperController extends Controller
             $raid->load_ownorgid = $rec->orgid;
             $raid->updated_by = $userid;    //2024-05-30
             $raid->updated_at = now();
-            $raid->save();
+            //$raid->save();
 
         } elseif ($rec->sale_dir == +1) {
             //продажа
@@ -421,8 +420,24 @@ class MrOperController extends Controller
             $raid->paytypeid = $rec->paytypeid;
             $raid->updated_by = $userid;    //2024-05-30
             $raid->updated_at = now();
-            $raid->save();
+            //$raid->save();
         }
+
+        //соберем строку с измененными полями -------------------------------------------------------------------
+        $diffs = $this->field_diff_list($raid, ['id', 'created_by', 'updated_by', 'created_at', 'updated_at']);
+        if ($diffs === '')
+            $msg_simple = $rslt_msg = "Запись пересохранена без изменений";
+        else {
+            $msg_simple = 'Запись ' . (($id == -1) ? 'создана' : 'изменена');
+            $rslt_msg = $msg_simple . ': ' . $diffs;
+        }
+        //-------------------------------------------------------------------------------------------------------
+
+        $raid->save();
+
+//        objlog::log_info($this->sysobjid, $raid->id, $rslt_msg, 5);
+        objlog::log_info(1106, $raid->id, $rslt_msg, 5);
+        //-------------------------------------------------------------------------------------------------------
 
 //        if ($id == -1)
 //            return redirect(route($this->sysobjcode . '.edit', $rec->id));
