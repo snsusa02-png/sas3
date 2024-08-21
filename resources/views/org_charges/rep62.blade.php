@@ -257,8 +257,10 @@ $first_col_id = null;
                             <td class="text-left ">
                                 ({{$rec->dir==1?'+':'-'}})
                                 {{$rec->chargetype_name}}
-                                <span class="small float-right">({{date_format(date_create($rec->docdate),'d.m.Y')}}
-                                    {{isset($rec->notes)?', '.$rec->notes:''}})</span>
+                                <span class="small float-right">
+{{--                                    ({{date_format(date_create($rec->docdate),'d.m.Y')}} {{isset($rec->notes)?', '.$rec->notes:''}})--}}
+                                    {{$rec->notes}}
+                                </span>
                             </td>
                             <td class="text-right ">{{number_format($rec->charge_sum, 0)}}</td>
                         </tr>
