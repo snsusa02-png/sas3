@@ -143,10 +143,10 @@ $action_url = route('reports.rep' . $thisObjId);
                                                             !!}
                                         </div>
                                     @endif
-                                    @if(1==0)
+                                    @if(1==1)
                                         <div class="form-group col-md-3">
-                                            <label for="s_categoryid">Категория:</label>
-                                            {!! Form::select('s_categoryid', $data->categories, $search_params['s_categoryid']??'',
+                                            <label for="s_categoryid">Вид работ:</label>
+                                            {!! Form::select('s_opertypeid', $data->opertypes, $search_params['s_opertypeid']??'',
                                                             [
                                                             'class' => 'form-control',
                                                             'placeholder' => '-все-',

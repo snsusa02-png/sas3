@@ -10,6 +10,7 @@ use App\mr_oper;
 use App\Exports\InvoicesExport;
 use App\Exports\PayPlanExport;
 use App\mchn_raid;
+use App\opertype;
 use App\report;
 use App\org;
 use App\machine;
@@ -1021,6 +1022,7 @@ class MchnRaidReportController extends Controller
             , 's_quarter' => $yearQuarter
             , 's_year' => $year
             , 's_orgid' => ''
+            , 's_opertypeid' => ''
         ];
 
         $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);
@@ -1087,6 +1089,9 @@ class MchnRaidReportController extends Controller
                 if ($item == 's_ownorgid') {
                     $sc1 = $sc1 . " and mr.load_ownorgid = '{$val}'";
 
+                } elseif ($item == 's_opertypeid') {
+                    $sc1 = $sc1 . " and mr.opertypeid = {$val}";
+
                 } elseif ($item == 's_begdate') {
                     $sc1 = $sc1 . " and mr.wrkdate >= '{$val}'";
                     $sc2 = $sc2 . " and dw.wrkdate >= '{$val}'";
@@ -1130,7 +1135,7 @@ SELECT mr.machineid
 	FROM mr_opers as mro
 	join mchn_raids as mr on mr.id=mro.mr_id
     where " . $sc1
-                . " and mr.opertypeid=1"
+//                . " and mr.opertypeid=1"
                 . " group by mr.machineid"
                 . " union
 SELECT dw.machineid
@@ -1183,6 +1188,9 @@ order by income_sum desc";
         $data->orgs = org::lstFor_cached([
             'in_mr_opers' => 1,
             'not_flagtypeid' => 12,
+        ]);
+        $data->opertypes = opertype::lstFor_cached([
+            'in_mchn_raids' => 1,
         ]);
 
         $s_period_type = $search_params['s_period_type'] ?? '';
