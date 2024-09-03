@@ -1129,7 +1129,7 @@ class MchnRaidReportController extends Controller
 SELECT mr.machineid
 	, sum(if(mro.sale_dir=1,1,0)*mro.itm_sum) as sale_sum
     , sum(if(mro.sale_dir=-1,1,0)*mro.itm_sum) as buy_sum
-    , 0 as salary_sum
+    , sum(mro.driver_sum) as salary_sum
     , 0 as fuel_sum
     , 0 as spare_sum
 	FROM mr_opers as mro
