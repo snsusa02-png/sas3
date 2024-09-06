@@ -483,7 +483,6 @@ class DriverWorkController extends Controller
     public
     function update(Request $request, $id)
     {
-
         $usrrights = $this->setInterfaceRight($id);
         if (!($usrrights['save']))
             return redirect()->back()->with('error', 'У вас нет права на изменение этих данных!');
@@ -759,11 +758,15 @@ class DriverWorkController extends Controller
             //$rec->mchnwrkhrs = $request->get('mchnwrkhrs');
 
             //Получим текущие данные от рейсов:
-            $raid_info = mchn_raid::where('dw_id', $rec->id)
-                ->selectRaw("sum(raid_qty) as qty, sum(raid_qty*raid_salary) as sum")->first();
-            //dd($raid_info);
-            $rec->raid_qty = $raid_info->qty;
-            $rec->raid_sum = $raid_info->sum;
+            if (!is_null($rec->id)) {
+                $raid_info = mchn_raid::where('dw_id', $rec->id)
+                    ->selectRaw("sum(raid_qty) as qty, sum(raid_qty*raid_salary) as sum")->first();
+                $rec->raid_qty = $raid_info->qty;
+                $rec->raid_sum = $raid_info->sum;
+            } else {
+                $rec->raid_qty = 0;
+                $rec->raid_sum = 0;
+            }
 
 //            $rec->pdt_hrs = $request->get('pdt_hrs');
 //            $rec->pdt_cost = $request->get('pdt_cost');
@@ -774,7 +777,6 @@ class DriverWorkController extends Controller
 //            $rec->repair_sum = $rec->repair_hrs * $rec->repair_cost;
 
             $rec->salary_sum = $rec->hrs_salary + $rec->raid_sum + $rec->breaks_sum;
-
 
             $rec->meter_begqty = $request->get('meter_begqty');
             $rec->meter_endqty = $request->get('meter_endqty');
@@ -865,7 +867,7 @@ class DriverWorkController extends Controller
                   and salary_sum>0
                 GROUP BY day_hr_rate, night_hr_rate) a";
             $rslt = DB::select(DB::raw($sql));
-            $notes = $rslt[0]->notes??'';
+            $notes = $rslt[0]->notes ?? '';
             //dd($sql, $notes);
 
 

@@ -14,7 +14,7 @@ $(document).ready(function () {
     });
 
 
-    if (1 == 0 && $(".ac_refitm_name").length > 0) {
+    if (1 == 1 && $(".ac_refitm_name").length > 0) {
 
         //Поиск контрагента
         $(".ac_refitm_name").autocomplete({

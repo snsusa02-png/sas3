@@ -25,13 +25,15 @@
                             <thead>
                             <tr>
                                 <td class="text-left">ФИО</td>
-                                <td></td>
+                                <td class="text-center small">Период</td>
                             </tr>
                             </thead>
                             <tbody>
                             @foreach($rec->ref_staff as $itm)
                                 <tr>
-                                    <td class="small text-left">{{$itm->name}}</td>
+                                    <td class="small text-left">{{$itm->name}}
+                                        <div class="float-right small">{{$itm->postname}} {{$itm->org_name}}</div>
+                                    </td>
                                     <td class="small text-left">{{date_create($itm->begdate)->format('d.m.Y')}}</td>
                                     <td class="text-right">
                                         <a href="{{ route('orgstaff.edit',$itm->id)}}?returl={{Request::url()}}"
