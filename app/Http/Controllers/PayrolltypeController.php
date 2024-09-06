@@ -228,9 +228,10 @@ class PayrolltypeController extends Controller
             // Список сотрудников, использующих данную схему начисления в данный момент
             $rec->ref_staff = orgstaff::from('orgstaff as os')
                 ->join('stf_payrolltypes as spr', 'spr.staffid', 'os.id')
+                ->join('orgs as o', 'o.id', 'os.orgid')
                 ->where('spr.payrolltypeid', $rec->id)
                 ->wherenull('spr.enddate')
-                ->select('os.id', 'os.name', 'spr.begdate')
+                ->select('os.id', 'os.name', 'spr.begdate', 'os.postname', 'o.name as org_name')
                 ->orderby('os.name')
                 ->get();
 
