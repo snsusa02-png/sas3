@@ -192,7 +192,7 @@ class SalaryRateSetController extends Controller
             //$payrolltypeid = $request->get('payrolltypeid');
             $rec = new $this->model([
                 "payrolltypeid" => $request->get('payrolltypeid'),
-                "ownorgid" => $request->get('ownorgid'),
+                //"ownorgid" => $request->get('ownorgid'),
                 "created_by" => $userid,
                 "created_at" => now(),
                 "updated_by" => $userid,
@@ -205,6 +205,7 @@ class SalaryRateSetController extends Controller
         }
 
         $rec->name = $request->get('name') ?? ' ';
+        $rec->ownorgid = $request->get('ownorgid');
         $rec->begdate = $request->get('begdate') ?? date_create()->format('Y-m-d');
         $rec->active = ($request->get('active') == 1) ? 1 : 0;
         $rec->updated_by = $userid;

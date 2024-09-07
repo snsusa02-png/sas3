@@ -31,7 +31,7 @@
                             <thead>
                             <tr>
                                 <td class="text-left">Период действия</td>
-                                <td></td>
+                                <td>Применяется</td>
                             </tr>
                             </thead>
                             <tbody>
@@ -46,6 +46,7 @@
                                 ?>
                                 <tr style="{{$tr_style}}">
                                     <td class="small text-left">{{$period}}</td>
+                                    <td>{{$itm->org_name??'- для всех -'}}</td>
                                     <td class="text-right">
                                         <a href="{{ route('salary_rate_sets.edit',$itm->id)}}"
                                            class="btn btn-sm btn-primary">

@@ -222,8 +222,13 @@ class PayrolltypeController extends Controller
 
         if ($id <> -1) {
 
-            $rec->rate_sets = salary_rate_set::where('payrolltypeid', $rec->id)
-                ->orderby('begdate', 'desc')->get();
+            $rec->rate_sets = salary_rate_set::from('salary_rate_sets as srs')
+                ->where('payrolltypeid', $rec->id)
+                ->leftjoin('orgs as o', function ($join) {
+                    $join->on('o.id', '=', 'srs.ownorgid');
+                })
+                ->select('srs.*', 'o.name as org_name')
+                ->orderby('srs.begdate', 'desc')->get();
 
             // Список сотрудников, использующих данную схему начисления в данный момент
             $rec->ref_staff = orgstaff::from('orgstaff as os')
