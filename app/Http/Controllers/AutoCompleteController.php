@@ -106,6 +106,7 @@ class AutoCompleteController extends Controller
 
             $search_str = $request->get("q");
             $flagtypeid = $request->get("flagid");
+            $aux_prm = $request->get("aux");
 
             $search_str = strtolower(preg_replace('[!|-|/| +]', ' ', $search_str));
             $search_str = preg_replace('| +|', ' ', $search_str);
@@ -156,6 +157,17 @@ class AutoCompleteController extends Controller
             if (isset($flagtypeid)) {
                 $search .= " and exists( select 1 from objflags ojf where ojf.sysobjid=121
                     and ojf.objid=os.id and ojf.flagtypeid={$flagtypeid})";
+            }
+
+            //2024-09-07 ограничение по доп параметрам
+            if (isset($aux_prm)) {
+                if ($aux_prm == 'hrs_salary'){
+                    // у сотрудника должна быть определена схема расчета ЗП от часов
+                    $search .= " and exists( select 1 from stf_payrolltypes as spt
+	                        join salary_rate_sets srs on srs.payrolltypeid=spt.payrolltypeid
+	                        join srs_hr_items hri on hri.srs_id=srs.id
+                            where spt.staffid=os.id)";
+                }
             }
 
             $list = orgstaff::from('orgstaff as os')

@@ -429,6 +429,7 @@ $(document).ready(function () {
                 dataType: "json",
                 data: {
                     q: request.term,
+                    aux:"hrs_salary"
                 },
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
