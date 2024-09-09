@@ -80,8 +80,8 @@
                                                  [
                                                  'id' => 'ownorgid',
                                                  'class' => 'form-control required',
-                                                 'placeholder' => '',
-                                                 'required' => '',
+                                                 'placeholder' => '- для всех -',
+                                                 'required0' => '',
                                                  ]) !!}
                                                 <a class="btn btn-light" id="ownorgid_lnk"
                                                    target="_blank">
