@@ -258,7 +258,7 @@ $action_url = route('reports.rep' . $thisObjId);
                                         class="small ml-2"> {{$itm->postname}}</span>
 
                                 <div class="float-right small">
-                                    "<b>{{$itm->wrktype_name}}</b>",
+                                    "{{$itm->payroltype_name}}, <b>{{$itm->wrktype_name}}</b>",
                                     Ставка день: <b>{{$day_hr_rate}}</b>,
                                     ночь: <b>{{$night_hr_rate}}</b>
                                 </div> </td>

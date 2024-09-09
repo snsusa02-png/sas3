@@ -120,9 +120,10 @@ class DriverWorkReportController extends Controller
             $s_yr_mn = $s_year . '-' . str_pad($s_month, 2,'0',STR_PAD_LEFT);
             $s_begdate = $s_yr_mn . '-01';
 
-            $sql = " select staffid, os.name as staff_name, os.lname as staff_lname, os.fname as staff_fname, os.mname as staff_mname
+            $sql = " select a.staffid, os.name as staff_name, os.lname as staff_lname, os.fname as staff_fname, os.mname as staff_mname
             , os.postname
             , wt.name as wrktype_name
+             , spt.payrolltypeid, pt.name as payroltype_name
             , (select count(distinct v.selected_date) as cnt from
                 (select adddate('{$s_begdate}', t1.i*10 + t0.i) selected_date from
                  (select 0 i union select 1 union select 2 union select 3 ) t1,
@@ -162,6 +163,8 @@ class DriverWorkReportController extends Controller
      ) as a
     join orgstaff as os on os.id=a.staffid
     join wrktypes as wt on wt.id=a.wrktypeid
+    left join stf_payrolltypes as spt on spt.staffid=a.staffid and '{$s_begdate}' between spt.begdate and ifnull( spt.enddate, '2024-09-01')
+    left join payrolltypes pt on pt.id=spt.payrolltypeid
     order by staff_name, wt.name";
  //dd($s_begdate, $s_yr_mn, $sql);
             $recs = DB::select(DB::raw($sql));
