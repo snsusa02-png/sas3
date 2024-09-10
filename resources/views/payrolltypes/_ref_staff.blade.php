@@ -32,7 +32,8 @@
                             @foreach($rec->ref_staff as $itm)
                                 <tr>
                                     <td class="small text-left">{{$itm->name}}
-                                        <div class="float-right small">{{$itm->postname}} {{$itm->org_name}}</div>
+                                        <div class="float-right small">{{$itm->postname}} {{$itm->org_name}}
+                                        , стаж: {{$itm->stf_stage}}</div>
                                     </td>
                                     <td class="small text-left">{{date_create($itm->begdate)->format('d.m.Y')}}</td>
                                     <td class="text-right">

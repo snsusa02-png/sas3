@@ -236,7 +236,8 @@ class PayrolltypeController extends Controller
                 ->join('orgs as o', 'o.id', 'os.orgid')
                 ->where('spr.payrolltypeid', $rec->id)
                 ->wherenull('spr.enddate')
-                ->select('os.id', 'os.name', 'spr.begdate', 'os.postname', 'o.name as org_name')
+                ->select('os.id', 'os.name', 'spr.begdate', 'os.postname', 'o.name as org_name'
+                , db::raw("round(TIMESTAMPDIFF(month, ifnull(os.begdate,CURRENT_DATE), CURRENT_DATE )/12,1) as stf_stage"))
                 ->orderby('os.name')
                 ->get();
 
