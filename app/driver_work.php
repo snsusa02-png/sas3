@@ -271,7 +271,7 @@ class driver_work extends Model
                 . " and srs.payrolltypeid = spt.payrolltypeid"
                 . " and i.wrktypeid={$wrktypeid}"
                 . " and '{$wrkdate}' between srs.begdate and ifnull(srs.enddate,'{$wrkdate}')"
-                . " and TIMESTAMPDIFF(year, ifnull(os.begdate,'{$wrkdate}'), '{$wrkdate}' ) between i.min_wrkexp and i.max_wrkexp-0.001";
+                . " and TIMESTAMPDIFF(month, ifnull(os.begdate,'{$wrkdate}'), '{$wrkdate}' )/12 between i.min_wrkexp and i.max_wrkexp-0.001";
 //            $rates = DB::select(DB::raw($sql));
 
             // сначала определим схему начисления ЗП, действующую на дату работы
@@ -290,7 +290,7 @@ class driver_work extends Model
                 ->where('srs.payrolltypeid', $payrolltypeid)
                 ->whereRaw('ifnull(srs.ownorgid,os.orgid)=os.orgid')
                 ->whereRaw("'{$wrkdate}' between srs.begdate and ifnull(srs.enddate,'{$wrkdate}')")
-                ->whereRaw("TIMESTAMPDIFF(year, ifnull(os.begdate,'{$wrkdate}'), '{$wrkdate}' ) between i.min_wrkexp and i.max_wrkexp-0.001")
+                ->whereRaw("TIMESTAMPDIFF(month, ifnull(os.begdate,'{$wrkdate}'), '{$wrkdate}' )/12 between i.min_wrkexp and i.max_wrkexp-0.001")
                 ->select('i.hr_day_rate', 'i.hr_night_rate')
                 ->get();
             //dd($rates);

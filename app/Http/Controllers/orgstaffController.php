@@ -273,7 +273,7 @@ class orgstaffController extends Controller
             $rec->orgdeps = orgdep::lstFor([
                 'orgid' => $rec->orgid,
                 //'with_post_vacancies' => 1,
-                'with_post_vacancies_staff' => $rec->id,
+                //'with_post_vacancies_staff' => $rec->id,
                 'active' => 1
             ]);
 

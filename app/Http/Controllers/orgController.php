@@ -103,8 +103,8 @@ class orgController extends Controller
             $usrrights['org_saldos.update'] = usrsysright::isUserHasRightByCode_cached($userid, 'org_saldos.update');
             $usrrights['org_acnts.read'] = usrsysright::isUserHasRightByCode_cached($userid, 'org_acnts.read');
             $usrrights['org_acnts.create'] = usrsysright::isUserHasRightByCode_cached($userid, 'org_acnts.create');
-            $usrrights['orgdeps.read'] = usrsysright::isUserHasRightByCode_cached($userid, 'org_acnts.read');
-            $usrrights['orgdeps.create'] = usrsysright::isUserHasRightByCode_cached($userid, 'org_acnts.create');
+            $usrrights['orgdeps.read'] = usrsysright::isUserHasRightByCode_cached($userid, 'orgdeps.read');
+            $usrrights['orgdeps.create'] = usrsysright::isUserHasRightByCode_cached($userid, 'orgdeps.create');
             $usrrights['link_tasks'] = usrsysright::isUserHasRightByCode_cached($userid, 'tasks.create');
         }
         return $usrrights;

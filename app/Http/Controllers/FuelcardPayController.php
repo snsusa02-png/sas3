@@ -593,7 +593,7 @@ class FuelcardPayController extends Controller
                 ->where('i.wrktypeid', $request->wrktypeid)
                 ->whereRaw('ifnull(srs.ownorgid,os.orgid)=os.orgid')
                 ->whereRaw("'{$request->wrkdate}' between srs.begdate and ifnull(srs.enddate,'{$request->wrkdate}')")
-                ->whereRaw("TIMESTAMPDIFF(year, ifnull(os.begdate,'{$request->wrkdate}'), '{$request->wrkdate}' ) between i.min_wrkexp and i.max_wrkexp-0.001")
+                ->whereRaw("TIMESTAMPDIFF(month, ifnull(os.begdate,'{$request->wrkdate}'), '{$request->wrkdate}' )/12 between i.min_wrkexp and i.max_wrkexp-0.001")
                 ->select('i.hr_day_rate', 'i.hr_night_rate')
                 ->first()->toArray();
             $list = $list + $rates;
@@ -607,7 +607,7 @@ class FuelcardPayController extends Controller
                 ->where('wt.main', 0)
                 ->whereRaw('ifnull(srs.ownorgid,os.orgid)=os.orgid')
                 ->whereRaw("'{$request->wrkdate}' between srs.begdate and ifnull(srs.enddate,'{$request->wrkdate}')")
-                ->whereRaw("TIMESTAMPDIFF(year, ifnull(os.begdate,'{$request->wrkdate}'), '{$request->wrkdate}' ) between i.min_wrkexp and i.max_wrkexp-0.001")
+                ->whereRaw("TIMESTAMPDIFF(month, ifnull(os.begdate,'{$request->wrkdate}'), '{$request->wrkdate}' )/12 between i.min_wrkexp and i.max_wrkexp-0.001")
                 ->select('i.wrktypeid', 'i.hr_day_rate', 'i.hr_night_rate')
                 ->orderBy('wt.ordr')
                 ->get()->toArray();
