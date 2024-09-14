@@ -62,6 +62,14 @@
                                              'placeholder' => '-любой-',
                                              ]) !!}
                                     </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="s_ownorgid">Категория:</label>
+                                        {!! Form::select('s_itmtypeid', $data->itmtypes??[], $search_params['s_itmtypeid'] ?? '',
+                                             [
+                                             'class' => 'form-control small',
+                                             'placeholder' => '-любая-',
+                                             ]) !!}
+                                    </div>
 
                                     <div class="form-group col-md-3">
                                         <label for="s_itmname" class="">Товар:</label>
@@ -170,16 +178,12 @@
 
                         <thead>
                         <tr>
-                            <td>#</td>
-                            <td>Склад</td>
-                            <td>Отделение</td>
-                            <td>Владелец</td>
-                            <td>Наименование материала/товара</td>
+                            <td class="small">#</td>
+                            <td>Склад, Отделение, Владелец, Наименование материала/товара</td>
                             <td class="text-right">Наличие, ЕИ</td>
                             <td class="text-center">ЕИ</td>
                             <td class="text-right">Вес, кг</td>
                         </tr>
-
                         </thead>
 
                         <tbody>
@@ -196,6 +200,7 @@
                         $curWrhID = -1;
                         $curBoxID = -1;
                         $curOwnOrgID = -1;
+                        $curItmTypeID = -1;
                         ?>
                         @foreach($recs as $itm)
                             <?php
@@ -208,8 +213,16 @@
                             $tclass = ($itm->categoryid == 1) ? 'badge-success'
                                 : (($itm->categoryid == 2) ? 'badge-danger' : 'badge-warning');
                             ?>
+                            @if($itm->wrhid<>$curWrhID
+                                or $itm->boxid<>$curBoxID
+                                or $itm->ownorgid<>$curOwnOrgID
+                                or $itm->itmtypeid<>$curItmTypeID)
+                                <tr>
+                                    <td colspan="6"></td>
+                                </tr>
+                            @endif
                             @if($itm->wrhid<>$curWrhID)
-                                @if($curWrhID<>-1)
+                                @if(1==0 and $curWrhID<>-1)
                                     <tr>
                                         <td colspan="4" class="text-right">Итого:</td>
                                         <td class="text-right font-weight-bold">
@@ -218,9 +231,9 @@
                                         <td></td>
                                     </tr>
                                 @endif
-                                <tr>
-                                    <td colspan="11" class="font-italic "
-                                        style="background-color: #fdffd1">
+                                <tr style="background-color: #fdffd1">
+                                    <td></td>
+                                    <td colspan="5" class="font-italic">
                                         склад: <b>{{$itm->wrh_name}}</b>
                                     </td>
                                 </tr>
@@ -232,7 +245,7 @@
                             @endif
 
                             @if($itm->boxid<>$curBoxID)
-                                @if($curBoxID<>-1)
+                                @if(1==0 and $curBoxID<>-1)
                                     <tr>
                                         <td colspan="4" class="text-right">Итого:</td>
                                         <td class="text-right font-weight-bold">
@@ -243,7 +256,7 @@
                                 @endif
                                 <tr style="background-color: #c2f2f0">
                                     <td></td>
-                                    <td colspan="11" class="font-italic pl-1"
+                                    <td colspan="5" class="font-italic pl-2"
                                     >отделение: <b>{{$itm->box_name}}</b>
                                     </td>
                                 </tr>
@@ -254,7 +267,7 @@
                                 ?>
                             @endif
                             @if($itm->ownorgid<>$curOwnOrgID)
-                                @if($curOwnOrgID<>-1)
+                                @if(1==0 and $curOwnOrgID<>-1)
                                     <tr>
                                         <td colspan="4" class="text-right">Итого:</td>
                                         <td class="text-right font-weight-bold">
@@ -263,24 +276,47 @@
                                         <td></td>
                                     </tr>
                                 @endif
+
                                 <tr style="background-color: #efffce">
                                     <td></td>
-                                    <td colspan="11" class="font-italic pl-3"
-                                    >Владелец: <b>{{$itm->ownorg_name}}</b>
+                                    <td colspan="5" class="font-italic pl-3"
+                                    >владелец: <b>{{$itm->ownorg_name}}</b>
                                     </td>
                                 </tr>
                                 <?php
                                 $curOwnOrgID = $itm->ownorgid;
                                 $ownorgDocSum = 0;
+                                $curItmTypeID = -1;
+                                ?>
+                            @endif
+                            @if($itm->itmtypeid<>$curItmTypeID)
+                                @if(1==0 and $curItmTypeID<>-1)
+                                    <tr>
+                                        <td colspan="4" class="text-right">Итого:</td>
+                                        <td class="text-right font-weight-bold">
+                                            {{number_format($ItmTypeSum,2)}}
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                @endif
+                                <tr style="background-color: #ffebce">
+                                    <td></td>
+                                    <td colspan="5" class="font-italic pl-4"
+                                    >категория: <b>{{$itm->itmtype_name}}</b>
+                                    </td>
+                                </tr>
+                                <?php
+                                $curItmTypeID = $itm->itmtypeid;
+                                $ItmTypeSum = 0;
                                 ?>
                             @endif
 
                             <tr style="background-color: {{$tr_bg_col}}">
-                                <td class="small text-right" colspan="1">
+                                <td class="small text-right" >
                                     {{$loop->index + $rec0}} <a name="{{$itm->id}}"></a>
                                 </td>
 
-                                <td class="small text-left" colspan="3">
+                                <td class="small text-left" >
                                     <a href="{{route('refitems.edit',$itm->refitmid)}}" target="_blank">
                                         <b>{{$itm->ri_name}}</b>
                                     </a>
@@ -298,13 +334,13 @@
                                 </td>
                             </tr>
                             <?php
-                            $totDocSum += $itm->docsum;
-                            $ownorgDocSum += $itm->docsum;
+                            //                            $totDocSum += $itm->docsum;
+                            //                            $ownorgDocSum += $itm->docsum;
                             ?>
                         @endforeach
 
                         @if(1==0 and count($recs)>0)
-                            @if($curWrhID<>-1)
+                            @if(1==0 and $curWrhID<>-1)
                                 <tr>
                                     <td colspan="4" class="text-right">Итого:</td>
                                     <td class="text-right font-weight-bold">

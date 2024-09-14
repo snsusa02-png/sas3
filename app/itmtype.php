@@ -265,6 +265,11 @@ class itmtype extends Model
                             . " exists (select 1 from ri_sup_prices as rop join refitems as ri2 on ri2.id=rop.refitmid
                              where ri2.itmtypeid=it.id)";
 
+                    } elseif ($key == 'in_stock') {
+                        //использована с товарах на складах (товарный запас)
+                        $sc .= " and " . (($val == 0) ? "not" : "")
+                            . " exists (select 1 from refitems as ri where ri.itmtypeid=it.id
+                                    and exists(select 1 from wrh_stocks s where s.refitmid=ri.id and s.qty>0))";
                     }
                 }
 

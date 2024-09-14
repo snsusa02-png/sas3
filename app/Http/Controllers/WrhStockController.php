@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\buildobj;
+use App\itmtype;
 use App\objlog;
 use App\org;
 use App\report;
@@ -70,6 +71,7 @@ class WrhStockController extends Controller
         // - параметры поиска: массив из имени и значения по-умолчанию -----------------------------------------------
         $param_names = [
             's_wrhid' => ''
+            , 's_itmtypeid' => ''
             , 's_itmname' => ''
             , 's_ownorgid' => ''
         ];
@@ -89,6 +91,9 @@ class WrhStockController extends Controller
                 } elseif ($item == 's_boxid') {
                     $sc = $sc . " and ws.boxid = {$val}";
                     $conditions .= 'Отделение: ' . wrh_box::find($val)->name ?? '?';
+
+                } elseif ($item == 's_itmtypeid') {
+                    $sc = $sc . " and ri.itmtypeid = {$val}";
 
                 } elseif ($item == 's_itmname') {
                     $sc = $sc . " and ri.name like '%" . mb_strtoupper($val) . "%'";
@@ -148,6 +153,9 @@ class WrhStockController extends Controller
 
         //Владельцы
         $data->ownorgs = org::lstFor(['with_stocks' => 1]);
+
+        //Категории товаров
+        $data->itmtypes = itmtype::lstFor(['in_stock' => 1]);
 
 
         return view('reports.rep' . $report_id, compact('recs', 'data', 'search_params', 'usrrights'));
