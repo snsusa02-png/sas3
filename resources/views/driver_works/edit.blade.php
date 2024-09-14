@@ -108,7 +108,7 @@
                                     </div>
 
                                     <div class="form-group offset-md-0 col-md-5">
-                                        <label for="name" class="required">Тип работы:</label>
+                                        <label for="name" class="required">Режим работы:</label>
                                         @if ($usrrights['save'])
                                             {!! Form::select('wrktypeid', $rec->main_wrktypes??[], old('wrktypeid',$rec->wrktypeid),
                                              [
@@ -124,7 +124,7 @@
                                 </div>
 
                                 <div class="row">
-                                    <div class="form-group offset-md-0 col-md-9">
+                                    <div class="form-group offset-md-0 col-md-8">
                                         <label for="name" class="required">Спецтехника/Автомобиль:</label>
                                         @if ($usrrights['save'] and $usrrights['edit'])
                                             <div class="input-group mb-3 ">
@@ -141,6 +141,47 @@
                                         @else
                                             <div class="font-weight-bold">{{$rec->machine->name}}</div>
                                         @endif
+                                    </div>
+
+                                    <div class="offset-md-0 col-md-4">
+                                        <div class="form-group">
+                                            <label for="wrktype_notes">Описание режима работы:</label>
+                                            @if ($usrrights['save'] or $usrrights['change_status'])
+                                                <input type="text"
+                                                       class="form-control rounded-0 font-weight-bold"
+                                                       name="wrktype_notes"
+                                                       id="wrktype_notes"
+{{--                                                       placeholder="ковш, гидромолот и т.п."--}}
+                                                       value="{{old('wrktype_notes',$rec->wrktype_notes)}}">
+                                            @else
+                                                @if(!empty($rec->wrktype_notes))
+                                                    <div class="font-weight-bold">
+                                                        <div class="font-weight-bold">{{$rec->wrktype_notes??'-'}}</div>
+                                                    </div>
+                                                @endif
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="offset-md-8 col-md-4">
+                                        <div class="form-group">
+                                            <label for="wrkplacename">Место работы:</label>
+                                            @if ($usrrights['save'] or $usrrights['change_status'])
+                                                <input type="text"
+                                                       class="form-control rounded-0 font-weight-bold"
+                                                       name="wrkplacename"
+                                                       id="wrkplacename"
+                                                       value="{{old('wrkplacename',$rec->wrkplacename)}}">
+                                            @else
+                                                @if(!empty($rec->wrkplacename))
+                                                    <div class="font-weight-bold">
+                                                        <div class="font-weight-bold">{{$rec->wrkplacename??'-'}}</div>
+                                                    </div>
+                                                @endif
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
 
@@ -635,6 +676,7 @@
                                             @endif
                                         </div>
                                     </div>
+
                                 </div>
 
                                 <hr>

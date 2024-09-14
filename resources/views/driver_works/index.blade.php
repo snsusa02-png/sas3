@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('content')
     <?php
-    $thisTitle = "Учет работы водителей";
+    $thisTitle = "Учет рабочего времени";
     $thisSysObjCode = 'driver_works';
 
     $statuses = [
@@ -227,7 +227,14 @@
                                         </td>
                                         <td class="text-left small">
                                             {{$rec->machine_name}}
-                                            <div class="float-right">{{$rec->wrktype_name}}</div>
+                                            <div class="float-right">{{$rec->wrktype_name}}
+                                            @if(isset($rec->wrktype_notes))
+                                                ({{$rec->wrktype_notes}})
+                                            @endif
+                                                @if(isset($rec->wrkplacename))
+                                                    , место работ: {{$rec->wrkplacename}}
+                                                @endif
+                                            </div>
                                         </td>
                                         <td class="text-center">
                                             {{$rec->hrs_salary + $rec->raid_sum}}

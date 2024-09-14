@@ -166,7 +166,8 @@ class DriverWorkController extends Controller
             })
             ->whereraw($sc)
             ->select('dw.id as id', 'dw.wrkdate'
-                , 'dw.wrktypeid', 'wt.name as wrktype_name'
+                , 'dw.wrktypeid', 'wt.name as wrktype_name', 'dw.wrktype_notes'
+                , 'dw.wrkplacename'
                 , 'dw.active', 'dw.notes', 'dw.staffid'
                 , 'dw.hrs_salary', 'dw.breaks_sum'
                 , 'dw.raid_qty', 'dw.raid_sum'
@@ -695,6 +696,10 @@ class DriverWorkController extends Controller
 //            dd($cur_dt, $day_hrs, $night_hrs);
 
             $rec->wrktypeid = $request->get('wrktypeid');
+            $rec->wrktype_notes = $request->get('wrktype_notes');
+
+            $rec->wrkplaceid = $request->get('wrkplaceid');
+            $rec->wrkplacename = $request->get('wrkplacename');
 
             $rec->day_hr_rate = $request->get('day_hr_rate');
             $rec->night_hr_rate = $request->get('night_hr_rate');
