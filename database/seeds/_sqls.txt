@@ -4,6 +4,8 @@ ADD COLUMN `wrktype_notes` VARCHAR(45) NULL COMMENT 'Примечания к р�
 ADD COLUMN `wrkplaceid` BIGINT NULL AFTER `wrktype_notes`,
 ADD COLUMN `wrkplacename` VARCHAR(60) NULL COMMENT 'описание места работы' AFTER `wrkplaceid`;
 
+UPDATE `wrhdoctypes` SET `useprice` = '1' WHERE (`id` = '5');
+
 --2024-08-31 -------------
 INSERT INTO `reports` (`id`, `name`, `acsid`, `acs_rightid`, `public`, `active`) VALUES ('63', 'Начало работы сотрудников', '1', '1', '1', '1');
 

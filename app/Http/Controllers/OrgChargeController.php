@@ -541,12 +541,14 @@ class OrgChargeController extends Controller
         $param_names = [
             's_ym' => null,
             's_ownorgid' => null,
+            's_depname' => null,
             's_stf_name' => null,
         ];
         $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);
 
         $s_ym = $search_params['s_ym'];
         $s_ownorgid = $search_params['s_ownorgid'];
+        $s_depname = $search_params['s_depname'];
         $s_stf_name = $search_params['s_stf_name'];
 
         if ($s_ym <> '') {
@@ -569,6 +571,9 @@ class OrgChargeController extends Controller
 
             if (isset($s_ownorgid))
                 $sql .= " and os.orgid={$s_ownorgid}";
+
+            if (isset($s_depname))
+                $sql .= " and ucase(os.depname)='{$s_depname}'";
 
             if (isset($s_stf_name))
                 $sql .= " and concat(' ', os.lname, ' ', os.fname, ' ', os.mname) like '% {$s_stf_name}%'";
@@ -593,6 +598,9 @@ class OrgChargeController extends Controller
 
             if (isset($s_ownorgid))
                 $sql .= " and os.orgid={$s_ownorgid}";
+
+            if (isset($s_depname))
+                $sql .= " and ucase(os.depname)='{$s_depname}'";
 
             if (isset($s_stf_name))
                 $sql .= " and concat(' ', os.lname, ' ', os.fname, ' ', ifnull(os.mname,' ')) like '% {$s_stf_name}%'";
@@ -625,6 +633,26 @@ class OrgChargeController extends Controller
         //dd($data, $sql, $recs);
 
         $data->ownorgs = org::lstFor_cached(['in_stf_chrg_calcs' => 1]);
+
+//        $tarr = DB::select(DB::raw("SELECT distinct upper (os.depname) as dep_name
+//                    FROM stf_chrg_calcs as scc
+//                    join orgstaff os on os.id=scc.staffid
+//                    join orgs o on o.id=os.orgid
+//                    where os.depname is not null
+//                    and scc.docdate>='2024-01-01'
+//                    order by 1"));
+
+        $tarr = DB::select("SELECT distinct upper (os.depname) as depname
+                    FROM stf_chrg_calcs as scc
+                    join orgstaff os on os.id=scc.staffid
+                    join orgs o on o.id=os.orgid
+                    where trim(os.depname) <> ''
+                    -- and scc.docdate>='2024-01-01'
+                    order by 1");
+
+        //преобразуем индексированный массив в ассоциативный
+        $data->depnames = array_column($tarr, 'depname', 'depname');
+//        dd($tarr, $data->ownorgs, $data->depnames);
 
         //занесем в журнал
         objlog::log_info(855, $report_id, 'запрошен отчет;');
@@ -673,7 +701,7 @@ class OrgChargeController extends Controller
             $data->begdate = date_create($date)->format('Y-m-01');   //Первый день месяца
             $data->enddate = date_create($date)->format('Y-m-t');    //Последний день месяца
 
-            $sql = "SELECT scc.staffid, os.lname, os.fname, os.mname
+            $sql = "SELECT os.id as staffid, os.lname, os.fname, os.mname
                     , os.orgid, o.name as org_name
                     , upper (os.depname) as dep_name
                     , os.postname
@@ -681,11 +709,8 @@ class OrgChargeController extends Controller
                     , scc.charge_sum charge_sum
                     , scc.docdate
                     , scc.notes
-                    FROM stf_chrg_calcs as scc
-                    join orgstaff os on os.id=scc.staffid
+                    FROM orgstaff os
                     join orgs o on o.id=os.orgid
-                    join org_charges as oc 	on oc.id=scc.orgchargeid
-                    join chargetypes as ct on ct.id=oc.chargetypeid
                     where forbegdate <= '" . date_create($data->enddate)->format('Y-m-d') . "'"
                 . " and forEndDate >= '" . date_create($data->begdate)->format('Y-m-d') . "'";
 

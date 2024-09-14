@@ -80,8 +80,21 @@ $first_col_id = null;
                                                             !!}
                                         </div>
                                     @endif
+
                                     @if(1==1)
-                                        <div class="form-group col-md-3">
+                                        <div class="form-group col-md-2">
+                                            <label for="s_depname" class="">Подразделение:</label>
+                                            {!! Form::select('s_depname', $data->depnames, $search_params['s_depname'],
+                                                            [
+                                                            'class' => 'form-control',
+                                                            'placeholder' => '-все-',
+                                                            ])
+                                                            !!}
+                                        </div>
+                                    @endif
+
+                                    @if(1==1)
+                                        <div class="form-group col-md-2">
                                             <label for="s_ownorgid" class="">Сотрудник:</label>
                                             {!! Form::text('s_stf_name', $search_params['s_stf_name'],
                                                             [
@@ -241,7 +254,8 @@ $first_col_id = null;
                                 <tr class="text-left">
                                     <td colspan="{{3+$cols_count}}" class="small" style="background-color: #ecf6f9">
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        Подразделение: <b>{{(trim($rec->dep_name)=='')?'-не указано-':$rec->dep_name}}</b></td>
+                                        Подразделение:
+                                        <b>{{(trim($rec->dep_name)=='')?'-не указано-':$rec->dep_name}}</b></td>
                                 </tr>
                                 @php($cur_dep_name = $rec->dep_name)
                             @endif

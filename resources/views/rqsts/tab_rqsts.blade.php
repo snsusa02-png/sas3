@@ -57,7 +57,7 @@ $userid = \Auth::user()->id;
             [
                 'right' => 'driver_works.read',
                 'route' => 'driver_works.index',
-                'title' => 'Рабочее время водителей',
+                'title' => 'Рабочее время',
                 'sysobjid' => '1107',
             ],
             [
