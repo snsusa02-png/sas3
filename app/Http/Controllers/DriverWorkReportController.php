@@ -199,8 +199,10 @@ class DriverWorkReportController extends Controller
                  join driver_works dw1 on v.selected_date between date(dw1.wrkbegdt) and date(dw1.wrkenddt)
                  where 1=1
                     and dw1.staffid=a.staffid
-                    and date_format(dw1.wrkdate,'%Y-%m') = '{$s_yr_mn}'
-                    and date_format(v.selected_date, '%Y-%m')='{$s_yr_mn}'
+                    /*and date_format(dw1.wrkdate,'%Y-%m') = '{$s_yr_mn}'*/
+                    and dw1.wrkdate between '{$s_begdate}' and '{$s_enddate}'
+                    /*and date_format(v.selected_date, '%Y-%m')='{$s_yr_mn}'*/
+                    and v.selected_date between '{$s_begdate}' and '{$s_enddate}'
                    ) as wrkdays
                    , a.* from (
     SELECT dw.staffid, DATE_FORMAT(dw.wrkdate,'%Y-%m') as ym, dw.wrktypeid
