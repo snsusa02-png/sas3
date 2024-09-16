@@ -136,7 +136,8 @@ class WrhDocReportController extends Controller
 //                GROUP BY refitmid
 //                order by refitm_name";
 
-        $sql = "select a.ownorgid, oo.name as ownorg_name
+        $sql = "select a.* from("
+                . "select a.ownorgid, oo.name as ownorg_name
                 , a.refitmid, ri.name as refitm_name, ri.unit as refitm_unit
 	            , sum(a.pre_qty) as pre_qty
 	            , sum(a.pre_sum) as pre_sum
@@ -144,7 +145,8 @@ class WrhDocReportController extends Controller
 	            , sum(a.inp_sum) as inp_sum
 	            , sum(a.out_qty) as out_qty
 	            , sum(a.out_sum) as out_sum
-	            , sum((a.pre_qty + a.inp_qty - a.out_qty)*rp.price) as end_sum
+	            , sum(ifnull(a.pre_qty,0) + ifnull(a.inp_qty,0) - ifnull( a.out_qty,0)) as end_qty
+                , sum((ifnull(a.pre_qty,0) + ifnull(a.inp_qty,0) - ifnull( a.out_qty,0))*ifnull(rp.price,0)) as end_sum
                 from (
                     SELECT i.refitmid
                         , d.ownorgid
@@ -181,7 +183,9 @@ class WrhDocReportController extends Controller
 	                        WHERE '{$date}' between sp.begdate and if(sp.enddate is null,  '{$date}', sp.enddate)
                             group by refitmid, orgid) rp
 		            on rp.orgid=a.ownorgid and rp.refitmid=a.refitmid
-                GROUP BY a.refitmid, a.ownorgid
+                GROUP BY a.refitmid, a.ownorgid"
+            // не берем записи со всеми нулями в количествах
+            . ") a where a.pre_qty>0 or ifnull(a.inp_qty,0)>0 or ifnull(a.out_Qty,0)>0
                 order by ownorg_name, ownorgid, refitm_name ";
 
         $recs = DB::select(DB::raw($sql));
