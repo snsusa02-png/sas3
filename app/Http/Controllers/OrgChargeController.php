@@ -711,6 +711,9 @@ class OrgChargeController extends Controller
                     , scc.notes
                     FROM orgstaff os
                     join orgs o on o.id=os.orgid
+                    join stf_chrg_calcs scc on scc.staffid=os.id
+                    join org_charges as oc 	on oc.id=scc.orgchargeid
+                    join chargetypes as ct on ct.id=oc.chargetypeid
                     where forbegdate <= '" . date_create($data->enddate)->format('Y-m-d') . "'"
                 . " and forEndDate >= '" . date_create($data->begdate)->format('Y-m-d') . "'";
 
