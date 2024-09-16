@@ -90,29 +90,45 @@ $action_url = route('reports.rep' . $thisObjId);
 
                             @if(1==1)
                                 <div class="row">
+                                    @if(1==0)
+                                        <div class="form-group col-md-2 dpt_1" style="">
+                                            <label for="s_month" class="required">Месяц:</label>
+                                            {!! Form::select('s_month', $data->monthes??[], $search_params['s_month'],
+                                                            [
+                                                            'id' => 's_month',
+                                                            'class' => 'form-control',
+                                                            'placeholder' => '-укажите-',
+                                                            ])
+                                                            !!}
+                                        </div>
 
-                                    <div class="form-group col-md-2 dpt_1" style="">
-                                        <label for="s_month" class="required">Месяц:</label>
-                                        {!! Form::select('s_month', $data->monthes??[], $search_params['s_month'],
-                                                        [
-                                                        'id' => 's_month',
-                                                        'class' => 'form-control',
-                                                        'placeholder' => '-укажите-',
-                                                        ])
-                                                        !!}
-                                    </div>
+                                        <div class="form-group col-md-2 dpt_3 " style="">
+                                            <label for="s_year" class="required">Год:</label>
+                                            {!! Form::select('s_year', $data->years??[], $search_params['s_year'],
+                                                            [
+                                                            'id' => 's_year',
+                                                            'class' => 'form-control',
+                                                            'placeholder' => '-укажите-',
+                                                            ])
+                                                            !!}
+                                        </div>
+                                    @else
+                                        <div class="form-group col-md-2">
+                                            <label for="s_begdate" class="required">Начало периода:</label>
+                                            <input type="date" class="form-control text-center"
+                                                   name="s_begdate"
+                                                   value="{{$search_params['s_begdate']??''}}"
+                                                   required/>
+                                        </div>
 
-                                    <div class="form-group col-md-2 dpt_3 " style="">
-                                        <label for="s_year" class="required">Год:</label>
-                                        {!! Form::select('s_year', $data->years??[], $search_params['s_year'],
-                                                        [
-                                                        'id' => 's_year',
-                                                        'class' => 'form-control',
-                                                        'placeholder' => '-укажите-',
-                                                        ])
-                                                        !!}
-                                    </div>
-
+                                        <div class="form-group col-md-2">
+                                            <label for="s_begdate" class="required">Окончание периода:</label>
+                                            <input type="date" class="form-control text-center"
+                                                   name="s_enddate"
+                                                   value="{{$search_params['s_enddate']??''}}"
+                                                   required/>
+                                        </div>
+                                    @endif
                                     @if(1==0)
                                         <div class="form-group col-md-3">
                                             <label for="s_ownorgid" class="">Организация:</label>
@@ -257,14 +273,15 @@ $action_url = route('reports.rep' . $thisObjId);
                                        target="_blank">{{$itm->staff_name}}</a>, <span
                                         class="small ml-2"> {{$itm->postname}}</span>
 
-                                <div class="float-right small">
-                                    "{{$itm->payroltype_name}}, <b>{{$itm->wrktype_name}}</b>",
-                                    Ставка день: <b>{{$day_hr_rate}}</b>,
-                                    ночь: <b>{{$night_hr_rate}}</b>
-                                </div> </td>
+                                    <div class="float-right small">
+                                        "{{$itm->payroltype_name}}, <b>{{$itm->wrktype_name}}</b>",
+                                        Ставка день: <b>{{$day_hr_rate}}</b>,
+                                        ночь: <b>{{$night_hr_rate}}</b>
+                                    </div>
+                                </td>
                                 <td class="text-right">{{$itm->wrkdays}} </td>
                                 <td class="text-right">{{number_format($itm->day_wrkhrs,2)}}
-                                <br><small>{{number_format($itm->day_hr_sum,2)}}</small></td>
+                                    <br><small>{{number_format($itm->day_hr_sum,2)}}</small></td>
                                 <td class="text-right">{{number_format($itm->night_wrkhrs,2)}}
                                     <br><small>{{number_format($itm->night_hr_sum,2)}}</small></td>
                                 <td class="text-right">{{number_format($itm->brkhrs,2)}}
