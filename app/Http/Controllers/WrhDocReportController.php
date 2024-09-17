@@ -183,10 +183,12 @@ class WrhDocReportController extends Controller
 	                        WHERE '{$date}' between sp.begdate and if(sp.enddate is null,  '{$date}', sp.enddate)
                             group by refitmid, orgid) rp
 		            on rp.orgid=a.ownorgid and rp.refitmid=a.refitmid
-                GROUP BY a.refitmid, a.ownorgid"
+                GROUP BY a.refitmid, a.ownorgid ) a"
             // не берем записи со всеми нулями в количествах
-            . ") a where a.pre_qty>0 or ifnull(a.inp_qty,0)>0 or ifnull(a.out_Qty,0)>0
-                order by ownorg_name, ownorgid, refitm_name ";
+            //. " where a.pre_qty>0 or ifnull(a.inp_qty,0)>0 or ifnull(a.out_Qty,0)>0"
+            // берем записи только с приходом или расходом
+            . " where ifnull(a.inp_qty,0)>0 or ifnull(a.out_Qty,0)>0"
+            . " order by ownorg_name, ownorgid, refitm_name ";
 
         $recs = DB::select(DB::raw($sql));
 
