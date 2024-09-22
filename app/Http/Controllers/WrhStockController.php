@@ -111,31 +111,65 @@ class WrhStockController extends Controller
 
         if (1 == 1) {
 
-            $recs = wrh_stock::from('wrh_stocks as ws')
-                ->join('wrhs as w', 'w.id', 'ws.wrhid') //склад
-                ->join('wrh_boxes as wb', 'wb.id', 'ws.boxid') //отделение склада
-                ->join('orgs as oo', 'oo.id', 'ws.ownorgid') //Владелец товаров
-                ->join('refitems as ri', 'ri.id', 'ws.refitmid') //товар/материал
-                ->leftjoin('unittypes as ut', 'ut.id', 'ri.unittypeid') //ЕИ
-                ->leftjoin('itmtypes as it', 'it.id', 'ri.itmtypeid') //категория товара/материала
-                ->whereRaw($sc)
-                //->wherebetween('mr.fctbegdt', [$s_begdate . ' 00:00:00', $s_enddate . ' 23:59:59'])
-                ->select('ws.*', 'ri.name as ri_name', 'w.name as wrh_name', 'wb.name as box_name'
-                    , 'ut.name as unittype_name', 'ut.decimal_dgts'
-                    , 'ri.itmtypeid', 'it.name as itmtype_name', 'it.ordr as itmtype_ordr', 'ri.grossweight'
-                    , 'ws.ownorgid', 'oo.name as ownorg_name')
-                ->orderby('w.name')
-                ->orderby('w.id')
-                ->orderby('wb.name')
-                ->orderby('wb.id')
-                ->orderby('oo.name')
-                ->orderby('ws.ownorgid')
-                ->orderby('itmtype_ordr')
-                ->orderby('itmtype_name')
-                ->orderby('ri.itmtypeid')
-                ->orderby('ri.name')
-                ->get();
-            //dd($recs);
+            if (1 == 0) {
+                $recs = wrh_stock::from('wrh_stocks as ws')
+                    ->join('wrhs as w', 'w.id', 'ws.wrhid') //склад
+                    ->join('wrh_boxes as wb', 'wb.id', 'ws.boxid') //отделение склада
+                    ->join('orgs as oo', 'oo.id', 'ws.ownorgid') //Владелец товаров
+                    ->join('refitems as ri', 'ri.id', 'ws.refitmid') //товар/материал
+                    ->leftjoin('unittypes as ut', 'ut.id', 'ri.unittypeid') //ЕИ
+                    ->leftjoin('itmtypes as it', 'it.id', 'ri.itmtypeid') //категория товара/материала
+//                ->leftjoin('ri_sup_prices as rp', function ($join) {
+//                    $join->on('rp.refitmid', '=', 'ws.refitmid')
+//                        ->whereRaw("rp.orgid = ws.ownorgid")
+//                        ->whereRaw("curdate() between rp.begdate and if(rp.enddate is null,  curdate(), rp.enddate)")
+//                    ;
+//                })
+
+                    ->whereRaw($sc)
+                    //->wherebetween('mr.fctbegdt', [$s_begdate . ' 00:00:00', $s_enddate . ' 23:59:59'])
+                    ->select('ws.*', 'ri.name as ri_name', 'w.name as wrh_name', 'wb.name as box_name'
+                        , 'ut.name as unittype_name', 'ut.decimal_dgts'
+                        , 'ri.itmtypeid', 'it.name as itmtype_name', 'it.ordr as itmtype_ordr', 'ri.grossweight'
+                        , 'ws.ownorgid', 'oo.name as ownorg_name')
+                    ->orderby('w.name')
+                    ->orderby('w.id')
+                    ->orderby('wb.name')
+                    ->orderby('wb.id')
+                    ->orderby('oo.name')
+                    ->orderby('ws.ownorgid')
+                    ->orderby('itmtype_ordr')
+                    ->orderby('itmtype_name')
+                    ->orderby('ri.itmtypeid')
+                    ->orderby('ri.name')
+                    ->get();
+                //dd($recs);
+            } else {
+                //2024-09-22 Вариант с текущей ценой владельца товара - сырой вариант!
+                $sql = "select `ws`.*, `ri`.`name` as `ri_name`, `w`.`name` as `wrh_name`, `wb`.`name` as `box_name`, `ut`.`name` as `unittype_name`
+, `ut`.`decimal_dgts`, `ri`.`itmtypeid`, `it`.`name` as `itmtype_name`, `it`.`ordr` as `itmtype_ordr`, `ri`.`grossweight`
+, rp.price
+, `ws`.`ownorgid`, `oo`.`name` as `ownorg_name`
+from `wrh_stocks` as `ws`
+inner join `wrhs` as `w` on `w`.`id` = `ws`.`wrhid`
+inner join `wrh_boxes` as `wb` on `wb`.`id` = `ws`.`boxid`
+inner join `orgs` as `oo` on `oo`.`id` = `ws`.`ownorgid`
+inner join `refitems` as `ri` on `ri`.`id` = `ws`.`refitmid`
+left join `unittypes` as `ut` on `ut`.`id` = `ri`.`unittypeid`
+left join `itmtypes` as `it` on `it`.`id` = `ri`.`itmtypeid`
+left join (SELECT refitmid, orgid, max(price) as price
+	FROM `ri_sup_prices` sp
+	WHERE curdate() between sp.begdate and if(sp.enddate is null,  curdate(), sp.enddate)
+	group by refitmid, orgid) rp
+	on rp.orgid=ws.ownorgid and rp.refitmid=ws.refitmid
+where "
+                    . $sc
+                    . " order by `w`.`name` asc, `w`.`id` asc
+, `wb`.`name` asc, `wb`.`id` asc, `oo`.`name` asc, `ws`.`ownorgid` asc, `itmtype_ordr` asc, `itmtype_name` asc, `ri`.`itmtypeid` asc, `ri`.`name` asc";
+
+                $recs = DB::select(DB::raw($sql));
+                //dd($recs);
+            }
 
             //обновим счетчик использования отчета
             report::updUseCnt($report_id, $userid);

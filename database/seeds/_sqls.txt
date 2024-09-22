@@ -1,4 +1,9 @@
-﻿--2024-09-14 -------------
+﻿-- 2024-09-22 -------------
+INSERT INTO `opertypes` (`id`, `name`, `active`) VALUES ('10', 'Производство ЖБИ', '1');
+ALTER TABLE `stf_wrkhrs`
+    ADD COLUMN `opertypeid` BIGINT NULL COMMENT 'Тип деятельности' AFTER `mn`;
+
+--2024-09-14 -------------
 ALTER TABLE `driver_works`
 ADD COLUMN `wrktype_notes` VARCHAR(45) NULL COMMENT 'Примечания к режиму работы: прицеп, ковш, гидромолот, и т.п' AFTER `mchnwrkhrs`,
 ADD COLUMN `wrkplaceid` BIGINT NULL AFTER `wrktype_notes`,

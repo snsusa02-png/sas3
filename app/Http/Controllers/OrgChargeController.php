@@ -683,12 +683,16 @@ class OrgChargeController extends Controller
 
         $param_names = [
             's_ym' => null,
+            's_begdate' => date_create()->format('01-m-Y'),
+            's_enddate' => date_create()->format('d-m-Y'),
             's_ownorgid' => null,
             's_stf_name' => null,
         ];
         $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);
 
         $s_ym = $search_params['s_ym'];
+        $s_begdate = $search_params['s_begdate'];
+        $s_enddate = $search_params['s_enddate'];
         $s_ownorgid = $search_params['s_ownorgid'];
         $s_stf_name = $search_params['s_stf_name'];
 
@@ -716,6 +720,36 @@ class OrgChargeController extends Controller
                     join chargetypes as ct on ct.id=oc.chargetypeid
                     where forbegdate <= '" . date_create($data->enddate)->format('Y-m-d') . "'"
                 . " and forEndDate >= '" . date_create($data->begdate)->format('Y-m-d') . "'";
+
+            if (isset($s_ownorgid))
+                $sql .= " and os.orgid={$s_ownorgid}";
+
+            if (isset($s_stf_name))
+                $sql .= " and concat(' ', os.lname, ' ', os.fname, ' ', ifnull(os.mname, ' ')) like '% {$s_stf_name}%'";
+
+//            $sql .= " order by o.name, dep_name, os.lname, os.fname, os.id, ct.dir desc, ct.ordr, scc.docdate";
+            $sql .= " order by os.lname, os.fname, os.id, ct.dir desc, ct.ordr, scc.docdate";
+
+            $recs = DB::select(DB::raw($sql));
+
+        } elseif ($s_begdate <> '' and $s_enddate <> '') {
+            $data->begdate = date_create($s_begdate)->format('Y-m-d');   //Первый день месяца
+            $data->enddate = date_create($s_enddate)->format('Y-m-d');    //Последний день месяца
+            $sql = "SELECT os.id as staffid, os.lname, os.fname, os.mname
+                    , os.orgid, o.name as org_name
+                    , upper (os.depname) as dep_name
+                    , os.postname
+                    , ct.dir, oc.chargetypeid, ct.name as chargetype_name
+                    , scc.charge_sum charge_sum
+                    , scc.docdate
+                    , scc.notes
+                    FROM orgstaff os
+                    join orgs o on o.id=os.orgid
+                    join stf_chrg_calcs scc on scc.staffid=os.id
+                    join org_charges as oc 	on oc.id=scc.orgchargeid
+                    join chargetypes as ct on ct.id=oc.chargetypeid
+                    where scc.docdate between '"
+                . date_create($s_enddate)->format('Y-m-d') . "' and '" . date_create($s_begdate)->format('Y-m-d') . "'";
 
             if (isset($s_ownorgid))
                 $sql .= " and os.orgid={$s_ownorgid}";

@@ -182,7 +182,9 @@
                             <td>Склад, Отделение, Владелец, Наименование материала/товара</td>
                             <td class="text-right">Наличие, ЕИ</td>
                             <td class="text-center">ЕИ</td>
-                            <td class="text-right">Вес, кг</td>
+{{--                            <td class="text-right">Вес, кг</td>--}}
+                            <td class="text-right">Цена, руб</td>
+                            <td class="text-right">Сумма, руб</td>
                         </tr>
                         </thead>
 
@@ -210,15 +212,15 @@
                             $colshift = (isset($itm->enddate) and $itm->enddate < now()) ? 2 : 0;
                             $period_bg_col = $bgcols[$colshift + ($loop->index + $rec0) % 2];
 
-                            $tclass = ($itm->categoryid == 1) ? 'badge-success'
-                                : (($itm->categoryid == 2) ? 'badge-danger' : 'badge-warning');
+//                            $tclass = ($itm->categoryid == 1) ? 'badge-success'
+//                                : (($itm->categoryid == 2) ? 'badge-danger' : 'badge-warning');
                             ?>
                             @if($itm->wrhid<>$curWrhID
                                 or $itm->boxid<>$curBoxID
                                 or $itm->ownorgid<>$curOwnOrgID
                                 or $itm->itmtypeid<>$curItmTypeID)
                                 <tr>
-                                    <td colspan="6"></td>
+                                    <td colspan="7"></td>
                                 </tr>
                             @endif
                             @if($itm->wrhid<>$curWrhID)
@@ -233,7 +235,7 @@
                                 @endif
                                 <tr style="background-color: #fdffd1">
                                     <td></td>
-                                    <td colspan="5" class="font-italic">
+                                    <td colspan="6" class="font-italic">
                                         склад: <b>{{$itm->wrh_name}}</b>
                                     </td>
                                 </tr>
@@ -256,7 +258,7 @@
                                 @endif
                                 <tr style="background-color: #c2f2f0">
                                     <td></td>
-                                    <td colspan="5" class="font-italic pl-2"
+                                    <td colspan="6" class="font-italic pl-2"
                                     >отделение: <b>{{$itm->box_name}}</b>
                                     </td>
                                 </tr>
@@ -279,7 +281,7 @@
 
                                 <tr style="background-color: #efffce">
                                     <td></td>
-                                    <td colspan="5" class="font-italic pl-3"
+                                    <td colspan="6" class="font-italic pl-3"
                                     >владелец: <b>{{$itm->ownorg_name}}</b>
                                     </td>
                                 </tr>
@@ -301,7 +303,7 @@
                                 @endif
                                 <tr style="background-color: #ffebce">
                                     <td></td>
-                                    <td colspan="5" class="font-italic pl-4"
+                                    <td colspan="6" class="font-italic pl-4"
                                     >категория: <b>{{$itm->itmtype_name}}</b>
                                     </td>
                                 </tr>
@@ -327,8 +329,14 @@
                                 <td class="text-center small">
                                     {{$itm->unittype_name}}
                                 </td>
+{{--                                <td class="text-right small">--}}
+{{--                                    {{number_format($itm->qty*$itm->grossweight,1)}}--}}
+{{--                                </td>--}}
                                 <td class="text-right small">
-                                    {{number_format($itm->qty*$itm->grossweight,1)}}
+                                    {{number_format($itm->price,2)}}
+                                </td>
+                                <td class="text-right small">
+                                    {{number_format($itm->qty*$itm->price,2)}}
                                 </td>
                                 <td>
                                 </td>

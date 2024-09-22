@@ -57,17 +57,34 @@ $first_col_id = null;
 
                             @if(1==1)
                                 <div class="row">
+                                    @if(1==0)
+                                        <div class="form-group col-md-2 dpt_1" style="">
+                                            <label for="s_month" class="required">Год-Месяц:</label>
+                                            {!! Form::select('s_ym', $data->yms??[], $search_params['s_ym']??old('s_ym'),
+                                                            [
+                                                            'id' => 's_ym',
+                                                            'class' => 'form-control',
+                                                            'placeholder' => '-укажите-',
+                                                            ])
+                                                            !!}
+                                        </div>
+                                    @else
+                                        <div class="form-group col-md-2">
+                                            <label for="s_begdate" class="required">Начало периода:</label>
+                                            <input type="date" class="form-control text-center"
+                                                   name="s_begdate"
+                                                   value="{{$search_params['s_begdate']??''}}"
+                                                   required/>
+                                        </div>
 
-                                    <div class="form-group col-md-2 dpt_1" style="">
-                                        <label for="s_month" class="required">Год-Месяц:</label>
-                                        {!! Form::select('s_ym', $data->yms??[], $search_params['s_ym']??old('s_ym'),
-                                                        [
-                                                        'id' => 's_ym',
-                                                        'class' => 'form-control',
-                                                        'placeholder' => '-укажите-',
-                                                        ])
-                                                        !!}
-                                    </div>
+                                        <div class="form-group col-md-2">
+                                            <label for="s_begdate" class="required">Окончание периода:</label>
+                                            <input type="date" class="form-control text-center"
+                                                   name="s_enddate"
+                                                   value="{{$search_params['s_enddate']??''}}"
+                                                   required/>
+                                        </div>
+                                    @endif
 
                                     @if(1==1)
                                         <div class="form-group col-md-3">
@@ -241,7 +258,7 @@ $first_col_id = null;
                             ?>
                             <tr class="text-left {{$tr_class}}" style="{{$tstyle}}">
                                 <td colspan="2" class="text-left" data-npp="{{$npp}}">
-{{--                                    <span class="small">{{++$npp}}.</span>--}}
+                                    {{--                                    <span class="small">{{++$npp}}.</span>--}}
                                     <b>{{$rec->lname}} {{$rec->fname}} {{$rec->mname}}</b>,
                                     <div class="small"> должность: {{$rec->postname}},
                                         подразделение: {{$rec->dep_name??'-не указано-'}},

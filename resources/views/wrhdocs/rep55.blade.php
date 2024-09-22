@@ -149,7 +149,7 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
 
                         //$n_end_qty = $rec->pre_qty + $rec->inp_qty - $rec->out_qty;
                         $n_end_qty = (isset($rec->end_qty)) ? $rec->end_qty : 0;
-                        
+
                         //$n_end_sum = $rec->pre_sum + $rec->inp_sum - $rec->out_sum;
                         $n_end_sum = $rec->end_sum;
                         $end_qty = number_format($n_end_qty, 1);
