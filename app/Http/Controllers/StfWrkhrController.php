@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\mchn_spare_usage;
 use App\objlog;
+use App\opertype;
 use App\org;
 use App\org_charge;
 use App\orgstaff;
@@ -241,7 +242,12 @@ class StfWrkhrController extends Controller
         $rec->retURL = $retURL ?? route('stf_wrkhrs.index');
         //dd($rec->retURL );
 
-        return view($this->sysobjcode . '.edit', compact('rec', "usrrights"));
+        $data = new \stdClass();
+        $data->opertypes = opertype::lstFor_cached([
+            'active' => 1,
+        ], 5);
+
+        return view($this->sysobjcode . '.edit', compact('rec', "usrrights", 'data'));
     }
 
 
@@ -333,6 +339,7 @@ class StfWrkhrController extends Controller
         }
         $rec->staffid = $staffid;
         $rec->day_hr_cost = $request->get('day_hr_cost');
+        $rec->opertypeid = $request->get('opertypeid');
         $rec->notes = $request->get('notes');
 
         $rec->day_tot_sum = $rec->day_tot_hrs * $rec->day_hr_cost;

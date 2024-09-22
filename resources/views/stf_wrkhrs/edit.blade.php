@@ -207,7 +207,16 @@
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="form-group offset-md-6 col-md-6">
+                                        <div class="form-group offset-md-0 col-md-6">
+                                            <label for="name" class="">Тип деятельности:</label>
+                                            {!! Form::select('opertypeid', $data->opertypes??[]
+                                            , $rec->opertypeid,
+                                                 [
+                                                 'class' => 'form-control',
+                                                 'placeholder' => '',
+                                                 ]) !!}
+                                        </div>
+                                        <div class="form-group offset-md-0 col-md-6">
                                             <label for="name" class="">Примечание:</label>
                                             <input type="text" class="form-control" name="notes" maxlength="160"
                                                    value="{{ old('notes',$rec->notes) }}"/>
