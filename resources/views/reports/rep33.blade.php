@@ -202,7 +202,11 @@
                         $curWrhID = -1;
                         $curBoxID = -1;
                         $curOwnOrgID = -1;
+                        $curOwnOrgName = '';
+                        $curOwnOrgCnt = 0;
                         $curItmTypeID = -1;
+                        $curItmTypeName = '';
+                        $curItmTypeCnt = 0;
                         ?>
                         @foreach($recs as $itm)
                             <?php
@@ -243,6 +247,7 @@
                                 $curWrhID = $itm->wrhid;
                                 $wrhSum = 0;
                                 $curBoxID = -1;
+                                $curOwnOrgCnt = 0;
                                 ?>
                             @endif
 
@@ -266,12 +271,22 @@
                                 $curBoxID = $itm->boxid;
                                 $boxSum = 0;
                                 $curOwnOrgID = -1;
+                                $curOwnOrgCnt = 0;
                                 ?>
                             @endif
                             @if($itm->ownorgid<>$curOwnOrgID)
+                                @if(1==1 and $curItmTypeID<>-1 and $curItmTypeCnt>1)
+                                    <tr>
+                                        <td colspan="5" class="text-right">Итого по категории {{$curItmTypeName}}:</td>
+                                        <td class="text-right font-weight-bold">
+                                            {{number_format($ItmTypeSum,2)}}
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                @endif
                                 @if(1==1 and $curOwnOrgID<>-1)
                                     <tr>
-                                        <td colspan="5" class="text-right">Итого по владельцу:</td>
+                                        <td colspan="5" class="text-right">Итого по владельцу {{$curOwnOrgName}}:</td>
                                         <td class="text-right font-weight-bold">
                                             {{number_format($ownorgSum,2)}}
                                         </td>
@@ -287,14 +302,18 @@
                                 </tr>
                                 <?php
                                 $curOwnOrgID = $itm->ownorgid;
+                                $curOwnOrgName = '"' . $itm->ownorg_name . '"';
+                                $curOwnOrgCnt++;
                                 $ownorgSum = 0;
-                                $curItmTypeID = -2;
+                                $curItmTypeID = -1;
+                                $curItmTypeCnt = 0;
                                 ?>
                             @endif
+
                             @if($itm->itmtypeid<>$curItmTypeID)
-                                @if(1==0 and $curItmTypeID<>-1)
+                                @if(1==1 and $curItmTypeID<>-1)
                                     <tr>
-                                        <td colspan="5" class="text-right">Итого по категории:</td>
+                                        <td colspan="5" class="text-right">Итого по категории {{$curItmTypeName}}:</td>
                                         <td class="text-right font-weight-bold">
                                             {{number_format($ItmTypeSum,2)}}
                                         </td>
@@ -309,6 +328,8 @@
                                 </tr>
                                 <?php
                                 $curItmTypeID = $itm->itmtypeid;
+                                $curItmTypeName = '"' . $itm->itmtype_name . '"';
+                                $curItmTypeCnt++;
                                 $ItmTypeSum = 0;
                                 ?>
                             @endif
@@ -350,9 +371,9 @@
                         @endforeach
 
                         @if(1==1 and count($recs)>0)
-                            @if(1==0 and $curItmTypeID<>-1)
+                            @if(1==1 and $curItmTypeID<>-1)
                                 <tr>
-                                    <td colspan="5" class="text-right">Итого по категории:</td>
+                                    <td colspan="5" class="text-right">Итого по категории {{$curItmTypeName}}:</td>
                                     <td class="text-right font-weight-bold">
                                         {{number_format($ItmTypeSum,2)}}
                                     </td>
@@ -361,7 +382,7 @@
                             @endif
                             @if(1==1 and $curOwnOrgID<>-1)
                                 <tr>
-                                    <td colspan="5" class="text-right">Итого по владельцу:</td>
+                                    <td colspan="5" class="text-right">Итого по владельцу {{$curOwnOrgName}}:</td>
                                     <td class="text-right font-weight-bold">
                                         {{number_format($ownorgSum,2)}}
                                     </td>
