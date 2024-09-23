@@ -124,7 +124,6 @@
                                              'placeholder' => '-все-',
                                              'onchange' => 'form.submit()',
                                              ]) !!}
-
                                     </div>
                                 </td>
                                 <td>{!! Form::select('s_staffid', $data->staffs

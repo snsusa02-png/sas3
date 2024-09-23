@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\driver_work;
 use App\dw_break;
 use App\mchn_raid;
+use App\opertype;
 use App\org_charge;
 use App\orgstaff;
 use App\srs_hr_item;
@@ -285,6 +286,7 @@ class DriverWorkController extends Controller
                 $newData['repair_hrs'] = 0;
                 $newData['repair_sum'] = 0;
                 $newData['salary_sum'] = 0;
+                $newData['opertypeid'] = 1; //самосвальные перевозки
 
                 $rec = new driver_work($newData);
                 //---------------------------------------------------------
@@ -471,7 +473,13 @@ class DriverWorkController extends Controller
             }
         }
 
-        return view('driver_works.edit', compact('rec', "usrrights"));
+        //2024-09-23
+        $data = new \stdClass();
+        $data->opertypes = opertype::lstFor_cached([
+            'active' => 1,
+        ], 5);
+
+        return view('driver_works.edit', compact('rec', "usrrights", 'data'));
     }
 
     /**
@@ -500,6 +508,7 @@ class DriverWorkController extends Controller
                 'staffid.required' => 'Не указан работник',
                 'wrktypeid.required' => 'Укажите тип работ',
                 'wrkdate.required' => 'Укажите дату проведения работ',
+                'opertypeid.required' => 'Укажите тип деятельности',
                 'statusid.required' => 'Укажите статус готовности документа',
                 'meter_endqty.required' => 'Укажите показания спидометра на окончание работы',
                 'meter_endqty.gte' => 'Показания спидометра на окончание работы должны быть не менее чем на начало работы',
@@ -509,6 +518,7 @@ class DriverWorkController extends Controller
                 'machineid' => 'required',
                 'staffid' => 'required',
                 'wrktypeid' => 'required',
+                'opertypeid' => 'required',
                 'wrkdate' => 'required',
 //                'meter_begqty' => 'required|numeric',
 //                'meter_endqty' => 'required|numeric|gte:meter_begqty',
@@ -697,6 +707,7 @@ class DriverWorkController extends Controller
 
             $rec->wrktypeid = $request->get('wrktypeid');
             $rec->wrktype_notes = $request->get('wrktype_notes');
+            $rec->opertypeid = $request->get('opertypeid');
 
             $rec->wrkplaceid = $request->get('wrkplaceid');
             $rec->wrkplacename = $request->get('wrkplacename');

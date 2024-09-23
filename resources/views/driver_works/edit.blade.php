@@ -165,7 +165,16 @@
                                 </div>
 
                                 <div class="row">
-                                    <div class="offset-md-8 col-md-4">
+                                    <div class="form-group offset-md-0 col-md-6">
+                                        <label for="name" class="required">Тип деятельности:</label>
+                                        {!! Form::select('opertypeid', $data->opertypes??[]
+                                        , $rec->opertypeid,
+                                             [
+                                             'class' => 'form-control',
+                                             'placeholder' => '',
+                                             ]) !!}
+                                    </div>
+                                    <div class="offset-md-2 col-md-4">
                                         <div class="form-group">
                                             <label for="wrkplacename">Место работы:</label>
                                             @if ($usrrights['save'] or $usrrights['change_status'])

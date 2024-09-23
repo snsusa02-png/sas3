@@ -1,4 +1,8 @@
-﻿-- 2024-09-22 -------------
+﻿-- 2024-09-23 -------------
+ALTER TABLE `driver_works`
+    ADD COLUMN `opertypeid` BIGINT NULL COMMENT 'Вид деятельности' AFTER `wrktypeid`;
+
+-- 2024-09-22 -------------
 INSERT INTO `opertypes` (`id`, `name`, `active`) VALUES ('10', 'Производство ЖБИ', '1');
 ALTER TABLE `stf_wrkhrs`
     ADD COLUMN `opertypeid` BIGINT NULL COMMENT 'Тип деятельности' AFTER `mn`;
