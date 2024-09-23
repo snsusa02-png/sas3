@@ -182,7 +182,7 @@
                             <td>Склад, Отделение, Владелец, Наименование материала/товара</td>
                             <td class="text-right">Наличие, ЕИ</td>
                             <td class="text-center">ЕИ</td>
-{{--                            <td class="text-right">Вес, кг</td>--}}
+                            {{--                            <td class="text-right">Вес, кг</td>--}}
                             <td class="text-right">Цена, руб</td>
                             <td class="text-right">Сумма, руб</td>
                         </tr>
@@ -197,7 +197,7 @@
 
                         $rec0 = 1;
                         $totDocSum = 0;
-                        $ownorgDocSum = 0;
+                        $ownorgSum = 0;
                         $curOwnMark = "";
                         $curWrhID = -1;
                         $curBoxID = -1;
@@ -212,8 +212,8 @@
                             $colshift = (isset($itm->enddate) and $itm->enddate < now()) ? 2 : 0;
                             $period_bg_col = $bgcols[$colshift + ($loop->index + $rec0) % 2];
 
-//                            $tclass = ($itm->categoryid == 1) ? 'badge-success'
-//                                : (($itm->categoryid == 2) ? 'badge-danger' : 'badge-warning');
+                            //                            $tclass = ($itm->categoryid == 1) ? 'badge-success'
+                            //                                : (($itm->categoryid == 2) ? 'badge-danger' : 'badge-warning');
                             ?>
                             @if($itm->wrhid<>$curWrhID
                                 or $itm->boxid<>$curBoxID
@@ -228,7 +228,7 @@
                                     <tr>
                                         <td colspan="4" class="text-right">Итого:</td>
                                         <td class="text-right font-weight-bold">
-                                            {{number_format($ownorgDocSum,2)}}
+                                            {{number_format($wrhSum,2)}}
                                         </td>
                                         <td></td>
                                     </tr>
@@ -241,7 +241,7 @@
                                 </tr>
                                 <?php
                                 $curWrhID = $itm->wrhid;
-                                $ownorgDocSum = 0;
+                                $wrhSum = 0;
                                 $curBoxID = -1;
                                 ?>
                             @endif
@@ -251,7 +251,7 @@
                                     <tr>
                                         <td colspan="4" class="text-right">Итого:</td>
                                         <td class="text-right font-weight-bold">
-                                            {{number_format($ownorgDocSum,2)}}
+                                            {{number_format($boxSum,2)}}
                                         </td>
                                         <td></td>
                                     </tr>
@@ -264,16 +264,16 @@
                                 </tr>
                                 <?php
                                 $curBoxID = $itm->boxid;
-                                $ownorgDocSum = 0;
+                                $boxSum = 0;
                                 $curOwnOrgID = -1;
                                 ?>
                             @endif
                             @if($itm->ownorgid<>$curOwnOrgID)
-                                @if(1==0 and $curOwnOrgID<>-1)
+                                @if(1==1 and $curOwnOrgID<>-1)
                                     <tr>
-                                        <td colspan="4" class="text-right">Итого:</td>
+                                        <td colspan="5" class="text-right">Итого по владельцу:</td>
                                         <td class="text-right font-weight-bold">
-                                            {{number_format($ownorgDocSum,2)}}
+                                            {{number_format($ownorgSum,2)}}
                                         </td>
                                         <td></td>
                                     </tr>
@@ -287,14 +287,14 @@
                                 </tr>
                                 <?php
                                 $curOwnOrgID = $itm->ownorgid;
-                                $ownorgDocSum = 0;
-                                $curItmTypeID = -1;
+                                $ownorgSum = 0;
+                                $curItmTypeID = -2;
                                 ?>
                             @endif
                             @if($itm->itmtypeid<>$curItmTypeID)
                                 @if(1==0 and $curItmTypeID<>-1)
                                     <tr>
-                                        <td colspan="4" class="text-right">Итого:</td>
+                                        <td colspan="5" class="text-right">Итого по категории:</td>
                                         <td class="text-right font-weight-bold">
                                             {{number_format($ItmTypeSum,2)}}
                                         </td>
@@ -314,11 +314,11 @@
                             @endif
 
                             <tr style="background-color: {{$tr_bg_col}}">
-                                <td class="small text-right" >
+                                <td class="small text-right">
                                     {{$loop->index + $rec0}} <a name="{{$itm->id}}"></a>
                                 </td>
 
-                                <td class="small text-left" >
+                                <td class="small text-left">
                                     <a href="{{route('refitems.edit',$itm->refitmid)}}" target="_blank">
                                         <b>{{$itm->ri_name}}</b>
                                     </a>
@@ -329,9 +329,9 @@
                                 <td class="text-center small">
                                     {{$itm->unittype_name}}
                                 </td>
-{{--                                <td class="text-right small">--}}
-{{--                                    {{number_format($itm->qty*$itm->grossweight,1)}}--}}
-{{--                                </td>--}}
+                                {{--                                <td class="text-right small">--}}
+                                {{--                                    {{number_format($itm->qty*$itm->grossweight,1)}}--}}
+                                {{--                                </td>--}}
                                 <td class="text-right small">
                                     {{number_format($itm->price,2)}}
                                 </td>
@@ -342,23 +342,34 @@
                                 </td>
                             </tr>
                             <?php
-                            //                            $totDocSum += $itm->docsum;
-                            //                            $ownorgDocSum += $itm->docsum;
+                            $itmSum = $itm->qty * $itm->price;
+                            $totDocSum += $itmSum;
+                            $ownorgSum += $itmSum;
+                            $ItmTypeSum += $itmSum;
                             ?>
                         @endforeach
 
-                        @if(1==0 and count($recs)>0)
-                            @if(1==0 and $curWrhID<>-1)
+                        @if(1==1 and count($recs)>0)
+                            @if(1==0 and $curItmTypeID<>-1)
                                 <tr>
-                                    <td colspan="4" class="text-right">Итого:</td>
+                                    <td colspan="5" class="text-right">Итого по категории:</td>
                                     <td class="text-right font-weight-bold">
-                                        {{number_format($ownorgDocSum,2)}}
+                                        {{number_format($ItmTypeSum,2)}}
+                                    </td>
+                                    <td></td>
+                                </tr>
+                            @endif
+                            @if(1==1 and $curOwnOrgID<>-1)
+                                <tr>
+                                    <td colspan="5" class="text-right">Итого по владельцу:</td>
+                                    <td class="text-right font-weight-bold">
+                                        {{number_format($ownorgSum,2)}}
                                     </td>
                                     <td></td>
                                 </tr>
                             @endif
                             <tr>
-                                <td colspan="4" class="text-right">Всего:</td>
+                                <td colspan="5" class="text-right">Всего:</td>
                                 <td class="text-right font-weight-bold">
                                     {{number_format($totDocSum,2)}}
                                 </td>
