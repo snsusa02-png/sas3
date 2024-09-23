@@ -93,20 +93,20 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                         <td class="text-right small" style="width: 38px" rowspan="2">№п/п</td>
                         <td class="text-center" rowspan="2">Наименование продукции</td>
                         <td class="text-center b-r" rowspan="2">ЕИ</td>
-                        <td class="text-center b-r" colspan="2">Вх. остаток</td>
+                        <td class="text-center b-r" colspan="1">Вх. остаток</td>
                         <td class="text-center b-r" colspan="2">Приход</td>
                         <td class="text-center b-r" colspan="2">Расход</td>
                         <td class="text-center" colspan="2">Исх. остаток</td>
                     </tr>
                     <tr>
+                        <td class="text-center small" colspan="1">Кол-во, ЕИ</td>
+{{--                        <td class="text-center small b-r">Сумма, руб</td>--}}
                         <td class="text-center small">Кол-во, ЕИ</td>
-                        <td class="text-center small b-r">Сумма, руб</td>
+                        <td class="text-center small b-r">Сумма, руб<div class="small" style="color: darkgray">по док-там</div> </td>
                         <td class="text-center small">Кол-во, ЕИ</td>
-                        <td class="text-center small b-r">Сумма, руб</td>
+                        <td class="text-center small b-r">Сумма, руб<div class="small" style="color: darkgray">по док-там</div></td>
                         <td class="text-center small">Кол-во, ЕИ</td>
-                        <td class="text-center small b-r">Сумма, руб</td>
-                        <td class="text-center small">Кол-во, ЕИ</td>
-                        <td class="text-center small">Сумма, руб</td>
+                        <td class="text-center small">Сумма, руб<div class="small" style="color: darkgray">по прайслисту</div></td>
                     </tr>
                     </thead>
 
@@ -187,13 +187,13 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                                     {{$pre_qty}}
                                 @endif
                             </td>
-                            <td class="text-right small calced b-r" data-num="{{$n_pre_sum}}">
-                                @if(isset($ref_url))
-                                    <a href="{{$ref_url}}" target="_blank">{{$pre_sum}}</a>
-                                @else
-                                    {{$pre_sum}}
-                                @endif
-                            </td>
+{{--                            <td class="text-right small calced b-r" data-num="{{$n_pre_sum}}">--}}
+{{--                                @if(isset($ref_url))--}}
+{{--                                    <a href="{{$ref_url}}" target="_blank">{{$pre_sum}}</a>--}}
+{{--                                @else--}}
+{{--                                    {{$pre_sum}}--}}
+{{--                                @endif--}}
+{{--                            </td>--}}
 
                             <td class="text-right small calced" data-num="{{$n_inp_qty}}">
                                 @if(isset($ref_url))
@@ -245,9 +245,9 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                         $tdс_class = '';
                         ?>
                         <tr>
-                            <td colspan="4" class="text-right" data-npp="{{$npp++}}">Итого:</td>
-                            <td class="text-right font-weight-bold b-r {{$td_class}}">{{number_format($totPreSum,2)}}</td>
-                            <td></td>
+                            <td colspan="5" class="text-right" data-npp="{{$npp++}}">Итого:</td>
+{{--                            <td class="text-right font-weight-bold b-r {{$td_class}}">{{number_format($totPreSum,2)}}</td>--}}
+{{--                            <td></td>--}}
                             <td class="text-right font-weight-bold b-r {{$td_class}}">{{number_format($totInpSum,2)}}</td>
                             <td></td>
                             <td class="text-right font-weight-bold b-r {{$td_class}}">{{number_format($totOutSum,2)}}</td>
