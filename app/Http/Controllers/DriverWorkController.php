@@ -518,7 +518,7 @@ class DriverWorkController extends Controller
                 'machineid' => 'required',
                 'staffid' => 'required',
                 'wrktypeid' => 'required',
-                'opertypeid' => 'required',
+//                'opertypeid' => 'required',
                 'wrkdate' => 'required',
 //                'meter_begqty' => 'required|numeric',
 //                'meter_endqty' => 'required|numeric|gte:meter_begqty',
