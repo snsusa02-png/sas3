@@ -1,4 +1,7 @@
 ﻿-- 2024-09-23 -------------
+SELECT opertypeid FROM driver_works dw where dw.staffid=63 and dw.opertypeid is not null and dw.wrkdate<='2024-09-02' order by wrkdate desc limit 1
+
+-- 2024-09-23 -------------
 ALTER TABLE `driver_works`
     ADD COLUMN `opertypeid` BIGINT NULL COMMENT 'Вид деятельности' AFTER `wrktypeid`;
 

@@ -170,8 +170,9 @@
                                         {!! Form::select('opertypeid', $data->opertypes??[]
                                         , $rec->opertypeid,
                                              [
-                                             'class' => 'form-control',
+                                             'class' => 'form-control opertypeid',
                                              'placeholder' => '',
+                                             'id' => 'opertypeid',
                                              ]) !!}
                                     </div>
                                     <div class="offset-md-2 col-md-4">

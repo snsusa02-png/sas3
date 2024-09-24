@@ -453,7 +453,8 @@ $(document).ready(function () {
                             value: item.name,
                             id: item.id,
                             orgid: item.orgid,
-                            orgname: item.orgname
+                            orgname: item.orgname,
+                            opertypeid: item.opertypeid
                         }
                     }));
                 }
@@ -473,6 +474,10 @@ $(document).ready(function () {
                 staffid.val(ui.item.id);
                 var orgid = $(this).parent().find('.orgid');
                 orgid.val(ui.item.orgid);
+                // var opertypeid = $(this).parent().parent().find('.opertypeid');
+                // переделать на относительный поиск по классу?
+                var opertypeid = $('#opertypeid');
+                opertypeid.val(ui.item.opertypeid);
                 $(this).val(ui.item.label);
 
                 // $("#ac_orgid").hide().val("ok").removeClass("ac-fail");

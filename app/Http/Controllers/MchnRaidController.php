@@ -1097,6 +1097,10 @@ class MchnRaidController extends Controller
                 ->orderBy('wt.ordr')
                 ->get()->toArray();
             $list['break_rates'] = $break_rates;
+
+            //to-do: Приделать запрос!!!
+            //"(SELECT opertypeid FROM driver_works dw where dw.staffid=os.id and dw.opertypeid is not null order by wrkdate desc limit 1) as opertypeid")
+            //$list['opertypeid'] = 1;
             //dd($list);
 
             $result = array('data' => $list);
