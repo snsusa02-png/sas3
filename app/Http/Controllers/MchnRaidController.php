@@ -1098,9 +1098,15 @@ class MchnRaidController extends Controller
                 ->get()->toArray();
             $list['break_rates'] = $break_rates;
 
-            //to-do: Приделать запрос!!!
-            //"(SELECT opertypeid FROM driver_works dw where dw.staffid=os.id and dw.opertypeid is not null order by wrkdate desc limit 1) as opertypeid")
-            //$list['opertypeid'] = 1;
+            //2024-09-29
+            $rslt = DB::select(
+                "SELECT opertypeid FROM driver_works dw
+                        where dw.staffid={$request->driverid}
+                        and dw.opertypeid is not null
+                        and dw.wrkdate <= '{$request->wrkdate}'
+                        order by wrkdate desc limit 1");
+            //dd($rslt, $rslt[0]->opertypeid ?? null);
+            $list['opertypeid'] = $rslt[0]->opertypeid ?? null;
             //dd($list);
 
             $result = array('data' => $list);

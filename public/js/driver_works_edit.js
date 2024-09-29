@@ -364,17 +364,20 @@ $(document).ready(function () {
         //console.log('before raid_info_rfr--------------------------------')
         $.get("/api/mchn_raids/data_for_driver_works",
             {
+                // Входные параметры -------
                 machineid: $("#machineid").val()
                 , driverid: $("#staffid").val()
                 , wrkdate: $("#wrkdate").val()
                 , wrktypeid: $("#wrktypeid").val()
             },
             function (data) {
-                //console.log('get data raid_info_rfr--------------------------------')
-                //console.log(data);
+                console.log('get data raid_info_rfr--------------------------------')
+                console.log(data);
                 //console.log(data.data.raid_salary_sum);
+
                 $("#raid_qty").val(data.data.raid_qty);
                 $("#raid_sum").val(data.data.raid_salary_sum);
+                $("#opertypeid").val(data.data.opertypeid); //2024-09-29
                 $("#day_hr_rate").val(data.data.hr_day_rate);
                 $("#night_hr_rate").val(data.data.hr_night_rate);
 

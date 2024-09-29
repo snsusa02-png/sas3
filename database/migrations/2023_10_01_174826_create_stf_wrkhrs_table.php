@@ -24,6 +24,9 @@ class CreateStfWrkhrsTable extends Migration
             $table->date('forbegdate')->comment('начислено за период, начало');
             $table->date('forenddate')->comment('начислено за период, конец');
 
+            $table->biginteger('opertypeid')->unsigned()->nullable()->comment('Тип деятельности');
+		$table->foreign('opertypeid')->references('id')->on('opertypes');
+
             $table->string('day_hrs',100)->nullable()->comment('Список рабочих часов в дневное время');
             $table->string('night_hrs',100)->nullable()->comment('Список рабочих часов в ночное время');
 
