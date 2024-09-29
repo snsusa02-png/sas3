@@ -371,8 +371,8 @@ $(document).ready(function () {
                 , wrktypeid: $("#wrktypeid").val()
             },
             function (data) {
-                console.log('get data raid_info_rfr--------------------------------')
-                console.log(data);
+                // console.log('get data raid_info_rfr--------------------------------')
+                // console.log(data);
                 //console.log(data.data.raid_salary_sum);
 
                 $("#raid_qty").val(data.data.raid_qty);
@@ -457,7 +457,7 @@ $(document).ready(function () {
                             id: item.id,
                             orgid: item.orgid,
                             orgname: item.orgname,
-                            opertypeid: item.opertypeid
+                            // opertypeid: item.opertypeid
                         }
                     }));
                 }
@@ -479,8 +479,8 @@ $(document).ready(function () {
                 orgid.val(ui.item.orgid);
                 // var opertypeid = $(this).parent().parent().find('.opertypeid');
                 // переделать на относительный поиск по классу?
-                var opertypeid = $('#opertypeid');
-                opertypeid.val(ui.item.opertypeid);
+                // var opertypeid = $('#opertypeid');
+                // opertypeid.val(ui.item.opertypeid);
                 $(this).val(ui.item.label);
 
                 // $("#ac_orgid").hide().val("ok").removeClass("ac-fail");

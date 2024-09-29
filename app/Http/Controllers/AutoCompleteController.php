@@ -175,7 +175,7 @@ class AutoCompleteController extends Controller
                 ->select("os.id", DB::raw("concat(os.lname,' ', ifnull(os.fname,' '), ' ', ifnull(os.mname,' ')) as name")
                     , 'os.orgid', 'o.name as orgname'
                     , 'os.postname'
-                    , DB::raw("(SELECT opertypeid FROM driver_works dw where dw.staffid=os.id and dw.opertypeid is not null order by wrkdate desc limit 1) as opertypeid")
+                    //, DB::raw("(SELECT opertypeid FROM driver_works dw where dw.staffid=os.id and dw.opertypeid is not null order by wrkdate desc limit 1) as opertypeid")
                 )
                 ->where('os.active', 1)
                 ->whereRaw($search)
