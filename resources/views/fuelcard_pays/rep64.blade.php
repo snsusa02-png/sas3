@@ -6,7 +6,7 @@ $thisSysObjId = 855;    //reports
 $thisObjId = 64;
 //$retURL = route('admin') . '#nsi-rep';
 //$retURL = '/admin#nsi-rep';
-$retURL = route('mchn_raids.index');
+$retURL = route('reports.pub_index');
 
 $report = \App\report::find($thisObjId);
 
