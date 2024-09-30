@@ -1,4 +1,18 @@
-﻿-- 2024-09-23 -------------
+﻿-- 2024-09-30 -------------
+INSERT INTO `reports` (`id`, `name`, `acsid`, `acs_rightid`, `public`, `active`) VALUES ('64', 'Сводка по заправкам', '1', '659', '1', '1');
+
+
+SELECT fp.machineid, concat(m.name, ', ', m.regnum) as machine_name
+	, m.mchntypeid, mt.name as mchntype_name
+	, sum(paysum), sum(fuel_qty), count(DISTINCT paydate), min(paydate), max(paydate)
+FROM `fuelcard_pays` fp
+join machines m on m.id=fp.machineid
+join mchntypes as mt on mt.id=m.mchntypeid
+where fp.paydate between '2024-09-01' and '2024-09-30'
+group by fp.machineid
+order by mchntype_name, m.mchntypeid, machine_name
+
+-- 2024-09-23 -------------
 SELECT opertypeid FROM driver_works dw where dw.staffid=63 and dw.opertypeid is not null and dw.wrkdate<='2024-09-02' order by wrkdate desc limit 1
 
 -- 2024-09-23 -------------
