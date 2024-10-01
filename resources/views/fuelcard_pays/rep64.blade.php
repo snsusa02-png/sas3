@@ -247,6 +247,7 @@ $action_url = route('reports.rep' . $thisObjId);
                             <td class="text-left">№ Авто</td>
                             <td class="text-right">Объем топлива, л</td>
                             <td class="text-right">Сумма, &#8381;</td>
+                            <td class="text-right">Средняя цена, &#8381;/л</td>
                             <td class="text-right">Кол-во заправок</td>
                         </tr>
 
@@ -254,12 +255,14 @@ $action_url = route('reports.rep' . $thisObjId);
                         <tbody>
                         <?php
                         $npp = 0;
-                        $paySum = $fuelQty = 0;
+                        $paySum = $fuelQty = $payQty = 0;
                         ?>
                         @foreach($recs as $rec)
                             <?php
-                            $line_sum = $rec->sale_sum - $rec->buy_sum - $rec->fuel_sum - $rec->spare_sum - $rec->salary_sum;
-                            $td_class = ($line_sum < 0) ? 'text-danger' : (($line_sum > 0) ? 'text-success' : '');
+//                            $line_sum = $rec->sale_sum - $rec->buy_sum - $rec->fuel_sum - $rec->spare_sum - $rec->salary_sum;
+                            $price = round($rec->paysum/$rec->fuelqty, 2);
+                            $td_class = ( $price > $data->avgPrice) ? 'text-danger'
+                                : (($price < $data->avgPrice) ? 'text-success' : '');
                             ?>
 
                             {{--                            <tr class="text-left collapse show date_{{$tr_date}} multi-collapse">--}}
@@ -269,27 +272,31 @@ $action_url = route('reports.rep' . $thisObjId);
                                        class="text-decoration-none">{{$rec->machine_name}}</a>
                                     <div class="float-right small" >{{$rec->mchntype_name}}</div>
                                 </td>
-                                <td class="text-right">{{number_format($rec->fuel_qty,0)}}
+                                <td class="text-right">{{number_format($rec->fuelqty,0)}}
                                 <td class="text-right">{{number_format($rec->paysum,2)}}
-                                <td class="text-right small">{{number_format($rec->fuel_days,0)}}
+                                <td class="text-right small {{$td_class}}">{{number_format($rec->paysum/$rec->fuelqty,2)}}
+                                <td class="text-right small">{{number_format($rec->payqty,0)}}
                                 {{--({{$rec->min_paydate}} .. {{$rec->max_paydate}})--}}
                                 </td>
                             </tr>
                             <?php
                             $paySum += $rec->paysum;
-                            $fuelQty += $rec->fuel_qty;
+                            $fuelQty += $rec->fuelqty;
+                            $payQty += $rec->payqty;
                             ?>
                         @endforeach
 
                         @if(1==1)
 
                             <tr class="text-left" style="background-color: #dacf64">
-                                <td colspan="9" class="text-left pl-2"></td>
+                                <td colspan="5" class="text-left pl-2"></td>
                             </tr>
                             <tr>
                                 <td colspan="1" class="text-right">Всего:</td>
                                 <td class="text-right font-weight-bold">{{number_format($fuelQty,2)}}</td>
                                 <td class="text-right font-weight-bold">{{number_format($paySum,2)}}</td>
+                                <td class="text-right font-weight-bold small">{{number_format($paySum/$fuelQty,2)}}</td>
+                                <td class="text-right font-weight-bold small">{{number_format($payQty,0)}}</td>
                             </tr>
                         @endif
                         </tbody>

@@ -204,8 +204,8 @@ class FuelcardPayReportController extends Controller
                     , db::raw("concat(m.name, ', ', m.regnum) as machine_name")
                 , 'm.mchntypeid', 'mt.name as mchntype_name'
                     , db::raw("sum(fp.paysum) as paysum")
-                    , db::raw("sum(fp.fuel_qty) as fuel_qty")
-                    , db::raw("count(DISTINCT paydate) as fuel_days")
+                    , db::raw("sum(fp.fuel_qty) as fuelqty")
+                    , db::raw("count(DISTINCT paydate) as payqty")
                     , db::raw("min(paydate) as min_paydate")
                     , db::raw("max(paydate) as max_paydate")
                     )
@@ -244,9 +244,19 @@ class FuelcardPayReportController extends Controller
 //            'in_mr_opers' => 1,
 //            'not_flagtypeid' => 12,
 //        ]);
+
         $data->mchntypes = mchntype::lstFor_cached([
             'in_fuelcard_pays' => 1,
         ]);
+
+        // расчет средней цены -------------
+        $paySum = $fuelQty = 0;
+        foreach($recs as $rec){
+            $paySum += $rec->paysum;
+            $fuelQty += $rec->fuelqty;
+        }
+        $data->avgPrice = round($paySum/$fuelQty, 2);
+
 
         $s_period_type = $search_params['s_period_type'] ?? '';
         $ownorgid = $search_params['s_ownorgid'] ?? '';
