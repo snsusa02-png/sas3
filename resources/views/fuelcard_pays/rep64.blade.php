@@ -249,6 +249,7 @@ $action_url = route('reports.rep' . $thisObjId);
                             <td class="text-right">Сумма, &#8381;</td>
                             <td class="text-right">Средняя цена, &#8381;/л</td>
                             <td class="text-right">Кол-во заправок</td>
+                            <td class="text-right">Средняя заправка, л</td>
                         </tr>
 
                         </thead>
@@ -276,6 +277,7 @@ $action_url = route('reports.rep' . $thisObjId);
                                 <td class="text-right">{{number_format($rec->paysum,2)}}
                                 <td class="text-right small {{$td_class}}">{{number_format($rec->paysum/$rec->fuelqty,2)}}
                                 <td class="text-right small">{{number_format($rec->payqty,0)}}
+                                <td class="text-right small">{{number_format($rec->fuelqty/$rec->payqty,0)}}
                                 {{--({{$rec->min_paydate}} .. {{$rec->max_paydate}})--}}
                                 </td>
                             </tr>
@@ -289,7 +291,7 @@ $action_url = route('reports.rep' . $thisObjId);
                         @if(1==1)
 
                             <tr class="text-left" style="background-color: #dacf64">
-                                <td colspan="5" class="text-left pl-2"></td>
+                                <td colspan="6" class="text-left pl-2"></td>
                             </tr>
                             <tr>
                                 <td colspan="1" class="text-right">Всего:</td>
