@@ -545,7 +545,7 @@ class WrhdocController extends Controller
 
         $auxinfo = wrhdoc::AuxInfo($id);
 
-        if (1==1 or $userid == 12)
+        if (1 == 1 or $userid == 12)
             $rec->finopers = obj_finoper::from('obj_finopers as fo')
                 ->join('orgs as s_o', 's_o.id', 'fo.srcorgid')
                 ->join('orgs as t_o', 't_o.id', 'fo.tgtorgid')
@@ -730,6 +730,8 @@ class WrhdocController extends Controller
     {
         $rec = wrhdoc::find($id);
         if ($rec) {
+
+
             $res = $rec->admindelete();
             $sd = array();
             if ($res->err == 1) {
@@ -791,7 +793,7 @@ class WrhdocController extends Controller
 
                 //$limit_stock = true; //todo: сделать преференцию "Не снижать запас ниже 0"
                 // Преференция для владельца товара: FlagTypeID = 190: Если есть, то можно снижать товарный запас < 0
-                $limit_stock = ! objflag::IsSetObjFlag(111,$rec->ownorgid, 190);
+                $limit_stock = !objflag::IsSetObjFlag(111, $rec->ownorgid, 190);
 
                 DB::beginTransaction();
 
@@ -1244,7 +1246,7 @@ class WrhdocController extends Controller
             ->first();
 
         // Если целевой документ уже утвержден, то выходим
-        if ( isset($doc) and $doc->docsigned == 1)
+        if (isset($doc) and $doc->docsigned == 1)
             return false;
 
         //Определим есть ли позиции с рецептами в составе исходного документа, и все ли рецепты утверждены
@@ -1276,17 +1278,30 @@ class WrhdocController extends Controller
                 $doc->save();
             }
             //dd('doc=',$doc);
+            $srcdoc->placeid = 231; // !!! ВРЕМЕННАЯ ЗАПЛАТКА !!! нужно придумать где взять placeid, или отказаться от placeid в ri_sup_prices!
 
             // Получим список необходимых материалов по максимальной оценке
             $items = wrhdoclst::from('wrhdoclst as dl')
                 ->join('ri_compounds as c', 'c.id', 'dl.cmpndid')
                 ->join('ri_cmpnd_items as ci', 'ci.cmpndid', 'c.id')
+                ->leftjoin('ri_sup_prices as sp', function ($j) use ($srcdoc) {
+                    $docdate = $srcdoc->docdate;
+                    //dd($srcdoc->ownorgid, $srcdoc->placeid);
+                    $j->on('sp.refitmid', '=', 'ci.refitmid')
+                        ->where('sp.orgid', $srcdoc->ownorgid)
+//                        ->where('sp.orgid', '=', 1757)
+                        ->where('sp.placeid', '=', $srcdoc->placeid)
+                        ->whereRaw("'{$docdate}' between sp.begdate and ifnull(sp.enddate, '{$docdate}')");
+                })
                 ->where('dl.docid', $srcdocid)
                 ->where('c.docsigned', 1)
-                ->select('ci.refitmid', db::raw("sum(ci.max_qty * dl.qty) as qty"))
+                ->select('ci.refitmid', db::raw("sum(ci.max_qty * dl.qty) as qty")
+//                    , db::raw("min(sp.price) as price"))
+                    , db::raw("max(ifnull(sp.price, 0)) as price"))
                 ->groupby('ci.refitmid')
+//                ->toSql();
                 ->get();
-            //dd($items);
+//            dd($items);
 
             //пометим текущие записи состава обновляемого документа через updated_by=0
             wrhdoclst::where('docid', $doc->id)->update(['updated_by' => 0]);
@@ -1301,9 +1316,11 @@ class WrhdocController extends Controller
                     ]);
                 }
                 $item->qty = $itm->qty;
+                $item->price = $itm->price;
                 $item->updated_at = now();
                 $item->updated_by = $userid;
                 $item->save();
+                //dd($item->price);
             }
             //удалим незатронутые записи (как лишние)
             wrhdoclst::where(['docid' => $doc->id, 'updated_by' => 0])->delete();
@@ -1331,7 +1348,8 @@ class WrhdocController extends Controller
         $userid = \Auth::user()->id;
         $sd = array();
 
-        if (usrsysright::isUserHasRightByCode($userid, 'admin-global')) {
+        //if (usrsysright::isUserHasRightByCode($userid, 'admin-global')) {
+        if (usrsysright::isUserHasRightByCode($userid, 'wrhdocs.sign')) {
             DB::unprepared('CALL recalc_stock()');
             objlog::log_info($this->sysobjid, 0, 'Произведен пересчет остатков на складах.', 4);
             $sd['success'] = 'Произведен пересчет остатков на складах';
