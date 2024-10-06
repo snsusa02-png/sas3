@@ -567,7 +567,8 @@ class OrgChargeController extends Controller
                     join org_charges as oc 	on oc.id=scc.orgchargeid
                     join chargetypes as ct on ct.id=oc.chargetypeid
                     where forbegdate <= '" . date_create($data->enddate)->format('Y-m-d') . "'"
-                . " and forEndDate >= '" . date_create($data->begdate)->format('Y-m-d') . "'";
+                . " and forEndDate >= '" . date_create($data->begdate)->format('Y-m-d') . "'"
+                . " and scc.charge_sum <> 0";
 
             if (isset($s_ownorgid))
                 $sql .= " and os.orgid={$s_ownorgid}";
