@@ -3,7 +3,8 @@
         <div class="card-header">
             <i class="fa fa-key text-success" aria-hidden="true"></i>
             Доступные категории информации
-            @if($usrrights['acs.admin']??false)
+{{--            @if($usrrights['acs.admin']??false)--}}
+            @if($usrrights['user_acs.create']??false)
                 <a href="{{ route('user_acs.create',['userid'=>$rec->id,])}}"
                    class="btn btn-warning btn-sm" style="float: right">
                     <i class="fa fa-plus"></i>
