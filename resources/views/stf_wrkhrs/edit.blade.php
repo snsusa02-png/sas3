@@ -292,7 +292,7 @@
                                                             $d = $startOfCalendar->format('d');//
                                                             $html .= '<td class=""><div class="small">' . $startOfCalendar->format('j') . '</div>'
                                                                 . '<div class="float-right">'
-                                                                . '<input type="number" style="width:64px" class="day_hr form-control font-weight-bold text-right"
+                                                                . '<input type="number" style="width:70px" class="day_hr form-control font-weight-bold text-right"
                                                                    name="day_hr[]" min="0" max="24" step="0.5" value="' . old('day_hr', $rec->dhr[$d - 1] ?? 0) . '">'
 //                                                                . '<input type="text" style="width:48px" class="night_hr form-control font-weight-bold text-right"
 //                                                                   name="night_hr[]" min="0" max="24"  value="' . old('night_hr', $rec->nhr[$d - 1] ?? 0) . '">'
