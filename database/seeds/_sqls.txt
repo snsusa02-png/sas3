@@ -1,4 +1,9 @@
-﻿-- 2024-09-30 -------------
+﻿-- 2024-10-06 -------------
+ALTER TABLE `stf_wrkhrs`
+CHANGE COLUMN `day_hrs` `day_hrs` VARCHAR(125) CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_unicode_ci' NULL DEFAULT NULL COMMENT 'Список рабочих часов в дневное время' ,
+CHANGE COLUMN `night_hrs` `night_hrs` VARCHAR(125) CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_unicode_ci' NULL DEFAULT NULL COMMENT 'Список рабочих часов в ночное время' ;
+
+-- 2024-09-30 -------------
 -- добавление способа расчета ЗП для водителей, управлявших техникой типов 7,8
 insert into stf_payrolltypes (staffid, begdate, enddate, payrolltypeid, active)
 SELECT os.id as staffid
