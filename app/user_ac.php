@@ -31,6 +31,11 @@ class user_ac extends Model
         return $this->hasOne(user::class, 'id', 'userid');
     }
 
+    public function ac()
+    {
+        return $this->hasOne(ac::class, 'id', 'acsid');
+    }
+
     public function scopeActive($query)
     {
         return $query->where('active', 1);

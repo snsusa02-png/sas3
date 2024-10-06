@@ -24,6 +24,7 @@ class UserAcController extends Controller
         $this->sysobjid = 1502;
         $this->parsysobjid = 1501; //Acs
         $this->sysobjcode = 'user_acs';
+        $this->acl_sysobjcode = sysobj::acl_sysobjcode($this->sysobjcode);
     }
 
     protected function setInterfaceRight($id)
@@ -34,32 +35,28 @@ class UserAcController extends Controller
         $userid = \Auth::user()->id;
 
         //по acl указанного объекта
-        $acl_sysobjcode = sysobj::where('code', $this->sysobjcode)
-                ->select(db::raw("ifnull(acl_sysobjcode, code) as acl_sysobjcode"))
-                ->first()
-                ->acl_sysobjcode ?? $this->sysobjcode;
+//        $acl_sysobjcode = sysobj::where('code', $this->sysobjcode)
+//                ->select(db::raw("ifnull(acl_sysobjcode, code) as acl_sysobjcode"))
+//                ->first()
+//                ->acl_sysobjcode ?? $this->sysobjcode;
 
         $usrrights = array();
         $usrrights['acs.admin'] = usrsysright::isUserHasRightByCode_cached($userid, 'acs.admin');
 
-//        $usrrights['read'] = usrsysright::isUserHasRightByCode_cached($userid, $acl_sysobjcode . '.read');
-//        $usrrights['create'] = usrsysright::isUserHasRightByCode_cached($userid, $acl_sysobjcode . '.create');
-        $usrrights['read'] = $usrrights['acs.admin'];
-        $usrrights['create'] = $usrrights['acs.admin'];
-        $usrrights['save'] = false;
-        $usrrights['delete'] = false;
-        $usrrights['admindelete'] = false;
+        $usrrights['read'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.read');
+        $usrrights['create'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.create');
+//        $usrrights['read'] = $usrrights['acs.admin'];
+//        $usrrights['create'] = $usrrights['acs.admin'];
+        $usrrights['update'] =  usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.update');;
+        $usrrights['delete'] =  usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.delete');;
+        $usrrights['admindelete'] =  usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.admindelete');;
 
+        $usrrights['save'] = $usrrights['update'];
         if ($id == -1) {
             $usrrights['save'] = $usrrights['create'];
             $usrrights['delete'] = false;
-        } else {
-//            $usrrights['save'] = usrsysright::isUserHasRightByCode_cached($userid, $acl_sysobjcode . '.update');
-//            $usrrights['delete'] = usrsysright::isUserHasRightByCode_cached($userid, $acl_sysobjcode . '.delete');
-            $usrrights['save'] = $usrrights['acs.admin'];
-            $usrrights['delete'] = $usrrights['acs.admin'];
+            $usrrights['admindelete'] = false;
         }
-
 
         return $usrrights;
     }
@@ -89,6 +86,7 @@ class UserAcController extends Controller
         $userid = \Auth::user()->id;
 
         $usrrights = $this->setInterfaceRight($id);
+//        dd($usrrights);
 
         if ($id == -1) {
             if ($usrrights['create'] ?? false) {
@@ -174,9 +172,9 @@ class UserAcController extends Controller
 
         objlog::log_info($this->sysobjid, $rec->id, $mess, 5);
 
-        Cache::forget("user_{$usrid}_has_acs_{$rec->acsid}");
+        Cache::forget("user_{$rec->userid}_has_acs_{$rec->acsid}");
 
-        $retURL = $request->get('retURL') ?? route('orgs.edit', $rec->orgid) . '?#deps';
+        $retURL = $request->get('retURL') ?? route('users.edit', $rec->userid) . '?#user_acs';
 
         return redirect($retURL)->with('success', $mess);
 

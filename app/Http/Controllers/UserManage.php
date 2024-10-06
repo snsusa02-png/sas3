@@ -95,6 +95,7 @@ class UserManage extends Controller
             }
 
             $usrrights['acs.admin'] = usrsysright::isUserHasRightByCode($userid, 'acs.admin');
+            $usrrights['user_acs.create'] = usrsysright::isUserHasRightByCode($userid, 'user_acs.create');
         }
 
 

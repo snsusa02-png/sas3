@@ -1,4 +1,20 @@
 ﻿-- 2024-09-30 -------------
+-- добавление способа расчета ЗП для водителей, управлявших техникой типов 7,8
+insert into stf_payrolltypes (staffid, begdate, enddate, payrolltypeid, active)
+SELECT os.id as staffid
+	, (SELECT MIN(WRKDATE) FROM driver_works dw where dw.staffid=os.id) AS begdate
+    , NULL AS enddate
+    , 1 AS payrolltypeid
+    , 1 AS ACTIVE
+	FROM orgstaff os
+	WHERE exists( select 1 from `driver_works` dw
+                 join machines m on m.id=dw.machineid
+                 where dw.staffid=os.id and m.mchntypeid in (7,8))
+		and not exists(select 1 FROM stf_payrolltypes sp where sp.staffid=os.id)
+        order by os.id
+        limit 1000u
+
+-- 2024-09-30 -------------
 INSERT INTO `reports` (`id`, `name`, `acsid`, `acs_rightid`, `public`, `active`) VALUES ('64', 'Сводка по заправкам', '1', '659', '1', '1');
 
 
