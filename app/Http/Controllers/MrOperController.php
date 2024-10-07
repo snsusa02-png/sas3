@@ -342,8 +342,8 @@ class MrOperController extends Controller
             if (isset($orgcharge)) {
 
                 //Подсчитаем общую сумму ЗП сотрудника за весь месяц
-                $int_begdate = date_create($rec->wrkdate)->format('Y-m-01');
-                $int_enddate = date_create($rec->wrkdate)->format('Y-m-t');
+                $int_begdate = date_create($rec->mchn_raid->wrkdate)->format('Y-m-01');
+                $int_enddate = date_create($rec->mchn_raid->wrkdate)->format('Y-m-t');
                 $staffid = $rec->mchn_raid->driverid;
                 $salary_sum = mchn_raid::from('mchn_raids as mr')
                     ->join('mr_opers as mro', 'mro.mr_id', 'mr.id')
@@ -352,7 +352,7 @@ class MrOperController extends Controller
                     ->wherein('opertypeid',[3,4,9])
                     ->where('sale_dir',1)
                     ->sum('mro.driver_sum');
-
+//dd($rec->mchn_raid->wrkdate, $int_begdate, $int_enddate, $salary_sum);
                 // Так как привязываем совокупную запись, то берем "общий" идентификатор - "0"
                 $stfchrgcalc = stf_chrg_calc::where([
                     'staffid' => $staffid
