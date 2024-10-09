@@ -154,6 +154,17 @@ $action_url = route('reports.rep' . $thisObjId);
                                                             !!}
                                         </div>
                                     @endif
+                                    @if(1==1)
+                                        <div class="form-group col-md-3">
+                                            <label for="s_mchntypeid">Карта:</label>
+                                            {!! Form::select('s_fuelcardid', $data->fuelcards, $search_params['s_fuelcardid']??'',
+                                                            [
+                                                            'class' => 'form-control',
+                                                            'placeholder' => '-все-',
+                                                            ])
+                                                            !!}
+                                        </div>
+                                    @endif
 
                                 </div>
                             @endif

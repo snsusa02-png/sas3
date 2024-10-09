@@ -215,6 +215,23 @@ class fuelcard extends Model
             return null;
     }
 
+    static public function lstFor_cached($params, $cache_minutes = null)
+    {
+        //2021-12-04 SNS. кэшируемый результат списка
+
+        if (isset($params) and is_countable($params) and count($params) > 0) {
+
+            $hash = md5(serialize($params));
+
+            //Cache::forget('lstFor_' . self::$prefix . $hash);
+            return Cache::remember('lstFor_' . self::$prefix . $hash, now()->addMinutes($cache_minutes ?? 5)
+                , function () use ($params) {
+                    return self::lstFor($params);
+                });
+        } else
+            return null;
+    }
+
     static public function getFor($s_params, $fields = null, $sorts = null)
     {
         //2021-04-30 SNS. универсальный конструктор коллекции из записей fuelcards

@@ -1,4 +1,15 @@
-﻿-- 2024-10-06 -------------
+﻿-- 2024-10-07 -------------
+SELECT sum(mro.driver_sum) as driver_sum
+	-- mro.*
+	FROM `mr_opers` as mro
+	join mchn_raids as mr on mr.id=mro.mr_id
+     and mr.driverid=59	-- 510
+    -- and mr.driverid=73
+    and mr.wrkdate between '2024-09-01' and '2024-09-30'
+   -- where mro.id=168522
+   -- where ifnull(mro.driver_sum, 0) = 0
+   
+-- 2024-10-06 -------------
 ALTER TABLE `stf_wrkhrs`
 CHANGE COLUMN `day_hrs` `day_hrs` VARCHAR(125) CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_unicode_ci' NULL DEFAULT NULL COMMENT 'Список рабочих часов в дневное время' ,
 CHANGE COLUMN `night_hrs` `night_hrs` VARCHAR(125) CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_unicode_ci' NULL DEFAULT NULL COMMENT 'Список рабочих часов в ночное время' ;

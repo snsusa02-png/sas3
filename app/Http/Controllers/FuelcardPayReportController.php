@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\rep61Export;
+use App\fuelcard;
 use App\fuelcard_pay;
 use App\mchn_raid;
 use App\mchntype;
@@ -111,6 +112,7 @@ class FuelcardPayReportController extends Controller
             , 's_year' => $year
             , 's_orgid' => ''
             , 's_mchntypeid' => ''
+            , 's_fuelcardid' => ''
         ];
 
         $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);
@@ -176,6 +178,9 @@ class FuelcardPayReportController extends Controller
                 } elseif ($item == 's_mchntypeid') {
                     $sc = $sc . " and m.mchntypeid = {$val}";
 
+                } elseif ($item == 's_fuelcardid') {
+                    $sc = $sc . " and fp.cardid = {$val}";
+
                 } elseif ($item == 's_begdate') {
                     $sc = $sc . " and fp.paydate >= '{$val}'";
 
@@ -202,13 +207,13 @@ class FuelcardPayReportController extends Controller
                 ->join('mchntypes as mt', 'mt.id', 'm.mchntypeid')
                 ->select('fp.machineid'
                     , db::raw("concat(m.name, ', ', m.regnum) as machine_name")
-                , 'm.mchntypeid', 'mt.name as mchntype_name'
+                    , 'm.mchntypeid', 'mt.name as mchntype_name'
                     , db::raw("sum(fp.paysum) as paysum")
                     , db::raw("sum(fp.fuel_qty) as fuelqty")
                     , db::raw("count(DISTINCT paydate) as payqty")
                     , db::raw("min(paydate) as min_paydate")
                     , db::raw("max(paydate) as max_paydate")
-                    )
+                )
                 ->whereRaw($sc)
                 ->groupBy(['fp.machineid'])
                 ->orderby('mchntype_name', 'asc')
@@ -248,14 +253,21 @@ class FuelcardPayReportController extends Controller
         $data->mchntypes = mchntype::lstFor_cached([
             'in_fuelcard_pays' => 1,
         ]);
+        $data->fuelcards = fuelcard::lstFor_cached([
+            'in_fuelcard_pays' => 1,
+        ]);
+        $data->fuelcards = collect($data->fuelcards)->sortBy('name')->reverse()->toArray();
+        //dd($data->fuelcards);
 
-        // расчет средней цены -------------
-        $paySum = $fuelQty = 0;
-        foreach($recs as $rec){
-            $paySum += $rec->paysum;
-            $fuelQty += $rec->fuelqty;
+        // расчет средней цены --------------------
+        $paySum = $fuelQty = $data->avgPrice = 0;
+        if (isset($recs)) {
+            foreach ($recs as $rec) {
+                $paySum += $rec->paysum;
+                $fuelQty += $rec->fuelqty;
+            }
+            $data->avgPrice = ($fuelQty == 0) ? 0 : round($paySum / $fuelQty, 2);
         }
-        $data->avgPrice = round($paySum/$fuelQty, 2);
 
 
         $s_period_type = $search_params['s_period_type'] ?? '';
