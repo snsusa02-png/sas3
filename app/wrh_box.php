@@ -114,7 +114,8 @@ class wrh_box extends Model
 
             $lst = wrh_box::from('wrh_boxes as wb')
                 ->whereRaw($sc)
-                ->select('id', db::raw("concat(name,' / ',descript) as name") )
+//                ->select('id', db::raw("concat(name,' / ',descript) as name") )
+                ->select('id', 'name')
                 ->orderBy('name')
                 ->get()->pluck('name', 'id')->toArray();
             //dd($sc,$lst);

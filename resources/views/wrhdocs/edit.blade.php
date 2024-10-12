@@ -218,7 +218,8 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-6" id="box" style="display:none;">
+{{--                                    <div class="col-md-6" id="box" style="display:none;">--}}
+                                    <div class="col-md-3" id="box" style="display:block;">
                                         <div class="form-group">
                                             <label for="boxid"
                                                    id="box_label" class="required">{{'Отделение'}}
