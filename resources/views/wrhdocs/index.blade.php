@@ -31,7 +31,7 @@
                     <h4>{{$thisTitle}}</h4>
 
                     <div class="row mb-2">
-                        <div class="offset-md-6 col-md-6 ">
+                        <div class="offset-md-4 col-md-8 ">
                             <div class="subnav shift text-right">
                                 @if(isset($data->top_right_menu))
                                     <ul>

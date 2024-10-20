@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\obj_expense;
 use App\obj_finoper;
 use App\objflag;
 use App\objlog;
 use App\order;
 use App\orditem;
 use App\refitem;
+use App\sysobj_lockdate;
 use App\usrsysright;
 use App\org;
 use App\orgstaff;
@@ -118,6 +120,7 @@ class WrhdocController extends Controller
 
                 //проверим открытость периода
                 $doc_locked = wrhdoc::isLocked($docid);
+                //dd('doc_locked',$doc_locked);
                 if ($doc_locked) {
                     $usrrights['docunsign'] = false;
 
@@ -562,6 +565,21 @@ class WrhdocController extends Controller
                 ->get();
 
         //dd($rec->finopers);
+            $usrrights['obj_expenses.create'] = true;
+            $usrrights['obj_expenses.update'] = true;
+            $rec->expenses = obj_expense::from('obj_expenses as oe')
+                ->leftjoin('opertypes as ot', 'ot.id', 'oe.opertypeid')
+                ->leftjoin('expensetypes as et', 'et.id', 'oe.expensetypeid')
+                ->where('oe.sysobjid', $this->sysobjid)
+                ->where('oe.objid', $rec->id)
+                ->select('oe.*'
+                    , 'ot.name as opertype_name'
+                    , 'et.name as expensetype_name'
+                )
+                ->orderBy('oe.operdate')
+                ->get();
+
+        //dd($this->sysobjid, $rec->id, $rec->expenses);
 //        dd($usrrights);
 
         return view($this->sysobjcode . '.edit',
@@ -711,7 +729,7 @@ class WrhdocController extends Controller
     public
     function destroy($id)
     {
-        $res = wrhdoc::delete_by_id($id);
+        $res = wrhdoc::delete_by_id($id, $this->sysobjid );
         $route = "";
         $sd = array();
         if ($res->err == 1) {
@@ -740,6 +758,16 @@ class WrhdocController extends Controller
                 objlog::log_info($this->sysobjid, $id, $res->msg, 2);
 
             } else {
+                // 2024-10-20 To-do ! переделать как в wrhdoc::delete_by_id !!!
+                obj_finoper::from('obj_finopers as f')
+                    ->where('sysobjid', $this->sysobjid)
+                    ->whereRaw("not exists (select 1 from wrhdocs as d where d.id=f.objid)")
+                    ->delete();
+                //удалим записи из obj_expenses, для которых уже нет соответствующих записей в wrhdocs
+                obj_expense::from('obj_expenses as t')
+                    ->where('sysobjid', $this->sysobjid)
+                    ->whereRaw("not exists (select 1 from wrhdocs as d where d.id=t.objid)")
+                    ->delete();
 
                 $route = route($this->sysobjcode . '.index') . '?page=' . session('pageno');
                 $sd['success'] = 'Запись удалена административно';

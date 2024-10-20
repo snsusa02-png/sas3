@@ -1,4 +1,12 @@
-﻿-- 2024-10-07 -------------
+﻿-- 2024-10-18 -------------
+INSERT INTO `expensetypes` (`id`, `name`, `active`) VALUES ('1', 'электроэнергия', '1');
+INSERT INTO `expensetypes` (`id`, `name`, `active`) VALUES ('2', 'вода', '1');
+INSERT INTO `expensetypes` (`id`, `name`) VALUES ('3', 'отопление');
+INSERT INTO `expensetypes` (`id`, `name`) VALUES ('4', 'охрана');
+INSERT INTO `wexpensetypes` (`id`, `name`, `active`) VALUES ('5', 'транспорт', '1');
+
+
+-- 2024-10-07 -------------
 SELECT sum(mro.driver_sum) as driver_sum
 	-- mro.*
 	FROM `mr_opers` as mro
@@ -8,7 +16,7 @@ SELECT sum(mro.driver_sum) as driver_sum
     and mr.wrkdate between '2024-09-01' and '2024-09-30'
    -- where mro.id=168522
    -- where ifnull(mro.driver_sum, 0) = 0
-   
+
 -- 2024-10-06 -------------
 ALTER TABLE `stf_wrkhrs`
 CHANGE COLUMN `day_hrs` `day_hrs` VARCHAR(125) CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_unicode_ci' NULL DEFAULT NULL COMMENT 'Список рабочих часов в дневное время' ,

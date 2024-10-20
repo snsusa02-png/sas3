@@ -270,283 +270,289 @@
                                     </div>
 
                                 </div>
-
-                                <div class="row">
-                                    @php($t_nxtoffset = "offset-md-6")
-                                    {{--									@if($showPreDoc or isset($rec->predocid))--}}
-                                    <?php
-                                    $t_nxtoffset = "";
-                                    $t_style = "display:none;";
-                                    if ($showPreDoc) $t_style = "display:block;";
-                                    ?>
-                                    <div class="col-md-6" id="predoc" style="{{$t_style}}">
-                                        <div class="form-group">
-                                            <label for="predoc">Пред. документ:</label>
-                                            <p>
-                                                @if(isset($rec->predocid))
-                                                    <a href="{{route("wrhdocs.edit",$rec->predoc->id)}}">
-                                                        {{$rec->predoc->doctype->name}}
-                                                        <b>{{$rec->predoc->docnum}} {{$rec->predoc->docdate}}</b>
-                                                    </a>
-                                                    @if($rec->predoc->docsigned==1)
-                                                        &nbsp; (Утвержден)
-                                                    @endif
-                                                @endif
-                                            </p>
-                                        </div>
-                                    </div>
-                                    {{--									@endif--}}
-                                    @if(isset($rec->childdoc))
-                                        <div class="col-md-12" id="reldoc">
+                                    <div class="row">
+                                        @php($t_nxtoffset = "offset-md-6")
+                                        {{--									@if($showPreDoc or isset($rec->predocid))--}}
+                                        @if(1==0)
+                                        <?php
+                                        $t_nxtoffset = "";
+                                        $t_style = "display:none;";
+                                        if ($showPreDoc) $t_style = "display:block;";
+                                        ?>
+                                        <div class="col-md-6" id="predoc" style="{{$t_style}}">
                                             <div class="form-group">
-                                                <label for="childdoc">Связ. документ:</label>
+                                                <label for="predoc">1 Пред. документ:</label>
                                                 <p>
-                                                    <a href="{{route("wrhdocs.edit",$rec->childdoc->id)}}">
-                                                        {{$rec->childdoc->doctype->name}}
-                                                        <b>№ {{$rec->childdoc->docnum??'-'}}
-                                                            от {{date_create($rec->childdoc->docdate)->format('d.m.Y')}}</b>
-                                                    </a>
-                                                    @if($rec->childdoc->docsigned==1)
-                                                        &nbsp; (Утвержден)
+                                                    @if(isset($rec->predocid))
+                                                        <a href="{{route("wrhdocs.edit",$rec->predoc->id)}}">
+                                                            {{$rec->predoc->doctype->name}}
+                                                            <b>{{$rec->predoc->docnum}} {{$rec->predoc->docdate}}</b>
+                                                        </a>
+                                                        @if($rec->predoc->docsigned==1)
+                                                            &nbsp; (Утвержден)
+                                                        @endif
                                                     @endif
                                                 </p>
                                             </div>
                                         </div>
-                                    @endif
-                                    @if (isset($rec->predocid))
-                                        <div class="col-md-12">
-                                            <div class="form-group">
-                                                <label for="doctypeid">Пред. документ:</label>
-                                                <p>
-                                                    <a href="{{route($thisSysObjCode.'.edit', $rec->predocid)}}"><b>{{$rec->predoc->info}}</b></a>
-                                                    @if($rec->predoc->docsigned==1)
-                                                        &nbsp; (Утвержден)
-                                                    @endif
-                                                </p>
-                                            </div>
-                                        </div>
-                                    @endif
-                                </div>
+                                        @endif
 
-                                <div class="row">
-                                    <?php
-                                    $t_style = "display:none;";
-                                    if ($showSaleOrg) $t_style = "display:block;";
-                                    ?>
-
-                                    <div class="col-md-7" id="saleorg" class="" style="{{$t_style}}">
-                                        <label for="name" class="required"><span id="lbl_org">Продавец</span>:</label>
-                                        @if ($usrrights['safe_save']??false)
-                                            <div class="input-group mb-3 ">
-                                                <input type="text" name="saleorg_name" id="saleorg_name"
-                                                       class="ac_name ac_org_name form-control font-weight-bold"
-                                                       data-gk="{{$rec->saleorg_gk}}"
-                                                       value="{{old('saleorg_name',$rec->saleorg->info)}}">
-                                                <input type="text" class="form-control text-center small ac_status"
-                                                       title=""
-                                                       style="display: none; border: #d7f3e3; max-width: 30px" readonly>
-                                                <input type="hidden" name="saleorgid" class="ac_id" id="saleorgid"
-                                                       value="{{old('saleorgid',$rec->saleorgid)}}">
-                                                <a class="btn btn-light id_lnk" data-id="saleorgid" data-obj="orgs"
-                                                   target="_blank">
-                                                    <i class="fa fa-info text-info" aria-hidden="true"></i>
-                                                </a>
+                                        @if(isset($rec->childdoc))
+                                            <div class="col-md-12" id="reldoc">
+                                                <div class="form-group">
+                                                    <label for="childdoc">Связ. документ:</label>
+                                                    <p>
+                                                        <a href="{{route("wrhdocs.edit",$rec->childdoc->id)}}">
+                                                            {{$rec->childdoc->doctype->name}}
+                                                            <b>№ {{$rec->childdoc->docnum??'-'}}
+                                                                от {{date_create($rec->childdoc->docdate)->format('d.m.Y')}}</b>
+                                                        </a>
+                                                        @if($rec->childdoc->docsigned==1)
+                                                            &nbsp; (Утвержден)
+                                                        @endif
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div></div>
-                                        @else
-                                            <div class="font-weight-bold">{{$rec->saleorg->info}}</div>
+                                        @endif
+                                        @if (isset($rec->predocid))
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label for="doctypeid">Пред. документ:</label>
+                                                    <p>
+                                                        <a href="{{route($thisSysObjCode.'.edit', $rec->predocid)}}"><b>{{$rec->predoc->info}}</b></a>
+                                                        @if($rec->predoc->docsigned==1)
+                                                            &nbsp; (Утвержден)
+                                                        @endif
+                                                    </p>
+                                                </div>
+                                            </div>
                                         @endif
                                     </div>
-                                </div>
 
-                                <div class="row">
-                                    <?php
-                                    $t_style = "display:none;";
-                                    if ($showOrg) $t_style = "display:block;";
-                                    ?>
+                                    <div class="row">
+                                        <?php
+                                        $t_style = "display:none;";
+                                        if ($showSaleOrg) $t_style = "display:block;";
+                                        ?>
 
-                                    <div class="col-md-7" id="org" class="" style="{{$t_style}}">
-                                        <label for="name" class="required"><span id="lbl_org">Заказчик</span>:</label>
-                                        @if ($usrrights['safe_save']??false)
-                                            <div class="input-group mb-3 ">
-                                                <input type="text" name="org_name" id="org_name"
-                                                       class="ac_name ac_org_name form-control font-weight-bold"
-                                                       data-gk="{{$rec->org_gk}}"
-                                                       value="{{old('org_name',$rec->org->info)}}">
-                                                <input type="text" class="form-control text-center small ac_status"
-                                                       title=""
-                                                       style="display: none; border: #d7f3e3; max-width: 30px" readonly>
-                                                <input type="hidden" name="orgid" class="ac_id" id="orgid"
-                                                       value="{{old('orgid',$rec->orgid)}}">
-                                                <a class="btn btn-light id_lnk" data-id="orgid" data-obj="orgs"
-                                                   target="_blank">
-                                                    <i class="fa fa-info text-info" aria-hidden="true"></i>
-                                                </a>
-                                            </div>
-                                            <div></div>
-                                        @else
-                                            <div class="font-weight-bold">{{$rec->org->info}}</div>
-                                        @endif
-                                    </div>
-                                </div>
-
-                                @if (false)
-                                    {{--                                @if (isset($rec->order->id))--}}
-                                    <div class="form-group row">
-                                        <label class="col-md-2" for="ordid">Заказ:</label>
-                                        {{ Form::hidden('ordid', $rec->ordid) }}
-                                        <p class="col-md-10">
-                                            №<b>
-                                                <a href="{{route('orders.edit',$rec->ordid)}}">{{$rec->ordid}}</a></b>
-                                            клиент: <b>{{$rec->order->org->name}}</b>
-                                        </p>
-                                    </div>
-                                @endif
-                                @if ($showRespStaff)
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="respstaffid">Ответственный сотрудник:</label>
-                                            @if (!$isDocSigned)
-                                                {!! Form::select('respstaffid', $rec->respstafflst ,$rec->respstaffid, ['class' => 'form-control']) !!}
+                                        <div class="col-md-7" id="saleorg" class="" style="{{$t_style}}">
+                                            <label for="name" class="required"><span
+                                                    id="lbl_org">Продавец</span>:</label>
+                                            @if ($usrrights['safe_save']??false)
+                                                <div class="input-group mb-3 ">
+                                                    <input type="text" name="saleorg_name" id="saleorg_name"
+                                                           class="ac_name ac_org_name form-control font-weight-bold"
+                                                           data-gk="{{$rec->saleorg_gk}}"
+                                                           value="{{old('saleorg_name',$rec->saleorg->info)}}">
+                                                    <input type="text" class="form-control text-center small ac_status"
+                                                           title=""
+                                                           style="display: none; border: #d7f3e3; max-width: 30px"
+                                                           readonly>
+                                                    <input type="hidden" name="saleorgid" class="ac_id" id="saleorgid"
+                                                           value="{{old('saleorgid',$rec->saleorgid)}}">
+                                                    <a class="btn btn-light id_lnk" data-id="saleorgid" data-obj="orgs"
+                                                       target="_blank">
+                                                        <i class="fa fa-info text-info" aria-hidden="true"></i>
+                                                    </a>
+                                                </div>
+                                                <div></div>
                                             @else
-                                                {{ Form::hidden('respstaffid', $rec->respstaffid) }}
-                                                <p><b>{{$rec->respstaff->staff_fio()}}</b></p>
+                                                <div class="font-weight-bold">{{$rec->saleorg->info}}</div>
                                             @endif
                                         </div>
                                     </div>
-                                @endif
 
-                                <div class="form-group">
-                                    <label for="remarks">Примечания:</label>
+                                    <div class="row">
+                                        <?php
+                                        $t_style = "display:none;";
+                                        if ($showOrg) $t_style = "display:block;";
+                                        ?>
 
-                                    @if ($usrrights['safe_save'])
-                                        <textarea class="form-control rounded-0" name="remarks" id="descript"
-                                                  rows="2">{{$rec->remarks}}</textarea>
-                                    @else
-                                        {{ Form::hidden('remarks', $rec->remarks) }}
-                                        <p><b>{{$rec->remarks}}</b></p>
-                                    @endif
-                                </div>
-
-
-                                @if(false)
-                                    <div class="form-group row mandatory">
-                                        <label class="col-sm-4 form-control-label help">Язык</label>
-                                        <div class="col-sm-8">
-                                            <select class="form-control custom-select item-languageid"
-                                                    required="required" tabindex="1" name="item[locale.languageid]">
-                                                <option value="">
-                                                    Сделайте выбор
-                                                </option>
-
-                                                <option value="en">
-                                                    en
-                                                </option>
-                                                <option value="ru">
-                                                    ru
-                                                </option>
-                                                <option value="zh" selected="selected">
-                                                    zh
-                                                </option>
-                                            </select>
+                                        <div class="col-md-7" id="org" class="" style="{{$t_style}}">
+                                            <label for="name" class="required"><span
+                                                    id="lbl_org">Заказчик</span>:</label>
+                                            @if ($usrrights['safe_save']??false)
+                                                <div class="input-group mb-3 ">
+                                                    <input type="text" name="org_name" id="org_name"
+                                                           class="ac_name ac_org_name form-control font-weight-bold"
+                                                           data-gk="{{$rec->org_gk}}"
+                                                           value="{{old('org_name',$rec->org->info)}}">
+                                                    <input type="text" class="form-control text-center small ac_status"
+                                                           title=""
+                                                           style="display: none; border: #d7f3e3; max-width: 30px"
+                                                           readonly>
+                                                    <input type="hidden" name="orgid" class="ac_id" id="orgid"
+                                                           value="{{old('orgid',$rec->orgid)}}">
+                                                    <a class="btn btn-light id_lnk" data-id="orgid" data-obj="orgs"
+                                                       target="_blank">
+                                                        <i class="fa fa-info text-info" aria-hidden="true"></i>
+                                                    </a>
+                                                </div>
+                                                <div></div>
+                                            @else
+                                                <div class="font-weight-bold">{{$rec->org->info}}</div>
+                                            @endif
                                         </div>
-                                        <div class="col-sm-12 form-text text-muted help-text" style="display: block;">
-                                            Available language for the current site
-                                            {{env('APP_ENV')}}</div>
                                     </div>
-                                @endif
 
-                                <hr size="1">
-                                @if ($usrrights['save'] or $usrrights['safe_save'] or (!$isDocSigned and $showRespStaff))
+                                    @if (false)
+                                        {{--                                @if (isset($rec->order->id))--}}
+                                        <div class="form-group row">
+                                            <label class="col-md-2" for="ordid">Заказ:</label>
+                                            {{ Form::hidden('ordid', $rec->ordid) }}
+                                            <p class="col-md-10">
+                                                №<b>
+                                                    <a href="{{route('orders.edit',$rec->ordid)}}">{{$rec->ordid}}</a></b>
+                                                клиент: <b>{{$rec->order->org->name}}</b>
+                                            </p>
+                                        </div>
+                                    @endif
+                                    @if ($showRespStaff)
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="respstaffid">Ответственный сотрудник:</label>
+                                                @if (!$isDocSigned)
+                                                    {!! Form::select('respstaffid', $rec->respstafflst ,$rec->respstaffid, ['class' => 'form-control']) !!}
+                                                @else
+                                                    {{ Form::hidden('respstaffid', $rec->respstaffid) }}
+                                                    <p><b>{{$rec->respstaff->staff_fio()}}</b></p>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endif
 
-                                    <button type="submit" class="btn btn-success">
-                                        <i class="fa fa-floppy-o" aria-hidden="true"></i>
-                                        Сохранить
-                                    </button>
-                                @endif
-                                <?php
-                                if (isset($rec->ordid)) {
-                                    $route = route('orders.edit', $rec->ordid);
-                                    $refTitle = "Вернуться в заказ";
-                                } else {
-                                    $route = route('wrhdocs.index');
-                                    $refTitle = "Вернуться в список документов";
-                                }
-                                ?>
-                                <a class="btn btn-close btn-info" href="{{ $route }}" title="{{$refTitle}}">
-                                    <i class="fa fa-window-close-o" aria-hidden="true"></i>
-                                    Закрыть
-                                </a>
-                                @if ($usrrights['delete'])
-                                    <button type="submit"
-                                            class="btn btn-danger"
-                                            style="margin-left:24px"
-                                            formaction="{{ route('wrhdocs.delete', $rec->id)}}"
-                                            formmethod="post"
-                                            onclick="return confirm('Вы действительно хотите удалить запись?')"
-                                            title="Удалить"
-                                    >
-                                        <i class="fa fa-trash-o" aria-hidden="true"></i>
-                                    </button>
+                                    <div class="form-group">
+                                        <label for="remarks">Примечания:</label>
 
-                                @elseif($usrrights['admindelete'])
-                                    <button type="submit"
-                                            class="btn btn-danger btn-sm"
-                                            style="margin-left:24px; margin-right:8px;"
-                                            formaction="{{ route($thisSysObjCode.'.admindelete', $rec->id)}}"
-                                            formmethod="post"
-                                            onclick="return confirm('Документ будет удален административно - без учета ограничений!\n\nПродолжать?')"
-                                            title="Административно удалить документ"
-                                    >
-                                        <i class="fa fa-bomb" aria-hidden="true"></i>
-                                    </button>
-                                @endif
+                                        @if ($usrrights['safe_save'])
+                                            <textarea class="form-control rounded-0" name="remarks" id="descript"
+                                                      rows="2">{{$rec->remarks}}</textarea>
+                                        @else
+                                            {{ Form::hidden('remarks', $rec->remarks) }}
+                                            <p><b>{{$rec->remarks}}</b></p>
+                                        @endif
+                                    </div>
 
 
-                                @if ($usrrights['docsign'])
-                                    <button type="submit"
-                                            class="btn btn-warning hide_chngd"
-                                            style="margin-left:24px"
-                                            formaction="{{ route('wrhdocs.sign', $rec->id)}}"
-                                            formmethod="post"
-                                            onclick="return confirm('Вы действительно хотите утвердить и провести документ?')"
-                                            title="Утвердить документ"
-                                    >
-                                        <i class="fa fa-thumbs-up" aria-hidden="true"></i>
-                                        Утвердить
-                                    </button>
-                                @endif
-                                @if ($usrrights['docunsign'])
-                                    <button type="submit"
-                                            class="btn btn-danger"
-                                            style="margin-left:24px"
-                                            formaction="{{ route('wrhdocs.unsign', $rec->id)}}"
-                                            formmethod="post"
-                                            onclick="return confirm('Вы действительно хотите отменить проведение документа?')"
-                                            title="Отменить утверждение документа"
-                                    >
-                                        <i class="fa fa-thumbs-o-down" aria-hidden="true"></i>
-                                    </button>
-                                @endif
+                                    @if(false)
+                                        <div class="form-group row mandatory">
+                                            <label class="col-sm-4 form-control-label help">Язык</label>
+                                            <div class="col-sm-8">
+                                                <select class="form-control custom-select item-languageid"
+                                                        required="required" tabindex="1" name="item[locale.languageid]">
+                                                    <option value="">
+                                                        Сделайте выбор
+                                                    </option>
 
-                                @if ($rec->id<>-1)
-                                    <a class="btn btn-close btn-warning btn hide_chngd ml-3"
-                                       href="{{ route($thisSysObjCode .'.print', $rec->id) }}"
-                                       target="_blank" id="print_rqst"
-                                       title="Напечатать">
-                                        <i class="fa fa-print" aria-hidden="true"></i>
+                                                    <option value="en">
+                                                        en
+                                                    </option>
+                                                    <option value="ru">
+                                                        ru
+                                                    </option>
+                                                    <option value="zh" selected="selected">
+                                                        zh
+                                                    </option>
+                                                </select>
+                                            </div>
+                                            <div class="col-sm-12 form-text text-muted help-text"
+                                                 style="display: block;">
+                                                Available language for the current site
+                                                {{env('APP_ENV')}}</div>
+                                        </div>
+                                    @endif
+
+                                    <hr size="1">
+                                    @if ($usrrights['save'] or $usrrights['safe_save'] or (!$isDocSigned and $showRespStaff))
+
+                                        <button type="submit" class="btn btn-success">
+                                            <i class="fa fa-floppy-o" aria-hidden="true"></i>
+                                            Сохранить
+                                        </button>
+                                    @endif
+                                    <?php
+                                    if (isset($rec->ordid)) {
+                                        $route = route('orders.edit', $rec->ordid);
+                                        $refTitle = "Вернуться в заказ";
+                                    } else {
+                                        $route = route('wrhdocs.index');
+                                        $refTitle = "Вернуться в список документов";
+                                    }
+                                    ?>
+                                    <a class="btn btn-close btn-info" href="{{ $route }}" title="{{$refTitle}}">
+                                        <i class="fa fa-window-close-o" aria-hidden="true"></i>
+                                        Закрыть
                                     </a>
-                                @endif
-                                @if ($usrrights['make_doc5'])
-                                    <a class="btn btn-close btn-info btn hide_chngd ml-3"
-                                       href="{{ route($thisSysObjCode .'.make_doc5', $rec->id) }}"
-                                       {{--                                       target="_blank" id="act_raw_materials"--}}
-                                       title="Создать документ на списание материалов">
-                                        <i class="fa fa-cubes" aria-hidden="true"></i>
-                                    </a>
-                                @endif
+                                    @if ($usrrights['delete'])
+                                        <button type="submit"
+                                                class="btn btn-danger"
+                                                style="margin-left:24px"
+                                                formaction="{{ route('wrhdocs.delete', $rec->id)}}"
+                                                formmethod="post"
+                                                onclick="return confirm('Вы действительно хотите удалить запись?')"
+                                                title="Удалить"
+                                        >
+                                            <i class="fa fa-trash-o" aria-hidden="true"></i>
+                                        </button>
 
-                                @include('layouts._who_when')
+                                    @elseif($usrrights['admindelete'])
+                                        <button type="submit"
+                                                class="btn btn-danger btn-sm"
+                                                style="margin-left:24px; margin-right:8px;"
+                                                formaction="{{ route($thisSysObjCode.'.admindelete', $rec->id)}}"
+                                                formmethod="post"
+                                                onclick="return confirm('Документ будет удален административно - без учета ограничений!\n\nПродолжать?')"
+                                                title="Административно удалить документ"
+                                        >
+                                            <i class="fa fa-bomb" aria-hidden="true"></i>
+                                        </button>
+                                    @endif
+
+
+                                    @if ($usrrights['docsign'])
+                                        <button type="submit"
+                                                class="btn btn-warning hide_chngd"
+                                                style="margin-left:24px"
+                                                formaction="{{ route('wrhdocs.sign', $rec->id)}}"
+                                                formmethod="post"
+                                                onclick="return confirm('Вы действительно хотите утвердить и провести документ?')"
+                                                title="Утвердить документ"
+                                        >
+                                            <i class="fa fa-thumbs-up" aria-hidden="true"></i>
+                                            Утвердить
+                                        </button>
+                                    @endif
+                                    @if ($usrrights['docunsign'])
+                                        <button type="submit"
+                                                class="btn btn-danger"
+                                                style="margin-left:24px"
+                                                formaction="{{ route('wrhdocs.unsign', $rec->id)}}"
+                                                formmethod="post"
+                                                onclick="return confirm('Вы действительно хотите отменить проведение документа?')"
+                                                title="Отменить утверждение документа"
+                                        >
+                                            <i class="fa fa-thumbs-o-down" aria-hidden="true"></i>
+                                        </button>
+                                    @endif
+
+                                    @if ($rec->id<>-1)
+                                        <a class="btn btn-close btn-warning btn hide_chngd ml-3"
+                                           href="{{ route($thisSysObjCode .'.print', $rec->id) }}"
+                                           target="_blank" id="print_rqst"
+                                           title="Напечатать">
+                                            <i class="fa fa-print" aria-hidden="true"></i>
+                                        </a>
+                                    @endif
+                                    @if ($usrrights['make_doc5'])
+                                        <a class="btn btn-close btn-info btn hide_chngd ml-3"
+                                           href="{{ route($thisSysObjCode .'.make_doc5', $rec->id) }}"
+                                           {{--                                       target="_blank" id="act_raw_materials"--}}
+                                           title="Создать документ на списание материалов">
+                                            <i class="fa fa-cubes" aria-hidden="true"></i>
+                                        </a>
+                                    @endif
+
+                                    @include('layouts._who_when')
                             </form>
                         </div>
                     </div>
@@ -684,8 +690,9 @@
                     </div>
                 @endif
 
+                {{-- подвал --}}
                 @include('obj_finopers._finopers')
-
+                @include('obj_expenses._expenses')
             @endif
 
             <link href="{{ asset('css/jquery-ui.css') }}" rel="stylesheet">

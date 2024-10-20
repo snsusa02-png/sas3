@@ -118,6 +118,10 @@ class org extends Model
         return $this->hasMany(assoc_member::class, 'orgid', 'id');
     }
 
+    public function orgdeps()
+    {
+        return $this->hasMany(orgdep::class, 'orgid', 'id');
+    }
 
     public function scopeActive($query)
     {

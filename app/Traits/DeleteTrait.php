@@ -48,6 +48,8 @@ trait DeleteTrait
                         //удалим записи о тэгах
                         //удалим записи о сообщениях
                         //удалим записи о коментариях
+                        //удалим записи о фин.транзакциях
+                        //удалим записи о доп.затратах
 
                         foreach ([
                                      'App\objextid',
@@ -57,6 +59,7 @@ trait DeleteTrait
                                      'App\obj_reader',
                                      'App\obj_approval',
                                      'App\obj_finoper',
+                                     'App\obj_expenses',
                                  ] as $model) {
 
                             $model::where('sysobjid', $sysobjid)

@@ -142,6 +142,11 @@ class wrhdoc extends Model
         return $this->hasOne(User::class, 'id', 'updated_by');
     }
 
+    public function getOperdateAttribute()
+    {
+        return $this->docdate;
+    }
+
     public function getInfoAttribute()
     {
         $rslt = null;
@@ -1453,7 +1458,11 @@ class wrhdoc extends Model
                     ->where('sysobjid', self::$sysobjid)
                     ->whereRaw("not exists (select 1 from wrhdocs as d where d.id=f.objid)")
                     ->delete();
-
+                //удалим записи из obj_expenses, для которых уже нет соответствующих записей в wrhdocs
+                obj_expense::from('obj_expenses as t')
+                    ->where('sysobjid', self::$sysobjid)
+                    ->whereRaw("not exists (select 1 from wrhdocs as d where d.id=t.objid)")
+                    ->delete();
                 return parent::delete();
             });
         } catch (\Exception $e) {

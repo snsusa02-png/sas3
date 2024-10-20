@@ -344,10 +344,10 @@ Auth::routes();
 
 // Email related routes
 Route::get('mail/send', 'MailController@send');
-Route::get('sendbasicemail','MailController@basic_email');
-Route::get('sendhtmlemail','MailController@html_email');
-Route::get('sendattachmentemail','MailController@attachment_email');
-Route::get('send_checkrqst/{id}','MailController@email_checkrqst')->name('checkrqsts.send');
+Route::get('sendbasicemail', 'MailController@basic_email');
+Route::get('sendhtmlemail', 'MailController@html_email');
+Route::get('sendattachmentemail', 'MailController@attachment_email');
+Route::get('send_checkrqst/{id}', 'MailController@email_checkrqst')->name('checkrqsts.send');
 
 //Route::get('/api/calendar', 'MyCalendarController@index');
 
@@ -1440,3 +1440,46 @@ Route::get('user_acl_roles/create/{userid}/', "UserAclRoleController@create")->n
 Route::get('user_acl_roles/{id}/', 'UserAclRoleController@edit')->name('user_acl_roles.edit');
 Route::match(array('POST', 'PUT'), 'user_acl_roles/{id}', "UserAclRoleController@update")->name('user_acl_roles.update');
 Route::put('user_acl_roles/{id}/delete', "UserAclRoleController@destroy")->name("user_acl_roles.delete");
+
+// 2024-07-07 ---------------------------------
+Route::match(array('GET', 'POST'), '/orders', "orderController@index")->name('orders.index');
+Route::match(array('GET', 'POST'), '/orders/search/org/{orgid}', "orderController@searchfororg")
+    ->name("orders.for_org");
+Route::match(array('POST', 'PUT'), '/orders/{id}/copy', "orderController@copyOrder")->name('orders.copy');
+Route::get('orders/create', "orderController@create")->name('orders.create');
+Route::get('orders/{id}', 'orderController@edit')->name('orders.edit');
+Route::match(array('POST', 'PUT'), 'orders/{id}', "orderController@update")
+    ->name('orders.update');
+Route::put('orders/{id}/delete', "orderController@destroy")->name("orders.delete");
+Route::put('orders/{id}/admindelete', "orderController@admindelete")->name("orders.admindelete");
+Route::put('orders/take/{id}', 'orderController@take2work')->name('orders.take');
+Route::put('orders/break/{id}', 'orderController@breakwork')->name('orders.break');
+Route::put('orders/complete/{id}', 'orderController@SetComplete')->name('orders.complete');
+Route::put('orders/back2work/{id}', 'orderController@SetBack2Work')->name('orders.back2work');
+Route::get('orders/ord_evntlog/{orderid}', "orderController@ord_evntlog")->name('ord_evntlog.index');
+Route::get('orders/print/{orderid}', "orderController@OrdersPrint")->name('orders.print');
+Route::get('orders/pf_1/{orderid}', "orderController@PrintForm_1");
+Route::get('orders/pf_2/{orderid}', "orderController@PrintForm_2");
+
+Route::get('orders/crtwrhdoc3/{orderid}', "orderController@createWrhDoc3")->name('order.wrhdoc3.create');
+Route::get('orders/createfile/{orderid}', "orderController@createFile")->name('order.createfile');
+
+Route::put('orders/{id}/sign', "orderController@sign")->name("orders.sign");
+Route::put('orders/{id}/unsign', "orderController@unsign")->name("orders.unsign");
+
+//Позиции заказа
+Route::get('orditems/{ordid}/create', 'orditemController@create')->name('orditems.create');
+Route::get('orditems/{id}/edit', "orditemController@edit")->name('orditems.edit');
+Route::put('orditems/{id}/delete', "orditemController@destroy")->name("orditems.delete");
+
+Route::get('orditems/{ordid}/edtqty', 'orderController@edtOrdItemsQty')->name('orditems.edtqty');
+Route::post('orditems/edtqty/save', 'orderController@saveOrdItemsQty');
+
+Route::match(array('POST', 'PUT'), 'orditems/{id}', "orditemController@update")->name('orditems.update');
+
+// Затраты
+Route::get('/obj_expenses/create/{sysobjid}/{objid}', "ObjExpenseController@create")->name('obj_expenses.create');
+Route::get('/obj_expenses/{id}/edit', "ObjExpenseController@edit")->name('obj_expenses.edit');
+Route::match(array('POST', 'PUT'), 'obj_expenses/{id}', "ObjExpenseController@update")->name('obj_expenses.update');
+Route::put('/obj_expenses/{id}/delete', "ObjExpenseController@destroy")->name("obj_expenses.delete");
+//---------------------------------------------------------------------------------

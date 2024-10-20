@@ -38,7 +38,6 @@
                                                 &nbsp; (<b>Утвержден</b>)
                                             @endif
                                         </a>
-
                                     </td>
                                 </tr>
                             @endforeach
