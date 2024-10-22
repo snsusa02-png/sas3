@@ -59,7 +59,7 @@ trait DeleteTrait
                                      'App\obj_reader',
                                      'App\obj_approval',
                                      'App\obj_finoper',
-                                     'App\obj_expenses',
+                                     'App\obj_expense',
                                  ] as $model) {
 
                             $model::where('sysobjid', $sysobjid)
