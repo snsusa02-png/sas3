@@ -36,7 +36,9 @@
                             <thead>
                             <tr class="">
                                 <td>Уч. дата</td>
-                                <td class="text-left">Вид, описание затрат<div class="text-secondary float-right">Вид деятельности</div></td>
+                                <td class="text-left">Вид, описание затрат
+                                    <div class="text-secondary float-right">Вид деятельности</div>
+                                </td>
                                 <td class="text-right">Сумма, &#8381;</td>
                                 <td>
                                 </td>
@@ -46,9 +48,9 @@
                             @php($totSum = 0.00)
                             @foreach($rec->expenses as $itm)
                                 <?php
-                                    $sum_style = '';
-                                    if ($itm->active<>1)
-                                        $sum_style = 'background-color:#fef1db;';
+                                $sum_style = '';
+                                if ($itm->active <> 1)
+                                    $sum_style = 'background-color:#fef1db;';
                                 ?>
                                 <tr>
                                     <td style="text-align: center;"
@@ -69,13 +71,14 @@
                                         @endif</td>
                                 </tr>
                                 <?php
-                                    $totSum += $itm->active * $itm->expense_sum;
+                                $totSum += $itm->active * $itm->expense_sum;
                                 ?>
                             @endforeach
                             </tbody>
                             <tfoot>
                             <tr class="font-weight-bold">
-                                <td colspan="2" class="text-right">Всего:</td><td class="float-right text-right">{{number_format($totSum,2)}}</td>
+                                <td colspan="2" class="text-right">Всего:</td>
+                                <td class="float-right text-right">{{number_format($totSum,2)}}</td>
                             </tr>
                             </tfoot>
                         </table>
@@ -83,5 +86,18 @@
                 @endif
             </div>
         </div>
+        @if(isset($rec->tot_expense_sum) and $rec->tot_expense_sum <> 0)
+            <div class="offset-md-3 col-md-3">
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <i class="fa fa-money text-danger" aria-hidden="true"></i>
+                        Всего затрачено
+                    </div>
+                    <div class="card-body" id="_tot_expense_sum">
+                        <div class="text-center h3">{{number_format($rec->tot_expense_sum, 2)}}</div>
+                    </div>
+                </div>
+            </div>
+        @endif
     </div>
 @endif
