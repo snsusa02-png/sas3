@@ -520,9 +520,11 @@ class WrhdocController extends Controller
         $usrrights = $this->setInterfaceRight($id);
 
         if ($items->count() > 0) {
+            // уже есть состав - изменять или удалять "шапку" нельзя
             $usrrights['save'] = false;
             $usrrights['delete'] = false;
         } else {
+            // нет состава - нечего согласовывать/разсогласовывать
             $usrrights['docsign'] = false;
             $usrrights['docunsign'] = false;
         }
@@ -581,6 +583,13 @@ class WrhdocController extends Controller
 
         //dd($this->sysobjid, $rec->id, $rec->expenses);
 //        dd($usrrights);
+        // подсчитаем общие затраты: ------------------------------------
+        $rec->tot_expense_sum = 0;
+        foreach ($rec->items as $itm )
+            $rec->tot_expense_sum += $itm->qty*$itm->price;
+       foreach ($rec->expenses as $itm )
+            $rec->tot_expense_sum += $itm->expense_sum;
+//        dd($rec->tot_expense_sum);
 
         return view($this->sysobjcode . '.edit',
             compact('rec', 'items', 'auxinfo', 'usrrights'));
