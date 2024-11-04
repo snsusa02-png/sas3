@@ -2,38 +2,38 @@
 
 namespace App\Http\Controllers;
 
-use App\buildobj;
-use App\equiprqst_item;
-use App\eritm_offer;
-use App\eritm_supply;
-use App\Exports\InvoicesExport;
-use App\Exports\PayPlanExport;
-use App\Exports\rep53Export;
-use App\mchn_raid;
-use App\mr_oper;
-use App\obj_finoper;
-use App\org_saldo;
-use App\orgplnpay;
-use App\orgplnpay_item;
-use App\orgstaff;
-use App\pay_category;
-use App\paydoc;
+//use App\buildobj;
+//use App\equiprqst_item;
+//use App\eritm_offer;
+//use App\eritm_supply;
+//use App\Exports\InvoicesExport;
+//use App\Exports\PayPlanExport;
+//use App\Exports\rep53Export;
+//use App\mchn_raid;
+//use App\mr_oper;
+//use App\obj_finoper;
+//use App\org_saldo;
+//use App\orgplnpay;
+//use App\orgplnpay_item;
+//use App\orgstaff;
+//use App\pay_category;
+//use App\paydoc;
+//use App\task;
+//use App\prodplan_fact;
 use App\refitem;
-use App\task;
-use App\prodplan_fact;
 use App\report;
 use App\org;
-use App\group;
-use App\machine;
-use App\mchnrqsttype;
-use App\mchnrqst;
-use App\mchntype;
-use App\contract;
-use App\objflag;
+//use App\group;
+//use App\machine;
+//use App\mchnrqsttype;
+//use App\mchnrqst;
+//use App\mchntype;
+//use App\contract;
+//use App\objflag;
 use App\objlog;
 use App\Traits\SearchDataTrait;
-use App\User;
-use App\user_template;
+//use App\User;
+//use App\user_template;
 use App\usrsysright;
 use App\wrhdoc;
 use App\wrhdoclst;
@@ -137,7 +137,7 @@ class WrhDocReportController extends Controller
 //                order by refitm_name";
 
         $sql = "select a.* from("
-                . "select a.ownorgid, oo.name as ownorg_name
+            . "select a.ownorgid, oo.name as ownorg_name
                 , a.refitmid, ri.name as refitm_name, ri.unit as refitm_unit
 	            , sum(a.pre_qty) as pre_qty
 	            , sum(a.pre_sum) as pre_sum
@@ -262,7 +262,7 @@ class WrhDocReportController extends Controller
 
         if ($s_begdate <> '') {
             $cnd1 = "";
-            if (isset($s_itmtypeid))  $cnd1 = " and ri.itmtypeid = {$s_itmtypeid}";
+            if (isset($s_itmtypeid)) $cnd1 = " and ri.itmtypeid = {$s_itmtypeid}";
 
             $sql = "select a.refitmid, ri.name as refitm_name, ri.unit as refitm_unit
 	            , sum(a.pre_qty) as pre_qty
@@ -346,14 +346,14 @@ class WrhDocReportController extends Controller
         }
 
         $data->itmtypes = wrhdoclst::from("wrhdoclst as di")
-            ->join("wrhdocs as d","d.id","di.docid")
-            ->join("refitems as ri","ri.id","di.refitmid")
-            ->join("itmtypes as it","it.id","ri.itmtypeid")
+            ->join("wrhdocs as d", "d.id", "di.docid")
+            ->join("refitems as ri", "ri.id", "di.refitmid")
+            ->join("itmtypes as it", "it.id", "ri.itmtypeid")
             ->select('it.id', 'it.name')
             ->distinct()
-            ->orderby('name','asc')
+            ->orderby('name', 'asc')
             ->get()
-            ->pluck('name','id');
+            ->pluck('name', 'id');
         // dd($data->itmtypes);
 
 
@@ -545,4 +545,131 @@ class WrhDocReportController extends Controller
         }
         return view('wrhdocs.rep' . $report_id, compact('search_params', 'recs', 'data'));
     }
+
+    public function rep65(Request $request)
+    {
+        //
+        $report_id = 65;
+
+        $userid = \Auth::user()->id;
+
+        if (!usrsysright::isUserHasRightByCode_cached($userid, $this->objcode . '.read'))
+            return redirect(route('home'))
+                ->with(['error' => 'У вас нет полномочий для работы с данной информацией!']);
+
+        // - параметры поиска: массив из имени и значения по-умолчанию -----------------------------------------------
+        $fdom = new DateTime('first day of this month');
+        $fdomc = $fdom->format('Y-m-d');
+        $year = $fdom->format('Y');
+        $ldom = new DateTime('last day of this month');
+        $ldomc = $ldom->format('Y-m-d');
+        $curdate = new DateTime();
+        $cd = $curdate->format('Y-m-d');
+
+        $month = date("n");
+        $yearQuarter = ceil($month / 3);
+
+        $begdate = today();
+
+        $param_names = [
+            's_pageitmcnt' => 20
+            , 's_ownorgid' => '' //Auth::user()->curorgid
+            , 's_month' => $month
+            , 's_year' => $year
+            , 's_begdate' => $begdate->format('Y-m-01')
+            , 's_enddate' => $begdate->format('Y-m-t')
+        ];
+
+        $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);
+
+        $begdate = today();
+        //$search_params['s_begdate'] = $begdate->format('Y-m-d');
+        //$search_params['s_enddate'] = $begdate->format('Y-m-t');
+
+        $recs = null;
+
+//        $s_year = $search_params['s_year'];
+//        $s_month = $search_params['s_month'];
+
+        $s_begdate = $search_params['s_begdate'];
+        $s_enddate = $search_params['s_enddate'];
+
+        if ($s_begdate <> '' and $s_enddate <> '') {
+
+            $s_yr_mn = date_format(date_create($s_begdate), 'Y-m');
+            //dd($s_yr_mn);
+//--            and dw1.wrkdate between '{$s_begdate}' and '{$s_enddate}'
+
+            $sql = "select a.operdate
+                , sum(IF(a.dir>0, a.sum, null)) as inp_sum
+                , sum(IF(a.dir<0, a.sum, null)) as out_sum
+                , sum(a.dir*a.sum) as blns_sum
+            from (
+            select e.operdate, -1 dir, sum(e.expense_sum) AS SUM, t.name
+                from obj_expenses e
+                join expensetypes t on t.id=e.expensetypeid
+                where sysobjid=204
+                and e.operdate BETWEEN '{$s_begdate}' and '{$s_enddate}'
+                GROUP by operdate, e.expensetypeid
+            union
+            SELECT d.docdate, +1 dir, sum(round(i.price * i.qty,2)) as sum, 'произведенная продукция' as name
+            FROM `wrhdocs` d
+                JOIN wrhdoclst as i on i.docid=d.id
+            WHERE doctypeid=10 and d.docdate BETWEEN '{$s_begdate}' and '{$s_enddate}'
+            group by d.docdate
+            union
+            SELECT d.docdate as operdate, -1 dir, sum(round(i.price * i.qty,2)) as sum, 'материалы на производство' as name
+            FROM `wrhdocs` d
+                JOIN wrhdoclst as i on i.docid=d.id
+            WHERE doctypeid=5 and d.docdate BETWEEN '{$s_begdate}' and '{$s_enddate}'
+            group by d.docdate
+            ) a
+            group by operdate
+            order by operdate";
+
+            //dd($s_begdate, $s_yr_mn, $sql);
+            $recs = DB::select(DB::raw($sql));
+            //dd($sql, $recs);
+
+            //обновим счетчик использования отчета
+            report::updUseCnt($report_id, $userid, \Auth::user()->name);
+
+            //занесем в журнал
+            objlog::log_info(855, $report_id, 'запрошен отчет; ' . $s_begdate . ' - ' . $s_enddate);
+        } else {
+            $recs = null;
+        }
+
+        $data = new \stdClass();
+
+//        $data->years = Cache::remember('driver_works_years', now()->addMinutes(55)
+//            , function () {
+//                return driver_work::selectRaw("year(wrkdate) as year")
+//                    ->distinct()->orderby('year')
+//                    ->get()->pluck('year', 'year')->toArray();
+//            });
+//        //dd($data->years);
+//
+//        $month_names = Config::get('constants.monthes');
+//        $data->monthes = Cache::remember('driver_works_monthes', now()->addMinutes(15)
+//            , function () {
+//                return driver_work::selectRaw("month(wrkdate) as month")
+//                    ->distinct()->orderby('month')
+//                    ->get()->pluck('month', 'month')->toArray();
+//            });
+//        foreach ($data->monthes as $key => $val) {
+//            //dd($key,$val);
+//            $data->monthes[$val] = $month_names[$key];
+//        }
+        //dd($data->monthes);
+
+//        $data->ownorgs = org::lstFor_cached([
+//            'in_driver_works_ownorgid' => 1,
+//        ]);
+        //dd($data->ownorgs);
+
+        return view('wrhdocs.rep' . $report_id, compact('recs', 'search_params', 'data'));
+    }
+
+
 }

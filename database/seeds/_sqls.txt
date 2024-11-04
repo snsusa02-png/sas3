@@ -1,4 +1,69 @@
-﻿-- 2024-10-18 -------------
+﻿-- 2024-11-04 -------------
+insert into srs_hr_items (srs_id, wrktypeid,min_wrkexp, max_wrkexp, hr_day_rate, hr_night_rate)
+    SELECT 10 as srs_id, t.wrktypeid,t.min_wrkexp, t.max_wrkexp, t.hr_day_rate, t.hr_night_rate FROM `srs_hr_items` t where srs_id=5
+
+-----
+INSERT INTO `reports` (`id`, `name`, `acsid`, `acs_rightid`, `public`, `active`) VALUES ('65', 'Сводка по производству и затратам', '1', '100', '1', '1');
+-----
+
+select e.operdate, -sum(e.expense_sum) AS SUM, t.name
+	from obj_expenses e
+    join expensetypes t on t.id=e.expensetypeid
+	where sysobjid=204
+    and e.operdate BETWEEN '2024-10-01' and '2024-10-31'
+    GROUP by operdate, e.expensetypeid
+   -- order by operdate
+union
+SELECT d.docdate, sum(round(i.price * i.qty,2)) as sum, 'произведенная продукция' as name
+FROM `wrhdocs` d
+	JOIN wrhdoclst as i on i.docid=d.id
+WHERE doctypeid=10 and d.docdate BETWEEN '2024-10-01' and '2024-10-31'
+group by d.docdate
+-- order by docdate
+union
+SELECT d.docdate as operdate, -sum(round(i.price * i.qty,2)) as sum, 'материалы на производство' as name
+FROM `wrhdocs` d
+	JOIN wrhdoclst as i on i.docid=d.id
+WHERE doctypeid=5 and d.docdate BETWEEN '2024-10-01' and '2024-10-31'
+group by d.docdate
+order by operdate, sum desc
+
+------
+
+select a.operdate
+	, sum(IF(a.dir>0, a.sum, null)) as inp_sum
+	, sum(IF(a.dir<0, a.sum, null)) as out_sum
+    , sum(a.dir*a.sum) as blns_sum
+from (
+select e.operdate, -1 dir, sum(e.expense_sum) AS SUM, t.name
+	from obj_expenses e
+    join expensetypes t on t.id=e.expensetypeid
+	where sysobjid=204
+    and e.operdate BETWEEN '2024-10-01' and '2024-10-31'
+    GROUP by operdate, e.expensetypeid
+   -- order by operdate
+union
+SELECT d.docdate, +1 dir, sum(round(i.price * i.qty,2)) as sum, 'произведенная продукция' as name
+FROM `wrhdocs` d
+	JOIN wrhdoclst as i on i.docid=d.id
+WHERE doctypeid=10 and d.docdate BETWEEN '2024-10-01' and '2024-10-31'
+group by d.docdate
+-- order by docdate
+union
+SELECT d.docdate as operdate, -1 dir, sum(round(i.price * i.qty,2)) as sum, 'материалы на производство' as name
+FROM `wrhdocs` d
+	JOIN wrhdoclst as i on i.docid=d.id
+WHERE doctypeid=5 and d.docdate BETWEEN '2024-10-01' and '2024-10-31'
+group by d.docdate
+-- order by operdate, sum desc
+) a
+group by operdate
+order by operdate
+
+
+
+
+-- 2024-10-18 -------------
 INSERT INTO `expensetypes` (`id`, `name`, `active`) VALUES ('1', 'электроэнергия', '1');
 INSERT INTO `expensetypes` (`id`, `name`, `active`) VALUES ('2', 'вода', '1');
 INSERT INTO `expensetypes` (`id`, `name`) VALUES ('3', 'отопление');
