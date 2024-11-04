@@ -240,7 +240,7 @@ $first_col_id = null;
                                 ?>
                             @endif
 
-                            @if($rec->orgid <> $cur_orgid)
+                            @if(1==0 and $rec->orgid <> $cur_orgid)
                                 <tr class="text-left">
                                     <td colspan={{3+$cols_count}}>{{$rec->org_name}}</td>
                                 </tr>
@@ -250,7 +250,7 @@ $first_col_id = null;
                                 ?>
                             @endif
 
-                            @if($rec->dep_name <> $cur_dep_name)
+                            @if(1==0 and $rec->dep_name <> $cur_dep_name)
                                 <tr class="text-left">
                                     <td colspan="{{3+$cols_count}}" class="small" style="background-color: #ecf6f9">
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;

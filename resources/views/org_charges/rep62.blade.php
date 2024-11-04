@@ -191,7 +191,7 @@ $first_col_id = null;
                 </div>
 
                 <table id="results"
-                       class="table table-sm table-striped rep-data mt-3"
+                       class="table table-sm table-striped0 rep-data mt-3"
                        style="background-color: snow; font-size:16px; max-width:960px; align-self: center">
                     <thead>
                     </thead>
@@ -256,8 +256,13 @@ $first_col_id = null;
                             $pre_chargetypeid = $first_col_id;
                             //echo('<hr>');var_dump('$pre_chargetypeid =', $pre_chargetypeid);
                             ?>
+                            <tr>
+                                <td colspan="2" align="center"><img src="/images/signs/gerb.jpg" style="width:100px;text-align: center">
+                                    <br>РАБОЧАЯ ВЕДОМОСТЬ</td>
+                            </tr>
                             <tr class="text-left {{$tr_class}}" style="{{$tstyle}}">
-                                <td colspan="2" class="text-left" data-npp="{{$npp}}">
+                                <td colspan="1" class="text-left" data-npp="{{$npp}}">
+
                                     {{--                                    <span class="small">{{++$npp}}.</span>--}}
                                     <b>{{$rec->lname}} {{$rec->fname}} {{$rec->mname}}</b>,
                                     <div class="small"> должность: {{$rec->postname}},
@@ -265,6 +270,8 @@ $first_col_id = null;
                                         {{$rec->org_name}}
                                     </div>
                                 </td>
+                                <td align="center">за период <br><b>{{date_create($data->begdate)->format('d.m.Y')}}
+                                    - {{date_create($data->enddate)->format('d.m.Y')}}</b></td>
                             <?php
                             $totOutSum = 0;
                             ?>
