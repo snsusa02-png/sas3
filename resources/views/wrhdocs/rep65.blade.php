@@ -3,9 +3,7 @@
 <?php
 $thisTitle = "-";
 $thisSysObjId = 855;    //reports
-$thisObjId = 58;
-//$retURL = route('admin') . '#nsi-rep';
-//$retURL = '/admin#nsi-rep';
+$thisObjId = 65;
 $retURL = route('reports.pub_index');
 
 $report = \App\report::find($thisObjId);
@@ -181,15 +179,15 @@ $action_url = route('reports.rep' . $thisObjId);
 
             @else
                 <?php
-                $s_period_type = $search_params['s_period_type'] ?? '';
-                $ownorgid = $search_params['s_ownorgid'] ?? '';
+//                $s_period_type = $search_params['s_period_type'] ?? '';
+//                $ownorgid = $search_params['s_ownorgid'] ?? '';
                 $s_begdate = $search_params['s_begdate'] ?? '';
                 $s_enddate = $search_params['s_enddate'] ?? '';
 
                 $month_days = (strtotime($s_enddate) - strtotime($s_begdate)) / 3600 / 24 + 1;
                 //dd($month_days);
 
-                $base_pre_date = date_create($s_begdate)->sub(new DateInterval('P1D'))->format('Y-m-d');
+//                $base_pre_date = date_create($s_begdate)->sub(new DateInterval('P1D'))->format('Y-m-d');
                 //dd($pre_date);
                 ?>
 
@@ -208,112 +206,59 @@ $action_url = route('reports.rep' . $thisObjId);
                                     </a>
                         @endif
                         <a class="btn btn-close btn-info btn-sm d-print-none"
-                           href="{{ $retURL  }}"><i class="fa fa-times" aria-hidden="true"></i></a>
+                           href="{{ $retURL }}"><i class="fa fa-times" aria-hidden="true"></i></a>
 
                     </span>
 
                     <div class="font-weight-bold mt-2" align="center"
                          style="font-size: 14px;">
-                        <h4>{{$thisTitle}} {{$data->ownorgs[$search_params['s_ownorgid']]??''}}</h4>
-                        {{$data->monthes[$search_params['s_month']]??''}} {{$search_params['s_year']??''}}
-                        <span class="small ml-3 d-print-none"><br>по состоянию на {{now()}}</span>
+                        <h4>{{$thisTitle}}</h4>
+                            {{--                            {{$data->ownorgs[$search_params['s_ownorgid']]??''}}--}}
+                            {{--                        {{$data->monthes[$search_params['s_month']]??''}} {{$search_params['s_year']??''}}--}}
+                            Период: {{date_format(date_create($s_begdate),'d.m.Y')}} - {{date_format(date_create($s_enddate),'d.m.Y')}}
+                            <span class="small ml-3 d-print-none"><br>по состоянию на {{now()}}</span>
                     </div>
 
                     {{-- ------------------------------------------------------------------------------------------}}
 
                     <table class="table table-bordered table-sm table-data" border="0" style="background-color: white">
                         <tr>
-                            <td rowspan="2" class="small text-right">#пп</td>
-                            <td rowspan="2">Работник</td>
-                            <td rowspan="2" class="text-center">Раб.<br>дней</td>
-                            <td rowspan="1" colspan="2" class="text-center">Работа, час</td>
-                            <td rowspan="1" colspan="4" class="text-center">Простой, час</td>
-                            <td rowspan="2" class="text-center">Сумма, руб</td>
-                        </tr>
-                        <tr align="center">
-                            <td>День</td>
-                            <td>Ночь</td>
-                            <td>Всего</td>
-                            <td class="small">в т.ч. ремонт</td>
-                            <td class="small">в т.ч. сон</td>
-                            <td class="small">в т.ч. простой</td>
+                            <td class="small text-right">#пп</td>
+                            <td class="text-center">Дата</td>
+                            <td class="text-center">Произведено, руб</td>
+                            <td class="text-center">Затрачено, руб</td>
+                            <td class="text-center">Баланс, руб</td>
                         </tr>
                         <?php
                         $npp = 0;
-                        $totSum = 0;
-                        $totDayWrkHrs = 0;
-                        $totNightWrkHrs = 0;
-                        $totBrkHrs = 0;
-                        $totBrk11Hrs = 0;
-                        $totBrk21Hrs = 0;
-                        $totBrk22Hrs = 0;
-                        $totWrkHrs = 0;
+                        $tot_inp_sum = 0;
+                        $tot_out_sum = 0;
+                        $tot_blns_sum = 0;
                         ?>
                         @foreach($recs as $itm)
-                            <?php
-                            $staff_name = $itm->staff_lname;
-                            if (isset($itm->staff_fname)) {
-                                $staff_name .= ' ' . mb_substr($itm->staff_fname, 0, 1) . '.';
-                                if (isset($itm->staff_mname))
-                                    $staff_name .= mb_substr($itm->staff_mname, 0, 1) . '.';
-                            }
-                            $day_hr_rate = $itm->day_hr_rate;
-                            $day_hr_rate_min = $itm->day_hr_rate_min;
-                            if ($day_hr_rate_min <> $day_hr_rate)
-                                $day_hr_rate = $day_hr_rate_min . ' .. ' . $day_hr_rate;
-
-                            $night_hr_rate = $itm->night_hr_rate;
-                            $night_hr_rate_min = $itm->night_hr_rate_min;
-                            if ($night_hr_rate_min <> $night_hr_rate)
-                                $night_hr_rate = $night_hr_rate_min . ' .. ' . $night_hr_rate;
-                            ?>
                             <tr>
                                 <td class="small text-right">{{++$npp}}</td>
-                                <td><a href="{{route('orgstaff.edit',$itm->staffid)}}"
-                                       target="_blank">{{$itm->staff_name}}</a>, <span
-                                        class="small ml-2"> {{$itm->postname}}</span>
-
-                                    <div class="float-right small">
-                                        "{{$itm->payroltype_name}}, <b>{{$itm->wrktype_name}}</b>",
-                                        Ставка день: <b>{{$day_hr_rate}}</b>,
-                                        ночь: <b>{{$night_hr_rate}}</b>
-                                    </div>
+                                <td class="text-center">
+                                {{--                                <a href="{{route('orgstaff.edit',$itm->staffid)}}"--}}
+                                {{--                                       target="_blank">{{$itm->operdate}}</a>--}}
+                                {{date_format(date_create($itm->operdate),'d.m.Y')}}
                                 </td>
-                                <td class="text-right">{{$itm->wrkdays}} </td>
-                                <td class="text-right">{{number_format($itm->day_wrkhrs,2)}}
-                                    <br><small>{{number_format($itm->day_hr_sum,2)}}</small></td>
-                                <td class="text-right">{{number_format($itm->night_wrkhrs,2)}}
-                                    <br><small>{{number_format($itm->night_hr_sum,2)}}</small></td>
-                                <td class="text-right">{{number_format($itm->brkhrs,2)}}
-                                    <br><small>{{number_format($itm->breaks_sum,2)}}</small></td>
-                                <td class="text-right small">{{number_format($itm->brk_11_hrs,2)}}
-                                    <br><small>{{number_format($itm->brk_11_sum,2)}}</small></td>
-                                <td class="text-right small">{{number_format($itm->brk_21_hrs,2)}}
-                                    <br><small>{{number_format($itm->brk_21_sum,2)}}</small></td>
-                                <td class="text-right small">{{number_format($itm->brk_22_hrs,2)}}
-                                    <br><small>{{number_format($itm->brk_22_sum,2)}}</small></td>
-                                <td class="text-right">{{number_format($itm->day_hr_sum + $itm->night_hr_sum + $itm->breaks_sum,2)}}</td>
+                                <td class="text-right">{{number_format($itm->inp_sum,2)}}</td>
+                                <td class="text-right">{{number_format($itm->out_sum,2)}}</td>
+                                <td class="text-right">{{number_format($itm->blns_sum,2)}}</td>
                             </tr>
                             <?php
-                            $totDayWrkHrs += $itm->day_wrkhrs;
-                            $totNightWrkHrs += $itm->night_wrkhrs;
-                            $totBrkHrs += $itm->brkhrs;
-                            $totBrk11Hrs += $itm->brk_11_hrs;
-                            $totBrk21Hrs += $itm->brk_21_hrs;
-                            $totBrk22Hrs += $itm->brk_22_hrs;
-                            $totSum += $itm->day_hr_sum + $itm->night_hr_sum + $itm->breaks_sum;
+                            $tot_inp_sum += $itm->inp_sum;
+                            $tot_out_sum += $itm->out_sum;
+                            $tot_blns_sum += $itm->inp_sum - $itm->out_sum;
                             ?>
                         @endforeach
 
                         <tr>
-                            <td colspan="3" class="text-right">Итого:</td>
-                            <td class="text-right font-weight-bold">{{number_format($totDayWrkHrs,2)}}</td>
-                            <td class="text-right font-weight-bold">{{number_format($totNightWrkHrs,2)}}</td>
-                            <td class="text-right font-weight-bold">{{number_format($totBrkHrs,2)}}</td>
-                            <td class="text-right font-weight-bold small">{{number_format($totBrk11Hrs,2)}}</td>
-                            <td class="text-right font-weight-bold small">{{number_format($totBrk21Hrs,2)}}</td>
-                            <td class="text-right font-weight-bold small">{{number_format($totBrk22Hrs,2)}}</td>
-                            <td class="text-right font-weight-bold">{{number_format($totSum,2)}}</td>
+                            <td colspan="2" class="text-right">Итого:</td>
+                            <td class="text-right font-weight-bold">{{number_format($tot_inp_sum,2)}}</td>
+                            <td class="text-right font-weight-bold">{{number_format($tot_out_sum,2)}}</td>
+                            <td class="text-right font-weight-bold">{{number_format($tot_blns_sum,2)}}</td>
                         </tr>
                     </table>
                     {{-- ------------------------------------------------------------------------------------------}}
