@@ -676,7 +676,7 @@ class WrhDocReportController extends Controller
                 JOIN wrhdoclst as i on i.docid=d.id
             WHERE doctypeid=10 and d.docdate = '{$date}'
             group by d.docdate*/
-            SELECT +1 dir, sum(round(i.price * i.qty,2)) as sum, ri.name
+            SELECT +1 dir, sum(round(i.price * i.qty,2)) as sum, concat(ri.name, ' (', round(sum(i.qty),0), ri.unit,  ')') as name
             FROM `wrhdocs` d
                 JOIN wrhdoclst as i on i.docid=d.id
                 join refitems as ri on ri.id=i.refitmid
