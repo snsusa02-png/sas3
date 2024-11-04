@@ -151,7 +151,7 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                         </tr>
                         <tr>
                             <td colspan="2" class="text-right" data-npp="{{$npp++}}">Всего:</td>
-                            <td class="text-center font-weight-bold {{$td_class}}" colspan="2" >{{number_format($totEndSum,2)}}</td>
+                            <td class="text-center font-weight-bold {{$td_class}}" colspan="2" >{{number_format($totInpSum-$totOutSum,2)}}</td>
 
                         </tr>
                     @endif
