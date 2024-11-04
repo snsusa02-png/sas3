@@ -4,6 +4,7 @@ insert into srs_hr_items (srs_id, wrktypeid,min_wrkexp, max_wrkexp, hr_day_rate,
 
 -----
 INSERT INTO `reports` (`id`, `name`, `acsid`, `acs_rightid`, `public`, `active`) VALUES ('65', 'Сводка по производству и затратам', '1', '100', '1', '1');
+INSERT INTO `reports` (`id`, `name`, `acsid`, `acs_rightid`, `public`, `active`) VALUES ('66', 'Детализация производства и затрат за день', '1', '100', '1', '1');
 -----
 
 select e.operdate, -sum(e.expense_sum) AS SUM, t.name

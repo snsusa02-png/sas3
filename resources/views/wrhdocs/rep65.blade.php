@@ -4,7 +4,7 @@
 $thisTitle = "-";
 $thisSysObjId = 855;    //reports
 $thisObjId = 65;
-$retURL = route('reports.pub_index');
+$retURL = $data->returl??route('reports.pub_index');
 
 $report = \App\report::find($thisObjId);
 
@@ -179,15 +179,15 @@ $action_url = route('reports.rep' . $thisObjId);
 
             @else
                 <?php
-//                $s_period_type = $search_params['s_period_type'] ?? '';
-//                $ownorgid = $search_params['s_ownorgid'] ?? '';
+                //                $s_period_type = $search_params['s_period_type'] ?? '';
+                //                $ownorgid = $search_params['s_ownorgid'] ?? '';
                 $s_begdate = $search_params['s_begdate'] ?? '';
                 $s_enddate = $search_params['s_enddate'] ?? '';
 
                 $month_days = (strtotime($s_enddate) - strtotime($s_begdate)) / 3600 / 24 + 1;
                 //dd($month_days);
 
-//                $base_pre_date = date_create($s_begdate)->sub(new DateInterval('P1D'))->format('Y-m-d');
+                //                $base_pre_date = date_create($s_begdate)->sub(new DateInterval('P1D'))->format('Y-m-d');
                 //dd($pre_date);
                 ?>
 
@@ -213,10 +213,11 @@ $action_url = route('reports.rep' . $thisObjId);
                     <div class="font-weight-bold mt-2" align="center"
                          style="font-size: 14px;">
                         <h4>{{$thisTitle}}</h4>
-                            {{--                            {{$data->ownorgs[$search_params['s_ownorgid']]??''}}--}}
-                            {{--                        {{$data->monthes[$search_params['s_month']]??''}} {{$search_params['s_year']??''}}--}}
-                            Период: {{date_format(date_create($s_begdate),'d.m.Y')}} - {{date_format(date_create($s_enddate),'d.m.Y')}}
-                            <span class="small ml-3 d-print-none"><br>по состоянию на {{now()}}</span>
+                        {{--                            {{$data->ownorgs[$search_params['s_ownorgid']]??''}}--}}
+                        {{--                        {{$data->monthes[$search_params['s_month']]??''}} {{$search_params['s_year']??''}}--}}
+                        Период: {{date_format(date_create($s_begdate),'d.m.Y')}}
+                        - {{date_format(date_create($s_enddate),'d.m.Y')}}
+                        <span class="small ml-3 d-print-none"><br>по состоянию на {{now()}}</span>
                     </div>
 
                     {{-- ------------------------------------------------------------------------------------------}}
@@ -239,9 +240,9 @@ $action_url = route('reports.rep' . $thisObjId);
                             <tr>
                                 <td class="small text-right">{{++$npp}}</td>
                                 <td class="text-center">
-                                {{--                                <a href="{{route('orgstaff.edit',$itm->staffid)}}"--}}
-                                {{--                                       target="_blank">{{$itm->operdate}}</a>--}}
-                                {{date_format(date_create($itm->operdate),'d.m.Y')}}
+                                    <a href="{{route('reports.rep66',['date'=>$itm->operdate])}}?returl={{$retURL}}"
+                                       target="_blank">
+                                        {{date_format(date_create($itm->operdate),'d.m.Y')}}</a>
                                 </td>
                                 <td class="text-right">{{number_format($itm->inp_sum,2)}}</td>
                                 <td class="text-right">{{number_format($itm->out_sum,2)}}</td>

@@ -557,6 +557,8 @@ class WrhDocReportController extends Controller
             return redirect(route('home'))
                 ->with(['error' => 'У вас нет полномочий для работы с данной информацией!']);
 
+        $returl = $request->get('returl') ?? url()->full() ?? route('home');
+
         // - параметры поиска: массив из имени и значения по-умолчанию -----------------------------------------------
         $fdom = new DateTime('first day of this month');
         $fdomc = $fdom->format('Y-m-d');
@@ -641,34 +643,65 @@ class WrhDocReportController extends Controller
         }
 
         $data = new \stdClass();
-
-//        $data->years = Cache::remember('driver_works_years', now()->addMinutes(55)
-//            , function () {
-//                return driver_work::selectRaw("year(wrkdate) as year")
-//                    ->distinct()->orderby('year')
-//                    ->get()->pluck('year', 'year')->toArray();
-//            });
-//        //dd($data->years);
-//
-//        $month_names = Config::get('constants.monthes');
-//        $data->monthes = Cache::remember('driver_works_monthes', now()->addMinutes(15)
-//            , function () {
-//                return driver_work::selectRaw("month(wrkdate) as month")
-//                    ->distinct()->orderby('month')
-//                    ->get()->pluck('month', 'month')->toArray();
-//            });
-//        foreach ($data->monthes as $key => $val) {
-//            //dd($key,$val);
-//            $data->monthes[$val] = $month_names[$key];
-//        }
-        //dd($data->monthes);
-
-//        $data->ownorgs = org::lstFor_cached([
-//            'in_driver_works_ownorgid' => 1,
-//        ]);
-        //dd($data->ownorgs);
+        $data->returl = $returl;
+//        dd($data->returl, url()->current(), url()->full());
 
         return view('wrhdocs.rep' . $report_id, compact('recs', 'search_params', 'data'));
+    }
+
+    function rep66(Request $request, $date)
+    {
+        //Детализация производства и отгрузки продукции за дату
+
+        $report_id = 66;
+
+        $returl = $request->get('returl') ?? route('home');
+        $userid = Auth::user()->id;
+        $export2xls = $request->get('xls') ?? 0;
+
+        $data = new \stdClass();
+        $data->date = $date;
+        $data->returl = $returl;
+
+//        d.docdate = '{$date}'
+        $sql = "select -1 dir, sum(e.expense_sum) AS sum, t.name
+            from obj_expenses e
+            join expensetypes t on t.id=e.expensetypeid
+            where sysobjid=204
+            and e.operdate = '{$date}'
+            GROUP by operdate, e.expensetypeid
+            union
+            SELECT +1 dir, sum(round(i.price * i.qty,2)) as sum, 'произведенная продукция' as name
+            FROM `wrhdocs` d
+                JOIN wrhdoclst as i on i.docid=d.id
+            WHERE doctypeid=10 and d.docdate = '{$date}'
+            group by d.docdate
+            union
+            SELECT -1 dir, sum(round(i.price * i.qty,2)) as sum, 'материалы на производство' as name
+            FROM `wrhdocs` d
+                JOIN wrhdoclst as i on i.docid=d.id
+            WHERE doctypeid=5 and d.docdate = '{$date}'
+            group by d.docdate
+            order by dir, sum desc";
+
+        $recs = DB::select(DB::raw($sql));
+
+//        dd($date,$sql,$recs);
+
+        //занесем в журнал
+        objlog::log_info(855, $report_id, 'запрошен отчет; ' . $date);
+        report::updUseCnt($report_id);
+
+        //        if ($export2xls == "1") {
+//            $response = Excel::download(new rep54Export($recs, $data), "Платежи за " . Str::slug($data->$date) . ".xlsx", \Maatwebsite\Excel\Excel::XLSX);
+//
+//            //$response= Excel::download(new InvoicesExport, 'invoices.xls', \Maatwebsite\Excel\Excel::XLS);
+//            //HERE IS THE MAGIC FOLKS
+//            ob_end_clean();
+//            return $response;
+//        }
+
+        return view('wrhdocs.rep' . $report_id, compact('recs','data'));
     }
 
 

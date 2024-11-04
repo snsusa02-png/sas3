@@ -592,10 +592,10 @@ Route::put('org_names/{id}/delete', "OrgNameController@destroy")->name("org_name
 
 
 //подразделения организации
-//Route::get('orgdeps/{id}/edit', "OrgdepController@edit")->name('orgdeps.edit');
-//Route::get('orgdeps/{orgid}/create', "OrgdepController@create")->name('orgdeps.create');
-//Route::match(array('POST', 'PUT'), 'orgdeps/{id}', "OrgdepController@update")->name('orgdeps.update');
-//Route::put('orgdeps/{id}/delete', "OrgdepController@destroy")->name("orgdeps.delete");
+Route::get('orgdeps/{id}/edit', "OrgdepController@edit")->name('orgdeps.edit');
+Route::get('orgdeps/{orgid}/create', "OrgdepController@create")->name('orgdeps.create');
+Route::match(array('POST', 'PUT'), 'orgdeps/{id}', "OrgdepController@update")->name('orgdeps.update');
+Route::put('orgdeps/{id}/delete', "OrgdepController@destroy")->name("orgdeps.delete");
 
 //должности организации / штатное расписание
 Route::get('orgposts/{orgid}/create', "OrgpostController@create")->name('orgposts.create');
@@ -1055,6 +1055,9 @@ Route::get('/api/sysfuncs/for_ac/', 'sysfuncController@list_for_ac');
 Route::get('/api/orgs/m15_tgt/', 'orgController@listorgs_m15tgt');
 Route::get('/api/orgs/for_/', 'orgController@list_for');
 Route::get('/api/orgs/for_ac/', 'orgController@list_for_ac');
+
+Route::get('/api/orgdeps/for_/', 'OrgdepController@list_for');
+
 Route::get('/api/orgposts/for_/', 'OrgpostController@list_for');
 Route::get('/api/orgposts/stdlimunits', 'OrgpostController@stdlimunits');
 Route::get('/api/orgposts/dep_posts', 'OrgpostController@dep_posts');
@@ -1138,6 +1141,7 @@ Route::match(array('POST', 'GET'), '/reports/rep/62', "OrgChargeController@rep62
 Route::match(array('POST', 'GET'), '/reports/rep/63', "OrgStaffReportController@rep63")->name('reports.rep63');
 Route::match(array('POST', 'GET'), '/reports/rep/64', "FuelcardPayReportController@rep64")->name('reports.rep64');
 Route::match(array('POST', 'GET'), '/reports/rep/65', "WrhDocReportController@rep65")->name('reports.rep65');
+Route::match(array('POST', 'GET'), '/reports/rep/66/{date}', "WrhDocReportController@rep66")->name('reports.rep66');
 
 //Состав плана платежей
 Route::get('orgplnpay_items/create/{docid}/', "OrgplnpayItemController@create")->name('orgplnpay_items.create');
@@ -1306,7 +1310,6 @@ Route::post('/taskcalendar/create', 'TaskCalendarController@create');
 Route::post('/taskcalendar/update', 'TaskCalendarController@update');
 Route::post('/taskcalendar/move', 'TaskCalendarController@move');
 Route::post('/taskcalendar/delete', 'TaskCalendarController@destroy');
-
 
 
 Route::match(array('GET', 'POST'), 'events_index', "EventController@index")->name("events.index");
