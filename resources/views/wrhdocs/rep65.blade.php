@@ -229,12 +229,14 @@ $action_url = route('reports.rep' . $thisObjId);
                             <td class="text-center">Произведено, руб</td>
                             <td class="text-center">Затрачено, руб</td>
                             <td class="text-center">Баланс, руб</td>
+                            <td class="text-center">Реализация, руб</td>
                         </tr>
                         <?php
                         $npp = 0;
                         $tot_inp_sum = 0;
                         $tot_out_sum = 0;
                         $tot_blns_sum = 0;
+                        $tot_sale_sum = 0;
                         ?>
                         @foreach($recs as $itm)
                             <tr>
@@ -247,11 +249,14 @@ $action_url = route('reports.rep' . $thisObjId);
                                 <td class="text-right">{{number_format($itm->inp_sum,2)}}</td>
                                 <td class="text-right">{{number_format($itm->out_sum,2)}}</td>
                                 <td class="text-right">{{number_format($itm->blns_sum,2)}}</td>
+                                <td class="text-right"><a href="{{route('reports.rep67',['date'=>$itm->operdate])}}?returl={{$retURL}}"
+                                                          target="_blank">{{number_format($itm->sale_sum,2)}}</a></td>
                             </tr>
                             <?php
                             $tot_inp_sum += $itm->inp_sum;
                             $tot_out_sum += $itm->out_sum;
                             $tot_blns_sum += $itm->inp_sum - $itm->out_sum;
+                            $tot_sale_sum += $itm->sale_sum;
                             ?>
                         @endforeach
 
@@ -260,6 +265,7 @@ $action_url = route('reports.rep' . $thisObjId);
                             <td class="text-right font-weight-bold">{{number_format($tot_inp_sum,2)}}</td>
                             <td class="text-right font-weight-bold">{{number_format($tot_out_sum,2)}}</td>
                             <td class="text-right font-weight-bold">{{number_format($tot_blns_sum,2)}}</td>
+                            <td class="text-right font-weight-bold">{{number_format($tot_sale_sum,2)}}</td>
                         </tr>
                     </table>
                     {{-- ------------------------------------------------------------------------------------------}}

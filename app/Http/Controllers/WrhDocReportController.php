@@ -606,6 +606,7 @@ class WrhDocReportController extends Controller
                 , sum(IF(a.dir>0, a.sum, null)) as inp_sum
                 , sum(IF(a.dir<0, a.sum, null)) as out_sum
                 , sum(a.dir*a.sum) as blns_sum
+                , sum(IF(a.dir=0, a.sum, null)) as sale_sum
             from (
             select e.operdate, -1 dir, sum(e.expense_sum) AS SUM, t.name
                 from obj_expenses e
@@ -614,17 +615,23 @@ class WrhDocReportController extends Controller
                 and e.operdate BETWEEN '{$s_begdate}' and '{$s_enddate}'
                 GROUP by operdate, e.expensetypeid
             union
-            SELECT d.docdate, +1 dir, sum(round(i.price * i.qty,2)) as sum, 'произведенная продукция' as name
-            FROM `wrhdocs` d
-                JOIN wrhdoclst as i on i.docid=d.id
-            WHERE doctypeid=10 and d.docdate BETWEEN '{$s_begdate}' and '{$s_enddate}'
-            group by d.docdate
+                SELECT d.docdate, +1 dir, sum(round(i.price * i.qty,2)) as sum, 'произведенная продукция' as name
+                FROM `wrhdocs` d
+                    JOIN wrhdoclst as i on i.docid=d.id
+                WHERE doctypeid=10 and d.docdate BETWEEN '{$s_begdate}' and '{$s_enddate}'
+                group by d.docdate
             union
-            SELECT d.docdate as operdate, -1 dir, sum(round(i.price * i.qty,2)) as sum, 'материалы на производство' as name
-            FROM `wrhdocs` d
-                JOIN wrhdoclst as i on i.docid=d.id
-            WHERE doctypeid=5 and d.docdate BETWEEN '{$s_begdate}' and '{$s_enddate}'
-            group by d.docdate
+                SELECT d.docdate as operdate, -1 dir, sum(round(i.price * i.qty,2)) as sum, 'материалы на производство' as name
+                FROM `wrhdocs` d
+                    JOIN wrhdoclst as i on i.docid=d.id
+                WHERE doctypeid=5 and d.docdate BETWEEN '{$s_begdate}' and '{$s_enddate}'
+                group by d.docdate
+            union
+                SELECT d.docdate, 0 as dir, sum(d.docsum) as sum, 'реализация' as name
+                FROM `wrhdocs` as d
+                WHERE d.doctypeid in (select id from wrhdoctypes dt where dt.forsale=1)
+                AND d.docdate BETWEEN  '{$s_begdate}' and '{$s_enddate}'
+                group by docdate
             ) a
             group by operdate
             order by operdate";
@@ -708,6 +715,72 @@ class WrhDocReportController extends Controller
 //        }
 
         return view('wrhdocs.rep' . $report_id, compact('recs','data'));
+    }
+
+    function rep67(Request $request, $date)
+    {
+        //Детализация реализации со склада за дату
+
+        $report_id = 67;
+
+        $returl = $request->get('returl') ?? route('home');
+        $userid = Auth::user()->id;
+        $export2xls = $request->get('xls') ?? 0;
+
+        $data = new \stdClass();
+        $data->date = $date;
+        $data->returl = $returl;
+
+//        d.docdate = '{$date}'
+        $sql = "select i.refitmid, ri.name, ri.unit, sum(i.qty) as qty, sum(i.price*i.qty) as sum
+                FROM `wrhdocs` as d
+                join wrhdoclst as i  on i.docid=d.id
+                join refitems as ri on ri.id=i.refitmid
+                WHERE d.doctypeid in (select id from wrhdoctypes dt where forsale=1)
+                    and d.docdate='{$date}'
+                group by i.refitmid
+                order by sum desc";
+
+        $recs = DB::select(DB::raw($sql));
+
+//        dd($date,$sql,$recs);
+
+        $recs2 = wrhdoc::from('wrhdoclst as dl')
+            //->join('wrhdocs as d', 'd.id', 'dl.docid')
+            ->join('wrhdocs as d', function ($join) {
+                $join->on('d.id', '=', 'dl.docid')
+                    ->where('d.docsigned', 1);
+            })
+            ->join('orgs as o', 'o.id', 'd.orgid')
+            ->join('wrhdoctypes as t', function ($join) {
+                $join->on('t.id', '=', 'd.doctypeid')
+                    ->where('t.forsale', '<>', 0);
+            })
+            ->join('refitems as ri', 'ri.id', 'dl.refitmid')
+            ->where('d.docdate', $date)
+            ->select('d.orgid', 'o.name as org_name'
+                , 'dl.refitmid', 'ri.name as refitm_name', 'ri.unit as refitm_unit'
+                , db::raw("sum(t.forsale * dl.qty) as qty"), 'dl.price', db::raw("sum(t.forsale * dl.qty * dl.price) as itm_sum"))
+            ->groupBy('d.orgid', 'dl.refitmid', 'dl.price')
+            ->orderBy('org_name', 'asc')
+            ->orderBy('d.orgid', 'asc')
+            ->orderBy('refitm_name', 'asc')
+            ->get();
+
+        //занесем в журнал
+        objlog::log_info(855, $report_id, 'запрошен отчет; ' . $date);
+        report::updUseCnt($report_id);
+
+        //        if ($export2xls == "1") {
+//            $response = Excel::download(new rep54Export($recs, $data), "Платежи за " . Str::slug($data->$date) . ".xlsx", \Maatwebsite\Excel\Excel::XLSX);
+//
+//            //$response= Excel::download(new InvoicesExport, 'invoices.xls', \Maatwebsite\Excel\Excel::XLS);
+//            //HERE IS THE MAGIC FOLKS
+//            ob_end_clean();
+//            return $response;
+//        }
+
+        return view('wrhdocs.rep' . $report_id, compact('recs', 'recs2', 'data'));
     }
 
 

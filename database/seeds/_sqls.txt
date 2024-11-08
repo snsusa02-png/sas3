@@ -1,4 +1,57 @@
-﻿-- 2024-11-04 -------------
+﻿
+
+-- 2024-11-09 -------------
+INSERT INTO `reports` (`id`, `name`, `acsid`, `acs_rightid`, `public`, `active`) VALUES ('67', 'Детализация реализации со склада за день', '1', '100', '1', '0');
+-----
+
+-- детализация реализации за день
+select i.refitmid, ri.name, sum(i.qty) as qty, avg(i.price), sum(i.price*i.qty) as sum
+FROM `wrhdocs` as d
+    join wrhdoclst as i
+    	on i.docid=d.id
+    join refitems as ri on ri.id=i.refitmid
+    WHERE d.doctypeid in (select id from wrhdoctypes dt where forsale=1)
+    and d.docdate='2024-11-03'
+    group by i.refitmid
+    order by sum desc
+
+
+-- вместе с реализацией
+select a.operdate
+, sum(IF(a.dir>0, a.sum, null)) as inp_sum
+, sum(IF(a.dir<0, a.sum, null)) as out_sum
+, sum(a.dir*a.sum) as blns_sum
+, sum(IF(a.dir=0, a.sum, null)) as sale_sum
+from (
+select e.operdate, -1 dir, sum(e.expense_sum) AS SUM, t.name
+from obj_expenses e
+join expensetypes t on t.id=e.expensetypeid
+where sysobjid=204
+and e.operdate BETWEEN '2024-11-01' and '2024-11-30'
+GROUP by operdate, e.expensetypeid
+union
+SELECT d.docdate, +1 dir, sum(round(i.price * i.qty,2)) as sum, 'произведенная продукция' as name
+FROM `wrhdocs` d
+JOIN wrhdoclst as i on i.docid=d.id
+WHERE doctypeid=10 and d.docdate BETWEEN '2024-11-01' and '2024-11-30'
+group by d.docdate
+union
+    SELECT d.docdate as operdate, -1 dir, sum(round(i.price * i.qty,2)) as sum, 'материалы на производство' as name
+    FROM `wrhdocs` d
+    JOIN wrhdoclst as i on i.docid=d.id
+    WHERE doctypeid=5 and d.docdate BETWEEN '2024-11-01' and '2024-11-30'
+	group by d.docdate
+union
+    SELECT d.docdate, 0 as dir, sum(d.docsum) as sum, 'реализация' as name
+	FROM `wrhdocs` as d
+    WHERE d.doctypeid in (select id from wrhdoctypes dt where dt.forsale=1)
+	AND d.docdate BETWEEN  '2024-11-01' and '2024-11-30'
+    group by docdate
+) a
+group by operdate
+order by operdate
+
+-- 2024-11-04 -------------
 insert into srs_hr_items (srs_id, wrktypeid,min_wrkexp, max_wrkexp, hr_day_rate, hr_night_rate)
     SELECT 10 as srs_id, t.wrktypeid,t.min_wrkexp, t.max_wrkexp, t.hr_day_rate, t.hr_night_rate FROM `srs_hr_items` t where srs_id=5
 
