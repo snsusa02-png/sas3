@@ -140,7 +140,7 @@ class SrsHrItemController extends Controller
         $usrrights = $this->setInterfaceRight($id);
         if (!$usrrights['read'])
             return redirect()->back()->with('error', 'У вас нет права на доступ к этой информации!');
-        if ($id=-1 and !$usrrights['create'])
+        if ($id == -1 and !$usrrights['create'])
             return redirect()->back()->with('error', 'У вас нет права на создание записей!');
         if ($id <> -1 and !$usrrights['save'])
             return redirect()->back()->with('error', 'У вас нет права на изменение записей!');
@@ -161,6 +161,7 @@ class SrsHrItemController extends Controller
 
         $userid = \Auth::user()->id;
         $mess = "";
+
         if ($id == -1) {
 
             $rec = new $this->model([

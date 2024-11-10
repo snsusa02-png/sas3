@@ -1,4 +1,62 @@
-﻿
+﻿--2024-11-10 -------------
+
+-- Записи о часах работы сотрудника, в которых ставки отличаются от нормы
+SELECT *
+	FROM `driver_works` as dw
+	WHERE staffid=329 and dw.wrkdate>='2024-04-10'
+    aND  EXISTS( SELECT 1
+                	FROM stf_payrolltypes spt
+                	join salary_rate_sets srs
+                		on srs.payrolltypeid = spt.payrolltypeid
+                			 and dw.wrkdate between srs.begdate and ifnull(srs.enddate,CURRENT_DATE)
+                	join srs_hr_items shi
+                		on shi.srs_id = srs.id
+                		and shi.wrktypeid=dw.wrktypeid
+                		and (shi.hr_day_rate<> dw.day_hr_rate or shi.hr_night_rate<> dw.night_hr_rate)
+                	where spt.staffid = dw.staffid
+                   		and dw.wrkdate between spt.begdate and ifnull(spt.enddate,CURRENT_DATE)
+                   )
+
+-- то же самое, но с использованием функций hr_day_rate, hr_night_rate
+SELECT *
+	FROM `driver_works` as dw
+	WHERE 1=1
+    -- and staffid=329
+    and dw.wrkdate>='2024-04-10'
+    and (   hr_day_rate(dw.wrkdate, dw.staffid, dw.wrktypeid) <> dw.day_hr_rate
+         or hr_night_rate(dw.wrkdate, dw.staffid, dw.wrktypeid) <> dw.night_hr_rate);
+
+
+-- "лечение" суммы начисленной ЗП, расчитаной по устаревшим почасовым ставкам
+-- 1 восстановление ставки за день
+update `driver_works` as dw
+	set dw.day_hr_rate = hr_day_Rate(dw.wrkdate, dw.staffid, dw.wrktypeid)
+	WHERE 1=1
+    and dw.wrkdate>='2024-10-01'
+    and dw.day_hr_rate <> hr_day_Rate(dw.wrkdate, dw.staffid, dw.wrktypeid);
+
+-- 2 восстановление ставки за ночь
+update `driver_works` as dw
+	set dw.night_hr_rate = hr_night_Rate(dw.wrkdate, dw.staffid, dw.wrktypeid)
+	WHERE 1=1
+    and dw.wrkdate>='2024-10-01'
+    and dw.night_hr_rate <> hr_night_Rate(dw.wrkdate, dw.staffid, dw.wrktypeid);
+
+-- 3 пересчет ЗП за часы работы
+update `driver_works` as dw
+	set dw.hrs_salary =  dw.day_wrkhrs * dw.day_hr_rate + dw.night_wrkhrs * dw.night_hr_rate
+	WHERE 1=1
+    and dw.wrkdate>='2024-10-01'
+    and dw.hrs_salary != dw.day_wrkhrs * dw.day_hr_rate + dw.night_wrkhrs * dw.night_hr_rate;
+
+-- 4 пересчет сводной ЗП
+update `driver_works` as dw
+	set dw.salary_sum = dw.hrs_salary + dw.raid_sum + dw.breaks_sum
+	WHERE 1=1
+    and dw.wrkdate >='2024-10-01'
+    and dw.salary_sum != dw.hrs_salary + dw.raid_sum + dw.breaks_sum;
+
+--- end of repair -------------
 
 -- 2024-11-09 -------------
 INSERT INTO `reports` (`id`, `name`, `acsid`, `acs_rightid`, `public`, `active`) VALUES ('67', 'Детализация реализации со склада за день', '1', '100', '1', '0');
