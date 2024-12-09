@@ -14,7 +14,6 @@
         <?php
         $thisSysObjCode = 'stf_wrkhrs';
         $retURL = Request::url();
-
         ?>
         <link rel="stylesheet" href="/css/subnav.css">
 
@@ -65,7 +64,7 @@
                             <thead>
                             <tr>
                                 <td>#</td>
-                                <td>Организация, </td>
+                                <td>Организация, Период</td>
                                 <td>Сотрудник</td>
                                 <td>Часы * Ставка</td>
                                 <td>Сумма, руб</td>
@@ -81,6 +80,15 @@
                             <tr style="text-align: center;">
                                 <td colspan="2">
                                     <div class="input-group">
+                                        {!! Form::select('s_orgid', $data->ownorgs, $data->search_params['s_orgid']??'',
+                                                        [
+                                                        'class' => 'form-control small',
+                                                        'placeholder' => '-',
+                                                        'onChange' => 'this.form.submit()',
+                                                        ])
+                                                        !!}
+                                    </div>
+                                    <div class="input-group">
                                         {!! Form::select('s_ym', $data->yms??[], $data->search_params['s_ym'],
                                                             [
                                                             'id' => 's_ym',
@@ -90,16 +98,6 @@
                                                             ])
                                                             !!}
                                     </div>
-                                    <div class="input-group">
-                                        {!! Form::select('s_orgid', $data->ownorgs, $data->search_params['s_orgid']??'',
-                                                        [
-                                                        'class' => 'form-control small',
-                                                        'placeholder' => '-',
-                                                        'onChange' => 'this.form.submit()',
-                                                        ])
-                                                        !!}
-                                    </div>
-
                                 </td>
                                 <td><div class="input-group">
                                         <input type="text" class="form-control" name="stf_name"

@@ -92,7 +92,7 @@ class CreateMchnRaidsTable extends Migration
 
             $table->biginteger('orgid')->unsigned()->nullable()->comment('Организация-клиент (заказчик)');
 		$table->foreign('orgid')->references('id')->on('orgs');
-            $table->string('org_name',60)->nullable()->comment('Название организации-подрядчика');
+            $table->string('org_name',120)->nullable()->comment('Название организации-подрядчика');
 
             $table->biginteger('unload_placeid')->unsigned()->nullable()->comment('ID места выгрузки по org_places');
             $table->string('unload_placename',60)->nullable()->comment('Название(адрес) места выгрузки');

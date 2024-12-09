@@ -218,6 +218,10 @@ class StfChrgCalcController extends Controller
 
         $rec->orgid = $rec->orgstaff->orgid;
         $rec->_obj_info = $rec->orgstaff->Info;
+        $rec->_ref_sysobj_info = $rec->ref_sysobj->name;
+        if ($rec->ref_objid != 0){
+            $rec->_ref_sysobj_info .= " ({$rec->ref_objid})";
+        }
 
         //$rec->orgcharges = org_charge::lstFor_cached([
         $rec->orgcharges = org_charge::lstFor([

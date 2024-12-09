@@ -27,8 +27,22 @@ $first_col_id = null;
 @endsection
 
 @section('content')
-
     <style>
+        @media print {
+            @page {
+                size: A4 portrait;
+                /*size: portrait;*/
+                /*size:auto;   !* auto is the initial value *!*/
+                /* this affects the margin in the printer settings */
+                margin: 5mm 5mm 5mm 5mm;
+            }
+
+            .pagebreak {
+                page-break-inside: avoid;
+                page-break-before: always;
+            }
+        }
+
         .rep-data td {
             padding: 5px;
             border-collapse: collapse;
@@ -144,178 +158,234 @@ $first_col_id = null;
         @if (isset($recs))
 
             <div class="page p-2 container-fluid">
-                <div id="_calc_selected_sum"
-                     class="p-3 text-center bg-light  font-weight-bold w-25 border  border-danger rounded-pill"
-                     style="position: sticky; top: 2em; display: none"></div>
-                <div id="_calc_selected_qty"
-                     class="p-3 text-center bg-light  font-weight-bold w-25 border  border-danger rounded-pill"
-                     style="position: sticky; top: 2em; display: none"></div>
 
-                <span class="float-right">
-                    <a class="btn btn-warning btn-sm print-window d-print-none "
-                       href="{{ route('stf_chrg_calcs.create', -1) }}"
-                       title="Добавить запись">
-                        <i class="fa fa-plus" aria-hidden="true"></i>
-                    </a>
-                    <a class="btn btn-warning btn-sm print-window d-print-none "
-                       onclick="window.print();"
-                       title="печать">
-                        <i class="fa fa-print" aria-hidden="true"></i>
-                    </a>
-                    @if(1==0)
-                        <a class="btn btn-success btn-sm mr-3"
-                           href="{{ route('reports.rep56',['date'=>$data->begdate]) }}?xls=1"
-                           title="Выгрузить результаты в Excel">
-                                        <i class="fa fa-file-excel-o" aria-hidden="true"></i>
-                                    </a>
-                    @endif
-                        <a class="btn btn-close btn-info btn-sm"
-                           href="{{ $retURL }}">
-                                        <i class="fa fa-times" aria-hidden="true"></i>
-                                    </a>
-                        </span>
+                {{--                <div class="mt-2 text-center"--}}
+                {{--                     style="font-size: 18px;">--}}
+                {{--                    <h4>{{$thisTitle}}</h4>--}}
+                {{--                    <b>{{date_create($data->begdate)->format('d.m.Y')}}--}}
+                {{--                        - {{date_create($data->enddate)->format('d.m.Y')}}</b>--}}
+                {{--                    <span class="small"><br>по состоянию на {{now()}}</span>--}}
+                {{--                    @if(1==0)--}}
+                {{--                        <button class="btn btn-primary btn-sm d-print-none" type="button" data-toggle="collapse"--}}
+                {{--                                data-target=".multi-collapse" aria-expanded="false"--}}
+                {{--                                aria-controls="multiCollapseExample1 multiCollapseExample2">--}}
+                {{--                            <i class="fa fa-eye-slash" aria-hidden="true"></i>--}}
+                {{--                        </button>--}}
+                {{--                    @endif--}}
+                {{--                </div>--}}
 
-                <div class="mt-2 text-center"
-                     style="font-size: 18px;">
-                    <h4>{{$thisTitle}}</h4>
-                    <b>{{date_create($data->begdate)->format('d.m.Y')}}
-                        - {{date_create($data->enddate)->format('d.m.Y')}}</b>
-                    <span class="small"><br>по состоянию на {{now()}}</span>
-                    @if(1==0)
-                        <button class="btn btn-primary btn-sm d-print-none" type="button" data-toggle="collapse"
-                                data-target=".multi-collapse" aria-expanded="false"
-                                aria-controls="multiCollapseExample1 multiCollapseExample2">
-                            <i class="fa fa-eye-slash" aria-hidden="true"></i>
-                        </button>
-                    @endif
-                </div>
 
-                <table id="results"
-                       class="table table-sm table-striped0 rep-data mt-3"
-                       style="background-color: snow; font-size:16px; max-width:960px; align-self: center">
-                    <thead>
-                    </thead>
+                <?php
+                $npp = 0;
+                $totSum = $totInpSum = $totOutSum = 0;
+                $cur_orgid = -1;
+                $cur_dep_name = '-1';
+                $cur_staffid = -1;
 
-                    <tbody>
+                $line_sum = [];
+                ?>
+                @foreach($recs as $rec)
                     <?php
-                    $npp = 0;
-                    $totSum = $totInpSum = $totOutSum = 0;
-                    $cur_orgid = -1;
-                    $cur_dep_name = '-1';
-                    $cur_staffid = -1;
 
-                    $line_sum = [];
+                    $tr_class = "";
+                    $td_class = "";
+                    $tdс_class = "";
+
+                    //$tstyle = ($rec->inp_qty + $rec->out_qty > 0) ? 'background-color:#ffff94' : '';
+                    $tstyle = '';
                     ?>
-                    @foreach($recs as $rec)
-                        <?php
+                    @if($cur_staffid <> -1)
+                            <div class="pagebreak"> </div>
+                    @endif
 
-                        $tr_class = "";
-                        $td_class = "";
-                        $tdс_class = "";
+                    <table id="results"
+                           class="table table-sm table-striped0 rep-data mt-3"
+                           style="background-color: snow; font-size:16px; max-width:960px; align-self: center">
+                        <thead>
+                        </thead>
 
-                        //$tstyle = ($rec->inp_qty + $rec->out_qty > 0) ? 'background-color:#ffff94' : '';
-                        $tstyle = '';
-                        ?>
+                        <tbody>
 
-                        @if($rec->staffid <> $cur_staffid)
-
-                            {{--Вывод по пред сотруднику--}}
-                            @if( $cur_staffid <> -1 )
-                                <tr>
-                                    <td class="text-right font-weight-bold">Итого к выдаче:</td>
-                                    <td class="text-right font-weight-bold">{{number_format($totOutSum, 0)}}</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="2">
-                                        <Br>
-                                    </td>
-                                </tr>
-                            @endif
-
-                            @if(1==0 and $rec->orgid <> $cur_orgid)
-                                <tr class="text-left">
-                                    <td colspan={{3}}>{{$rec->org_name}}</td>
-                                </tr>
-                                <?php
-                                $cur_orgid = $rec->orgid;
-                                $cur_dep_name = '-1';
-                                ?>
-                            @endif
-
-                            @if(1==0 and $rec->dep_name <> $cur_dep_name)
-                                <tr class="text-left">
-                                    <td colspan="{{3}}" class="small" style="background-color: #ecf6f9">
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        Подразделение:
-                                        <b>{{(trim($rec->dep_name)=='')?'-не указано-':$rec->dep_name}}</b></td>
-                                </tr>
-                                @php($cur_dep_name = $rec->dep_name)
-                            @endif
-                            <?php
-                            $cur_staffid = $rec->staffid;
-                            $pre_chargetypeid = $first_col_id;
-                            //echo('<hr>');var_dump('$pre_chargetypeid =', $pre_chargetypeid);
-                            ?>
-                            <tr>
-                                <td colspan="2" align="center"><img src="/images/signs/gerb.jpg" style="width:100px;text-align: center">
-                                    <br>РАБОЧАЯ ВЕДОМОСТЬ</td>
+                        @if(1==0 and $rec->orgid <> $cur_orgid)
+                            <tr class="text-left">
+                                <td colspan={{3}}>{{$rec->org_name}}</td>
                             </tr>
-                            <tr class="text-left {{$tr_class}}" style="{{$tstyle}}">
-                                <td colspan="1" class="text-left" data-npp="{{$npp}}">
-
-                                    {{--                                    <span class="small">{{++$npp}}.</span>--}}
-                                    <b>{{$rec->lname}} {{$rec->fname}} {{$rec->mname}}</b>,
-                                    <div class="small"> должность: {{$rec->postname}},
-                                        подразделение: {{$rec->dep_name??'-не указано-'}},
-                                        {{$rec->org_name}}
-                                    </div>
-                                </td>
-                                <td align="center">за период <br><b>{{date_create($data->begdate)->format('d.m.Y')}}
-                                    - {{date_create($data->enddate)->format('d.m.Y')}}</b></td>
                             <?php
-                            $totOutSum = 0;
+                            $cur_orgid = $rec->orgid;
+                            $cur_dep_name = '-1';
                             ?>
                         @endif
 
+                        @if(1==0 and $rec->dep_name <> $cur_dep_name)
+                            <tr class="text-left">
+                                <td colspan="{{3}}" class="small" style="background-color: #ecf6f9">
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    Подразделение:
+                                    <b>{{(trim($rec->dep_name)=='')?'-не указано-':$rec->dep_name}}</b></td>
+                            </tr>
+                            @php($cur_dep_name = $rec->dep_name)
+                        @endif
+                        <?php
+                        $cur_staffid = $rec->staffid;
+                        $pre_chargetypeid = $first_col_id;
+                        //echo('<hr>');var_dump('$pre_chargetypeid =', $pre_chargetypeid);
+                        ?>
                         <tr>
-                            <td class="text-left ">
-                                ({{$rec->dir==1?'+':'-'}})
-                                {{$rec->chargetype_name}}
-                                <span class="small float-right">
-{{--                                    ({{date_format(date_create($rec->docdate),'d.m.Y')}} {{isset($rec->notes)?', '.$rec->notes:''}})--}}
-                                    {{$rec->notes}}
-                                </span>
+                            <td colspan="2" align="center"><img src="/images/signs/gerb.jpg"
+                                                                style="width:100px;text-align: center">
+                                <br>РАБОЧАЯ ВЕДОМОСТЬ
                             </td>
-                            <td class="text-right ">{{number_format($rec->charge_sum, 0)}}</td>
                         </tr>
-
+                        <tr class="text-left {{$tr_class}}" style="{{$tstyle}}">
+                            <td colspan="1" class="text-left" data-npp="{{$npp}}">
+                                <b>{{$rec->lname}} {{$rec->fname}} {{$rec->mname}}</b>,
+                                <div class="small"> должность: <i>{{$rec->postname}}</i>,
+                                    подразделение: <i>{{$rec->dep_name??'-не указано-'}},
+                                        {{$rec->org_name}}</i>
+                                </div>
+                            </td>
+                            <td align="center">за период <br><b>{{date_create($data->begdate)->format('d.m.Y')}}
+                                    - {{date_create($data->enddate)->format('d.m.Y')}}</b></td>
                         <?php
-                        $totOutSum += ($rec->dir * $rec->charge_sum);
-                        $totSum += ($rec->dir * $rec->charge_sum);
+                        $totOutSum = 0;
                         ?>
-                    @endforeach
 
-                    {{-- последняя запись --}}
-                    @if( $cur_staffid <> -1 )
-                        <tr>
-                            <td class="text-right font-weight-bold">Итого к выдаче:</td>
-                            <td class="text-right font-weight-bold">{{number_format($totOutSum, 0)}}</td>
-                        </tr>
-                    @endif
+                        @if (count($rec->drvrhrs) > 0)
+                            <tr>
+                                <td class="text-left " colspan="2">
+                                    <table class="tbl table-sm table-striped" width="100%">
+                                        <tr class="small">
+                                            <th rowspan="2">Вид работ</th>
+                                            <th colspan="3" class="text-center">День</th>
+                                            <th colspan="3" class="text-center">Ночь</th>
+                                            <th colspan="1" class="text-center">Простой</th>
+                                            <th colspan="1" class="text-center">Ремонт</th>
+                                            <th rowspan="2" class="text-center">Итого, &#8381;</th>
+                                        </tr>
+                                        <tr class="small">
+                                            <td>Ставка, &#8381;</td>
+                                            <td>Часов</td>
+                                            <td>Сумма, &#8381;</td>
 
-                    @if(1==0)
-                        <?php
-                        $td_class = '';
-                        $tdс_class = '';
-                        ?>
+                                            <td>Ставка, &#8381;</td>
+                                            <td>Часов</td>
+                                            <td>Сумма, &#8381;</td>
+
+                                            <td>Сумма, &#8381;</td>
+
+                                            <td>Сумма, &#8381;</td>
+                                        </tr>
+                                        @foreach($rec->drvrhrs as $itm)
+                                            <tr class="small">
+                                                <td>
+                                                    {{$itm->wrktypename}}
+                                                </td>
+                                                <td class="text-right ">{{number_format($itm->day_hr_rate, 0)}}</td>
+                                                <td class="text-right ">{{number_format($itm->day_wrkhrs, 2)}}</td>
+                                                <td class="text-right font-weight-bold ">{{number_format($itm->day_hr_rate*$itm->day_wrkhrs, 2)}}</td>
+
+                                                <td class="text-right ">{{number_format($itm->night_hr_rate, 0)}}</td>
+                                                <td class="text-right ">{{number_format($itm->night_wrkhrs, 2)}}</td>
+                                                <td class="text-right font-weight-bold ">{{number_format($itm->night_hr_rate*$itm->night_wrkhrs, 2)}}</td>
+
+                                                <td class="text-right font-weight-bold ">{{number_format($itm->breaks_sum, 2)}}</td>
+                                                <td class="text-right font-weight-bold ">{{number_format($itm->repair_sum, 2)}}</td>
+
+                                                <td class="text-right font-weight-bold ">{{number_format(
+                                                    $itm->day_hr_rate*$itm->day_wrkhrs
+                                                    +$itm->night_hr_rate*$itm->night_wrkhrs
+                                                    +$itm->breaks_sum
+                                                    +$itm->repair_sum, 2)}}
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </table>
+                                </td>
+                            </tr>
+                        @endif
+
+                        @if (count($rec->wrkhrs) > 0)
+                            <tr>
+                                <td class="text-left " colspan="2">
+                                    <table class="tbl table-sm table-striped" width="100%">
+                                        <tr class="small">
+                                            <th rowspan="2">Вид работ</th>
+                                            <th colspan="3" class="text-center">День</th>
+                                            <th colspan="3" class="text-center">Ночь</th>
+                                            <th rowspan="2" class="text-center">Итого, &#8381;</th>
+                                        </tr>
+                                        <tr class="small">
+                                            <td>Ставка, &#8381;</td>
+                                            <td>Часов</td>
+                                            <td>Сумма, &#8381;</td>
+
+                                            <td>Ставка, &#8381;</td>
+                                            <td>Часов</td>
+                                            <td>Сумма, &#8381;</td>
+                                        </tr>
+                                        @foreach($rec->wrkhrs as $itm)
+                                            <tr class="small">
+                                                <td>
+                                                    {{$itm->wrktypename??'-разное-'}}
+                                                </td>
+                                                <td class="text-right ">{{number_format($itm->day_hr_cost, 0)}}</td>
+                                                <td class="text-right ">{{number_format($itm->day_tot_hrs, 2)}}</td>
+                                                <td class="text-right font-weight-bold ">{{number_format($itm->day_hr_cost*$itm->day_tot_hrs, 2)}}</td>
+
+                                                <td class="text-right ">{{number_format($itm->night_hr_cost, 0)}}</td>
+                                                <td class="text-right ">{{number_format($itm->night_tot_hrs, 2)}}</td>
+                                                <td class="text-right font-weight-bold ">{{number_format($itm->night_hr_cost*$itm->night_tot_hrs, 2)}}</td>
+                                                <td class="text-right font-weight-bold ">{{number_format($itm->day_hr_cost*$itm->day_tot_hrs + $itm->night_hr_cost*$itm->night_tot_hrs, 2)}}</td>
+
+                                            </tr>
+                                        @endforeach
+                                    </table>
+                                </td>
+                            </tr>
+                        @endif
+
                         <tr>
-                            <td colspan="1" class="text-right" data-npp="{{$npp++}}">Всего:</td>
-                            <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totSum,0)}}</td>
+                            <td class="text-right" style="text-align: center;" colspan="2">
+                                @php($totOutSum=0)
+                                <table class="tbl text-center" width="100%">
+                                    @foreach($rec->charges as $chrg)
+                                        <tr>
+                                            <td>
+                                                ({{$chrg->dir==1?'+':'-'}})
+                                                {{$chrg->chargetype_name}}
+                                                <span class="small float-right">
+{{--                                    ({{date_format(date_create($rec->docdate),'d.m.Y')}} {{isset($rec->notes)?', '.$rec->notes:''}})--}}
+                                                    {{$chrg->notes}}
+                                </span>
+                                            </td>
+                                            <td class="text-right small">{{number_format($chrg->charge_sum, 2)}}</td>
+                                            <td class="small" style="width: 130pt;"><br>
+                                                <hr size="1" style="margin-bottom:0rem;">
+                                                <sup style="font-size: 0.6em">(ФИО и подпись)</sup></td>
+                                        </tr>
+                                        <?php
+                                        $totOutSum += ($chrg->dir * $chrg->charge_sum);
+                                        //                                        $totSum += ($chrg->dir * $chrg->charge_sum);
+                                        ?>
+                                    @endforeach
+                                    <tr>
+                                        <td class="text-right font-weight-bold" style="font-size: 1.2rem">Итого к выдаче:</td>
+                                        <td class="text-right font-weight-bold" style="font-size: 1.2rem">{{number_format($totOutSum, 2)}}</td>
+                                        <td class="small" style="width: 130pt;"><br>
+                                            <hr size="1" style="margin-bottom:0rem;">
+                                            <sup style="font-size: 0.6em">(ФИО и подпись)</sup></td>
+                                    </tr>
+                                </table>
+                            </td>
                         </tr>
-                    @endif
-                    </tbody>
-                    <tfoot>
-                </table>
+
+                        </tbody>
+                        <tfoot>
+                    </table>
+                @endforeach
+
+                {{-- последняя запись --}}
+
 
             </div>
         @endif

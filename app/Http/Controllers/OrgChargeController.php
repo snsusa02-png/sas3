@@ -14,6 +14,7 @@ use App\orgpost;
 use App\place;
 use App\stf_chrg_calc;
 use App\stf_salary;
+use App\stf_wrkhr;
 use App\stforder;
 use App\sysobj;
 use App\Traits\Result;
@@ -27,6 +28,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use function PHPUnit\Framework\isEmpty;
 
 class OrgChargeController extends Controller
 {
@@ -607,8 +609,10 @@ class OrgChargeController extends Controller
             if (isset($s_stf_name))
                 $sql .= " and concat(' ', os.lname, ' ', os.fname, ' ', ifnull(os.mname,' ')) like '% {$s_stf_name}%'";
 
-            $sql .= " group by scc.staffid, oc.chargetypeid
-                    order by o.name, dep_name, os.lname, os.fname, os.id, ct.dir desc, ct.ordr";
+            $sql .= " group by scc.staffid, oc.chargetypeid";
+            //$sql .= " order by o.name, dep_name, os.lname, os.fname, os.id, ct.dir desc, ct.ordr";
+            //2024-11-04 -------------
+            $sql .= " order by os.lname, os.fname, os.id, ct.dir desc, ct.ordr";
 
             $recs = DB::select(DB::raw($sql));
         } else {
@@ -737,11 +741,42 @@ class OrgChargeController extends Controller
         } elseif ($s_begdate <> '' and $s_enddate <> '') {
             $data->begdate = date_create($s_begdate)->format('Y-m-d');   //Первый день месяца
             $data->enddate = date_create($s_enddate)->format('Y-m-d');    //Последний день месяца
+
             $sql = "SELECT os.id as staffid, os.lname, os.fname, os.mname
-                    , os.orgid, o.name as org_name
-                    , upper (os.depname) as dep_name
-                    , os.postname
-                    , ct.dir, oc.chargetypeid, ct.name as chargetype_name
+	, os.orgid, o.name as org_name
+	, upper (os.depname) as dep_name
+	, os.postname
+	, sum(ct.dir*scc.charge_sum) as charge_sum
+	, count(1) as cnt
+	FROM orgstaff os
+	join orgs o on o.id=os.orgid
+	join stf_chrg_calcs scc on scc.staffid=os.id
+	join org_charges as oc 	on oc.id=scc.orgchargeid
+	join chargetypes as ct on ct.id=oc.chargetypeid
+	where scc.docdate between '"
+            . date_create($s_begdate)->format('Y-m-d') . "' and '" . date_create($s_enddate)->format('Y-m-d') . "'";
+
+            if (isset($s_ownorgid))
+                $sql .= " and os.orgid={$s_ownorgid}";
+
+            if (isset($s_stf_name))
+                $sql .= " and concat(' ', os.lname, ' ', os.fname, ' ', ifnull(os.mname, ' ')) like '% {$s_stf_name}%'";
+
+            //$sql .= " and os.id in (53,429)";
+
+            $sql .= "group by os.id
+	            order by os.lname, os.fname, os.id";
+
+            $recs = DB::select(DB::raw($sql));
+//            dd($recs);
+
+        } else {
+            $recs = null;
+        }
+
+        foreach ($recs as $rec){
+
+            $sql = "SELECT ct.dir, oc.chargetypeid, ct.name as chargetype_name
                     , scc.charge_sum charge_sum
                     , scc.docdate
                     , scc.notes
@@ -750,22 +785,42 @@ class OrgChargeController extends Controller
                     join stf_chrg_calcs scc on scc.staffid=os.id
                     join org_charges as oc 	on oc.id=scc.orgchargeid
                     join chargetypes as ct on ct.id=oc.chargetypeid
-                    where scc.docdate between '"
-                . date_create($s_begdate)->format('Y-m-d') . "' and '" . date_create($s_enddate)->format('Y-m-d') . "'";
+                    where 1=1"
+                    . " and scc.staffid={$rec->staffid}"
+                    . " and scc.docdate between '" . date_create($s_begdate)->format('Y-m-d') . "' and '" . date_create($s_enddate)->format('Y-m-d') . "'";
 
-            if (isset($s_ownorgid))
-                $sql .= " and os.orgid={$s_ownorgid}";
+//            if (isset($s_ownorgid))
+//                $sql .= " and os.orgid={$s_ownorgid}";
 
-            if (isset($s_stf_name))
-                $sql .= " and concat(' ', os.lname, ' ', os.fname, ' ', ifnull(os.mname, ' ')) like '% {$s_stf_name}%'";
+//            if (isset($s_stf_name))
+//                $sql .= " and concat(' ', os.lname, ' ', os.fname, ' ', ifnull(os.mname, ' ')) like '% {$s_stf_name}%'";
 
-//            $sql .= " order by o.name, dep_name, os.lname, os.fname, os.id, ct.dir desc, ct.ordr, scc.docdate";
-            $sql .= " order by os.lname, os.fname, os.id, ct.dir desc, ct.ordr, scc.docdate";
+            $sql .= " order by ct.dir desc, ct.ordr, scc.docdate";
+            $rec->charges = DB::select(DB::raw($sql));
 
-            $recs = DB::select(DB::raw($sql));
-        } else {
-            $recs = null;
+
+            // данные о рвбочих часах из stf_wrkHrs
+            $rec->wrkhrs = stf_wrkhr::where('staffid', $rec->staffid)
+                ->where('yr',date('Y', strtotime($s_begdate)))
+                ->where('mn',date('m', strtotime($s_begdate)))
+                ->get();
+
+            $sql = "SELECT wrktypeid, wt.name as wrktypename"
+                . ", day_hr_rate, sum(day_wrkhrs) as  day_wrkhrs, night_hr_rate, sum(night_wrkhrs) as  night_wrkhrs"
+                . ", sum(breaks_sum) as breaks_sum "
+                . ", sum(repair_sum) as repair_sum "
+                . " FROM driver_works dw"
+                . " join wrktypes wt on wt.id=dw.wrktypeid"
+                . " where wrkdate between '" . date_create($s_begdate)->format('Y-m-d') . "' and '" . date_create($s_enddate)->format('Y-m-d') . "'"
+                    . " and staffid={$rec->staffid}"
+                    . " and day_wrkhrs+night_wrkhrs>0"
+                    . " group by  wrktypeid, day_hr_rate, night_hr_rate";
+            $rec->drvrhrs = DB::select(DB::raw($sql));
+//            if ($rec->staffid==53)
+//                dd($sql, $rec);
+//            dd($rec, count($rec->drvrhrs), count($rec->wrkhrs));
         }
+//dd($recs);
 
         // Заполним массив "Год.Месяц" уникальными значениями из первичных данных
         $month_names = Config::get('constants.monthes');

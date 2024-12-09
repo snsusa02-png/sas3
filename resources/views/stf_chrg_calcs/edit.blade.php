@@ -279,6 +279,15 @@
                                         </div>
                                     </div>
 
+                                    @if(isset($rec->_ref_sysobj_info))
+                                        <div class="row">
+                                            <div class="form-group offset-md-0 col-md-8">
+                                                <label for="name" class="">Основание:</label>
+                                                {{$rec->_ref_sysobj_info}}
+                                            </div>
+                                        </div>
+                                    @endif
+
                                     {{--                                    <div class="row">--}}
                                     {{--                                        <div class="form-group offset-md-4 col-md-8">--}}
                                     {{--                                            <label for="name" class="required">За период работы:</label>--}}

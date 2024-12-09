@@ -26,6 +26,12 @@ class stf_chrg_calc extends Model
             ->withDefault();
     }
 
+    public function ref_sysobj()
+    {
+        return $this->hasOne(sysobj::class, 'id', 'ref_sysobjid')
+            ->withDefault();
+    }
+
     public function orgstaff()
     {
         return $this->hasOne(orgstaff::class, 'id', 'staffid')->withDefault();;
