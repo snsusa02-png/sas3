@@ -129,7 +129,6 @@ class StfWrkhrController extends Controller
         $recs = $recs->paginate($search_params['s_pageitmcnt'] ?? 20);
         //--------------------------------------------------------------
 
-
         $data = new \stdClass();
 
         //варианты кол-ва записей на страницу
@@ -237,7 +236,16 @@ class StfWrkhrController extends Controller
         if (!isset($rec))
             return redirect(route('orgstaff.edit', $staffid));
 
+        // преобразуем строку в массив
         $rec->dhr = explode(';', $rec->day_hrs);
+
+        // подсчет кол-ва рабочих дней ------------
+        $days = 0;
+        foreach ($rec->dhr as $d){
+            $days += ($rec->dhr == 0)?0:1;
+        }
+        $rec->days_tot_cnt = $days;
+        //-----------------------------------------
 
         $rec->retURL = $retURL ?? route('stf_wrkhrs.index');
         //dd($rec->retURL );

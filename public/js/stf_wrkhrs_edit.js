@@ -7,11 +7,15 @@ $(document).ready(function () {
     function calc_sum() {
         const price = parseFloat($("#day_hr_cost").val());
         var qty = 0;
+        var days = 0;
         $('.day_hr').each(function () {
             s = parseFloat($(this).val());
-            qty += (isNaN(s)) ? 0 : s;
+            s = (isNaN(s)) ? 0 : s;
+            qty += s;
+            days += (s==0) ? 0 : 1;
         });
         $("#day_tot_hrs").val(qty);
+        $("#days_tot_cnt").val(days);
 
         const sum = Math.round(price * qty * 100) / 100;
         $("#day_tot_sum").val(sum);

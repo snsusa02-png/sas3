@@ -310,7 +310,16 @@
                                                     ?>
                                                     {!! $html !!}
                                                     <tr>
-                                                        <td colspan="5" class="text-right">
+                                                        <td colspan="3" class="text-right">
+                                                            <div class="form-group float-right">
+                                                                <label for="day_hr_cost" class="">Всего,
+                                                                    дней:</label>
+                                                                <input type="text" style="width:96px"
+                                                                       class=" form-control font-weight-bold text-right"
+                                                                       name="days_tot_cnt" id="days_tot_cnt" readonly
+                                                                       value="{{$rec->days_tot_cnt ?? 0}}">
+                                                            </div>
+                                                        </td><td colspan="2" class="text-right">
                                                             <div class="form-group float-right">
                                                                 <label for="day_hr_cost" class="">Всего,
                                                                     часов:</label>
