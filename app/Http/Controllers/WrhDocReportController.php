@@ -697,7 +697,6 @@ class WrhDocReportController extends Controller
             ->get()
             ->pluck('name', 'id');
         //dd($data->itmtypes);
-
         return view('wrhdocs.rep' . $report_id, compact('recs', 'search_params', 'data'));
     }
 

@@ -137,6 +137,7 @@ $action_url = route('reports.rep' . $thisObjId);
                                                             !!}
                                         </div>
 
+                                        
                                     @if(1==0)
                                         <div class="form-group col-md-3">
                                             <label for="s_ownorgid" class="">Организация:</label>
