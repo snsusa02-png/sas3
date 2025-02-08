@@ -23,6 +23,7 @@ namespace App\Http\Controllers;
 use App\refitem;
 use App\report;
 use App\org;
+
 //use App\group;
 //use App\machine;
 //use App\mchnrqsttype;
@@ -32,6 +33,7 @@ use App\org;
 //use App\objflag;
 use App\objlog;
 use App\Traits\SearchDataTrait;
+
 //use App\User;
 //use App\user_template;
 use App\usrsysright;
@@ -580,6 +582,7 @@ class WrhDocReportController extends Controller
             , 's_year' => $year
             , 's_begdate' => $begdate->format('Y-m-01')
             , 's_enddate' => $begdate->format('Y-m-t')
+            , 's_itmtypeid' => null,
         ];
 
         $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);
@@ -601,6 +604,7 @@ class WrhDocReportController extends Controller
             $s_yr_mn = date_format(date_create($s_begdate), 'Y-m');
             //dd($s_yr_mn);
 //--            and dw1.wrkdate between '{$s_begdate}' and '{$s_enddate}'
+            $s_itmtypeid = $search_params['s_itmtypeid'];
 
             $sql = "select a.operdate
                 , sum(IF(a.dir>0, a.sum, null)) as inp_sum
@@ -611,27 +615,56 @@ class WrhDocReportController extends Controller
             select e.operdate, -1 dir, sum(e.expense_sum) AS SUM, t.name
                 from obj_expenses e
                 join expensetypes t on t.id=e.expensetypeid
-                where sysobjid=204
-                and e.operdate BETWEEN '{$s_begdate}' and '{$s_enddate}'
-                GROUP by operdate, e.expensetypeid
+                where sysobjid = 204
+                and e.operdate BETWEEN '{$s_begdate}' and '{$s_enddate}'";
+
+            if (isset($s_itmtypeid) && !empty($s_itmtypeid))
+                $sql .= " and exists(select 1
+                        from wrhdocs wd
+                        join wrhdoclst as di on di.docid=wd.id
+                        join refitems as ri on ri.id=di.refitmid
+                        where wd.id=e.objid and ri.itmtypeid='{$s_itmtypeid}') ";
+
+            $sql .= " GROUP by operdate, e.expensetypeid
             union
                 SELECT d.docdate, +1 dir, sum(round(i.price * i.qty,2)) as sum, 'произведенная продукция' as name
                 FROM `wrhdocs` d
-                    JOIN wrhdoclst as i on i.docid=d.id
-                WHERE doctypeid=10 and d.docdate BETWEEN '{$s_begdate}' and '{$s_enddate}'
+                    JOIN wrhdoclst as i on i.docid=d.id";
+
+            if (isset($s_itmtypeid) && !empty($s_itmtypeid))
+                $sql .= " join refitems as ri on ri.id=i.refitmid
+                        and ('{$s_itmtypeid}' is null or ri.itmtypeid='{$s_itmtypeid}')";
+
+            $sql .= " WHERE doctypeid=10 and d.docdate BETWEEN '{$s_begdate}' and '{$s_enddate}'
                 group by d.docdate
             union
                 SELECT d.docdate as operdate, -1 dir, sum(round(i.price * i.qty,2)) as sum, 'материалы на производство' as name
                 FROM `wrhdocs` d
                     JOIN wrhdoclst as i on i.docid=d.id
-                WHERE doctypeid=5 and d.docdate BETWEEN '{$s_begdate}' and '{$s_enddate}'
-                group by d.docdate
-            union
+                WHERE doctypeid=5 and d.docdate BETWEEN '{$s_begdate}' and '{$s_enddate}'";
+
+            if (isset($s_itmtypeid) && !empty($s_itmtypeid))
+                $sql .= " and exists(select 1
+                from wrhdocs pd
+                join wrhdoclst as di on di.docid = pd.id
+                join refitems as ri on ri.id=di.refitmid
+                where pd.id=d.predocid and ri.itmtypeid='{$s_itmtypeid}') ";
+
+            $sql .= " group by d.docdate";
+
+            $sql .= " union
                 SELECT d.docdate, 0 as dir, sum(d.docsum) as sum, 'реализация' as name
                 FROM `wrhdocs` as d
                 WHERE d.doctypeid in (select id from wrhdoctypes dt where dt.forsale=1)
-                AND d.docdate BETWEEN  '{$s_begdate}' and '{$s_enddate}'
-                group by docdate
+                AND d.docdate BETWEEN  '{$s_begdate}' and '{$s_enddate}'";
+
+            if (isset($s_itmtypeid) && !empty($s_itmtypeid))
+                $sql .= " and exists(select 1
+                from wrhdoclst as di
+                join refitems as ri on ri.id=di.refitmid
+                where di.docid=d.id and ri.itmtypeid='{$s_itmtypeid}') ";
+
+            $sql .= " group by docdate
             ) a
             group by operdate
             order by operdate";
@@ -652,6 +685,18 @@ class WrhDocReportController extends Controller
         $data = new \stdClass();
         $data->returl = $returl;
 //        dd($data->returl, url()->current(), url()->full());
+
+        $data->itmtypes = wrhdoclst::from("wrhdoclst as di")
+            ->join("wrhdocs as d", "d.id", "di.docid")
+            ->join("refitems as ri", "ri.id", "di.refitmid")
+            ->join("itmtypes as it", "it.id", "ri.itmtypeid")
+            ->where("d.doctypeid", 10)  //Поступление от производства
+            ->select('it.id', 'it.name')
+            ->distinct()
+            ->orderby('name', 'asc')
+            ->get()
+            ->pluck('name', 'id');
+        //dd($data->itmtypes);
 
         return view('wrhdocs.rep' . $report_id, compact('recs', 'search_params', 'data'));
     }
@@ -714,7 +759,7 @@ class WrhDocReportController extends Controller
 //            return $response;
 //        }
 
-        return view('wrhdocs.rep' . $report_id, compact('recs','data'));
+        return view('wrhdocs.rep' . $report_id, compact('recs', 'data'));
     }
 
     function rep67(Request $request, $date)

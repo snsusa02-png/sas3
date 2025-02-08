@@ -127,6 +127,16 @@ $action_url = route('reports.rep' . $thisObjId);
                                                    required/>
                                         </div>
                                     @endif
+                                        <div class="form-group col-md-3">
+                                            <label for="s_categoryid">Категория:</label>
+                                            {!! Form::select('s_itmtypeid', $data->itmtypes, $search_params['s_itmtypeid']??'',
+                                                            [
+                                                            'class' => 'form-control',
+                                                            'placeholder' => '-все-',
+                                                            ])
+                                                            !!}
+                                        </div>
+
                                     @if(1==0)
                                         <div class="form-group col-md-3">
                                             <label for="s_ownorgid" class="">Организация:</label>
