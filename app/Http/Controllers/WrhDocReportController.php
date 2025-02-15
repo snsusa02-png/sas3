@@ -618,16 +618,24 @@ class WrhDocReportController extends Controller
                 where sysobjid = 204
                 and e.operdate BETWEEN '{$s_begdate}' and '{$s_enddate}'";
 
-            if (isset($s_itmtypeid) && !empty($s_itmtypeid))
-                $sql .= " and exists(select 1
-                        from wrhdocs wd
+            if (isset($s_itmtypeid) && !empty($s_itmtypeid)) {
+                $sql .= " and ( exists( select 1 from wrhdocs wd
                         join wrhdoclst as di on di.docid=wd.id
                         join refitems as ri on ri.id=di.refitmid
-                        where wd.id=e.objid and ri.itmtypeid='{$s_itmtypeid}') ";
+                        where wd.id=e.objid and wd.docsigned=1 and ri.itmtypeid='{$s_itmtypeid}') ";
+                // или прочие затраты связаны с актом списания на производство, который привязан к накладной от производства
+                // по которой пришли товары заданной категории
+                $sql .= " or exists(select 1 from wrhdocs wd
+                        join wrhdocs as pd on pd.id=wd.predocid and pd.doctypeid=10 and pd.docsigned=1
+                        join wrhdoclst pdi on pdi.docid = pd.id
+                        join refitems as ri on ri.id=pdi.refitmid and ri.itmtypeid='{$s_itmtypeid}'
+                        where wd.id=e.objid and wd.doctypeid=5) ";
+                $sql .= " ) ";
+            }
 
             $sql .= " GROUP by operdate, e.expensetypeid
             union
-                SELECT d.docdate, +1 dir, sum(round(i.price * i.qty,2)) as sum, 'произведенная продукция' as name
+                SELECT d.docdate as operdate, +1 dir, sum(round(i.price * i.qty,2)) as sum, 'произведенная продукция' as name
                 FROM `wrhdocs` d
                     JOIN wrhdoclst as i on i.docid=d.id";
 
@@ -635,27 +643,27 @@ class WrhDocReportController extends Controller
                 $sql .= " join refitems as ri on ri.id=i.refitmid
                         and ('{$s_itmtypeid}' is null or ri.itmtypeid='{$s_itmtypeid}')";
 
-            $sql .= " WHERE doctypeid=10 and d.docdate BETWEEN '{$s_begdate}' and '{$s_enddate}'
+            $sql .= " WHERE doctypeid=10 and d.docsigned=1 and d.docdate BETWEEN '{$s_begdate}' and '{$s_enddate}'
                 group by d.docdate
             union
                 SELECT d.docdate as operdate, -1 dir, sum(round(i.price * i.qty,2)) as sum, 'материалы на производство' as name
                 FROM `wrhdocs` d
                     JOIN wrhdoclst as i on i.docid=d.id
-                WHERE doctypeid=5 and d.docdate BETWEEN '{$s_begdate}' and '{$s_enddate}'";
+                WHERE doctypeid=5 and d.docsigned=1 and d.docdate BETWEEN '{$s_begdate}' and '{$s_enddate}'";
 
             if (isset($s_itmtypeid) && !empty($s_itmtypeid))
                 $sql .= " and exists(select 1
                 from wrhdocs pd
                 join wrhdoclst as di on di.docid = pd.id
                 join refitems as ri on ri.id=di.refitmid
-                where pd.id=d.predocid and ri.itmtypeid='{$s_itmtypeid}') ";
+                where pd.id=d.predocid and pd.docsigned=1 and ri.itmtypeid='{$s_itmtypeid}') ";
 
             $sql .= " group by d.docdate";
 
             $sql .= " union
                 SELECT d.docdate, 0 as dir, sum(d.docsum) as sum, 'реализация' as name
                 FROM `wrhdocs` as d
-                WHERE d.doctypeid in (select id from wrhdoctypes dt where dt.forsale=1)
+                WHERE d.docsigned=1 and d.doctypeid in (select id from wrhdoctypes dt where dt.forsale=1)
                 AND d.docdate BETWEEN  '{$s_begdate}' and '{$s_enddate}'";
 
             if (isset($s_itmtypeid) && !empty($s_itmtypeid))
@@ -664,8 +672,24 @@ class WrhDocReportController extends Controller
                 join refitems as ri on ri.id=di.refitmid
                 where di.docid=d.id and ri.itmtypeid='{$s_itmtypeid}') ";
 
-            $sql .= " group by docdate
-            ) a
+            $sql .= " group by docdate";
+
+            // - доп затраты, прикрепленные к актам списания на производство, которые, в свою очередь,
+            // являются дочерними к накладной на производство товаров заданной категории
+//            $sql .= " union select d.docdate as operdate, -1 dir, sum(expense_sum) as sum, 'доп затраты' as name
+//                    FROM `wrhdocs` d
+//                    join obj_expenses oe on oe.sysobjid=204 and oe.objid=d.id
+//                    WHERE doctypeid=5 and d.docdate BETWEEN '{$s_begdate}' and '{$s_enddate}'";
+//
+//            if (isset($s_itmtypeid) && !empty($s_itmtypeid))
+//                $sql .= " and exists(select 1 from wrhdocs pd
+//                            join wrhdoclst as di on di.docid = pd.id
+//                            join refitems as ri on ri.id=di.refitmid
+//                            where pd.id=d.predocid and ri.itmtypeid='{$s_itmtypeid}')";
+//
+//            $sql .= " group by d.docdate";
+
+            $sql .= ") a
             group by operdate
             order by operdate";
 
