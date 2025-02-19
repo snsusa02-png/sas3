@@ -1,15 +1,13 @@
 @extends('layouts.report')
-
 <?php
 $thisTitle = "-";
 $thisSysObjId = 855;    //reports
-$thisObjId = 64;
+$thisObjId = 68;
 //$retURL = route('admin') . '#nsi-rep';
 //$retURL = '/admin#nsi-rep';
 $retURL = route('reports.pub_index');
 
 $report = \App\report::find($thisObjId);
-
 if (!isset($report))
     return redirect($retURL);
 
@@ -143,7 +141,7 @@ $action_url = route('reports.rep' . $thisObjId);
                                                             !!}
                                         </div>
                                     @endif
-                                    @if(1==1)
+                                    @if(1==0)
                                         <div class="form-group col-md-3">
                                             <label for="s_mchntypeid">Вид техники:</label>
                                             {!! Form::select('s_mchntypeid', $data->mchntypes, $search_params['s_mchntypeid']??'',
@@ -255,7 +253,7 @@ $action_url = route('reports.rep' . $thisObjId);
                         <thead>
                         <tr class="text-left small" valign="top">
                             {{--                            <td class="text-center">Дата</td>--}}
-                            <td class="text-left">№ Авто</td>
+                            <td class="text-left">№ карты</td>
                             <td class="text-right">Объем топлива, л</td>
                             <td class="text-right">Сумма, &#8381;</td>
                             <td class="text-right">Средняя цена, &#8381;/л</td>
@@ -280,9 +278,8 @@ $action_url = route('reports.rep' . $thisObjId);
                             {{--                            <tr class="text-left collapse show date_{{$tr_date}} multi-collapse">--}}
                             <tr class="text-left collapse show date_{{$tr_date??''}} multi-collapse">
                                 <td class="text-left small">
-                                    <a href="{{route('machines.edit',$rec->machineid)}}" target="_blank"
-                                       class="text-decoration-none">{{$rec->machine_name}}</a>
-                                    <div class="float-right small" >{{$rec->mchntype_name}}</div>
+                                    <a href="{{route('fuelcards.edit',$rec->cardid)}}" target="_blank"
+                                       class="text-decoration-none">{{$rec->card_num}}</a>
                                 </td>
                                 <td class="text-right">{{number_format($rec->fuelqty,0)}}
                                 <td class="text-right">{{number_format($rec->paysum,2)}}
