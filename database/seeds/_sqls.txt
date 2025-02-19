@@ -1,4 +1,8 @@
-﻿--2024-11-16 -------------
+﻿-- 2025-02-19 -------------
+INSERT INTO `reports` (`id`, `name`, `acsid`, `acs_rightid`, `public`, `active`) VALUES ('68', 'Сводка по топливным картам', '1', '100', '1', '0');
+-----
+
+--2024-11-16 -------------
 INSERT INTO `expensetypes` (`id`, `name`, `active`) VALUES ('99', 'прочее', '1');
 
 
