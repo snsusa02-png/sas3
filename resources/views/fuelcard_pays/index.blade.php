@@ -106,8 +106,8 @@
                             <tr class="text-center">
                                 <td>#</td>
                                 <td>Дата</td>
-                                <td>Авто</td>
                                 <td># карты</td>
+                                <td>Авто</td>
                                 <td>Объем, л</td>
                                 <td>Сумма, &#8381;</td>
                                 <td class="text-center;">
@@ -157,8 +157,26 @@
 
                                 </td>
                                 <td>
+{{--                                    {!! Form::select('s_cardid', $data->cards??[]--}}
+{{--                                            , $search_params['s_cardid']??'',--}}
+{{--                                                 [--}}
+{{--                                                 'class' => 'form-control',--}}
+{{--                                                 'placeholder' => '-все-',--}}
+{{--                                                 'onchange' => 'form.submit()',--}}
+{{--                                                 ]) !!}--}}
+
+                                    <input type="text" name="s_cardnum" list="cards"
+                                           class="form-control text-center"
+                                           value="{{$search_params['s_cardnum']}}">
+                                    <datalist id="cards">
+                                        @foreach($data->cards as $key=>$val)
+                                            <option value="{{ $val }}"/>
+                                        @endforeach
+                                    </datalist>
+                                </td>
+                                <td>
                                     <div class="row">
-                                        <div class="col-md-6">
+                                        <div class="col-md-12">
                                             <input type="text" name="s_machine_name" list="machines"
                                                    class="form-control"
                                                    value="{{$search_params['s_machine_name']}}">
@@ -168,6 +186,7 @@
                                                 @endforeach
                                             </datalist>
                                         </div>
+                                        @if(1==0) then
                                         <div class="col-md-6">
                                             {!! Form::select('s_driverid', $data->drivers
                                             , $search_params['s_driverid'],
@@ -178,19 +197,10 @@
                                                  ]) !!}
 
                                         </div>
+                                        @endif
                                     </div>
-
-
                                 </td>
-                                <td>
-                                    {!! Form::select('s_cardid', $data->cards??[]
-                                            , $search_params['s_cardid']??'',
-                                                 [
-                                                 'class' => 'form-control',
-                                                 'placeholder' => '-все-',
-                                                 'onchange' => 'form.submit()',
-                                                 ]) !!}
-                                </td>
+
                                 <td>
                                 </td>
                                 <td></td>
@@ -243,17 +253,24 @@
 
                                     @if($item->paydate<>$cur_paydate)
                                         <tr style="background-color: #ccfcfb">
-                                            <td colspan="6"><b>{{date_format(date_create($item->paydate),"d.m.Y")}}</b>
-                                            </td>
-                                            <td>
+                                            <td colspan="7"><b>{{date_format(date_create($item->paydate),"d.m.Y")}}</b>
                                                 @if ($usrrights['create'])
                                                     <a href="{{ route($thisSysObjCode.'.create')."?paydate={$item->paydate}"}}"
-                                                       class="btn btn-warning btn-sm"
-                                                       title="Добавить запись">
+                                                       class="btn btn-warning btn-sm ml-1 "
+                                                       title="Добавить запись за {{date_format(date_create($item->paydate),"d.m.Y")}}">
                                                         <i class="fa fa-plus"></i>
                                                     </a>
                                                 @endif
                                             </td>
+{{--                                            <td>--}}
+{{--                                                @if ($usrrights['create'])--}}
+{{--                                                    <a href="{{ route($thisSysObjCode.'.create')."?paydate={$item->paydate}"}}"--}}
+{{--                                                       class="btn btn-warning btn-sm"--}}
+{{--                                                       title="Добавить запись">--}}
+{{--                                                        <i class="fa fa-plus"></i>--}}
+{{--                                                    </a>--}}
+{{--                                                @endif--}}
+{{--                                            </td>--}}
                                         </tr>
                                         <?php
                                         $cur_paydate = $item->paydate;
@@ -268,6 +285,12 @@
                                             {{++$npp}}
                                         </td>
                                         <td></td>
+                                        <td class="text-center">
+                                            {{$item->card_num}}
+                                            @if (isset($item->card_name))
+                                                / {{$item->card_name}}
+                                            @endif
+                                        </td>
                                         <td class="text-left ">
                                             <a href="{{route($thisSysObjCode.'.edit',$item->id)}}" name="{{$item->id}}"
                                                class="text-decoration-none"
@@ -278,9 +301,6 @@
                                                 / {{$item->driver_name}}
                                             @endif
                                             <div class="float-right small">{{$item->notes}}</div>
-                                        </td>
-                                        <td class="text-center">
-                                            {{$item->card_num}}
                                         </td>
                                         <td class="text-center">
                                             {{number_format($item->fuel_qty,0)}}

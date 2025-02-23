@@ -99,6 +99,7 @@ class FuelcardPayController extends Controller
         $param_names = [
             's_pageitmcnt' => 10
             , 's_cardid' => ''
+            , 's_cardnum' => ''
             , 's_machineid' => ''
             , 's_machine_name' => ''
             , 's_driverid' => ''
@@ -117,6 +118,9 @@ class FuelcardPayController extends Controller
 
                 if ($item == 's_cardid') {
                     $sc = $sc . " and fcp.cardid = {$val}";
+
+                } elseif ($item == 's_cardnum') {
+                    $sc .= " and fc.num like '%" . mb_strtoupper($val) . "%'";
 
                 } elseif ($item == 's_machineid') {
                     $sc = $sc . " and fcp.machineid = {$val}";
@@ -169,7 +173,9 @@ class FuelcardPayController extends Controller
                 , 'fcp.machineid', 'fcp.driverid', 'fcp.notes'
                 , 'fcp.paydir', 'fcp.paysum', 'fcp.fuel_qty'
                 , 'fcp.active'
-                , db::raw("concat(fc.num,' - ',ifnull(fc.name, ' ')) as card_num")
+                //, db::raw("concat(fc.num,' - ',ifnull(fc.name, ' ')) as card_num")
+                , 'fc.num as card_num'
+                , 'fc.name as card_name'
                 , 'os.lname as driver_name'
                 , db::raw("concat(m.regnum,' ',m.name) as machine_name")
             );
