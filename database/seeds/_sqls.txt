@@ -1,4 +1,7 @@
 ﻿-- 2025-02-19 -------------
+INSERT INTO `reports` (`id`, `name`, `acsid`, `acs_rightid`, `public`, `active`) VALUES ('69', 'Производство продукции в алтернативных ЕИ', '1', '100', '1', '0');
+
+-- 2025-02-19 -------------
 INSERT INTO `reports` (`id`, `name`, `acsid`, `acs_rightid`, `public`, `active`) VALUES ('68', 'Сводка по топливным картам', '1', '100', '1', '0');
 -----
 
