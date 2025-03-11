@@ -1141,7 +1141,7 @@ Route::match(array('POST', 'GET'), '/reports/rep/62', "OrgChargeController@rep62
 Route::match(array('POST', 'GET'), '/reports/rep/63', "OrgStaffReportController@rep63")->name('reports.rep63');
 Route::match(array('POST', 'GET'), '/reports/rep/64', "FuelcardPayReportController@rep64")->name('reports.rep64');
 Route::match(array('POST', 'GET'), '/reports/rep/65', "WrhDocReportController@rep65")->name('reports.rep65');
-Route::match(array('POST', 'GET'), '/reports/rep/66/{date}', "WrhDocReportController@rep66")->name('reports.rep66');
+Route::match(array('POST', 'GET'), '/reports/rep/66/{date}/{itmtypeid}', "WrhDocReportController@rep66")->name('reports.rep66');
 Route::match(array('POST', 'GET'), '/reports/rep/67/{date}', "WrhDocReportController@rep67")->name('reports.rep67');
 Route::match(array('POST', 'GET'), '/reports/rep/68', "FuelcardPayReportController@rep68")->name('reports.rep68');
 Route::match(array('POST', 'GET'), '/reports/rep/69', "WrhDocReportController@rep69")->name('reports.rep69');

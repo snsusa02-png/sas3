@@ -705,7 +705,7 @@ class WrhDocReportController extends Controller
         return view('wrhdocs.rep' . $report_id, compact('recs', 'search_params', 'data'));
     }
 
-    function rep66(Request $request, $date)
+    function rep66(Request $request, $date, $s_itmtypeid)
     {
         //Детализация производства и отгрузки продукции за дату
 
@@ -719,13 +719,31 @@ class WrhDocReportController extends Controller
         $data->date = $date;
         $data->returl = $returl;
 
+        $s_itmtypeid = ($s_itmtypeid == '*') ? '' : $s_itmtypeid;
+
 //        d.docdate = '{$date}'
         $sql = "select -1 dir, sum(e.expense_sum) AS sum, t.name
             from obj_expenses e
             join expensetypes t on t.id=e.expensetypeid
             where sysobjid=204
-            and e.operdate = '{$date}'
-            GROUP by operdate, e.expensetypeid
+            and e.operdate = '{$date}'";
+
+        if (isset($s_itmtypeid) && !empty($s_itmtypeid)) {
+            $sql .= " and ( exists( select 1 from wrhdocs wd
+                        join wrhdoclst as di on di.docid=wd.id
+                        join refitems as ri on ri.id=di.refitmid
+                        where wd.id=e.objid and wd.docsigned=1 and ri.itmtypeid='{$s_itmtypeid}') ";
+            // или прочие затраты связаны с актом списания на производство, который привязан к накладной от производства
+            // по которой пришли товары заданной категории
+            $sql .= " or exists(select 1 from wrhdocs wd
+                        join wrhdocs as pd on pd.id=wd.predocid and pd.doctypeid=10 and pd.docsigned=1
+                        join wrhdoclst pdi on pdi.docid = pd.id
+                        join refitems as ri on ri.id=pdi.refitmid and ri.itmtypeid='{$s_itmtypeid}'
+                        where wd.id=e.objid and wd.doctypeid=5) ";
+            $sql .= " ) ";
+        }
+
+        $sql .= " GROUP by operdate, e.expensetypeid
             union
             /*SELECT +1 dir, sum(round(i.price * i.qty,2)) as sum, 'произведенная продукция' as name
             FROM `wrhdocs` d
@@ -736,14 +754,23 @@ class WrhDocReportController extends Controller
             FROM `wrhdocs` d
                 JOIN wrhdoclst as i on i.docid=d.id
                 join refitems as ri on ri.id=i.refitmid
-            WHERE doctypeid=10 and d.docdate = '{$date}'
-            group by d.docdate, i.refitmid
+            WHERE doctypeid=10 and d.docdate = '{$date}'";
+
+        if (isset($s_itmtypeid) && !empty($s_itmtypeid))
+            $sql .= " and ('{$s_itmtypeid}' is null or ri.itmtypeid='{$s_itmtypeid}')";
+
+        $sql .= " group by d.docdate, i.refitmid
             union
             SELECT -1 dir, sum(round(i.price * i.qty,2)) as sum, 'материалы на производство' as name
             FROM `wrhdocs` d
-                JOIN wrhdoclst as i on i.docid=d.id
-            WHERE doctypeid=5 and d.docdate = '{$date}'
-            group by d.docdate
+                JOIN wrhdoclst as i on i.docid=d.id";
+
+        if (isset($s_itmtypeid) && !empty($s_itmtypeid))
+            $sql .= " join refitems as ri on ri.id=i.refitmid
+                        and ('{$s_itmtypeid}' is null or ri.itmtypeid='{$s_itmtypeid}')";
+
+        $sql .= " WHERE doctypeid=5 and d.docdate = '{$date}'";
+        $sql .= " group by d.docdate
             order by dir, sum desc";
 
         $recs = DB::select(DB::raw($sql));

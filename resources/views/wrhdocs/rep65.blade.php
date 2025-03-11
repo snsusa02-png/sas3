@@ -137,7 +137,7 @@ $action_url = route('reports.rep' . $thisObjId);
                                                             !!}
                                         </div>
 
-                                        
+
                                     @if(1==0)
                                         <div class="form-group col-md-3">
                                             <label for="s_ownorgid" class="">Организация:</label>
@@ -253,7 +253,7 @@ $action_url = route('reports.rep' . $thisObjId);
                             <tr>
                                 <td class="small text-right">{{++$npp}}</td>
                                 <td class="text-center">
-                                    <a href="{{route('reports.rep66',['date'=>$itm->operdate])}}?returl={{$retURL}}"
+                                    <a href="{{route('reports.rep66',['date'=>$itm->operdate,'itmtypeid'=>$search_params['s_itmtypeid']??'*'])}}?returl={{$retURL}}"
                                        target="_blank">
                                         {{date_format(date_create($itm->operdate),'d.m.Y')}}</a>
                                 </td>
