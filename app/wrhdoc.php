@@ -55,6 +55,12 @@ class wrhdoc extends Model
             ->withDefault();
     }
 
+    public function place()
+    {
+        return $this->hasOne(org_place::class, 'id', 'placeid')
+            ->withDefault();
+    }
+
     public function saleorg()
     {
         return $this->hasOne(org::class, 'id', 'saleorgid')

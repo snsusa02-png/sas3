@@ -52,6 +52,9 @@ class org_place extends Model
                     if ($key == 'active') {
                         $sc .= " and p.active={$val}";
 
+                    } elseif ($key == 'active_or_current') {
+                        $sc .= " and (p.active=1 or p.id={$val})";
+
                     } elseif ($key == 'orgid' or $key == 's_orgid') {
                         $sc .= " and p.orgid={$val}";
 
@@ -100,7 +103,7 @@ class org_place extends Model
 
             $lst = self::from('org_places as p')
                 ->whereRaw($sc)
-                ->select('p.id', db::raw("concat(p.name,' ',ifnull(p.address,' ')) as tname"))
+                ->select('p.id', db::raw("trim(concat(p.name,' ',ifnull(p.address,' '))) as tname"))
                 ->orderBy('tname', 'asc')
                 ->get()->pluck('tname', 'id')->toArray();
             //asort($lst);

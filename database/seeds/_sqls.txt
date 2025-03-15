@@ -1,4 +1,8 @@
 ﻿-- 2025-03-15 -------------
+ALTER TABLE wrhdocs ADD COLUMN `placeid` BIGINT UNSIGNED NULL COMMENT 'привязка к org_places - для возможности использования цен из ri_sup_prices' AFTER `orgid`;
+
+UPDATE `reports` SET `name` = 'Производство и реализация продукции в м3', `descript` = 'Объем произведенной и реализованной продукции в ЕИ и в кубометрах' WHERE `reports`.`id` = 69;
+
 -- сводный запрос
 SELECT t.refitmid
 	, ri.name as itmname

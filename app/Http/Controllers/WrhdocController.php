@@ -8,6 +8,7 @@ use App\objflag;
 use App\objlog;
 use App\order;
 use App\orditem;
+use App\org_place;
 use App\refitem;
 use App\sysobj_lockdate;
 use App\usrsysright;
@@ -399,6 +400,16 @@ class WrhdocController extends Controller
             'with_boxes' => 1,
             'active_or_current' => $rec->wrhid,
         ]);
+        //dd($rec->wrhs);
+
+        $rec->places = org_place::lstFor([
+            'orgid' => $rec->ownorgid,
+            'active_or_current' => $rec->placeid,
+        ]);
+        //dd($rec->places);
+        if(is_null($rec->placeid) and sizeof($rec->places) == 1)
+            $rec->placeid = array_key_first($rec->places);
+
 
         //Проверим, может данный документ является прародителем другого документа
         $rec->childdoc = wrhdoc::where('predocid', $id)
@@ -696,6 +707,7 @@ class WrhdocController extends Controller
         $rec->docnum = $docnum;
         $rec->docdate = $docdate;
         $rec->ownorgid = $request->get('ownorgid');
+        $rec->placeid = $request->get('placeid');
         $rec->saleorgid = $request->get('saleorgid');
         $rec->orgid = $request->get('orgid');
         $rec->respstaffid = $request->get('respstaffid');
@@ -1315,7 +1327,10 @@ class WrhdocController extends Controller
                 $doc->save();
             }
             //dd('doc=',$doc);
-            $srcdoc->placeid = 231; // !!! ВРЕМЕННАЯ ЗАПЛАТКА !!! нужно придумать где взять placeid, или отказаться от placeid в ri_sup_prices!
+            //$srcdoc->placeid = 231; // !!! ВРЕМЕННАЯ ЗАПЛАТКА !!! 231 - для производства от СпецЖБИ. Нужно придумать где взять placeid, или отказаться от placeid в ri_sup_prices!
+            // 2025-03-15 добавил поле wrhdocs.placeid
+            // но пока, на всякий случай, для спецЖБИ, если пусто
+            //$srcdoc->placeid = (is_null($srcdoc->placeid))?231:$srcdoc->placeid;
 
             // Получим список необходимых материалов по максимальной оценке
             $items = wrhdoclst::from('wrhdoclst as dl')
@@ -1326,7 +1341,6 @@ class WrhdocController extends Controller
                     //dd($srcdoc->ownorgid, $srcdoc->placeid);
                     $j->on('sp.refitmid', '=', 'ci.refitmid')
                         ->where('sp.orgid', $srcdoc->ownorgid)
-//                        ->where('sp.orgid', '=', 1757)
                         ->where('sp.placeid', '=', $srcdoc->placeid)
                         ->whereRaw("'{$docdate}' between sp.begdate and ifnull(sp.enddate, '{$docdate}')");
                 })

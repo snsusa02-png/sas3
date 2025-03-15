@@ -165,7 +165,7 @@
                                             <label for="ownorg" id="ownorg_label">Владелец:</label>
                                             @if ($usrrights['ownorg.edit'])
                                                 {!! Form::select('ownorgid', $rec->ownorgs, $rec->ownorgid
-                                                ,['class' => 'form-control','required'=>'required']) !!}
+                                                ,['id'=>'ownorgid', 'class' => 'form-control','required'=>'required']) !!}
                                             @else
                                                 {{ Form::hidden('ownorgid', $rec->ownorgid) }}
                                                 <p><b>{{$rec->ownorg->name}}</b></p>
@@ -234,7 +234,22 @@
                                         </div>
                                     </div>
 
-                                    <?php
+                                    <div class="col-md-3" id="place" style="display:block;">
+                                        <div class="form-group">
+                                            <label for="placeid"
+                                                   id="place_label" class="required">{{'Место'}}
+                                                :</label>
+                                            @if ($usrrights['save'])
+                                                {!! Form::select('placeid', $rec->places??[] ,$rec->placeid
+                                                , ['id'=>'placeid','class' => 'form-control', 'placeholder'=>'','required'=>'required']) !!}
+                                            @else
+                                                {{ Form::hidden('placeid', $rec->boxid) }}
+                                                <p><b>{{$rec->place->name}}</b></p>
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                <?php
                                     $t_style = "display:none;";
                                     if ($showRelWrh) $t_style = "display:block;";
                                     ?>

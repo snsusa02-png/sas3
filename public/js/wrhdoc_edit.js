@@ -58,6 +58,33 @@ $(document).ready(function () {
         )
     });
 
+    $("#ownorgid").change(function () {
+        //alert("ownorgid = " + $("#ownorgid").val());
+        if ($("#placeid").length > 0) {
+            //alert("placeid = " + $("#placeid").val());
+            $("#placeid > option").remove()
+            $.get("/api/org_places/for_", {s_orgid: $("#ownorgid").val()},
+                function (data) {
+                    var i = 0;
+                    // console.log(data.org_places);
+                    // console.log(Object.keys(data.places).length); // кол-во отделений
+
+                    $("#placeid > option").remove()
+                    $("#placeid").append($("<option>"))   // пустой выбор
+                    // console.log('data.org_places.length=' + data.org_places.length);
+                    $.each(data.org_places, function (index, value) {
+                        i++;
+                        //console.log('i=' + i);
+                        if (i == 1)
+                            $("#placeid").append($("<option>").attr("value", index).attr("selected", "selected").append(value))
+                        else
+                            $("#placeid").append($("<option>").attr("value", index).append(value))
+                    });
+                }
+            )
+        }
+    });
+
 
     $("#wrhid").change(function () {
         //alert("wrhid = " + $("#wrhid").val());
