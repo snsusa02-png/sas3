@@ -1,4 +1,110 @@
-﻿-- 2025-02-19 -------------
+﻿-- 2025-03-15 -------------
+-- сводный запрос
+SELECT t.refitmid
+	, ri.name as itmname
+    , ri.unit as unit
+	, sum(produce_qty) as produce_qty
+    , round(sum(produce_qty_m3), 3) as produce_qty_m3
+	, sum(sale_qty) as sale_qty
+    , round(sum(sale_qty_m3),3) as sale_qty_m3
+    from(
+SELECT i.refitmid
+	, i.qty as produce_qty
+	, i.qty/au.k2ref_unit produce_qty_m3
+    , null as sale_qty
+    , null as sale_qty_m3
+	FROM `wrhdocs` as wd
+	join wrhdoclst i on i.docid=wd.id
+    join refitems as ri on ri.id=i.refitmid
+    left join ri_units au on au.refitmid=ri.id and au.unittypeid = 8
+    WHERE wd.doctypeid=10 -- производство
+            and ri.itmtypeid =123
+            -- and i.refitmid=1762
+            and wd.docsigned = 1
+union ALL
+SELECT di.refitmid
+    , null as produce_qty
+    , null as produce_qty_m3
+	, di.qty as sale_qty
+    , di.qty/au.k2ref_unit as sale_qty_m3
+	FROM `wrhdoctypes` dt
+	join wrhdocs as d on d.doctypeid=dt.id
+    join wrhdoclst di on di.docid=d.id
+    join refitems as ri on ri.id=di.refitmid
+    left join ri_units au on au.refitmid=ri.id and au.unittypeid = 8
+    WHERE dt.forsale=1
+    and d.docsigned = 1
+    and d.docdate between '2025-01-01' and '2025-04-01'
+    and ri.itmtypeid=123
+) as t
+join refitems ri on ri.id=t.refitmid
+group by refitmid
+order by ri.name
+
+-- реализация за период в м3
+SELECT ri.itmtypeid, ri.name, au.k2ref_unit,  di.qty, round((di.qty/au.k2ref_unit), 3) as qty_m3
+	FROM `wrhdoctypes` dt
+	join wrhdocs as d on d.doctypeid=dt.id
+    join wrhdoclst di on di.docid=d.id
+    join refitems as ri on ri.id=di.refitmid
+    left join ri_units au on au.refitmid=ri.id and au.unittypeid = 8
+    WHERE dt.forsale=1
+    and d.docdate between '2025-03-01' and '2025-04-01'
+    and ri.itmtypeid=123
+    order by ri.name
+
+-- с группировкой
+SELECT di.refitmid, max(ri.name) as itmname
+	,  sum(di.qty) as sale_qty
+    -- , round((sum(di.qty)/max(au.k2ref_unit)), 3) as qty_m3
+    , max(au.k2ref_unit) as k2ref_unit
+    , round(sum((di.qty/au.k2ref_unit)), 3) as sale_qty_m3
+	FROM `wrhdoctypes` dt
+	join wrhdocs as d on d.doctypeid=dt.id
+    join wrhdoclst di on di.docid=d.id
+    join refitems as ri on ri.id=di.refitmid
+    left join ri_units au on au.refitmid=ri.id and au.unittypeid = 8
+    WHERE dt.forsale=1
+    and d.docsigned = 1
+    and d.docdate between '2025-01-01' and '2025-04-01'
+    and ri.itmtypeid=123
+    group by di.refitmid
+    order by ri.name
+
+
+
+-- 2025-03-15 -------------
+-- типовые маршруты
+SELECT ifnull(ucase(mro.sup_placename ), '-не указано-') as sup_placename
+	, ifnull(ucase(mro.org_placename ), '-не указано-') as org_placename
+    , count(1) as cnt
+    , min(mr.wrkdate) as min_wrkdate, max(wrkdate) as max_wrkdate
+	FROM `mr_opers` as mro
+	join mchn_raids as mr on mr.id=mro.mr_id
+    WHERE mr.wrkdate between '2025-01-01' and '2025-04-01'
+    group by 1,2
+    order by cnt desc, 1
+
+-- 2025-03-10 -------------
+-- производство в кубометрах
+SELECT i.refitmid, max(ri.name) as name, max(ri.unit) as unittypes
+	, max(au.k2ref_unit) as k2ref_unit
+            -- , max(1/au.k2ref_unit) as qty_per_m3
+	, sum(i.qty) as produce_qty
+	, sum(round(i.qty/au.k2ref_unit, 3)) produce_qty_m3
+	FROM `wrhdocs` as wd
+	join wrhdoclst i on i.docid=wd.id
+    join refitems as ri on ri.id=i.refitmid
+    left join ri_units au on au.refitmid=ri.id and au.unittypeid = 8
+    WHERE wd.doctypeid=10
+            and ri.itmtypeid =123
+            -- and i.refitmid=1762
+            and wd.docsigned = 1
+    group by i.refitmid, au.k2ref_unit
+    order by ri.name
+
+
+-- 2025-02-19 -------------
 INSERT INTO `reports` (`id`, `name`, `acsid`, `acs_rightid`, `public`, `active`) VALUES ('69', 'Производство продукции в алтернативных ЕИ', '1', '100', '1', '0');
 
 -- 2025-02-19 -------------

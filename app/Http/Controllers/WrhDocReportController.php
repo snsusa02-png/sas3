@@ -1004,27 +1004,70 @@ class WrhDocReportController extends Controller
     group by i.refitmid, au.k2ref_unit
     order by ri.name
             */
-            $recs = wrhdoc::from('wrhdocs as d')
-                ->join('wrhdoclst as i', 'i.docid', 'd.id')
-                ->join('refitems as ri', 'ri.id', 'i.refitmid')
-                ->leftjoin('ri_units as au', function ($join) {
-                    $join->on('au.refitmid', '=', 'i.refitmid')
-                        ->where('au.unittypeid', 8);
-                })
-                ->select(
-                    'i.refitmid'
-                    , db::raw("max(ri.name) as name")
-                    , db::raw("max(ri.unit) as unittype")
-                    //, db::raw("concat(m.name, ', ', m.regnum) as machine_name")
-                    , db::raw("sum(i.qty) as qty")
-                    , db::raw("sum(round(i.qty/au.k2ref_unit, 3)) qty_au")
-                )
-                ->where('d.docsigned', 1)
-                ->whereRaw($sc)
-                ->groupBy(['i.refitmid'])
-                ->orderby('ri.name', 'asc')
-                ->get();
-            //dd($sc, $recs);
+
+//            $recs = wrhdoc::from('wrhdocs as d')
+//                ->join('wrhdoclst as i', 'i.docid', 'd.id')
+//                ->join('refitems as ri', 'ri.id', 'i.refitmid')
+//                ->leftjoin('ri_units as au', function ($join) {
+//                    $join->on('au.refitmid', '=', 'i.refitmid')
+//                        ->where('au.unittypeid', 8);
+//                })
+//                ->select(
+//                    'i.refitmid'
+//                    , db::raw("max(ri.name) as name")
+//                    , db::raw("max(ri.unit) as unittype")
+//                    //, db::raw("concat(m.name, ', ', m.regnum) as machine_name")
+//                    , db::raw("sum(i.qty) as qty")
+//                    , db::raw("sum(round(i.qty/au.k2ref_unit, 3)) qty_au")
+//                )
+//                ->where('d.docsigned', 1)
+//                ->whereRaw($sc)
+//                ->groupBy(['i.refitmid'])
+//                ->orderby('ri.name', 'asc')
+//                ->get();
+
+            // 2025-03-15
+            //dd($sc);
+            $sql = "SELECT t.refitmid
+                , ri.name as itmname
+                , ri.unit as unit
+                , sum(prod_qty) as prod_qty
+                , round(sum(prod_qty_m3), 3) as prod_qty_m3
+                , sum(sale_qty) as sale_qty
+                , round(sum(sale_qty_m3),3) as sale_qty_m3
+                from(
+            SELECT di.refitmid
+                , di.qty as prod_qty
+                , di.qty/au.k2ref_unit prod_qty_m3
+                , null as sale_qty
+                , null as sale_qty_m3
+                FROM `wrhdocs` as d
+                join wrhdoclst di on di.docid=d.id
+                join refitems as ri on ri.id=di.refitmid
+                left join ri_units au on au.refitmid=ri.id and au.unittypeid = 8
+                WHERE d.doctypeid=10 /* производство*/
+                    and d.docsigned = 1
+                    and {$sc}
+            union ALL
+            SELECT di.refitmid
+                , null as prod_qty
+                , null as prod_qty_m3
+                , di.qty as sale_qty
+                , di.qty/au.k2ref_unit as sale_qty_m3
+                FROM `wrhdoctypes` dt
+                join wrhdocs as d on d.doctypeid=dt.id
+                join wrhdoclst di on di.docid=d.id
+                join refitems as ri on ri.id=di.refitmid
+                left join ri_units au on au.refitmid=ri.id and au.unittypeid = 8
+                WHERE dt.forsale=1
+                and d.docsigned = 1
+                and {$sc}
+            ) as t
+            join refitems ri on ri.id=t.refitmid
+            group by refitmid
+            order by ri.name";
+            $recs = DB::select(DB::raw($sql));
+            //dd($sc, $sql, $recs);
 
             //обновим счетчик использования отчета
             report::updUseCnt($report_id, $userid, \Auth::user()->name);

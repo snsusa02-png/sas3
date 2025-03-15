@@ -245,13 +245,16 @@ $action_url = route('reports.rep' . $thisObjId);
                             <td class="text-center">ЕИ</td>
                             <td class="text-right">Произведено, ЕИ</td>
                             <td class="text-right">Произведено, м3</td>
+                            <td class="text-right">Реализовано, ЕИ</td>
+                            <td class="text-right">Реализовано, м3</td>
+                            <td class="text-right">Остаток, м3</td>
                         </tr>
 
                         </thead>
                         <tbody>
                         <?php
                         $npp = 0;
-                        $totQty_au = 0;
+                        $totProdQty_m3 = $totSaleQty_m3 = $totRestQty_m3= 0;
                         ?>
                         @foreach($recs as $rec)
                             <?php
@@ -262,25 +265,33 @@ $action_url = route('reports.rep' . $thisObjId);
                             <tr class="text-left collapse show date_{{$tr_date??''}} multi-collapse">
                                 <td class="text-left ">
                                     <a href="{{route('refitems.edit',$rec->refitmid)}}" target="_blank"
-                                       class="text-decoration-none">{{$rec->name}}</a>
+                                       class="text-decoration-none">{{$rec->itmname}}</a>
                                 </td>
-                                <td class="text-center small">{{$rec->unittype}}</td>
-                                <td class="text-right">{{number_format($rec->qty,0)}}</td>
-                                <td class="text-right">{{number_format($rec->qty_au,3)}}</td>
+                                <td class="text-center small">{{$rec->unit}}</td>
+                                <td class="text-right">{{number_format($rec->prod_qty,0)}}</td>
+                                <td class="text-right">{{number_format($rec->prod_qty_m3,3)}}</td>
+                                <td class="text-right">{{number_format($rec->sale_qty,0)}}</td>
+                                <td class="text-right">{{number_format($rec->sale_qty_m3,3)}}</td>
+                                <td class="text-right">{{number_format($rec->prod_qty_m3-$rec->sale_qty_m3,3)}}</td>
                             </tr>
                             <?php
-                            $totQty_au += $rec->qty_au;
+                            $totProdQty_m3 += $rec->prod_qty_m3;
+                            $totSaleQty_m3 += $rec->sale_qty_m3;
+                            $totRestQty_m3 += ($rec->prod_qty_m3 - $rec->sale_qty_m3);
                             ?>
                         @endforeach
 
                         @if(1==1)
 
                             <tr class="text-left" style="background-color: #dacf64">
-                                <td colspan="6" class="text-left pl-2"></td>
+                                <td colspan="7" class="text-left pl-2"></td>
                             </tr>
                             <tr>
                                 <td colspan="3" class="text-right">Всего:</td>
-                                <td class="text-right font-weight-bold">{{number_format($totQty_au,3)}}</td>
+                                <td class="text-right font-weight-bold">{{number_format($totProdQty_m3,3)}}</td>
+                                <td></td>
+                                <td class="text-right font-weight-bold">{{number_format($totSaleQty_m3,3)}}</td>
+                                <td class="text-right font-weight-bold">{{number_format($totRestQty_m3,3)}}</td>
                             </tr>
                         @endif
                         </tbody>
