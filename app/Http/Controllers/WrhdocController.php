@@ -293,6 +293,11 @@ class WrhdocController extends Controller
         // Пункты меню (сверху-справа) ---------------------------------
         $t_coll = collect();
         $t_coll->push((object)[
+            'name' => 'Заказы',
+            'url' => route('orders.index'),
+            'title' => 'Заказы клиентов на изделия'
+        ]);
+        $t_coll->push((object)[
             'name' => 'Запас',
             'url' => route('reports.rep33'),
             'title' => 'Товарный запас на складах'
@@ -1352,7 +1357,7 @@ class WrhdocController extends Controller
                 ->groupby('ci.refitmid')
 //                ->toSql();
                 ->get();
-            dd($items);
+//            dd($items);
 
             //пометим текущие записи состава обновляемого документа через updated_by=0
             wrhdoclst::where('docid', $doc->id)->update(['updated_by' => 0]);
