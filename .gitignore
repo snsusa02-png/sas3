@@ -11,3 +11,7 @@ Homestead.yaml
 npm-debug.log
 yarn-error.log
 .idea/
+_docs/
+resources/views/orders/_bak/
+storage/framework/laravel-excel/laravel-excel-2finq49jz4IlqwRu3xNDBReeRHRVu8Pl.html
+storage/framework/
