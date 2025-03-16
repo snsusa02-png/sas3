@@ -1350,9 +1350,9 @@ class WrhdocController extends Controller
 //                    , db::raw("min(sp.price) as price"))
                     , db::raw("max(ifnull(sp.price, 0)) as price"))
                 ->groupby('ci.refitmid')
-//                ->toSql();
-                ->get();
-//            dd($items);
+                ->toSql();
+//                ->get();
+            dd($items);
 
             //пометим текущие записи состава обновляемого документа через updated_by=0
             wrhdoclst::where('docid', $doc->id)->update(['updated_by' => 0]);
