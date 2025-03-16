@@ -1,6 +1,47 @@
-﻿-- 2025-03-15 -------------
-ALTER TABLE wrhdocs ADD COLUMN `placeid` BIGINT UNSIGNED NULL COMMENT 'привязка к org_places - для возможности использования цен из ri_sup_prices' AFTER `orgid`;
+﻿-- 2025-03-16 -------------
+ALTER TABLE wrhdocs ADD COLUMN `placeid` BIGINT UNSIGNED NULL
+    COMMENT 'привязка к org_places - для возможности использования цен из ri_sup_prices'
+    AFTER `ownorgid`;
 
+update wrhdocs set placeid=231 where doctypeid=10 and placeid is null and ownorgid=1757;
+update wrhdocs set placeid=18 where doctypeid=10 and placeid is null and ownorgid=32;
+
+update wrhdocs set placeid=231 where doctypeid=5 and placeid is null and ownorgid=1757;
+update wrhdocs set placeid=18 where doctypeid=5 and placeid is null and ownorgid=32;
+
+--
+update wrhdoclst as di
+	set di.price = ifnull((
+        select price
+        	from ri_sup_prices sp
+        	join wrhdocs as d
+        		on sp.orgid=d.ownorgid
+            	and sp.placeid=d.placeid
+            	and d.docdate between sp.begdate and ifnull(sp.enddate, d.docdate)
+        		and d.id=di.docid
+				and sp.refitmid=di.refitmid), 0)
+	where ifnull(di.price,0) = 0
+      and exists( select 1 from wrhdocs d
+                 where d.id = di.docid
+	  				and d.doctypeid=5);
+
+--
+select ri.name, di.qty, di.price, di.sum, di.qty*di.price as new_sum
+	from wrhdoclst di
+    join refitems as ri on ri.id=di.refitmid
+    where 1=1
+    	and ifnull(di.sum,0)<>di.qty*di.price
+		and exists(select 1 from wrhdocs d where d.id=di.docid and d.doctypeid=5)
+        -- and di.docid=3423;
+
+--
+update wrhdoclst di
+	set di.sum = round( di.qty*di.price, 2)
+    where 1=1
+    	and ifnull(di.sum,0)<>di.qty*di.price
+		and exists(select 1 from wrhdocs d where d.id=di.docid and d.doctypeid=5);      
+
+-- 2025-03-15 -------------
 UPDATE `reports` SET `name` = 'Производство и реализация продукции в м3', `descript` = 'Объем произведенной и реализованной продукции в ЕИ и в кубометрах' WHERE `reports`.`id` = 69;
 
 -- сводный запрос

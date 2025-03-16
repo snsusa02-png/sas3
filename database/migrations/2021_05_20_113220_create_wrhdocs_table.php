@@ -64,6 +64,11 @@ class CreateWrhdocsTable extends Migration
                   ->nullable()
                   ->comment('(устарело?) ID сотрудника, ответственного за документ (недостачу). Можно редактировать при непустом составе документа');
 
+	    //	20250315 Привязка к org_places
+            $table->biginteger('placeid')->unsigned()->nullable()->comment('ID объекта/места/локации - для привязки к прайслисту ri_sup_prices');
+	            $table->foreign('placeid')->references('id')->on('org_places');
+
+
 	    //20230606 Информация о сотрудниках с обеих сторон		
             $table->bigInteger('ownorg_signer_staffid')
                   ->unsigned()
