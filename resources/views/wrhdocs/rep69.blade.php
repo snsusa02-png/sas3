@@ -277,9 +277,9 @@ $action_url = route('reports.rep' . $thisObjId);
                                 <td class="text-right">{{number_format($rec->sale_qty,0)}}</td>
                                 <td class="text-right">{{number_format($rec->sale_qty_m3,3)}}</td>
                                 <td class="text-right">{{number_format(
-                                    $rec->beg_qty_m3??0
-                                    +$rec->prod_qty_m3??0
-                                    -$rec->sale_qty_m3??0,3)}}</td>
+                                    $rec->beg_qty_m3
+                                    +$rec->prod_qty_m3
+                                    -$rec->sale_qty_m3,3)}}</td>
                             </tr>
                             <?php
                             $totBegQty_m3 += $rec->beg_qty_m3;
