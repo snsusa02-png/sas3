@@ -39,7 +39,20 @@ update wrhdoclst di
 	set di.sum = round( di.qty*di.price, 2)
     where 1=1
     	and ifnull(di.sum,0)<>di.qty*di.price
-		and exists(select 1 from wrhdocs d where d.id=di.docid and d.doctypeid=5);      
+		and exists(select 1 from wrhdocs d where d.id=di.docid and d.doctypeid=5);
+
+
+select `ci`.`refitmid`, sum(ci.max_qty * dl.qty) as qty, max(ifnull(sp.price, 0)) as price
+	from `wrhdoclst` as `dl`
+	inner join `ri_compounds` as `c` on `c`.`id` = `dl`.`cmpndid`
+	inner join `ri_cmpnd_items` as `ci` on `ci`.`cmpndid` = `c`.`id`
+	left join `ri_sup_prices` as `sp` on `sp`.`refitmid` = `ci`.`refitmid` and `sp`.`orgid` = 32
+		and `sp`.`placeid` = 18
+		and '2025-03-15' between sp.begdate and ifnull(sp.enddate, '2025-03-15')
+	where `dl`.`docid` = 3464
+    	and `c`.`docsigned` = 1
+    group by `ci`.`refitmid`;
+
 
 -- 2025-03-15 -------------
 UPDATE `reports` SET `name` = 'Производство и реализация продукции в м3', `descript` = 'Объем произведенной и реализованной продукции в ЕИ и в кубометрах' WHERE `reports`.`id` = 69;

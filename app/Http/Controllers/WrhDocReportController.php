@@ -950,6 +950,7 @@ class WrhDocReportController extends Controller
 
         $need_search = false;
         $sc = "1=1";
+        $s_begdate = $search_params['s_begdate'];
 
         foreach ($search_params as $item => $val) {
             if (isset($val) and strlen($val) > 0) {
@@ -1031,12 +1032,37 @@ class WrhDocReportController extends Controller
             $sql = "SELECT t.refitmid
                 , ri.name as itmname
                 , ri.unit as unit
+                , sum(beg_qty) as beg_qty
+                , round(sum(beg_qty_m3), 3) as beg_qty_m3
                 , sum(prod_qty) as prod_qty
                 , round(sum(prod_qty_m3), 3) as prod_qty_m3
                 , sum(sale_qty) as sale_qty
                 , round(sum(sale_qty_m3),3) as sale_qty_m3
                 from(
             SELECT di.refitmid
+				, dt.forstock*di.qty as beg_qty
+                , dt.forstock*di.qty/au.k2ref_unit as beg_qty_m3
+                , null as prod_qty
+                , null prod_qty_m3
+                , null as sale_qty
+                , null as sale_qty_m3
+                FROM `wrhdocs` as d
+                join wrhdoctypes as dt on dt.id=d.doctypeid and dt.forstock<>0
+                join wrhdoclst di on di.docid=d.id
+                join refitems as ri on ri.id=di.refitmid
+                left join ri_units au on au.refitmid=ri.id and au.unittypeid = 8
+                WHERE d.docsigned = 1
+                    and d.docdate < '{$s_begdate}'
+                    /*номенклатура - из производства*/
+                    and exists(select 1 from  wrhdocs d0
+						join wrhdoclst di0 on di0.docid=d0.id
+                        where d0.doctypeid=10 and d0.docdate < '{$s_begdate}'
+                        and di0.refitmid=di.refitmid)
+
+            union ALL
+            SELECT di.refitmid
+                , null as beg_qty
+                , null as beg_qty_m3
                 , di.qty as prod_qty
                 , di.qty/au.k2ref_unit prod_qty_m3
                 , null as sale_qty
@@ -1050,6 +1076,8 @@ class WrhDocReportController extends Controller
                     and {$sc}
             union ALL
             SELECT di.refitmid
+                , null as beg_qty
+                , null as beg_qty_m3
                 , null as prod_qty
                 , null as prod_qty_m3
                 , di.qty as sale_qty
@@ -1067,7 +1095,7 @@ class WrhDocReportController extends Controller
             group by refitmid
             order by ri.name";
             $recs = DB::select(DB::raw($sql));
-            //dd($sc, $sql, $recs);
+            //dd($sc, $s_begdate, $sql, $recs);
 
             //обновим счетчик использования отчета
             report::updUseCnt($report_id, $userid, \Auth::user()->name);
