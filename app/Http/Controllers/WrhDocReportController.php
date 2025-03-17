@@ -949,7 +949,7 @@ class WrhDocReportController extends Controller
         }
 
         $need_search = false;
-        $sc = "1=1";
+        $sc0 = $sc = "1=1";
         $s_begdate = $search_params['s_begdate'];
 
         foreach ($search_params as $item => $val) {
@@ -964,6 +964,7 @@ class WrhDocReportController extends Controller
 
                 } elseif ($item == 's_itmtypeid') {
                     $sc = $sc . " and ri.itmtypeid = {$val}";
+                    $sc0 .= " and ri0.itmtypeid = {$val}";
 
                 } elseif ($item == 's_refitmid') {
                     $sc = $sc . " and i.refitmid = {$val}";
@@ -1056,9 +1057,11 @@ class WrhDocReportController extends Controller
                     /*номенклатура - из производства*/
                     and exists(select 1 from  wrhdocs d0
 						join wrhdoclst di0 on di0.docid=d0.id
-                        where d0.doctypeid=10 and d0.docdate < '{$s_begdate}'
+						join refitems ri0 on ri0.id=di0.refitmid
+                        where d0.doctypeid=10
+                        and d0.docdate < '{$s_begdate}'
+                        and {$sc0}
                         and di0.refitmid=di.refitmid)
-
             union ALL
             SELECT di.refitmid
                 , null as beg_qty
