@@ -243,7 +243,7 @@
                                                 {!! Form::select('placeid', $rec->places??[] ,$rec->placeid
                                                 , ['id'=>'placeid','class' => 'form-control', 'placeholder'=>'','required'=>'required']) !!}
                                             @else
-                                                {{ Form::hidden('placeid', $rec->boxid) }}
+                                                {{ Form::hidden('placeid', $rec->placeid) }}
                                                 <p><b>{{$rec->place->name}}</b></p>
                                             @endif
                                         </div>
