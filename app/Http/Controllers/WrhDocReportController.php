@@ -629,15 +629,20 @@ class WrhDocReportController extends Controller
             union
                 SELECT d.docdate as operdate, -1 dir, sum(round(i.price * i.qty,2)) as sum, 'материалы на производство' as name
                 FROM `wrhdocs` d
-                    JOIN wrhdoclst as i on i.docid=d.id
+                JOIN wrhdoclst as i on i.docid=d.id
                 WHERE doctypeid=5 and d.docsigned=1 and d.docdate BETWEEN '{$s_begdate}' and '{$s_enddate}'";
 
+            // материалы на произаодство скорее всего не соответствуют заданной категории производимого товара
+            // главное, чтобы они были связаны с документом на производство таких товаров
             if (isset($s_itmtypeid) && !empty($s_itmtypeid))
                 $sql .= " and exists(select 1
                 from wrhdocs pd
                 join wrhdoclst as di on di.docid = pd.id
                 join refitems as ri on ri.id=di.refitmid
-                where pd.id=d.predocid and pd.docsigned=1 and ri.itmtypeid='{$s_itmtypeid}') ";
+                where pd.id=d.predocid
+                    and pd.doctypeid=10
+                    and pd.docsigned=1
+                    and ri.itmtypeid='{$s_itmtypeid}') ";
 
             $sql .= " group by d.docdate";
 
@@ -765,9 +770,16 @@ class WrhDocReportController extends Controller
             FROM `wrhdocs` d
                 JOIN wrhdoclst as i on i.docid=d.id";
 
-        if (isset($s_itmtypeid) && !empty($s_itmtypeid))
-            $sql .= " join refitems as ri on ri.id=i.refitmid
-                        and ('{$s_itmtypeid}' is null or ri.itmtypeid='{$s_itmtypeid}')";
+            // материалы на произаодство скорее всего не соответствуют заданной категории производимого товара
+            // главное, чтобы они были связаны с документом на производство таких товаров
+            if (isset($s_itmtypeid) && !empty($s_itmtypeid))
+                $sql .= " and exists(select 1
+                from wrhdocs pd
+                join wrhdoclst as di on di.docid = pd.id
+                join refitems as ri on ri.id=di.refitmid
+                where pd.id=d.predocid
+                    and pd.doctypeid=10
+                    and pd.docsigned=1 and ri.itmtypeid='{$s_itmtypeid}') ";
 
         $sql .= " WHERE doctypeid=5 and d.docdate = '{$date}'";
         $sql .= " group by d.docdate
