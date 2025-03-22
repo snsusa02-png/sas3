@@ -192,16 +192,18 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                         <td class="text-right">Вх. остаток, ЕИ</td>
                         <td class="text-right">Приход, ЕИ</td>
                         <td class="text-right">Расход, ЕИ</td>
+                        <td class="text-right">Исх. остаток, ЕИ</td>
+                        <td class="text-right">Вх. остаток, руб</td>
                         <td class="text-right">Приход, руб</td>
                         <td class="text-right">Отгрузка, руб</td>
-                        <td class="text-right">Исх. остаток, ЕИ</td>
+                        <td class="text-right">Исх. остаток, руб</td>
                     </tr>
                     </thead>
 
                     <tbody>
                     <?php
                     $npp = 0;
-                    $totSum = $totInpSum = $totOutSum = 0;
+                    $totSum = $totPreSum = $totInpSum = $totOutSum = 0;
                     ?>
                     @foreach($recs as $rec)
                         <?php
@@ -211,6 +213,7 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                         $tdс_class = "";
 
                         $pre_qty = (isset($rec->pre_qty)) ? number_format($rec->pre_qty, 0) : '';
+                        $pre_sum = (isset($rec->pre_sum)) ? number_format($rec->pre_sum, 2) : '';
                         $inp_qty = (isset($rec->inp_qty)) ? number_format($rec->inp_qty, 0) : '';
                         $out_qty = (isset($rec->out_qty)) ? number_format($rec->out_qty, 0) : '';
                         $inp_sum = (isset($rec->inp_sum)) ? number_format($rec->inp_sum, 2) : '';
@@ -218,6 +221,7 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
 
 
                         $n_pre_qty = (isset($rec->pre_qty)) ? $rec->pre_qty : 0;
+                        $n_pre_sum = (isset($rec->pre_sum)) ? $rec->pre_sum : 0;
                         $n_inp_qty = (isset($rec->inp_qty)) ? $rec->inp_qty : 0;
                         $n_out_qty = (isset($rec->out_qty)) ? $rec->out_qty : 0;
                         $n_inp_sum = (isset($rec->inp_sum)) ? $rec->inp_sum : 0;
@@ -225,6 +229,9 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
 
                         $n_end_qty = $rec->pre_qty + $rec->inp_qty - $rec->out_qty;
                         $end_qty = number_format($n_end_qty, 0);
+
+                        $n_end_sum = $rec->pre_sum + $rec->inp_sum - $rec->sale_sum;
+                        $end_sum = number_format($n_end_sum, 2);
 
                         //                            if ($rec->sysobjid == 520)
                         if (1 == 1)
@@ -249,7 +256,7 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                             <td class="text-right small ">
                                 {{++$npp}}
                             </td>
-                            <td class="text-left " data-npp="{{$npp}}">
+                            <td class="text-left small" data-npp="{{$npp}}">
                                 {{$rec->refitm_name}}
                             </td>
                             <td class="text-center small">
@@ -276,24 +283,38 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                                     {{$out_qty}}
                                 @endif
                             </td>
+                            <td class="text-right small calced" data-num="{{$n_end_qty}}">
+                                {{$end_qty}}
+                            </td>
+
+
+                            <td class="text-right small calced" data-num="{{$n_pre_sum}}">
+                                @if(isset($ref_url))
+                                    <a href="{{$ref_url}}" target="_blank">{{$pre_sum}}</a>
+                                @else
+                                    {{$pre_sum}}
+                                @endif
+                            </td>
                             <td class="text-right small calced" data-num="{{$n_inp_sum}}">
                                 @if(isset($inp_ref_url))
                                     <a href="{{$inp_ref_url}}" target="_blank">{{$inp_sum}}</a>
                                 @else
                                     {{$inp_sum}}
                                 @endif
-                            </td>                            <td class="text-right small calced" data-num="{{$n_sale_sum}}">
+                            </td>
+                            <td class="text-right small calced" data-num="{{$n_sale_sum}}">
                                 @if(isset($sale_ref_url))
                                     <a href="{{$sale_ref_url}}" target="_blank">{{$sale_sum}}</a>
                                 @else
                                     {{$sale_sum}}
                                 @endif
                             </td>
-                            <td class="text-right small calced" data-num="{{$n_end_qty}}">
-                                {{$end_qty}}
+                            <td class="text-right small calced" data-num="{{$n_end_sum}}">
+                                {{$end_sum}}
                             </td>
                         </tr>
                         <?php
+                        $totPreSum += $rec->pre_sum;
                         $totInpSum += $rec->inp_sum;
                         $totOutSum += $rec->sale_sum;
                         ?>
@@ -304,9 +325,14 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                         $tdс_class = '';
                         ?>
                         <tr>
-                            <td colspan="6" class="text-right" data-npp="{{$npp++}}">Итого:</td>
+                            <td colspan="4" class="text-right" data-npp="{{$npp++}}">Итого:</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totPreSum,2)}}</td>
                             <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totInpSum,2)}}</td>
                             <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totOutSum,2)}}</td>
+                            <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totPreSum + $totInpSum - $totOutSum,2)}}</td>
                         </tr>
                     @endif
                     </tbody>
