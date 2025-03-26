@@ -260,7 +260,7 @@ $action_url = route('reports.rep' . $thisObjId);
                                 <td class="text-right">{{number_format($itm->inp_sum,2)}}</td>
                                 <td class="text-right">{{number_format($itm->out_sum,2)}}</td>
                                 <td class="text-right">{{number_format($itm->blns_sum,2)}}</td>
-                                <td class="text-right"><a href="{{route('reports.rep67',['date'=>$itm->operdate])}}?returl={{$retURL}}"
+                                <td class="text-right"><a href="{{route('reports.rep67',['date'=>$itm->operdate,'itmtypeid'=>$search_params['s_itmtypeid']??'*'])}}?returl={{$retURL}}"
                                                           target="_blank">{{number_format($itm->sale_sum,2)}}</a></td>
                             </tr>
                             <?php

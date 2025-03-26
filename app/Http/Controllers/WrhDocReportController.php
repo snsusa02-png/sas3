@@ -649,16 +649,15 @@ class WrhDocReportController extends Controller
             $sql .= " group by d.docdate";
 
             $sql .= " union
-                SELECT d.docdate, 0 as dir, sum(d.docsum) as sum, 'реализация' as name
-                FROM `wrhdocs` as d
+                SELECT d.docdate, 0 as dir, sum(di.price*di.qty) as sum, 'реализация' as name
+                FROM `wrhdocs` as d 
+                join wrhdoclst as di on di.docid=d.id
+                join refitems as ri on ri.id=di.refitmid
                 WHERE d.docsigned=1 and d.doctypeid in (select id from wrhdoctypes dt where dt.forsale=1)
                 AND d.docdate BETWEEN  '{$s_begdate}' and '{$s_enddate}'";
 
             if (isset($s_itmtypeid) && !empty($s_itmtypeid))
-                $sql .= " and exists(select 1
-                from wrhdoclst as di
-                join refitems as ri on ri.id=di.refitmid
-                where di.docid=d.id and ri.itmtypeid='{$s_itmtypeid}') ";
+                $sql .= " and ri.itmtypeid='{$s_itmtypeid}'";
 
             $sql .= " group by docdate";
 
@@ -807,7 +806,7 @@ class WrhDocReportController extends Controller
         return view('wrhdocs.rep' . $report_id, compact('recs', 'data'));
     }
 
-    function rep67(Request $request, $date)
+    function rep67(Request $request, $date, $s_itmtypeid)
     {
         //Детализация реализации со склада за дату
 
@@ -821,19 +820,30 @@ class WrhDocReportController extends Controller
         $data->date = $date;
         $data->returl = $returl;
 
+        $s_itmtypeid = ($s_itmtypeid == '*') ? '' : $s_itmtypeid;
+
 //        d.docdate = '{$date}'
         $sql = "select i.refitmid, ri.name, ri.unit, sum(i.qty) as qty, sum(i.price*i.qty) as sum
                 FROM `wrhdocs` as d
                 join wrhdoclst as i  on i.docid=d.id
                 join refitems as ri on ri.id=i.refitmid
                 WHERE d.doctypeid in (select id from wrhdoctypes dt where forsale=1)
-                    and d.docdate='{$date}'
-                group by i.refitmid
+                    and d.docdate='{$date}'";
+
+        if (isset($s_itmtypeid) && !empty($s_itmtypeid)) {
+            $sql .= " and ri.itmtypeid='{$s_itmtypeid}'";
+        }
+
+        $sql .= " group by i.refitmid
                 order by sum desc";
 
         $recs = DB::select(DB::raw($sql));
 
 //        dd($date,$sql,$recs);
+        $sc = "1=1";
+        if (isset($s_itmtypeid) && !empty($s_itmtypeid)) {
+            $sc .= " and ri.itmtypeid='{$s_itmtypeid}'";
+        }
 
         $recs2 = wrhdoc::from('wrhdoclst as dl')
             //->join('wrhdocs as d', 'd.id', 'dl.docid')
@@ -848,6 +858,7 @@ class WrhDocReportController extends Controller
             })
             ->join('refitems as ri', 'ri.id', 'dl.refitmid')
             ->where('d.docdate', $date)
+            ->whereraw($sc)
             ->select('d.orgid', 'o.name as org_name'
                 , 'dl.refitmid', 'ri.name as refitm_name', 'ri.unit as refitm_unit'
                 , db::raw("sum(t.forsale * dl.qty) as qty"), 'dl.price', db::raw("sum(t.forsale * dl.qty * dl.price) as itm_sum"))
