@@ -298,6 +298,7 @@ class PayDocReportController extends Controller
                 )
                 ->union($wrks)
                 ->orderBy('operdate')
+                ->limit(1000)   //2025-03-30
                 ->get();
         }
 
