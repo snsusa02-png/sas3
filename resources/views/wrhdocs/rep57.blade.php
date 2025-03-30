@@ -251,16 +251,38 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                         else
                             $ref_url = null;
 
-                        if ($n_inp_qty > 0)
+                        if ($n_pre_qty > 0)
+                            $pre_avg_price = round($n_pre_sum/$n_pre_qty,2);
+                        else
+                            $pre_avg_price = null;
+
+                        if ($n_inp_qty > 0){
                             $inp_ref_url = route('reports.rep57_i') . '?ri_id=' . $rec->refitmid;
-                        else
+                            $inp_avg_price = round($n_inp_sum/$n_inp_qty,2);
+                        }
+                        else{
                             $inp_ref_url = null;
+                            $inp_avg_price = null;
+                        }
 
-                        if ($n_sale_sum > 0)
-                            $sale_ref_url = null; //route('paydocs.edit', $rec->objid);
+                        if ($n_out_qty > 0)
+                            $out_avg_price = round($n_out_sum/$n_out_qty,2);
                         else
-                            $sale_ref_url = null;
+                            $out_avg_price = null;
 
+                        if ($n_sale_sum > 0){
+                            $sale_ref_url = null; //route('paydocs.edit', $rec->objid);
+                            $sale_avg_price = round($n_sale_sum/$n_sale_qty,2);
+                            }
+                        else{
+                            $sale_ref_url = null;
+                            $sale_avg_price = null;
+                            }
+
+                        if ($n_end_qty > 0)
+                            $end_avg_price = round($n_end_sum/$n_end_qty,2);
+                        else
+                            $end_avg_price = null;
 
                         $tstyle = ($rec->inp_qty + $rec->out_qty > 0) ? 'background-color:#ffff94' : '';
                         ?>
@@ -282,12 +304,15 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                                         {{$pre_qty}}
                                     @endif
                                 </div>
-                                <div class="text-right small calced" data-num="{{$n_pre_sum}}">
+                                <div class="text-right small calced" data-num="{{$n_pre_sum}}" title="{{$pre_avg_price}}">
                                     @if(isset($ref_url))
                                         <a href="{{$ref_url}}" target="_blank">{{$pre_sum}}</a>
                                     @else
                                         {{$pre_sum}}
                                     @endif
+                                </div>
+                                <div class="text-right small text-secondary text-black-50-">
+                                    <span class="small" title="средняя цена"> {{$pre_avg_price}}</span>
                                 </div>
                             </td>
                             <td>
@@ -298,12 +323,15 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                                         {{$inp_qty}}
                                     @endif
                                 </div>
-                                <div class="text-right small calced" data-num0="{{$n_inp_sum}}">
+                                <div class="text-right small calced" data-num0="{{$n_inp_sum}}" title="{{$inp_avg_price}}">
                                     @if(isset($inp_ref_url))
                                         <a href="{{$inp_ref_url}}" target="_blank">{{$inp_sum}}</a>
                                     @else
                                         {{$inp_sum}}
                                     @endif
+                                </div>
+                                <div class="text-right small text-secondary text-black-50-">
+                                    <span class="small" title="средняя цена"> {{$inp_avg_price}}</span>
                                 </div>
                             </td>
                             <td>
@@ -314,21 +342,28 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                                         {{$out_qty}}
                                     @endif
                                 </div>
-                                <div class="text-right small calced" data-num="{{$n_out_sum}}">
+                                <div class="text-right small calced" data-num="{{$n_out_sum}}" title="{{$out_avg_price}}">
                                     @if(isset($out_ref_url))
                                         <a href="{{$out_ref_url}}" target="_blank">{{$out_sum}}</a>
                                     @else
                                         {{$out_sum}}
                                     @endif
                                 </div>
+                                <div class="text-right small text-secondary text-black-50-">
+                                    <span class="small" title="средняя цена"> {{$out_avg_price}}</span>
+                                </div>
                             </td>
                             <td>
                                 <div class="text-right small calced" data-num="{{$n_end_qty}}">
                                     {{$end_qty}}
                                 </div>
-                                <div class="text-right small calced" data-num="{{$n_end_sum}}">
+                                <div class="text-right small calced" data-num="{{$n_end_sum}}" title="{{$end_avg_price}}">
                                     {{$end_sum}}
                                 </div>
+                                <div class="text-right small text-secondary text-black-50-">
+                                    <span class="small" title="средняя цена"> {{$end_avg_price}}</span>
+                                </div>
+
                             </td>
 
                             <td>
@@ -339,12 +374,15 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                                         {{$sale_qty}}
                                     @endif
                                 </div>
-                                <div class="text-right small calced" data-num="{{$n_sale_sum}}">
+                                <div class="text-right small calced" data-num="{{$n_sale_sum}}" title="{{$sale_avg_price}}">
                                     @if(isset($sale_ref_url))
                                         <a href="{{$sale_ref_url}}" target="_blank">{{$sale_sum}}</a>
                                     @else
                                         {{$sale_sum}}
                                     @endif
+                                </div>
+                                <div class="text-right small text-secondary0 text-black-50">
+                                    <span class="small" title="средняя цена"> {{$sale_avg_price}}</span>
                                 </div>
                             </td>
                         </tr>
