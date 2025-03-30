@@ -414,7 +414,7 @@ class WrhdocController extends Controller
         //dd($rec->places);
         if(is_null($rec->placeid) and sizeof($rec->places) == 1)
             $rec->placeid = array_key_first($rec->places);
-
+        //dd($rec->placeid);
 
         //Проверим, может данный документ является прародителем другого документа
         $rec->childdoc = wrhdoc::where('predocid', $id)
@@ -1432,6 +1432,7 @@ class WrhdocController extends Controller
             return redirect()->back()->with('error', 'У вас нет права на создание записей!');
 
         $rslt = wrhdoc::clone($id);
+        //dd($rslt);
         if ($rslt->err > 0)
             return redirect()->back()->with(['error' => $rslt->msg]);
 

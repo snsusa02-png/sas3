@@ -256,8 +256,9 @@ class WrhDocReportController extends Controller
 	            , sum(a.sale_sum) as sale_sum
                 from (
                     SELECT i.refitmid
-                        , SUM(IF(t.forStock=1, i.qty, 0) - IF(t.forStock=-1, i.qty, 0)) as pre_qty
-                        , SUM(IF(t.forStock=1, i.qty*i.price, 0) - IF(t.forStock=-1, i.qty*i.price, 0)) as pre_sum
+                        , SUM(t.forStock*i.qty) as pre_qty
+                        /*, SUM(IF(t.forStock=1, i.qty*i.price, 0) - IF(t.forStock=-1, i.qty*i.price, 0)) as pre_sum*/
+                        , SUM(t.forStock*i.qty*ri.price) as pre_sum /*по текущей цене из номенклатуры*/
                         , null as inp_qty, null as out_qty,null as inp_sum, null as sale_sum
                     FROM wrhdoclst as i
                     INNER JOIN wrhdocs as d ON d.id = i.docid
@@ -650,7 +651,7 @@ class WrhDocReportController extends Controller
 
             $sql .= " union
                 SELECT d.docdate, 0 as dir, sum(di.price*di.qty) as sum, 'реализация' as name
-                FROM `wrhdocs` as d 
+                FROM `wrhdocs` as d
                 join wrhdoclst as di on di.docid=d.id
                 join refitems as ri on ri.id=di.refitmid
                 WHERE d.docsigned=1 and d.doctypeid in (select id from wrhdoctypes dt where dt.forsale=1)
