@@ -330,7 +330,6 @@ class PayDocReportController extends Controller
                 , db::raw("sum(mro.raid_qty) as raid_qty")
             )
             ->groupBy(['sysobjid', 'fo.objid', 'sumtypeid', 'operdate', 'price', 'descript', 'mro.org_placename'])
-            ->limit(1000)   //2025-03-30
             ->get();
 
         $data = new \stdClass();

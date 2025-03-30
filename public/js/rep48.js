@@ -47,4 +47,5 @@ function sortByNPP() {
 }
 
 document.querySelector("#sort_1").addEventListener("click", sortByNPP);
-sortByNPP();
+//2025-03-30 Временно отменим сортировку - на больших объемах не работает!
+// sortByNPP();
