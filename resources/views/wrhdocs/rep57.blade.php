@@ -247,6 +247,11 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
 
                         //                            if ($rec->sysobjid == 520)
                         if (1 == 1)
+                            $ref_itm_url = route('refitems.edit', $rec->refitmid);
+                        else
+                            $ref_itm_url = null;
+
+                        if (1 == 1)
                             $ref_url = null; //route('paydocs.edit', $rec->objid);
                         else
                             $ref_url = null;
@@ -291,12 +296,12 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                                 {{++$npp}}
                             </td>
                             <td class="text-left small" data-npp="{{$npp}}">
-                                {{$rec->refitm_name}}
+                                <a href="{{$ref_itm_url}}" target="_blank">{{$rec->refitm_name}}</a>
                             </td>
                             <td class="text-center small">
                                 {{$rec->refitm_unit}}
                             </td>
-                            
+
                             <td>
                                 <div class="text-right small calced" data-num="{{$n_pre_qty}}">
                                     @if(isset($ref_url))
