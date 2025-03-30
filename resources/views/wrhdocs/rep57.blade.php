@@ -296,6 +296,7 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                             <td class="text-center small">
                                 {{$rec->refitm_unit}}
                             </td>
+                            
                             <td>
                                 <div class="text-right small calced" data-num="{{$n_pre_qty}}">
                                     @if(isset($ref_url))
@@ -315,6 +316,7 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                                     <span class="small" title="средняя цена"> {{$pre_avg_price}}</span>
                                 </div>
                             </td>
+
                             <td>
                                 <div class="text-right small calced" data-num0="{{$n_inp_qty}}">
                                     @if(isset($inp_ref_url))
@@ -334,6 +336,7 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                                     <span class="small" title="средняя цена"> {{$inp_avg_price}}</span>
                                 </div>
                             </td>
+
                             <td>
                                 <div class="text-right small calced" data-num="-{{$n_out_qty}}">
                                     @if(isset($ref_url))
@@ -353,6 +356,7 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                                     <span class="small" title="средняя цена"> {{$out_avg_price}}</span>
                                 </div>
                             </td>
+
                             <td>
                                 <div class="text-right small calced" data-num="{{$n_end_qty}}">
                                     {{$end_qty}}
@@ -363,7 +367,6 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                                 <div class="text-right small text-secondary text-black-50-">
                                     <span class="small" title="средняя цена"> {{$end_avg_price}}</span>
                                 </div>
-
                             </td>
 
                             <td>
