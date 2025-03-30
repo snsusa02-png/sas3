@@ -319,7 +319,6 @@ class PayDocReportController extends Controller
                 $j->on('m.id', 'mr.machineid');
             })
             ->whereRaw($sc)
-            ->orderBy('operdate')
 //            ->select('fo.*'
 //                , db::raw("if(srcorgid = {$ownorgid}, - 1, + 1) * opersum as opersum")
             ->select('sysobjid', 'fo.objid', 'sumtypeid', 'operdate', 'fo.price', 'fo.descript', 'mro.org_placename'
@@ -330,6 +329,8 @@ class PayDocReportController extends Controller
                 , db::raw("sum(mro.raid_qty) as raid_qty")
             )
             ->groupBy(['sysobjid', 'fo.objid', 'sumtypeid', 'operdate', 'price', 'descript', 'mro.org_placename'])
+            ->orderBy('operdate')
+            //->orderBy('operdate', 'desc')
             ->get();
 
         $data = new \stdClass();
