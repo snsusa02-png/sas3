@@ -1085,6 +1085,7 @@ Route::get('/api/regnum_srcs/', 'RegnumSrcController@list_for');
 Route::get('/api/wrhs/for_/', 'WrhController@list_for');
 Route::get('/api/wrh_boxes/for_/', 'WrhBoxController@list_for');
 Route::get('/stock/wrhdoctypes/params', 'WrhdoctypeController@params');
+Route::get('/api/orgsaldo/for_orgs/', 'OrgSaldoController@saldo_for_orgs');
 
 
 //Счета на оплату

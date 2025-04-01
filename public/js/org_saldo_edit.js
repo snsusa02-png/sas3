@@ -114,4 +114,14 @@ $(document).ready(function () {
         return $("<li></li>").append($div).appendTo(ul);
     };
 
+    $("#ondate,#ownorgid,#orgid").change(function () {
+        $.get("/api/orgsaldo/for_orgs/", {ownorgid: $("#ownorgid").val(), orgid: $("#orgid").val(), ondate: $("#ondate").val()},
+            function (data) {
+                //console.log(data);
+                //console.log(data.saldo);
+                $("#saldo").val(data.saldo);
+            }
+        )
+    });
+
 });

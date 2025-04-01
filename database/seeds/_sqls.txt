@@ -1,4 +1,21 @@
-﻿-- 2025-03-16 -------------
+﻿-- 2025-03-31 -------------
+-- сальдо между контрагнтами на дату
+select sum( if(srcorgid = 31, - 1, + 1) * opersum) as opersum
+from `obj_finopers` as `fo`
+where 1780 in (fo.srcorgid, fo.tgtorgid)
+and 35 in (fo.srcorgid, fo.tgtorgid)
+and fo.operdate<'2024-03-01'
+
+-- Потенциальные читатели отчета (доступен этим пользователям)
+SELECT r.name, u.lname, u.fname, ua.acsid
+FROM `reports` AS r
+join usrsysrights ur on ur.sysfuncid=ifnull(r.acs_rightid, ur.sysfuncid)
+join users u on u.id=ur.userid and u.active=1
+join user_acs ua on ua.acsid = ifnull(r.acsid, ua.acsid) and ua.userid=u.id
+where r.ID=61
+order by lname, fname
+
+-- 2025-03-16 -------------
 ALTER TABLE wrhdocs ADD COLUMN `placeid` BIGINT UNSIGNED NULL
     COMMENT 'привязка к org_places - для возможности использования цен из ri_sup_prices'
     AFTER `ownorgid`;

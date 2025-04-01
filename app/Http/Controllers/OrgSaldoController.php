@@ -8,6 +8,8 @@ use App\Traits\DeleteFileTrait;
 use App\usrsysright;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class OrgSaldoController extends Controller
 {
@@ -169,6 +171,9 @@ class OrgSaldoController extends Controller
             $mess = "Изменена запись о сальдо операций с контрагентом";
         }
 
+        //2025-04-01
+        $rec->orgid = $request->get('orgid');;
+
         $rec->ownorgid = $request->get('ownorgid');
         $rec->ondate = $request->get('ondate');
         $rec->saldo = $request->get('saldo');
@@ -226,4 +231,48 @@ class OrgSaldoController extends Controller
         }
         return redirect($route)->with($sd);
     }
+
+    static public function saldo_for_orgs(Request $request)
+    {
+        //2023-09-24 SNS. Данные разные
+
+        $result = "";
+        try {
+
+            $ownorgid = $request->get("ownorgid");
+            $orgid = $request->get("orgid");
+            $ondate = $request->get("ondate");
+//dd($ownorgid,$orgid,$ondate );
+            $sess_var_lbl = "saldo_{$ownorgid}_{$orgid}_{$ondate}_params";
+            if (1 == 1 and null !== session([$sess_var_lbl]))
+                return session([$sess_var_lbl]);
+            else {
+                $sql = "select sum( if(srcorgid = {$ownorgid}, - 1, + 1) * opersum) as saldo
+                        from `obj_finopers` as `fo`
+                        where {$ownorgid} in (fo.srcorgid, fo.tgtorgid)
+                          and {$orgid} in (fo.srcorgid, fo.tgtorgid)
+                          and fo.operdate<'{$ondate}'";
+                $data = "";
+                try {
+                    $data = DB::select(DB::raw($sql));
+                    $data = array('saldo' => $data[0]->saldo ?? '');
+                    //$data = array('data' => $data);
+
+                    //dd($data);
+                    session([$sess_var_lbl => response()->json($data)]);
+
+                } catch (\Exception $e) {
+                }
+            }
+            return response()->json($data);
+
+            //$result = array('data' => $list);
+            //Log::info(implode('; ', $list));
+
+        } catch (\Exception $e) {
+            Log::error('fuelcard::data_for_card:' . $e->getMessage());
+        }
+        return response()->json($result);
+    }
+
 }

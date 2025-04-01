@@ -138,14 +138,14 @@
                                     <div class="form-group offset-md-0 col-md-5">
                                         <label for="saldo" class="required">Сальдо, руб:</label>
                                         <input type="number" class="form-control text-right font-weight-bold"
-                                               name="saldo" {{$ro_mode}} required
+                                               name="saldo" id="saldo" {{$ro_mode}} required
                                                step="0.01"
                                                value="{{old('saldo',$rec->saldo)}}"/>
                                     </div>
                                     <div class="form-group col-md-4 col-sm-6">
                                         <label for="ondate" class="required">на начало дня:</label>
-                                        <input type="date" class="form-control" name="ondate" {{$ro_mode}}
-                                        max="{{$rec->maxdate}}" required
+                                        <input type="date" class="form-control" name="ondate" id="ondate"
+                                               {{$ro_mode}} max="{{$rec->maxdate}}" required
                                                value="{{old('ondate',$rec->ondate)}}"/>
                                     </div>
 
