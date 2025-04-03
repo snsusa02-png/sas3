@@ -270,10 +270,14 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                             $inp_avg_price = null;
                         }
 
-                        if ($n_out_qty > 0)
+                        if ($n_out_qty > 0){
+                            $out_ref_url = route('reports.rep57_o') . '?ri_id=' . $rec->refitmid;
                             $out_avg_price = round($n_out_sum/$n_out_qty,2);
-                        else
+                        }
+                        else{
+                            $out_ref_url = null;
                             $out_avg_price = null;
+                        }
 
                         if ($n_sale_sum > 0){
                             $sale_ref_url = null; //route('paydocs.edit', $rec->objid);
@@ -331,7 +335,7 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                                     @endif
                                 </div>
                                 <div class="text-right small calced" data-num0="{{$n_inp_sum}}" title="{{$inp_avg_price}}">
-                                    @if(isset($inp_ref_url))
+                                    @if(1==0 and isset($inp_ref_url))
                                         <a href="{{$inp_ref_url}}" target="_blank">{{$inp_sum}}</a>
                                     @else
                                         {{$inp_sum}}
@@ -344,14 +348,14 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
 
                             <td>
                                 <div class="text-right small calced" data-num="-{{$n_out_qty}}">
-                                    @if(isset($ref_url))
-                                        <a href="{{$ref_url}}" target="_blank">{{$out_qty}}</a>
+                                    @if(isset($out_ref_url))
+                                        <a href="{{$out_ref_url}}" target="_blank">{{$out_qty}}</a>
                                     @else
                                         {{$out_qty}}
                                     @endif
                                 </div>
                                 <div class="text-right small calced" data-num="{{$n_out_sum}}" title="{{$out_avg_price}}">
-                                    @if(isset($out_ref_url))
+                                    @if(1==0 and isset($out_ref_url))
                                         <a href="{{$out_ref_url}}" target="_blank">{{$out_sum}}</a>
                                     @else
                                         {{$out_sum}}

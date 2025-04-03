@@ -437,6 +437,70 @@ class WrhDocReportController extends Controller
         return view('wrhdocs.rep' . $report_id . '_i', compact('search_params', 'recs', 'data'));
     }
 
+    function rep57_o(Request $request)
+    {
+        //Детализация расхода склада за период
+
+        $report_id = 57;
+
+        $returl = $request->get('returl') ?? route('home');
+        $userid = Auth::user()->id;
+        $export2xls = $request->get('xls') ?? 0;
+
+        $param_names = [
+            's_begdate' => null,
+            's_enddate' => strftime('%Y-%m-%d', strtotime(now())),
+        ];
+
+        $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);
+
+        $s_begdate = $search_params['s_begdate'];
+        $s_enddate = $search_params['s_enddate'];
+        $s_refitmid = $request->ri_id;
+
+        $data = new \stdClass();
+        $data->returl = $returl;
+
+        //dd($search_params, $data);
+
+        if (isset($s_refitmid) and $s_begdate <> '') {
+            $ri = refitem::where('id', $s_refitmid)->select('name', 'unit')->first();
+            $data->refitm_name = $ri->name;
+            $data->refitm_unit = $ri->unit;
+
+            $sql = "SELECT d.id as docid
+                , d.docdate
+                , d.docnum
+                , t.name as doctype_name
+                , i.price
+                , i.qty as qty
+                , qty*i.price as sum
+                , d.orgid
+                , o.name as org_name
+                FROM wrhdoclst as i
+                INNER JOIN wrhdocs as d ON d.id = i.docid
+                INNER JOIN wrhdoctypes as t ON t.id = d.doctypeid AND t.forstock <> 0
+                left join orgs o on o.id=d.orgid
+                WHERE d.docsigned=1
+                and d.docdate between '{$s_begdate}' and '{$s_enddate}'
+                and i.refitmid={$s_refitmid}
+                and t.forStock= -1
+                order by d.docdate, i.price";
+
+            $recs = DB::select(DB::raw($sql));
+
+//            dd($sql,$recs);
+
+            //занесем в журнал
+//            objlog::log_info(855, $report_id, 'запрошен отчет; ' . $s_begdate);
+//            report::updUseCnt($report_id);
+
+        } else {
+            $recs = null;
+        }
+        return view('wrhdocs.rep' . $report_id . '_o', compact('search_params', 'recs', 'data'));
+    }
+
     function rep60(Request $request)
     {
         //Детализация отгрузки продукции по контрагенту
