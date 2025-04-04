@@ -1,4 +1,35 @@
-﻿-- 2025-03-31 -------------
+﻿-- 2025-04-03 ------------- для отчета Виталию
+INSERT INTO `reports` (`id`, `name`, `acsid`, `acs_rightid`, `public`, `active`) VALUES ('70', 'Операции авто ', '1', '100', '1', '0');
+
+select mro.mr_id, ot.name, dw.wrkdate
+, dw.staffid, os.lname, os.fname, os.mname
+, dw.machineid, m.regnum
+, GROUP_CONCAT(sup.name SEPARATOR ', ') as sup_name
+, GROUP_CONCAT(mro.sup_placename SEPARATOR ', ') as sup_placename
+, GROUP_CONCAT( if(mro.sale_dir=-1, ri.name, null) SEPARATOR ', ') as "что купили"
+, sum(if(mro.sale_dir=-1, mro.itm_sum, 0)) as buy_sum
+--
+, GROUP_CONCAT(org.name SEPARATOR ', ') as org_name
+, GROUP_CONCAT( if(mro.sale_dir=1, ri.name, null) SEPARATOR ', ') as sale_itmname
+, GROUP_CONCAT(mro.org_placename SEPARATOR ', ') as org_placename
+, sum(if(mro.sale_dir=1, mro.itm_sum, 0)) as sale_sum
+, sum(mro.raid_qty) as raid_qty
+	from mr_opers mro
+	join mchn_raids as mr on mr.id=mro.mr_id
+    join driver_works dw on dw.id=mr.dw_id
+    join opertypes ot on ot.id=dw.opertypeid
+    join orgstaff os on os.id=dw.staffid
+    join machines m on m.id=dw.machineid
+    join refitems as ri on ri.id=mro.refitmid
+    join orgs as sup on sup.id=mro.suporgid
+    join orgs as org on org.id=mro.orgid
+    where mr.wrkdate='2025-03-17'
+    -- and dw.staffid=106
+    and dw.opertypeid=1
+    group by mro.mr_id
+    order by wrkdate, os.lname, dw.staffid
+
+-- 2025-03-31 -------------
 -- сальдо между контрагнтами на дату
 select sum( if(srcorgid = 31, - 1, + 1) * opersum) as opersum
 from `obj_finopers` as `fo`
