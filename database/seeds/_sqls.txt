@@ -1,5 +1,13 @@
-﻿-- 2025-04-03 ------------- для отчета Виталию
-INSERT INTO `reports` (`id`, `name`, `acsid`, `acs_rightid`, `public`, `active`) VALUES ('70', 'Операции авто ', '1', '100', '1', '0');
+﻿-- 2025-04-07 ------------- для отчета Виталию
+SELECT sup_placename place1, org_placename as place2, count(1) as cnt
+FROM `mr_opers`
+where sup_placename is not null and org_placename is not null
+group by sup_placename, org_placename
+order by cnt desc, sup_placename
+
+-- 2025-04-03 ------------- для отчета Виталию
+INSERT INTO `reports` (`id`, `name`, `acsid`, `acs_rightid`, `public`, `active`)
+VALUES ('70', 'Операции авто ', '1', '100', '1', '0');
 
 select mro.mr_id, ot.name, dw.wrkdate
 , dw.staffid, os.lname, os.fname, os.mname

@@ -254,6 +254,8 @@ class WrhDocReportController extends Controller
 	            , sum(a.inp_sum) as inp_sum
 	            , sum(a.out_qty) as out_qty
 	            , sum(a.out_sum) as out_sum
+	            , sum(a.plnsale_qty) as plnsale_qty
+	            , sum(a.plnsale_sum) as plnsale_sum
 	            , sum(a.sale_qty) as sale_qty
 	            , sum(a.sale_sum) as sale_sum
 	            , sum(a.cur_qty) as cur_qty
@@ -265,6 +267,7 @@ class WrhDocReportController extends Controller
                         , SUM(t.forStock*i.qty*ri.price) as pre_sum /*по текущей цене из номенклатуры*/
                         , null as inp_qty, null as inp_sum
                         , null as out_qty, null as out_sum
+                        , null as plnsale_qty, null as plnsale_sum
                         , null as sale_qty, null as sale_sum
                         , null as cur_qty, null as cur_sum
                     FROM wrhdoclst as i
@@ -280,6 +283,8 @@ class WrhDocReportController extends Controller
                         , SUM(IF(t.forStock=+1, i.qty*i.price, null)) as inp_sum
                         , SUM(IF(t.forStock=-1, i.qty, 0)) as out_qty
                         , SUM(IF(t.forStock=-1, i.qty*ri.price, 0)) as out_sum
+                        , SUM(IF(t.forSale=1, i.qty, 0)) as plnsale_qty
+                        , SUM(IF(t.forSale=1, i.qty*ri.price, 0)) as plnsale_sum
                         , SUM(IF(t.forSale=1, i.qty, 0)) as sale_qty
                         , SUM(IF(t.forSale=1, i.qty*i.price, 0)) as sale_sum
                         , null as cur_qty
@@ -297,6 +302,7 @@ class WrhDocReportController extends Controller
                         , null as pre_qty, null as pre_sum
                         , null as inp_qty, null as inp_sum
                         , null as out_qty, null as out_sum
+                        , null as plnsale_qty, null as plnsale_sum
                         , null as sale_qty, null as sale_sum
                         , sum(t.forstock*i.qty) as cur_qty
                         , sum(t.forstock*i.qty*ri.price) as cur_sum

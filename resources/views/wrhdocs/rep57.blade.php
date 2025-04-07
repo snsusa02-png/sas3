@@ -194,14 +194,15 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                         <td class="text-right">Приход, ЕИ / руб</td>
                         <td class="text-right">Расход, ЕИ / руб</td>
                         <td class="text-right">Исх. остаток, ЕИ / руб</td>
-                        <td class="text-right">Рeализация, ЕИ / руб</td>
+                        <td class="text-right">Рeализация (план), ЕИ / руб</td>
+                        <td class="text-right">Рeализация (факт), ЕИ / руб</td>
                     </tr>
                     </thead>
 
                     <tbody>
                     <?php
                     $npp = 0;
-                    $totSum = $totPreSum = $totInpSum = $totOutSum = $totSaleSum = $totCurSum= 0;
+                    $totSum = $totPreSum = $totInpSum = $totOutSum = $totPlnSaleSum = $totSaleSum = $totCurSum= 0;
                     ?>
                     @foreach($recs as $rec)
                         <?php
@@ -216,6 +217,8 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                         $out_qty = (isset($rec->out_qty)) ? number_format($rec->out_qty, 0) : '';
                         $inp_sum = (isset($rec->inp_sum)) ? number_format($rec->inp_sum, 2) : '';
                         $out_sum = (isset($rec->out_sum)) ? number_format($rec->out_sum, 2) : '';
+                        $plnsale_qty = (isset($rec->plnsale_qty)) ? number_format($rec->plnsale_qty, 0) : '';
+                        $plnsale_sum = (isset($rec->plnsale_sum)) ? number_format($rec->plnsale_sum, 2) : '';
                         $sale_qty = (isset($rec->sale_qty)) ? number_format($rec->sale_qty, 0) : '';
                         $sale_sum = (isset($rec->sale_sum)) ? number_format($rec->sale_sum, 2) : '';
                         $cur_qty = (isset($rec->cur_qty)) ? number_format($rec->cur_qty, 0) : '';
@@ -230,6 +233,9 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
 
                         $n_out_qty = (isset($rec->out_qty)) ? $rec->out_qty : 0;
                         $n_out_sum = (isset($rec->out_sum)) ? $rec->out_sum : 0;
+
+                        $n_plnsale_qty = (isset($rec->plnsale_qty)) ? $rec->plnsale_qty : 0;
+                        $n_plnsale_sum = (isset($rec->plnsale_sum)) ? $rec->plnsale_sum : 0;
 
                         $n_sale_qty = (isset($rec->sale_qty)) ? $rec->sale_qty : 0;
                         $n_sale_sum = (isset($rec->sale_sum)) ? $rec->sale_sum : 0;
@@ -278,6 +284,15 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                             $out_ref_url = null;
                             $out_avg_price = null;
                         }
+
+                        if ($n_plnsale_sum > 0){
+                            $plnsale_ref_url = null; //route('paydocs.edit', $rec->objid);
+                            $plnsale_avg_price = round($n_plnsale_sum/$n_plnsale_qty,2);
+                            }
+                        else{
+                            $plnsale_ref_url = null;
+                            $plnsale_avg_price = null;
+                            }
 
                         if ($n_sale_sum > 0){
                             $sale_ref_url = null; //route('paydocs.edit', $rec->objid);
@@ -379,6 +394,26 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                             </td>
 
                             <td>
+                                <div class="text-right small calced" data-num="-{{$n_plnsale_qty}}">
+                                    @if(isset($ref_url))
+                                        <a href="{{$ref_url}}" target="_blank">{{$plnsale_qty}}</a>
+                                    @else
+                                        {{$plnsale_qty}}
+                                    @endif
+                                </div>
+                                <div class="text-right small calced" data-num="{{$n_plnsale_sum}}" title="{{$plnsale_avg_price}}">
+                                    @if(isset($plnsale_ref_url))
+                                        <a href="{{$plnsale_ref_url}}" target="_blank">{{$plnsale_sum}}</a>
+                                    @else
+                                        {{$plnsale_sum}}
+                                    @endif
+                                </div>
+                                <div class="text-right small text-secondary0 text-black-50">
+                                    <span class="small" title="средняя цена"> {{$plnsale_avg_price}}</span>
+                                </div>
+                            </td>
+
+                            <td>
                                 <div class="text-right small calced" data-num="-{{$n_sale_qty}}">
                                     @if(isset($ref_url))
                                         <a href="{{$ref_url}}" target="_blank">{{$sale_qty}}</a>
@@ -402,6 +437,7 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                         $totPreSum += $rec->pre_sum;
                         $totInpSum += $rec->inp_sum;
                         $totOutSum += $rec->out_sum;
+                        $totPlnSaleSum += $rec->plnsale_sum;
                         $totSaleSum += $rec->sale_sum;
                         $totCurSum += $rec->cur_sum;
                         ?>
@@ -417,6 +453,7 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                             <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totInpSum,2)}}</td>
                             <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totOutSum,2)}}</td>
                             <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totCurSum,2)}}</td>
+                            <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totPlnSaleSum,2)}}</td>
                             <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totSaleSum,2)}}</td>
                         </tr>
                     @endif
