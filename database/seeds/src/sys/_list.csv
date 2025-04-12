@@ -29,3 +29,4 @@ informers,U,id
 task_statuses,U,id
 wrhdoctypes,U,id
 expensetypes,U,id
+route_points,U,id
