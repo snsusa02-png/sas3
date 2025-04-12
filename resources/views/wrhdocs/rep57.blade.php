@@ -4,7 +4,7 @@
 $thisTitle = "-";
 $thisSysObjId = 855;    //reports
 $thisObjId = 57;
-//$retURL = route('admin') . '#nsi-rep';
+//$retURL = route('reports.pub_index');
 $retURL = $data->returl ?? route('paydocs.index');
 
 $report = \App\report::find($thisObjId);

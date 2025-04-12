@@ -1,6 +1,7 @@
 ﻿-- 2025-04-07 ------------- для бальной оценки маршрутов (Виталий)
-INSERT INTO `reports` (`id`, `name`, `acsid`, `acs_rightid`, `public`, `active`)
-VALUES ('71', 'Баллы за перевозки', '1', '100', '1', '0');
+INSERT INTO `sysobjs` (`id`, `code`, `name`, `active`, `ordr`, `model_class`) VALUES ('1228', 'route_points', 'Баллы по маршрутам', '1', '999999', 'route_point');
+
+INSERT INTO `reports` (`id`, `name`, `acsid`, `acs_rightid`, `public`, `active`) VALUES ('71', 'Баллы за перевозки', '1', '100', '1', '0');
 
 SELECT mr.wrkdate, mr.driverid, max(mr.drivername) as drivername, sum(route_points) as route_points, count(1) as oper_cnt
 	FROM `mr_opers` mro
@@ -17,6 +18,11 @@ ALTER TABLE mr_opers
 ADD COLUMN `route_points` DECIMAL(6,3) NULL COMMENT 'Кол-во баллов за поездку' AFTER `drvsum_calctypeid`;
 
 
+
+-- select * from mr_opers mro where exists(select 1 from mchn_raids as mr where mr.id=mro.mr_id and mr.wrkdate >=date('2025-03-01'))
+
+update mr_opers mro	set route_points =null where route_points is not null;
+
 update mr_opers mro
 	set route_points = (
     select points
@@ -24,10 +30,13 @@ update mr_opers mro
     where 1=1
 --    and ucase(mro.sup_placename) in (rp.src_placename, tgt_placename)
     -- and ucase(mro.org_placename) in (rp.src_placename, tgt_placename)
-    and ucase(mro.sup_placename) in (rp.src_placename)
-    and ucase(mro.org_placename) in (tgt_placename)
-    and date('2025-04-12') between rp.begdate and ifnull(rp.enddate, date('3000-12-31'))
-    );
+     and ucase(mro.sup_placename) in (rp.src_placename)
+     and ucase(mro.org_placename) in (tgt_placename)
+    -- and ucase(mro.org_placename) in (rp.src_placename)
+    -- and ucase(mro.sup_placename) in (tgt_placename)
+    )
+	where route_points is null
+    and exists(SELECT 1 from mchn_raids mr where mr.id=mro.mr_id and mr.wrkdate>='2025-03-01')
 
 select org_placeid,org_placename, count(1) from mr_opers as mro
 where ucase(org_placename) = 'ПРОХЛАДНОЕ'

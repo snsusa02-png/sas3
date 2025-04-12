@@ -1594,7 +1594,7 @@ order by income_sum desc";
         if ($need_search) {
 
             //------------------------------
-            $sql = "SELECT mr.wrkdate, mr.driverid, max(mr.drivername) as drivername, sum(route_points) as route_points, count(1) as oper_cnt
+            $sql = "SELECT mr.wrkdate, mr.driverid, max(mr.drivername) as drivername, sum(mro.raid_qty*route_points) as route_points
                 FROM `mr_opers` mro
                 join mchn_raids as mr on mr.id=mro.mr_id
                 where {$sc1}

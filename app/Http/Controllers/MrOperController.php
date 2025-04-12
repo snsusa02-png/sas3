@@ -14,6 +14,7 @@ use App\org_charge;
 use App\org_place;
 use App\orgstaff;
 use App\paydoc;
+use App\route_point;
 use App\stf_chrg_calc;
 use App\sysobj;
 use App\Traits\SearchDataTrait;
@@ -163,8 +164,6 @@ class MrOperController extends Controller
             $rec->org_places = org_place::lstFor([
                 'orgid' => $rec->orgid
             ]);
-
-
         }
 
         $rec->sale_dirs = mr_oper::saledirs();
@@ -306,6 +305,11 @@ class MrOperController extends Controller
         //$rec->active = 1; //$request->get('active', 0);
         $rec->updated_by = $userid;
         $rec->updated_at = now();
+
+        // 2025-04-12 Вычислим кол-во баллов для данного маршрута
+        $rec->route_points = route_point::points_for_route($rec->sup_placename, $rec->org_placename, $rec->mchn_raid->wrkdate);
+        //dd($rec->route_points);
+
 
         //соберем строку с измененными полями -------------------------------------------------------------------
         $diffs = $this->field_diff_list($rec, ['id', 'created_by', 'updated_by', 'created_at', 'updated_at']);

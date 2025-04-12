@@ -372,6 +372,16 @@
                                             <div class="font-weight-bold text-center">{{$rec->raid_qty}}</div>
                                         @endif
                                     </div>
+                                    <div class="form-group offset-md-0 col-md-2">
+                                        <label for="name" class="">Баллы:</label>
+                                        <div class="input-group mb-3 ">
+                                            <input type="number" name="oper_points" id="oper_points" readonly
+                                                   class="form-control text-right font-weight-bold"
+                                                   title="{{mb_strtoupper($rec->sup_placename)}} -> {{mb_strtoupper($rec->sup_placename)}} = {{$rec->route_points}}"
+                                                   value="{{number_format($rec->raid_qty*$rec->route_points,3)}}">
+                                        </div>
+                                    </div>
+
                                 </div>
 
                                 <div class="row">
