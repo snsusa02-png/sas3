@@ -1148,6 +1148,7 @@ Route::match(array('POST', 'GET'), '/reports/rep/67/{date}/{itmtypeid}', "WrhDoc
 Route::match(array('POST', 'GET'), '/reports/rep/68', "FuelcardPayReportController@rep68")->name('reports.rep68');
 Route::match(array('POST', 'GET'), '/reports/rep/69', "WrhDocReportController@rep69")->name('reports.rep69');
 Route::match(array('POST', 'GET'), '/reports/rep/70', "MchnRaidReportController@rep70")->name('reports.rep70');
+Route::match(array('POST', 'GET'), '/reports/rep/71', "MchnRaidReportController@rep71")->name('reports.rep71');
 
 
 //Состав плана платежей

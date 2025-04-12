@@ -1,10 +1,33 @@
 ﻿-- 2025-04-07 ------------- для бальной оценки маршрутов (Виталий)
+INSERT INTO `reports` (`id`, `name`, `acsid`, `acs_rightid`, `public`, `active`)
+VALUES ('71', 'Баллы за перевозки', '1', '100', '1', '0');
+
+SELECT mr.wrkdate, mr.driverid, max(mr.drivername) as drivername, sum(route_points) as route_points, count(1) as oper_cnt
+	FROM `mr_opers` mro
+	join mchn_raids as mr on mr.id=mro.mr_id
+    WHERE route_points is not null
+    and mr.wrkdate >='2025-04-01'
+    group by mr.wrkdate, mr.driverid
+    order by mr.driverid, mr.wrkdate desc;
+
 ALTER TABLE route_points
 ADD INDEX `idx1` (`src_placename` ASC, `tgt_placename` ASC, `begdate` ASC, `enddate` ASC) VISIBLE;
 
 ALTER TABLE mr_opers
-ADD COLUMN `route_points` DECIMAL(5,3) NULL COMMENT 'Кол-во баллов за поездку' AFTER `drvsum_calctypeid`;
+ADD COLUMN `route_points` DECIMAL(6,3) NULL COMMENT 'Кол-во баллов за поездку' AFTER `drvsum_calctypeid`;
 
+
+update mr_opers mro
+	set route_points = (
+    select points
+	from route_points as rp
+    where 1=1
+--    and ucase(mro.sup_placename) in (rp.src_placename, tgt_placename)
+    -- and ucase(mro.org_placename) in (rp.src_placename, tgt_placename)
+    and ucase(mro.sup_placename) in (rp.src_placename)
+    and ucase(mro.org_placename) in (tgt_placename)
+    and date('2025-04-12') between rp.begdate and ifnull(rp.enddate, date('3000-12-31'))
+    );
 
 select org_placeid,org_placename, count(1) from mr_opers as mro
 where ucase(org_placename) = 'ПРОХЛАДНОЕ'

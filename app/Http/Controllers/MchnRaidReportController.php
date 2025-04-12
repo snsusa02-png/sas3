@@ -1468,4 +1468,215 @@ order by income_sum desc";
         return view('mchn_raids.rep' . $report_id, compact('recs', 'search_params', 'data'));
     }
 
+    public
+    function rep71(Request $request)
+    {
+        //Баллы по перевозкам
+        $report_id = 71;
+
+        $userid = \Auth::user()->id;
+
+        if (!usrsysright::isUserHasRightByCode_cached($userid, $this->objcode . '.read'))
+            return redirect(route('home'))
+                ->with(['error' => 'У вас нет полномочий для работы с данной информацией!']);
+
+        $export2xls = $request->get('xls') ?? 0;
+
+        // - параметры поиска: массив из имени и значения по-умолчанию -----------------------------------------------
+        $fdom = new DateTime('first day of this month');
+        $fdomc = $fdom->format('Y-m-d');
+        $year = $fdom->format('Y');
+        $ldom = new DateTime('last day of this month');
+        $ldomc = $ldom->format('Y-m-d');
+        $curdate = new DateTime();
+        $yesterday = new DateTime('yesterday');
+        $pd = $yesterday->format('Y-m-d');
+        $cd = $curdate->format('Y-m-d');
+
+        $month = date("n");
+        $yearQuarter = ceil($month / 3);
+
+        $param_names = [
+            's_pageitmcnt' => 20
+            , 's_drivername' => ''
+            , 's_ownorgid' => '' //Auth::user()->curorgid
+            , 's_period_type' => 1
+            , 's_begdate' => $pd //$fdomc
+            , 's_enddate' => $pd //$ldomc
+            , 's_month' => $month
+            , 's_quarter' => $yearQuarter
+            , 's_year' => $year
+            , 's_orgid' => ''
+            , 's_opertypeid' => ''
+        ];
+
+        $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);
+
+        //зачистим ненужные параметры поиска
+        switch ($search_params['s_period_type'] ?? 0) {
+            case 1: //дата - 1 день
+                $search_params['s_enddate'] = $search_params['s_begdate'];
+                break;
+
+            case 2: //месяц/год
+                $year = $search_params['s_year'];
+                $month = $search_params['s_month'];
+                $begdate = new DateTime($year . '-' . $month . '-1 00:00:00');
+
+                $search_params['s_begdate'] = $begdate->format('Y-m-d');
+                $search_params['s_enddate'] = $begdate->format('Y-m-t');
+                break;
+
+            case 3: //квартал/год
+
+                $year = $search_params['s_year'];
+                $quarter = $search_params['s_quarter'];
+                $begdate = new DateTime($year . '-' . (3 * $quarter - 2) . '-1 00:00:00');
+                $enddate = new DateTime($year . '-' . (3 * $quarter) . '-' . ($quarter == 1 || $quarter == 4 ? 31 : 30) . ' 23:59:59');
+                $search_params['s_begdate'] = $begdate->format('Y-m-d');
+                $search_params['s_enddate'] = $enddate->format('Y-m-d');
+                break;
+
+            case 4://год
+                $year = $search_params['s_year'];
+                $begdate = new DateTime($year . '-1-1 00:00:00');
+                $enddate = new DateTime($year . '-12-31 23:59:59');
+
+                $search_params['s_begdate'] = $begdate->format('Y-m-d');
+                $search_params['s_enddate'] = $enddate->format('Y-m-d');
+                break;
+
+            case 9://календарь
+                $search_params['s_quarter'] = '';
+                $search_params['s_month'] = '';
+                $search_params['s_year'] = '';
+                break;
+            default:
+                $search_params['s_quarter'] = '';
+                $search_params['s_month'] = '';
+                $search_params['s_year'] = '';
+        }
+
+        $need_search = false;
+        $sc1 = "route_points is not null";
+
+        foreach ($search_params as $item => $val) {
+            if (isset($val) and strlen($val) > 0) {
+
+                //служебные поля не являются побудителями поиска
+                if (!in_array($item, ['s_pageitmcnt']))
+                    $need_search = true;
+
+                if ($item == 's_drivername') {
+                    $sc1 = $sc1 . " and mr.drivername like '%{$val}%'";
+
+                } elseif ($item == 's_opertypeid') {
+                    $sc1 = $sc1 . " and mr.opertypeid = {$val}";
+
+                } elseif ($item == 's_begdate') {
+                    $sc1 = $sc1 . " and mr.wrkdate >= '{$val}'";
+
+                } elseif ($item == 's_enddate') {
+                    $sc1 = $sc1 . " and mr.wrkdate <= '{$val}'";
+
+                } elseif ($item == 's_month') {
+                    //$sc = $sc . " and month(mr.docdate) = '{$val}'";
+
+                } elseif ($item == 's_quarter') {
+                    //$sc = $sc . " and quarter(mr.docdate) = '{$val}'";
+
+                } elseif ($item == 's_year') {
+                    //$sc = $sc . " and year(mr.docdate) = '{$val}'";
+                }
+            }
+        }
+
+        if ($need_search) {
+
+            //------------------------------
+            $sql = "SELECT mr.wrkdate, mr.driverid, max(mr.drivername) as drivername, sum(route_points) as route_points, count(1) as oper_cnt
+                FROM `mr_opers` mro
+                join mchn_raids as mr on mr.id=mro.mr_id
+                where {$sc1}
+                group by mr.wrkdate, mr.driverid
+                order by mr.driverid, mr.wrkdate";
+
+            $recs = DB::select(DB::raw($sql));
+            //dd($sql, $recs);
+
+            //обновим счетчик использования отчета
+            report::updUseCnt($report_id, $userid, \Auth::user()->name);
+
+            //занесем в журнал
+            objlog::log_info(855, $report_id, 'запрошен отчет; ');
+
+        } else {
+            $recs = null;
+        }
+
+        $data = new \stdClass();
+        $data->period_types = [1 => 'день', 2 => 'месяц', 3 => 'квартал', 4 => 'год', 9 => 'календарь'];
+
+        $data->monthes = Config::get('constants.monthes');
+        $data->quarters = [1 => 1, 2 => 2, 3 => 3, 4 => 4];
+
+        $data->years = Cache::remember('orgplnpays_years', now()->addMinutes(55)
+            , function () {
+                return mchn_raid::selectRaw("year(wrkdate) as year")->distinct()->orderby('year')
+                    ->get()->pluck('year', 'year')->toArray();
+            });
+
+//        $data->ownorgs = org::lstFor_cached([
+//            'in_mchn_raids_ownorgid' => 1,
+//        ]);
+//        $data->orgs = org::lstFor_cached([
+//            'in_mr_opers' => 1,
+//            'not_flagtypeid' => 12,
+//        ]);
+        $data->opertypes = opertype::lstFor_cached([
+            'in_mchn_raids' => 1,
+        ]);
+
+        $s_period_type = $search_params['s_period_type'] ?? '';
+        $ownorgid = $search_params['s_ownorgid'] ?? '';
+        $s_begdate = $search_params['s_begdate'] ?? '';
+        $s_enddate = $search_params['s_enddate'] ?? '';
+
+        //dd($search_params['s_year']);
+        $data->period_title = '';
+
+        if ($s_period_type == 1) {
+            $data->period_title = 'за ' . date_format(date_create($s_begdate), 'd.m.Y');
+        } elseif ($s_period_type == 2)
+            $data->period_title = ($data->monthes[$search_params['s_month']] ?? '') . ' ' . ($search_params['s_year'] ?? '');
+        elseif ($s_period_type == 3)
+            $data->period_title = $search_params['s_quarter'] . ' квартал ' . ($search_params['s_year'] ?? '');
+        elseif ($s_period_type == 4)
+            $data->period_title = ($search_params['s_year'] ?? '') . ' год';
+        else {
+            if (isset($s_begdate) and $s_begdate <> '')
+                $data->period_title .= ' с ' . date_format(date_create($s_begdate), 'd.m.Y');
+            if (isset($s_enddate) and $s_enddate <> '')
+                $data->period_title .= ' по ' . date_format(date_create($s_enddate), 'd.m.Y');
+        }
+        //dd($s_period_type,$s_begdate, $s_enddate, $data->period_title,  date_format(date_create($s_begdate), 'd.m.Y'));
+
+
+        if (1==0 and $export2xls == "1") {
+            $xls_fileName = "mchn_operations_" .$s_begdate;
+            if ($s_enddate <> $s_begdate)
+                $xls_fileName .= '_' . $s_enddate;
+            $xls_fileName .= ".xlsx";
+
+            $response = Excel::download(new rep70Export($recs, $data), $xls_fileName, \Maatwebsite\Excel\Excel::XLSX);
+
+            //$response= Excel::download(new InvoicesExport, 'invoices.xls', \Maatwebsite\Excel\Excel::XLS);
+            //HERE IS THE MAGIC FOLKS
+            ob_end_clean();
+            return $response;
+        }
+
+        return view('mchn_raids.rep' . $report_id, compact('recs', 'search_params', 'data'));
+    }
+
 }
