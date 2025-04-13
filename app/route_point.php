@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 class route_point extends Model
 {
     static public $prefix = 'route_points';
-    static public $sysobjid = 1128;
+    static public $sysobjid = 1228;
 
     use DeleteTrait;
     use FilesTrait;

@@ -884,6 +884,14 @@ Route::match(array('POST', 'GET'), '/mchnrqsts/rep/26', "MchnReportController@re
 //Route::match(array('POST', 'PUT'), 'mchncontrorgs/{id}', "MchncontrorgController@update")->name('mchncontrorgs.update');
 //Route::put('mchncontrorgs/{id}/delete', "MchncontrorgController@destroy")->name("mchncontrorgs.delete");
 
+// routepoints - баллы за маршруты ------------------------------------------------------------------------------------
+Route::match(array('GET', 'POST'), '/route_points', "RoutePointController@index")->name('route_points.index');
+Route::get('route_points/sort/{field}', 'RoutePointController@index_sort')->name('route_points.sort');
+Route::get('route_points/create', "RoutePointController@create")->name('route_points.create');
+Route::get('route_points/{id}', 'RoutePointController@edit')->name('route_points.edit');
+Route::match(array('POST', 'PUT'), 'route_points/{id}', "RoutePointController@update")->name('route_points.update');
+Route::put('route_points/{id}/delete', "RoutePointController@destroy")->name("route_points.delete");
+Route::put('route_points/{id}/admindelete', "RoutePointController@admindelete")->name("route_points.admindelete");
 
 //Фото для продуктов
 Route::get('ri_img/{refitmid}', 'RiImageController@create')->name('ri_images.load');
