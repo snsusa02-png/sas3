@@ -81,6 +81,15 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                                                             ])
                                                             !!}
                                         </div>
+                                        <div class="form-group col-md-3">
+                                            <label for="s_categoryid">Владелец:</label>
+                                            {!! Form::select('s_ownorgid', $data->ownorgs, $search_params['s_ownorgid']??'',
+                                                            [
+                                                            'class' => 'form-control',
+                                                            'placeholder' => '-все-',
+                                                            ])
+                                                            !!}
+                                        </div>
                                     @endif
                                     @if(1==0)
                                         <div class="form-group col-md-2 dpt_1" style="">
@@ -268,7 +277,7 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                             $pre_avg_price = null;
 
                         if ($n_inp_qty > 0){
-                            $inp_ref_url = route('reports.rep57_i') . '?ri_id=' . $rec->refitmid;
+                            $inp_ref_url = route('reports.rep57_i') . '?ri_id=' . $rec->refitmid . '&oo_id=' . $search_params['s_ownorgid']??'';
                             $inp_avg_price = round($n_inp_sum/$n_inp_qty,2);
                         }
                         else{
@@ -277,7 +286,7 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                         }
 
                         if ($n_out_qty > 0){
-                            $out_ref_url = route('reports.rep57_o') . '?ri_id=' . $rec->refitmid;
+                            $out_ref_url = route('reports.rep57_o') . '?ri_id=' . $rec->refitmid . '&oo_id=' . $search_params['s_ownorgid']??'';
                             $out_avg_price = round($n_out_sum/$n_out_qty,2);
                         }
                         else{

@@ -1,4 +1,18 @@
-﻿-- 2025-04-07 ------------- для бальной оценки маршрутов (Виталий)
+﻿2025-04-14 ------------------------------------------------------------------------
+SELECT id, name from orgs o where o.id in (
+select distinct ownorgid from wrhdocs as d
+INNER JOIN wrhdoctypes as t ON t.id = d.doctypeid AND t.forstock <> 0);
+
+2025-04-13 ------------------------------------------------------------------------
+ALTER TABLE `wrhdoctypes`
+    ADD COLUMN `ri_disassembly` TINYINT(1) NULL COMMENT '1 - Позиции документа будут разукомплектованы в соответствии с рецептами' AFTER `ri_produced`;
+UPDATE `wrhdoctypes` SET `ri_disassebly` = '1' WHERE (`id` = '4');
+
+ALTER TABLE `ri_compounds`
+ADD COLUMN `prod_dir` TINYINT NULL DEFAULT 1 COMMENT '+1 - производство, -1 - разукомплектовка' AFTER `refitmid`;
+
+
+-- 2025-04-07 ------------- для бальной оценки маршрутов (Виталий)
 INSERT INTO `sysobjs` (`id`, `code`, `name`, `active`, `ordr`, `model_class`) VALUES ('1228', 'route_points', 'Баллы по маршрутам', '1', '999999', 'route_point');
 
 INSERT INTO `reports` (`id`, `name`, `acsid`, `acs_rightid`, `public`, `active`) VALUES ('71', 'Баллы за перевозки', '1', '100', '1', '0');

@@ -229,6 +229,7 @@ class WrhDocReportController extends Controller
             's_begdate' => null,
             's_enddate' => strftime('%Y-%m-%d', strtotime(now())),
             's_itmtypeid' => null,
+            's_ownorgid' => null,
         ];
 
         $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);
@@ -236,6 +237,7 @@ class WrhDocReportController extends Controller
         $s_begdate = $search_params['s_begdate'];
         $s_enddate = $search_params['s_enddate'];
         $s_itmtypeid = $search_params['s_itmtypeid'];
+        $s_ownorgid = $search_params['s_ownorgid'];
 
 //        dd($s_begdate, isset($s_begdate), is_null($s_begdate));
         $data = new \stdClass();
@@ -246,6 +248,7 @@ class WrhDocReportController extends Controller
         if ($s_begdate <> '') {
             $cnd1 = "";
             if (isset($s_itmtypeid)) $cnd1 = " and ri.itmtypeid = {$s_itmtypeid}";
+            if (isset($s_ownorgid)) $cnd1 = " and d.ownorgid = {$s_ownorgid}";
 
             $sql = "select a.refitmid, ri.name as refitm_name, ri.unit as refitm_unit
 	            , sum(a.pre_qty) as pre_qty
@@ -375,6 +378,17 @@ class WrhDocReportController extends Controller
             ->pluck('name', 'id');
         // dd($data->itmtypes);
 
+        $data->ownorgs = org::from("orgs as o")
+            ->join("wrhdocs as d", "d.ownorgid", "o.id")
+            ->join("wrhdoctypes as t", "t.id", "d.doctypeid")
+            ->where('t.forstock','<>', 0)
+            ->select('o.id', 'o.name')
+            ->distinct()
+            ->orderby('name', 'asc')
+            ->get()
+            ->pluck('name', 'id');
+        //dd($data->ownorgs);
+
 
         return view('wrhdocs.rep' . $report_id, compact('search_params', 'recs', 'recs2', 'data'));
     }
@@ -399,6 +413,7 @@ class WrhDocReportController extends Controller
         $s_begdate = $search_params['s_begdate'];
         $s_enddate = $search_params['s_enddate'];
         $s_refitmid = $request->ri_id;
+        $s_ownorgid = $request->oo_id;
 
         $data = new \stdClass();
         $data->returl = $returl;
@@ -409,6 +424,13 @@ class WrhDocReportController extends Controller
             $ri = refitem::where('id', $s_refitmid)->select('name', 'unit')->first();
             $data->refitm_name = $ri->name;
             $data->refitm_unit = $ri->unit;
+            $data->aux_info = '';
+
+            $sc = " and i.refitmid = {$s_refitmid}";
+            if ($s_ownorgid <> '') {
+                $sc .= " and d.ownorgid = {$s_ownorgid}";
+                $data->aux_info .= ' Владелец: ' . org::find($s_ownorgid)->name??'';
+            }
 
             $sql = "SELECT d.id as docid
                 , d.docdate
@@ -425,7 +447,7 @@ class WrhDocReportController extends Controller
                 left join orgs o on o.id=d.orgid
                 WHERE d.docsigned=1
                 and d.docdate between '{$s_begdate}' and '{$s_enddate}'
-                and i.refitmid={$s_refitmid}
+                {$sc}
                 and t.forStock= 1
                 order by d.docdate, i.price";
 
@@ -463,10 +485,17 @@ class WrhDocReportController extends Controller
         $s_begdate = $search_params['s_begdate'];
         $s_enddate = $search_params['s_enddate'];
         $s_refitmid = $request->ri_id;
+        $s_ownorgid = $request->oo_id;
 
         $data = new \stdClass();
         $data->returl = $returl;
+        $data->aux_info = '';
 
+        $sc = " and i.refitmid = {$s_refitmid}";
+        if ($s_ownorgid <> '') {
+            $sc .= " and d.ownorgid = {$s_ownorgid}";
+            $data->aux_info .= ' Владелец: ' . org::find($s_ownorgid)->name??'';
+        }
         //dd($search_params, $data);
 
         if (isset($s_refitmid) and $s_begdate <> '') {
@@ -489,7 +518,7 @@ class WrhDocReportController extends Controller
                 left join orgs o on o.id=d.orgid
                 WHERE d.docsigned=1
                 and d.docdate between '{$s_begdate}' and '{$s_enddate}'
-                and i.refitmid={$s_refitmid}
+                {$sc}
                 and t.forStock= -1
                 order by d.docdate, i.price";
 

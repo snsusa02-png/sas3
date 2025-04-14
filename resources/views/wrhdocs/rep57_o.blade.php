@@ -75,6 +75,7 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                     <br>Товарная позиция: <b>{{$data->refitm_name}}</b>, ЕИ: <b>{{$data->refitm_unit}}</b>
                     <br>в период: <b>{{date_create($search_params['s_begdate']??'')->format('d.m.Y')}}
                         - {{date_create($search_params['s_enddate']??'')->format('d.m.Y')}}</b>
+                    <div class="font-weight-bold">{{$data->aux_info}}</div>
 
                     <span class="small"><br>по состоянию на {{now()}}</span>
                     @if(1==0)
