@@ -247,8 +247,8 @@ class WrhDocReportController extends Controller
 
         if ($s_begdate <> '') {
             $cnd1 = "";
-            if (isset($s_itmtypeid)) $cnd1 = " and ri.itmtypeid = {$s_itmtypeid}";
-            if (isset($s_ownorgid)) $cnd1 = " and d.ownorgid = {$s_ownorgid}";
+            if (isset($s_itmtypeid)) $cnd1 .= " and ri.itmtypeid = {$s_itmtypeid}";
+            if (isset($s_ownorgid)) $cnd1 .= " and d.ownorgid = {$s_ownorgid}";
 
             $sql = "select a.refitmid, ri.name as refitm_name, ri.unit as refitm_unit
 	            , sum(a.pre_qty) as pre_qty
