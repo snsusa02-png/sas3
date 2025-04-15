@@ -77,7 +77,7 @@ $usrrights['link_tasks'] = false; //\App\usrsysright::isUserHasRightByCode_cache
                         - {{date_create($search_params['s_enddate']??'')->format('d.m.Y')}}</b>
                     <div class="font-weight-bold">{{$data->aux_info}}</div>
                     <span class="small"><br>по состоянию на {{now()}}</span>
-                    
+
                     @if(1==0)
                         <button class="btn btn-primary btn-sm d-print-none" type="button" data-toggle="collapse"
                                 data-target=".multi-collapse" aria-expanded="false"

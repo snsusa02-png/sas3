@@ -7,6 +7,7 @@ use App\driver_work;
 use App\Exports\rep46Export;
 use App\Exports\rep61Export;
 use App\Exports\rep70Export;
+use App\Exports\rep71Export;
 use App\mr_oper;
 use App\Exports\InvoicesExport;
 use App\Exports\PayPlanExport;
@@ -1662,13 +1663,13 @@ order by income_sum desc";
         //dd($s_period_type,$s_begdate, $s_enddate, $data->period_title,  date_format(date_create($s_begdate), 'd.m.Y'));
 
 
-        if (1==0 and $export2xls == "1") {
-            $xls_fileName = "mchn_operations_" .$s_begdate;
+        if (1==1 and $export2xls == "1") {
+            $xls_fileName = "route_points_" .$s_begdate;
             if ($s_enddate <> $s_begdate)
                 $xls_fileName .= '_' . $s_enddate;
             $xls_fileName .= ".xlsx";
 
-            $response = Excel::download(new rep70Export($recs, $data), $xls_fileName, \Maatwebsite\Excel\Excel::XLSX);
+            $response = Excel::download(new rep71Export($recs, $data), $xls_fileName, \Maatwebsite\Excel\Excel::XLSX);
 
             //$response= Excel::download(new InvoicesExport, 'invoices.xls', \Maatwebsite\Excel\Excel::XLS);
             //HERE IS THE MAGIC FOLKS
