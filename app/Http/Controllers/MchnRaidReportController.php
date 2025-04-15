@@ -1600,7 +1600,7 @@ order by income_sum desc";
                 join mchn_raids as mr on mr.id=mro.mr_id
                 where {$sc1}
                 group by mr.wrkdate, mr.driverid
-                order by mr.driverid, mr.wrkdate";
+                order by route_points desc, drivername, mr.wrkdate";
 
             $recs = DB::select(DB::raw($sql));
             //dd($sql, $recs);
