@@ -116,7 +116,7 @@ $action_url = route('reports.rep' . $thisObjId);
                                                         ])
                                                         !!}
                                     </div>
-                                    @if(1==0)
+                                    @if(1==1)
                                         <div class="form-group col-md-3">
                                             <label for="s_ownorgid" class="">Владелец:</label>
                                             {!! Form::select('s_ownorgid', $data->ownorgs, $search_params['s_ownorgid'],
@@ -127,7 +127,7 @@ $action_url = route('reports.rep' . $thisObjId);
                                                             !!}
                                         </div>
                                     @endif
-                                    @if(1==0)
+                                    @if(1==1)
                                         <?php
                                         $s_orgname = $search_params['s_orgname'] ?? '';
                                         ?>
