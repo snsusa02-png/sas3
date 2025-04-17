@@ -1426,6 +1426,7 @@ order by income_sum desc";
         ]);
         $data->orgs = org::lstFor_cached([
             'in_mr_opers' => 1,
+            'in_mr_opers_with_suporgid' => $search_params['s_ownorgid'] ?? '',
             'not_flagtypeid' => 12,
         ]);
         //dd($data);
