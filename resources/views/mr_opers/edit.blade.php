@@ -308,10 +308,10 @@
                                     </div>
 
                                     <div class="form-group offset-md-0 col-md-5">
-                                        <label for="name" class=""><span id="lbl_org_place">Место</span>:</label>
+                                        <label for="name" class="required"><span id="lbl_org_place">Место</span>:</label>
                                         @if ($usrrights['edit'])
                                             <div class="input-group mb-3 ">
-                                                <input type="text" name="org_placename" id="org_placename"
+                                                <input type="text" name="org_placename" id="org_placename" required
                                                        class="ac_name org_placename form-control font-weight-bold"
                                                        value="{{old('org_placename',$rec->org_placename)}}">
                                                 <input type="text" class="form-control text-center small ac_status"
