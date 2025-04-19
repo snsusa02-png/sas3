@@ -1370,6 +1370,10 @@ class org extends Model
                         $sc .= " and " . (($val == 0) ? "not" : "")
                             . " exists (select 1 from mchn_raids as mr where mr.orgid=o.id)";
 
+                    } elseif ($key == 'in_mr_opers_with_suporgid') {
+                        //организация указана в orgid в одной записи с указзаной suporgid (поставщик)
+                        $sc .= " and exists (select 1 from mr_opers as mro where mro.orgid=o.id and mro.suporgid=$val)";
+
                     } elseif ($key == 'in_mr_opers_suporgid') {
                         //организация указана в mr_opers.suporgid (поставщик)
                         $sc .= " and " . (($val == 0) ? "not" : "")
@@ -1389,6 +1393,34 @@ class org extends Model
                         //организация указана в mr_opers.orgid или в mr_opers.sup_orgid
                         $sc .= " and " . (($val == 0) ? "not" : "")
                             . " exists (select 1 from mr_opers as mro where o.id in (mro.suporgid, mro.orgid))";
+
+                    } elseif ($key == 'in_mr_opers_orgid_with_wrkdate_ge') {
+                        //организация указана в mr_opers.orgid документе с датой >= $val
+                        $sc .= " and exists (select 1 from mr_opers as mro
+                                                join mchn_raids as mr on mr.id=mro.mr_id
+                                                where mro.orgid = o.id
+                                                  and mr.wrkdate >= '{$val}' )";
+
+                    } elseif ($key == 'in_mr_opers_orgid_with_wrkdate_le') {
+                        //организация указана в mr_opers.orgid документе с датой <= $val
+                        $sc .= " and exists (select 1 from mr_opers as mro
+                                                join mchn_raids as mr on mr.id=mro.mr_id
+                                                where mro.orgid = o.id
+                                                  and mr.wrkdate <= '{$val}' )";
+
+                    } elseif ($key == 'in_mr_opers_with_wrkdate_ge') {
+                        //организация указана в mr_opers.orgid или в mr_opers.sup_orgid документе с датой >= $val
+                        $sc .= " and exists (select 1 from mr_opers as mro
+                                                join mchn_raids as mr on mr.id=mro.mr_id
+                                                where o.id in (mro.suporgid, mro.orgid)
+                                                  and mr.wrkdate >= '{$val}' )";
+
+                    } elseif ($key == 'in_mr_opers_with_wrkdate_le') {
+                        //организация указана в mr_opers.orgid или в mr_opers.sup_orgid документе с датой <= $val
+                        $sc .= " and exists (select 1 from mr_opers as mro
+                                                join mchn_raids as mr on mr.id=mro.mr_id
+                                                where o.id in (mro.suporgid, mro.orgid)
+                                                  and mr.wrkdate <= '{$val}' )";
 
                     } elseif ($key == 'flagtypeid') {
                         //у организации должен быть нужный признак

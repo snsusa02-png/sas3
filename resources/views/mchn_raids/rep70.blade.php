@@ -121,7 +121,8 @@ $action_url = route('reports.rep' . $thisObjId);
                                             <label for="s_ownorgid" class="">Владелец:</label>
                                             {!! Form::select('s_ownorgid', $data->ownorgs, $search_params['s_ownorgid'],
                                                             [
-                                                            'class' => 'form-control',
+                                                            'class' => 'form-control font-weight-bold',
+                                                            'id' => 's_ownorgid',
                                                             'placeholder' => '-все-',
                                                             ])
                                                             !!}
@@ -133,12 +134,37 @@ $action_url = route('reports.rep' . $thisObjId);
                                         ?>
                                         <div class="form-group col-md-3">
                                             <label for="name">Получатель:</label>
-                                            {!! Form::select('s_orgid', $data->orgs, $search_params['s_orgid'],
-                                                            [
-                                                            'class' => 'form-control',
-                                                            'placeholder' => '-все-',
-                                                            ])
-                                                            !!}
+                                            {{--                                            {!! Form::select('s_orgid', $data->orgs, $search_params['s_orgid'],--}}
+                                            {{--                                                            [--}}
+                                            {{--                                                            'class' => 'form-control',--}}
+                                            {{--                                                            'placeholder' => '-все-',--}}
+                                            {{--                                                            ])--}}
+                                            {{--                                                            !!}--}}
+
+{{--                                            <input type="text" name="s_orgid" id="s_orgid" list="orgs"--}}
+{{--                                                   class="form-control font-weight-bold"--}}
+{{--                                                   value="{{old('s_orgid',$search_params['s_orgid'])}}">--}}
+{{--                                            <datalist id="orgs">--}}
+{{--                                                @foreach($data->orgs as $key=>$val)--}}
+{{--                                                    <option value="{{ $key }}">{{ $val }}</option>--}}
+{{--                                                    @foreach($rec->sale_places as $place)--}}
+{{--                                                    <option value="{{ $place->name }}">--}}
+{{--                                                    @endforeach--}}
+{{--                                            </datalist>--}}
+                                            <div class="input-group mb-3 ">
+                                            <input type="text" name="s_orgname" id="s_orgname"
+                                                   class="ac_org_name form-control font-weight-bold"
+                                                   value="{{old('s_orgname', $search_params['s_orgname']??'')}}">
+                                            <input type="text" class="form-control text-center small ac_status"
+                                                   title=""
+                                                   style="display: none; border: #d7f3e3; max-width: 30px" readonly>
+                                            <input type="hidden" name="s_orgid" class="ac_id" id="s_orgid"
+                                                   value="{{$search_params['s_orgid']??''}}">
+{{--                                            <a class="btn btn-light id_lnk" data-id="orgid" data-obj="orgs"--}}
+{{--                                               target="_blank">--}}
+{{--                                                <i class="fa fa-info text-info" aria-hidden="true"></i>--}}
+{{--                                            </a>--}}
+                                            </div>
                                         </div>
                                     @endif
                                     @if(1==1)
@@ -270,7 +296,7 @@ $action_url = route('reports.rep' . $thisObjId);
                                 <td class="text-left small">{{$rec->lname}} {{$rec->fname}} {{$rec->mname}}</td>
                                 <td class="text-left small">
                                     {{$rec->regnum}}
-                                    <div class="float-right small" >{{$rec->machine_name}}</div>
+                                    <div class="float-right small">{{$rec->machine_name}}</div>
                                 </td>
                                 <td class="text-left small">{{$rec->buy_itmname}}</td>
                                 <td class="text-left small"><span class="small"> {{$rec->sup_name}}</span></td>
@@ -293,9 +319,9 @@ $action_url = route('reports.rep' . $thisObjId);
 
                         @if(1==1)
 
-{{--                            <tr class="text-left" style="background-color: #dacf64">--}}
-{{--                                <td colspan="13" class="text-left pl-2"></td>--}}
-{{--                            </tr>--}}
+                            {{--                            <tr class="text-left" style="background-color: #dacf64">--}}
+                            {{--                                <td colspan="13" class="text-left pl-2"></td>--}}
+                            {{--                            </tr>--}}
                             <tr>
                                 <td colspan="10" class="text-right">Всего:</td>
                                 <td class="text-right font-weight-bold">{{number_format($buySum,2)}}</td>
@@ -313,6 +339,8 @@ $action_url = route('reports.rep' . $thisObjId);
 
     </div>
 
+    <link href="{{ asset('css/jquery-ui.css') }}" rel="stylesheet">
+    <script src="{{ asset('js/jquery-ui.js') }}" defer></script>
     <script src="{{ asset('js/rep46.js') }}" defer></script>
 
 @endsection

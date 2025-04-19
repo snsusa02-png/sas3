@@ -1265,6 +1265,10 @@ class orgController extends Controller
                 'flagtypeid' => $request->flagtypeid,
                 'active' => $request->active ?? 1,
                 'in_ri_sup_prices' => $request->in_ri_sup_prices,
+                'in_mr_opers_orgid' => $request->in_mr_opers_orgid,
+                'in_mr_opers_with_suporgid' => $request->in_mr_opers_with_suporgid,
+                'in_mr_opers_orgid_with_wrkdate_ge' => $request->in_mr_opers_orgid_with_wrkdate_ge,
+                'in_mr_opers_orgid_with_wrkdate_le' => $request->in_mr_opers_orgid_with_wrkdate_le,
             ],
                 ['o.id', 'o.name', 'o.inn', 'o.kpp']);
 

@@ -1270,6 +1270,7 @@ order by income_sum desc";
             , 's_year' => $year
             , 's_ownorgid' => ''
             , 's_orgid' => ''
+            , 's_orgname' => ''
             , 's_opertypeid' => ''
         ];
 
@@ -1421,24 +1422,26 @@ order by income_sum desc";
                     ->get()->pluck('year', 'year')->toArray();
             });
 
-        $data->ownorgs = org::lstFor_cached([
-            'in_mchn_raids_ownorgid' => 1,
-        ]);
-        $data->orgs = org::lstFor_cached([
-            'in_mr_opers' => 1,
-            'in_mr_opers_with_suporgid' => $search_params['s_ownorgid'] ?? '',
-            'not_flagtypeid' => 12,
-        ]);
-        //dd($data);
-        $data->opertypes = opertype::lstFor_cached([
-            'in_mchn_raids' => 1,
-        ]);
-
         $s_period_type = $search_params['s_period_type'] ?? '';
         $ownorgid = $search_params['s_ownorgid'] ?? '';
         $orgid = $search_params['s_orgid'] ?? '';
         $s_begdate = $search_params['s_begdate'] ?? '';
         $s_enddate = $search_params['s_enddate'] ?? '';
+
+        $data->ownorgs = org::lstFor_cached([
+            'in_mchn_raids_ownorgid' => 1,
+        ]);
+        /*$data->orgs = org::lstFor_cached([
+            'in_mr_opers' => 1,
+            'in_mr_opers_with_suporgid' => $search_params['s_ownorgid'] ?? '',
+            //'in_mr_opers_with_wrkdate_ge' => $search_params['s_begdate'] ?? '',
+            //'in_mr_opers_with_wrkdate_le' => $search_params['s_enddate'] ?? '',
+            //'not_flagtypeid' => 12,
+        ]);*/
+        //dd($data);
+        $data->opertypes = opertype::lstFor_cached([
+            'in_mchn_raids' => 1,
+        ]);
 
         //dd($search_params['s_year']);
         $data->period_title = '';

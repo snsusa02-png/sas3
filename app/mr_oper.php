@@ -332,5 +332,20 @@ class mr_oper extends Model
         return null;
     }
 
+    static public function sale_places()
+    {
+        //2025-04-19 SNS. Возвращает список уникальных мест (mr_opers.org_placename), указанных в операциях продажи (ыфду_вшк=1)
+
+            $lst = self::from('mr_opers as mro')
+                ->where('mro.sale_dir', 1)
+                ->whereRaw("org_placename is not null")
+                ->select('mro.org_placename as id' , 'mro.org_placename as name')
+                ->distinct()
+                ->orderBy('mro.org_placename', 'asc')
+                ->get()->pluck('name', 'id')->toArray();
+            //asort($lst);
+            //dd($lst);
+            return $lst;
+    }
 
 }
