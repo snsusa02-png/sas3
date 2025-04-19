@@ -308,7 +308,7 @@
                                     </div>
 
                                     <div class="form-group offset-md-0 col-md-5">
-                                        <label for="name" class="required"><span
+                                        <label for="name" class=""><span
                                                 id="lbl_org_place">Место</span>:</label>
                                         @if ($usrrights['edit'])
                                             {{--                                            <div class="input-group mb-3 ">--}}

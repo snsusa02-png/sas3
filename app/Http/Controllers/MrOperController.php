@@ -24,6 +24,8 @@ use App\usrsysright;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Validator;
+
 
 class MrOperController extends Controller
 {
@@ -233,7 +235,17 @@ class MrOperController extends Controller
             //'meter_endqty' => 'required|numeric|gte:meter_begqty',
         ];
 
-        $request->validate($rules, $messages);
+        //$request->validate($rules, $messages);
+
+        //2025-04-19 место получателя обязательно для операции ПРОДАЖА
+        if ($request->get('sale_dir') == 1) {
+
+            $rules['org_placename'] = 'required';
+            $messages['org_placename.required'] = 'Укажите место выгрузки!';
+        }
+        //dd($rules);
+        Validator::make($request->all(), $rules, $messages)->validate();
+
 
         if (1 == 0) {
             //проверка что запись не пересекается с другой открытой записью с этого объекта за эту дату
@@ -249,7 +261,7 @@ class MrOperController extends Controller
                             ->where('id', '<>', $id)
                             ->count();
                         if ($cnt > 0) {
-                            $fail("Есть другой открытый табель для этой технике/даты!");
+                            $fail("Есть другой открытый табель для этой техники/даты!");
                         }
                     },
                 ],
