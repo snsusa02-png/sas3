@@ -308,22 +308,25 @@
                                     </div>
 
                                     <div class="form-group offset-md-0 col-md-5">
-                                        <label for="name" class="required"><span id="lbl_org_place">Место</span>:</label>
+                                        <label for="name" class="required"><span
+                                                id="lbl_org_place">Место</span>:</label>
                                         @if ($usrrights['edit'])
-                                            <div class="input-group mb-3 ">
-                                                <input type="text" name="org_placename" id="org_placename" required
-                                                       class="ac_name org_placename form-control font-weight-bold"
-                                                       value="{{old('org_placename',$rec->org_placename)}}">
-                                                <input type="text" class="form-control text-center small ac_status"
-                                                       style="display: none; border: #d7f3e3; max-width: 30px" readonly>
-                                                <input type="hidden" name="org_placeid" class="org_placeid ac_id"
-                                                       id="org_placeid"
-                                                       value="{{old('org_placeid',$rec->org_placeid)}}">
-                                                <a class="btn btn-light id_lnk" data-id="org_placeid" data-obj="places"
-                                                   target="_blank">
-                                                    <i class="fa fa-info text-info" aria-hidden="true"></i>
-                                                </a>
-                                            </div>
+                                            {{--                                            <div class="input-group mb-3 ">--}}
+                                            {{--                                                <input type="text" name="org_placename" id="org_placename"--}}
+                                            {{--                                                       class="ac_name org_placename form-control font-weight-bold"--}}
+                                            {{--                                                       value="{{old('org_placename',$rec->org_placename)}}">--}}
+                                            {{--                                                <input type="text" class="form-control text-center small ac_status"--}}
+                                            {{--                                                       style="display: none; border: #d7f3e3; max-width: 30px" readonly>--}}
+                                            {{--                                                <input type="hidden" name="org_placeid" class="org_placeid ac_id"--}}
+                                            {{--                                                       id="org_placeid"--}}
+                                            {{--                                                       value="{{old('org_placeid',$rec->org_placeid)}}">--}}
+                                            {{--                                                <a class="btn btn-light id_lnk" data-id="org_placeid" data-obj="places"--}}
+                                            {{--                                                   target="_blank">--}}
+                                            {{--                                                    <i class="fa fa-info text-info" aria-hidden="true"></i>--}}
+                                            {{--                                                </a>--}}
+                                            {{--                                            </div>--}}
+
+
                                             {{--                                            <div class="input-group">--}}
                                             {{--                                                {!! Form::select('org_placeid', $rec->org_places??[],--}}
                                             {{--                                                    old('org_placeid',$rec->org_placeid),--}}
@@ -333,6 +336,21 @@
                                             {{--                                                    'placeholder' => '',--}}
                                             {{--                                                    ]) !!}--}}
                                             {{--                                            </div>--}}
+
+                                            <div class="input-group mb-3 ">
+                                                {{ Form::hidden('mr_id', $rec->mr_id) }}
+                                                <input type="text" name="org_placename" id="org_placename" list="sale_places"
+                                                       class="org_placename form-control font-weight-bold"
+                                                       value="{{old('org_placename',$rec->org_placename)}}">
+                                                <datalist id="sale_places">
+{{--                                                    @foreach($rec->sale_places as $key=>$val)--}}
+{{--                                                    <option value="{{ $val }}">--}}
+                                                    @foreach($rec->sale_places as $place)
+                                                        <option value="{{ $place->name }}">
+                                                    @endforeach
+                                                </datalist>
+
+                                            </div>
 
                                         @else
                                             <div class="font-weight-bold">{{$rec->org_placename}}</div>
@@ -421,9 +439,9 @@
 
                                     <div class="form-group offset-md-0 col-md-4 driver_sum_info">
                                         <label for="name" class="">ЗП водителя, &#8381;:</label>
-                                            <?php
-                                            $readonly = (1==0) ? 'readonly' : '';
-                                            ?>
+                                        <?php
+                                        $readonly = (1 == 0) ? 'readonly' : '';
+                                        ?>
                                         @if ($usrrights['edit'])
                                             <div class="input-group mb-3 ">
                                                 <input type="number" name="driver_sum" id="driver_sum"

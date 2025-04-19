@@ -171,6 +171,26 @@ class MrOperController extends Controller
         $rec->contracts = contract::lstFor(['between_orgs' => [$rec->suporgid, $rec->orgid]]);
 //        $rec->finopers = $rec->finopers;
 
+        //$rec->sale_places = mr_oper::sale_places();
+        // по ранее использованным в операциях
+//        $rec->sale_places = mr_oper::from('mr_opers as mro')
+//            ->where('mro.sale_dir', 1)
+//            ->whereRaw("org_placename is not null")
+//            ->select('mro.org_placename as id' , 'mro.org_placename as name')
+//            ->distinct()
+//            ->orderBy('mro.org_placename', 'asc')
+//            ->get();
+
+        // по конечным точкам тарифицированных маршрутов
+        $rec->sale_places = route_point::from('route_points as rp')
+            ->whereRaw("tgt_placename is not null")
+            ->select('tgt_placename as name')
+            ->distinct()
+            ->orderBy('name', 'asc')
+            ->get();
+
+
+        //dd($rec->sale_places);
         //dd($rec->linked_paydocs);
 
         //Коррекция прав с учетом менеджерства
