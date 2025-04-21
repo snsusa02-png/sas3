@@ -178,6 +178,17 @@ $action_url = route('reports.rep' . $thisObjId);
                                                             !!}
                                         </div>
                                     @endif
+                                    @if(1==1)
+                                        <div class="form-group col-md-3">
+                                            <label for="s_categoryid">Водитель:</label>
+                                            {!! Form::select('s_driverid', $data->drivers??'', $search_params['s_driverid']??'',
+                                                            [
+                                                            'class' => 'form-control',
+                                                            'placeholder' => '-все-',
+                                                            ])
+                                                            !!}
+                                        </div>
+                                    @endif
 
                                 </div>
                             @endif

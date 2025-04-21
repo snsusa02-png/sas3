@@ -13,6 +13,7 @@ use App\Exports\InvoicesExport;
 use App\Exports\PayPlanExport;
 use App\mchn_raid;
 use App\opertype;
+use App\orgstaff;
 use App\report;
 use App\org;
 use App\machine;
@@ -1272,6 +1273,7 @@ order by income_sum desc";
             , 's_orgid' => ''
             , 's_orgname' => ''
             , 's_opertypeid' => ''
+            , 's_driverid' => ''
         ];
 
         $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);
@@ -1344,6 +1346,9 @@ order by income_sum desc";
 
                 } elseif ($item == 's_opertypeid') {
                     $sc1 = $sc1 . " and mr.opertypeid = {$val}";
+
+                } elseif ($item == 's_driverid') {
+                    $sc1 = $sc1 . " and mr.driverid = {$val}";
 
                 } elseif ($item == 's_begdate') {
                     $sc1 = $sc1 . " and mr.wrkdate >= '{$val}'";
@@ -1441,6 +1446,9 @@ order by income_sum desc";
         //dd($data);
         $data->opertypes = opertype::lstFor_cached([
             'in_mchn_raids' => 1,
+        ]);
+        $data->drivers = orgstaff::lstFor_cached([
+            'driver_in_mchn_raids' => 1,
         ]);
 
         //dd($search_params['s_year']);
