@@ -67,19 +67,23 @@
                                         <label for="name" class="required">Начало маршрута:</label>
                                         @if ($usrrights['save'])
                                             <input type="text" class="form-control font-weight-bold"
-                                                   name="src_placename"
+                                                   name="src_placename" list="places"
                                                    maxlength="60"
                                                    value="{{old('src_placename',$rec->src_placename)}}"/>
+                                            <datalist id="places">
+                                            @foreach($data->places as $place)
+                                            <option value="{{ $place->name }}">
+                                            @endforeach
+                                            </datalist>
                                         @else
                                             <div class="font-weight-bold">{{$rec->tgt_placename}}</div>
                                         @endif
-
                                     </div>
                                     <div class="form-group col-md-6">
                                         <label for="name" class="required">Окончание маршрута:</label>
                                         @if ($usrrights['save'])
                                             <input type="text" class="form-control font-weight-bold"
-                                                   name="tgt_placename"
+                                                   name="tgt_placename" list="places"
                                                    maxlength="60"
                                                    value="{{old('tgt_placename',$rec->tgt_placename)}}"/>
                                         @else

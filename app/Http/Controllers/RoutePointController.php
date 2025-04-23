@@ -204,6 +204,10 @@ class RoutePointController extends Controller
 
 //        $data->ObjFlags = objflag::getFlags4Obj($this->sysobjid, $id);
 
+        $data->places = DB::select("SELECT distinct src_placename as name FROM `route_points`
+                    UNION SELECT distinct tgt_placename as name FROM `route_points` order by 1");
+        //dd($data);
+
         $usrrights = $this->setInterfaceRight($id);
 
         return view($this->sysobjcode . '.edit', compact('rec', "data", "usrrights"));
