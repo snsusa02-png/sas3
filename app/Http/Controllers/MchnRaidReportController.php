@@ -1393,7 +1393,7 @@ order by income_sum desc";
 	from mr_opers mro
 	join mchn_raids as mr on mr.id=mro.mr_id
     join driver_works dw on dw.id=mr.dw_id
-    join opertypes ot on ot.id=dw.opertypeid
+    join opertypes ot on ot.id=ifNull(dw.opertypeid, 1)
     join orgstaff os on os.id=dw.staffid
     join machines m on m.id=dw.machineid
     join refitems as ri on ri.id=mro.refitmid
