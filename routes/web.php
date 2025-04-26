@@ -1157,6 +1157,7 @@ Route::match(array('POST', 'GET'), '/reports/rep/68', "FuelcardPayReportControll
 Route::match(array('POST', 'GET'), '/reports/rep/69', "WrhDocReportController@rep69")->name('reports.rep69');
 Route::match(array('POST', 'GET'), '/reports/rep/70', "MchnRaidReportController@rep70")->name('reports.rep70');
 Route::match(array('POST', 'GET'), '/reports/rep/71', "MchnRaidReportController@rep71")->name('reports.rep71');
+Route::match(array('POST', 'GET'), '/reports/rep/72', "MchnRaidReportController@rep72")->name('reports.rep72');
 
 
 //Состав плана платежей
