@@ -85,7 +85,6 @@
             <td width="25">{{$rec->org_name}}</td>
             <td>{{$rec->org_placename}}</td>
 
-
             <td x:num width="15">{{$rec->raid_qty}}</td>
             <td x:num width="15">{{$rec->buy_sum}}</td>
             <td x:num width="15">{{$rec->sale_sum}}</td>
