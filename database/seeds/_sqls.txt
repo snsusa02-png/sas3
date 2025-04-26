@@ -1,4 +1,7 @@
-﻿2025-04-14 ------------------------------------------------------------------------
+﻿2025-04-26 ------------------------------------------------------------------------
+INSERT INTO `reports` (`id`, `name`, `acsid`, `acs_rightid`, `public`, `active`) VALUES ('72', 'Операции авто и спецтехники 2', '1', '100', '1', '0');
+
+2025-04-14 ------------------------------------------------------------------------
 SELECT id, name from orgs o where o.id in (
 select distinct ownorgid from wrhdocs as d
 INNER JOIN wrhdoctypes as t ON t.id = d.doctypeid AND t.forstock <> 0);
