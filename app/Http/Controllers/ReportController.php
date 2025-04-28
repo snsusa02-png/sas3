@@ -30,7 +30,6 @@ class ReportController extends Controller
         $this->sysobjcode = 'reports'; //Отчеты по системе
     }
 
-
     protected function setInterfaceRight($id)
     {
         /*
@@ -284,6 +283,28 @@ class ReportController extends Controller
             ->orderby('max_dt', 'desc')
             ->get();
 //dd($rec->users_stat);
+
+        // Потенциальные читатели отчета (доступен этим пользователям)
+        $rec->potential_readers = report::from('reports as r')
+            ->join('usrsysrights as ur', function ($join) {
+                $join->whereRaw('ur.sysfuncid=ifnull(r.acs_rightid, ur.sysfuncid)');
+            })
+            ->join('users as u', 'u.id','ur.userid')
+            ->join('user_acs as ua', 'ua.userid', 'u.id')
+            ->where('r.id', $id)
+            ->where('u.active', 1)
+            ->whereRaw('ua.acsid = ifnull(r.acsid, ua.acsid)')
+            ->orderBy('lname')
+            ->orderBy('fname')
+            ->get();
+
+//        $rec->potential_readers = DB::select(DB::raw("SELECT r.name, u.lname, u.fname, ua.acsid
+//            FROM `reports` AS r
+//            join usrsysrights ur on ur.sysfuncid=ifnull(r.acs_rightid, ur.sysfuncid)
+//            join users u on u.id=ur.userid and u.active=1
+//            join user_acs ua on ua.acsid = ifnull(r.acsid, ua.acsid) and ua.userid=u.id
+//            where r.ID={$id}"));
+        //dd($rec->potential_readers);
 
         //обновим статистику открытий для данного пользователя
         obj_reader::addOrUpdateStat($this->sysobjid, $rec->id, $userid);

@@ -276,6 +276,7 @@
                     @include('objfiles.obj_files')
                     @include('obj_readers/_readers')
                     @include('reports2/_users_stat')
+                    @include('reports2/_potential_readers')
                 </div>
 
             </div>
