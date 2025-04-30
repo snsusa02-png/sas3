@@ -191,7 +191,7 @@
                                     <div class="offset-md-3 col-md-9">
                                         <div class="form-group">
                                             <label for="decision">Примечание:</label>
-                                            @if ($usrrights['edit'] or $usrrights['change_status'])
+                                            @if ($usrrights['edit'])
                                                 <textarea class="form-control rounded-0"
                                                           name="notes" id="notes"
                                                           rows="1">{{old('notes',$rec->notes)}}</textarea>
