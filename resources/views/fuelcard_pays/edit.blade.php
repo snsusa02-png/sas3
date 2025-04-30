@@ -205,7 +205,7 @@
                                 </div>
 
                                 <hr>
-                                @if ($usrrights['save'] or $usrrights['change_status'])
+                                @if ($usrrights['save'])
                                     <button type="submit" class="btn btn-success" title="Сохранить изменения"
                                             name="update">
                                         <i class="fa fa-floppy-o" aria-hidden="true"></i>
