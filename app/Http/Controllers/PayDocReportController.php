@@ -437,6 +437,7 @@ class PayDocReportController extends Controller
             $sells = mr_oper::from('mr_opers as mro')
                 ->join('mchn_raids as mr', 'mr.id', 'mro.mr_id')
                 ->join('refitems as ri', 'ri.id', 'mro.refitmid')
+                ->leftjoin('orgstaff as os', 'os.id', 'mro.disp_staffid')
                 ->where(['mro.suporgid' => $ownorgid, 'mro.orgid' => $orgid])
                 ->whereRaw($sc1)
                 ->select('mr.wrkdate as operdate', db::raw('2 as sumtypeid')
@@ -448,12 +449,14 @@ class PayDocReportController extends Controller
                     , db::raw("sum(-mro.itm_sum) as opersum")
                     , db::raw("trim(group_concat( mro.name SEPARATOR ' ')) as notes")
                     , db::raw("sum(mro.raid_qty) as raid_qty")
+                    , db::raw("concat(os.lname, ' ', os.fname) as disp_name")
                 )
-                ->groupBy('operdate', 'sysobjid', 'org_placename', 'mro.refitmid', 'mro.itm_price');
+                ->groupBy('operdate', 'sysobjid', 'org_placename', 'mro.refitmid', 'mro.itm_price', 'mro.disp_staffid');
 
             $buys = mr_oper::from('mr_opers as mro')
                 ->join('mchn_raids as mr', 'mr.id', 'mro.mr_id')
                 ->join('refitems as ri', 'ri.id', 'mro.refitmid')
+                ->leftjoin('orgstaff as os', 'os.id', 'mro.disp_staffid')
                 ->where(['mro.suporgid' => $orgid, 'mro.orgid' => $ownorgid])
                 ->whereRaw($sc1)
                 ->select('mr.wrkdate as operdate', db::raw('2 as sumtypeid')
@@ -465,14 +468,18 @@ class PayDocReportController extends Controller
                     , db::raw("sum(+mro.itm_sum) as opersum")
                     , db::raw("trim(group_concat( mro.name SEPARATOR ' ')) as notes")
                     , db::raw("sum(mro.raid_qty) as raid_qty")
+                    , db::raw("concat(os.lname, ' ', os.fname) as disp_name")
                 )
-                ->groupBy('operdate', 'sysobjid', 'org_placename', 'mro.refitmid', 'mro.itm_price');
+                //->groupBy('operdate', 'sysobjid', 'org_placename', 'mro.refitmid', 'mro.itm_price');
+                ->groupBy('operdate', 'sysobjid', 'org_placename', 'mro.refitmid', 'mro.itm_price', 'mro.disp_staffid');
+
 
             $wrh_sells = wrhdoc::from('wrhdocs as d')
                 ->join('wrhdoctypes as dt', 'dt.id', 'd.doctypeid')
                 ->join('wrhs as w', 'w.id', 'd.wrhid')
                 ->join('wrhdoclst as i', 'i.docid', 'd.id')
                 ->join('refitems as ri', 'ri.id', 'i.refitmid')
+                ->leftjoin('orgstaff as os', 'os.id', 'd.disp_staffid')
                 ->where('dt.forsale', '<>', 0)
                 ->whereRaw("ifnull(d.saleorgid, d.ownorgid) = {$ownorgid}")
                 ->where(['d.orgid' => $orgid])
@@ -486,8 +493,9 @@ class PayDocReportController extends Controller
                     , db::raw("sum(-dt.forsale*i.qty*i.price ) as opersum")
                     , db::raw("null as notes")
                     , db::raw("null as raid_qty")
+                    , db::raw("concat(os.lname, ' ', os.fname) as disp_name")
                 )
-                ->groupBy('operdate', 'sysobjid', 'org_placename', 'i.refitmid', 'i.price');
+                ->groupBy('operdate', 'sysobjid', 'org_placename', 'i.refitmid', 'i.price', 'd.disp_staffid');
 
             $recs = paydoc::from('paydocs as pd')
                 ->where(['pd.ownorgid' => $ownorgid, 'pd.orgid' => $orgid, 'pd.active' => 1])
@@ -501,6 +509,7 @@ class PayDocReportController extends Controller
                     , db::raw("pd.paydir*pd.paysum as opersum")
                     , db::raw("null as notes")
                     , db::raw("null as raid_qty")
+                    , db::raw("null as disp_name")
                 )
                 ->unionall($sells)
                 ->unionall($buys)

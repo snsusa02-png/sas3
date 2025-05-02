@@ -1,16 +1,16 @@
 <table>
     <thead>
     <tr>
-        <td colspan="7" align="center">Детализация баланса</td>
+        <td colspan="8" align="center">Детализация баланса</td>
     </tr>
     <tr>
-        <td colspan="7" align="center">
+        <td colspan="8" align="center">
             между {{$data->org->name??'-'}}
             и {{$data->ownorg->name??'-'}}
         </td>
     </tr>
     <tr>
-        <td colspan="7" align="center">
+        <td colspan="8" align="center">
             по состоянию на {{now()}}
         </td>
     </tr>
@@ -23,6 +23,7 @@
         <th>Цена,руб</th>
         <th>Сумма, руб</th>
         <th>Тек. сальдо, руб</th>
+        <th>Диспетчер</th>
     </tr>
     </thead>
     <tbody>
@@ -65,6 +66,7 @@
             <td x:num width="10">{{ $itm->itm_price }}</td>
             <td x:num width="12">{{ $itm->opersum }}</td>
             <td x:num width="15">{{ $curSum }}</td>
+            <td width="16">{{ $itm->disp_name }}</td>
         </tr>
     @endforeach
 

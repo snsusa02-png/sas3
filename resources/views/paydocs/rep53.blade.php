@@ -102,6 +102,7 @@ $usrrights['link_tasks'] = \App\usrsysright::isUserHasRightByCode_cached($userid
                         <td class="text-right">Цена, руб</td>
                         <td class="text-right">Сумма, руб</td>
                         <td class="text-right">Тек. сальдо, руб</td>
+                        <td class="text-left">Диспетчер</td>
                     </tr>
 
                     </thead>
@@ -216,6 +217,7 @@ $usrrights['link_tasks'] = \App\usrsysright::isUserHasRightByCode_cached($userid
                                 data-num="{{$rec->opersum}}">{{number_format($rec->opersum,2)}}</td>
                             <td class="text-right small calced {{$tdс_class}}"
                                 data-num="{{$curSum}}">{{number_format($curSum,2)}}</td>
+                            <td class="text-left small">{{$rec->disp_name}}</td>
                         </tr>
                         <?php
                         $day_qty += $rec->qty;

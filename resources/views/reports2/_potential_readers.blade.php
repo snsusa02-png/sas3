@@ -3,7 +3,7 @@
     //статистика использования отчета пользователями
     ?>
     <div class="card mt-3 mb-3">
-        <div class="card-header" style="background-color: #f2f2f2;">Потенциальные пользователи отчета</div>
+        <div class="card-header" style="background-color: #f2f2f2;">Доступен для пользователей</div>
         <div class="card-body" id="order_info">
 
             <table class="table table-sm table-striped" style="width: 100%;">
