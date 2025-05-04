@@ -577,7 +577,8 @@ class DriverWorkController extends Controller
             $machineid = $request->get('machineid');
 
             $rules = [
-                "items_count" => [
+                //В форме должно быть поле ttt
+                "ttt" => [
                     function ($attribute, $value, $fail) use ($id, $wrkdate, $machineid) {
                         //
                         $cnt = driver_work::where(['machineid' => $machineid, 'wrkdate' => $wrkdate, 'statusid' => 0])
@@ -593,6 +594,35 @@ class DriverWorkController extends Controller
             $request->validate($rules, $messages);
         }
 
+        if (1 == 1) {
+            //2025-05-04 проверка, что для этого водителя нет пересекающихся периодов работы
+
+            $staffid = $request->get('staffid');
+            $wrkbegdt = date_create($request->get('wrkdate'))->format('Y-m-d') . ' ' . $request->get('begtime');
+            $wrkenddt = date_create($request->get('wrkenddate'))->format('Y-m-d') . ' ' . $request->get('endtime');
+            //dd($wrkbegdt, $wrkenddt, $staffid, $id);
+
+            $rules = [
+                //В форме должно быть поле ttt
+                "ttt" => [
+                    function ($attribute, $value, $fail) use ($id, $wrkbegdt, $wrkenddt, $staffid) {
+                        //
+                        $cnt = driver_work::where(['staffid' => $staffid])
+                            ->where('id', '<>', $id)
+                            ->whereRaw("wrkbegdt < '{$wrkenddt}' and wrkenddt > '{$wrkbegdt}'")
+                            ->count();
+                        //dd($cnt);
+                        if ($cnt > 0) {
+                            $fail("У этого водителя есть другой табель с пересекающимся периодом работы!");
+                        }
+                    },
+                ],
+            ];
+            //dd($rules);
+            $request->validate($rules, $messages);
+            //dd($rules, $messages);
+        }
+
         if ($pre_statusid == 2 and $nxt_statusid == 0) {
             //перевод табеля из "Подготовлено" в "Черновик"
 
@@ -600,7 +630,7 @@ class DriverWorkController extends Controller
             $days = date_diff(date_create($wrkdate), today())->days;
 
             $rules = [
-                "items_count" => [
+                "ttt" => [
                     function ($attribute, $value, $fail) use ($days) {
                         //проверка что "возраст" открываемой записи не более 3 дней ------------
                         if ($days > 3) {
@@ -610,7 +640,6 @@ class DriverWorkController extends Controller
                     },
                 ],
             ];
-
             $request->validate($rules, $messages);
         }
 
