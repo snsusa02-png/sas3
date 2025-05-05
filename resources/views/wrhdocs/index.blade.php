@@ -134,15 +134,13 @@
                                             'onchange' => 'form.submit()',
                                             ])
                                         !!}
-                                        {!! Form::select('s_inpout',
-                                       $data->s_inpouts??[],
-                                       $data->search_params['s_inpout'] ?? '',
-                                      ['class' => 'form-control']) !!}
                                         <input type="date" class="form-control c" name="s_docdate"
                                                id="s_docdate"
                                                value="{{ $data->search_params['s_docdate'] ?? ''}}"
                                                placeholder="-дата док-та-"
                                                STYLE="display: none;"/>
+
+                                        {!! Form::select('s_inpout', $data->s_inpouts??[], $data->search_params['s_inpout'] ?? '', ['class' => 'form-control']) !!}
 
                                         {!! Form::select('s_doctypeid',
                                          $data->s_doctypes??[],

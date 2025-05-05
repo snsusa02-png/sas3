@@ -114,16 +114,21 @@
                             </tr>
 
                             <tr style="text-align: center;">
-                                <td></td>
-                                <td>
+                                <td colspan="2">
                                     <div class="input-group ">
-                                        {!! Form::select('s_date', $data->dates??[]
-                                        , $search_params['s_date']??'',
-                                             [
-                                             'class' => 'form-control',
-                                             'placeholder' => '-все-',
-                                             'onchange' => 'form.submit()',
-                                             ]) !!}
+                                        {!! Form::select('s_timestatuscode', $data->timestatuses??[], $search_params['s_timestatuscode']??'',
+                                            [
+                                            'class' => 'form-control small',
+                                            'placeholder' => '-дата: любая-',
+                                            'id' => 's_timestatuscode',
+                                            'onchange' => 'form.submit()',
+                                            ])
+                                        !!}
+                                        <input type="date" class="form-control c" name="s_docdate"
+                                               id="s_docdate"
+                                               value="{{ $search_params['s_docdate'] ?? ''}}"
+                                               placeholder="-дата док-та-"
+                                               STYLE="display: none;"/>
                                     </div>
                                 </td>
                                 <td>{!! Form::select('s_staffid', $data->staffs
@@ -227,9 +232,9 @@
                                         <td class="text-left small">
                                             {{$rec->machine_name}}
                                             <div class="float-right">{{$rec->wrktype_name}}
-                                            @if(isset($rec->wrktype_notes))
-                                                ({{$rec->wrktype_notes}})
-                                            @endif
+                                                @if(isset($rec->wrktype_notes))
+                                                    ({{$rec->wrktype_notes}})
+                                                @endif
                                                 @if(isset($rec->wrkplacename))
                                                     , место работ: {{$rec->wrkplacename}}
                                                 @endif
@@ -267,6 +272,9 @@
                         </div>
                     </div>
                 </div>
+                <script src="{{ asset('js/driverworks_index.js') }}" defer></script>
+            </div>
+        </div>
     </form>
 @endsection
 

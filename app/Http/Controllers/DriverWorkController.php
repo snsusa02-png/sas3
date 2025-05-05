@@ -94,15 +94,16 @@ class DriverWorkController extends Controller
         // - параметры поиска: массив из имени и значенния по-умолчанию -----------------------------------------------
         $param_names = [
             's_pageitmcnt' => 10
+            , 's_timestatuscode' => 2   //вчера
+            , 's_docdate' => ''
             , 's_name' => ''
             , 's_machineid' => ''
             , 's_staffid' => ''
             , 's_statusid' => ''
-            , 's_date' => ''
         ];
 
         $search_params = $this->search_params($request, $param_names);
-
+        //var_dump($search_params);
         //сформируем условие запроса в БД -----
         $sc = "1=1";
 
@@ -127,7 +128,7 @@ class DriverWorkController extends Controller
                 } elseif ($item == 's_staffid') {
                     $sc = $sc . " and dw.staffid = {$val}";
 
-                } elseif ($item == 's_date') {
+                } elseif ($item == 's_timestatuscode') {
                     if ($val == 1) //сегодня
                         $sc = $sc . " and dw.wrkdate = curdate()";
                     elseif ($val == 2) //вчера
@@ -135,7 +136,14 @@ class DriverWorkController extends Controller
                     elseif ($val == 3) //за неделю
                         $sc = $sc . " and datediff(curdate(), dw.wrkdate) <= 7";
                     elseif ($val == 4) //с начала текущего месяца
-                        $sc = $sc . " and extract(year_month from dw.wrkdate) = extract(year_month from curdate())";
+                        $sc .= " and extract(year_month from dw.wrkdate) = extract(year_month from curdate())";
+                    elseif ($val == 6) //за 30 дней
+                        $sc = $sc . " and datediff(curdate(), dw.wrkdate) <= 30";
+                    elseif ($val == 5
+                        and DateTime::createFromFormat('Y-m-d', $search_params['s_docdate']) !== false) {
+                        //конкретная дата
+                        $sc .= " and dw.wrkdate = '" . $search_params['s_docdate'] . "'";
+                    }
 
                 } elseif ($item == 's_statusid') {
                     $sc = $sc . " and dw.statusid = {$val}";
@@ -144,15 +152,8 @@ class DriverWorkController extends Controller
 
             }
         }
-        //var_dump($sc);
+        //        var_dump($sc);
         //-------------------------------------------------------------------------------------------------------------
-
-        //по-старому ---------------
-        //для совместимости со старым методом формированя условия отбора - инициализируем переменные поиска
-//        foreach ($search_params as $item => $val) {
-//            $$item = $val;
-//        }
-        // --------------------------------------------------------------------
 
 
         $recs = driver_work::from('driver_works as dw')
@@ -214,7 +215,8 @@ class DriverWorkController extends Controller
         ], 5);
 
         $data->statuses = [0 => 'черновик', 2 => 'ожидает согласования', 4 => 'согласован'];
-        $data->dates = [1 => 'сегодня', 2 => 'вчера', 3 => 'за неделю', 4 => 'за месяц'];
+        //$data->dates = [1 => 'сегодня', 2 => 'вчера', 3 => 'за неделю', 4 => 'за месяц'];
+        $data->timestatuses = [1 => 'сегодня', 2 => 'вчера', 3 => 'за неделю', 4 => 'за месяц', 6 => 'за 30 дн.', 5 => 'календарь'];
         $data->yes_no = [1 => 'есть', 0 => 'нет'];
 
         //Выясним - есть ли у пользователя шаблон для этого типа объектов ИС
