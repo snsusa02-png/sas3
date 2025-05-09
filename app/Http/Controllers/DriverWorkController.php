@@ -885,25 +885,27 @@ class DriverWorkController extends Controller
 //        dd($rec);
         objlog::log_info($this->sysobjid, $rec->id, $mess, 5);
 
+        // Регистрация расчета ЗП сотрудника за месяц
+        driver_work::refr_stf_month_chrg_calc(11, $rec->staffid, $rec->wrkdate, $userid);
+        if(1==0) {
+            // ----------------------------------------------------------------------------------------------
+            // Регистрация расчета ЗП
 
-        // ----------------------------------------------------------------------------------------------
-        // Регистрация расчета ЗП
-
-        //Подсчитаем общую сумму ЗП сотрудника за весь месяц
-        $int_begdate = date_create($rec->wrkdate)->format('Y-m-01');
-        $int_enddate = date_create($rec->wrkdate)->format('Y-m-t');
-        $salary_sum = driver_work::where('staffid', $rec->staffid)
-            ->wherebetween('wrkdate', [$int_begdate, $int_enddate])
-            ->sum('salary_sum');
+            //Подсчитаем общую сумму ЗП сотрудника за весь месяц
+            $int_begdate = date_create($rec->wrkdate)->format('Y-m-01');
+            $int_enddate = date_create($rec->wrkdate)->format('Y-m-t');
+            $salary_sum = driver_work::where('staffid', $rec->staffid)
+                ->wherebetween('wrkdate', [$int_begdate, $int_enddate])
+                ->sum('salary_sum');
 //dd($salary_sum);
-        // Определим - существует ли необходимость привязки начисления этой организации к общей ведомости
-        $orgcharge = org_charge::where(['orgid' => $rec->orgstaff->orgid, 'chargetypeid' => 11])->first();
+            // Определим - существует ли необходимость привязки начисления этой организации к общей ведомости
+            $orgcharge = org_charge::where(['orgid' => $rec->orgstaff->orgid, 'chargetypeid' => 11])->first();
 
-        if (isset($orgcharge)) {
+            if (isset($orgcharge)) {
 
-            // Сформируем детали расчета - для сохранения в поле примечания (stf_chrg_calc.notes)
-            $staffid = $rec->staffid;
-            $sql = "select group_concat(notes separator '; ') notes from (SELECT concat(
+                // Сформируем детали расчета - для сохранения в поле примечания (stf_chrg_calc.notes)
+                $staffid = $rec->staffid;
+                $sql = "select group_concat(notes separator '; ') notes from (SELECT concat(
         		SUM(day_wrkhrs), ' ч * ', day_hr_rate, ' руб (день)'
                 , ' + ', SUM(night_wrkhrs), ' ч * ', night_hr_rate, ' руб (ночь)'
                 , ' + ', SUM(breaks_sum), ' руб (простой)'
@@ -913,44 +915,44 @@ class DriverWorkController extends Controller
                   and wrkdate between '{$int_begdate}' and '{$int_enddate}'
                   and salary_sum>0
                 GROUP BY day_hr_rate, night_hr_rate) a";
-            $rslt = DB::select(DB::raw($sql));
-            $notes = $rslt[0]->notes ?? '';
-            //dd($sql, $notes);
+                $rslt = DB::select(DB::raw($sql));
+                $notes = $rslt[0]->notes ?? '';
+                //dd($sql, $notes);
 
 
-            // Так как привязываем совокупную запись, то берем "общий" идентификатор - "0"
-            $stfchrgcalc = stf_chrg_calc::where([
-                'staffid' => $rec->staffid
-                , 'ref_sysobjid' => $this->sysobjid
-                , 'ref_objid' => 0
-                , 'docdate' => $int_begdate
-            ])->first();
-            if (!isset($stfchrgcalc)) {
+                // Так как привязываем совокупную запись, то берем "общий" идентификатор - "0"
+                $stfchrgcalc = stf_chrg_calc::where([
+                    'staffid' => $rec->staffid
+                    , 'ref_sysobjid' => $this->sysobjid
+                    , 'ref_objid' => 0
+                    , 'docdate' => $int_begdate
+                ])->first();
+                if (!isset($stfchrgcalc)) {
 
-                $stfchrgcalc = new stf_chrg_calc([
-                    "staffid" => $rec->staffid,
-                    "orgchargeid" => $orgcharge->id,
-                    "charge_dir" => $orgcharge->chargetype->dir,
-                    "docdate" => $int_begdate,
-                    "forbegdate" => $int_begdate,
-                    "forenddate" => $int_enddate,
-                    "created_by" => $userid,
-                    "created_at" => now(),
-                    "ref_sysobjid" => $this->sysobjid,
-                    "ref_objid" => 0,
-                ]);
+                    $stfchrgcalc = new stf_chrg_calc([
+                        "staffid" => $rec->staffid,
+                        "orgchargeid" => $orgcharge->id,
+                        "charge_dir" => $orgcharge->chargetype->dir,
+                        "docdate" => $int_begdate,
+                        "forbegdate" => $int_begdate,
+                        "forenddate" => $int_enddate,
+                        "created_by" => $userid,
+                        "created_at" => now(),
+                        "ref_sysobjid" => $this->sysobjid,
+                        "ref_objid" => 0,
+                    ]);
+                }
+                $stfchrgcalc->staffid = $rec->staffid;
+                $stfchrgcalc->charge_sum = $salary_sum;
+                $stfchrgcalc->notes = $notes;
+
+                $stfchrgcalc->updated_by = $userid;
+                $stfchrgcalc->updated_at = now();
+                //dd($stfchrgcalc);
+                $stfchrgcalc->save();
             }
-            $stfchrgcalc->staffid = $rec->staffid;
-            $stfchrgcalc->charge_sum = $salary_sum;
-            $stfchrgcalc->notes = $notes;
-
-            $stfchrgcalc->updated_by = $userid;
-            $stfchrgcalc->updated_at = now();
-            //dd($stfchrgcalc);
-            $stfchrgcalc->save();
+            //---------------------------------------------------------------------------------------
         }
-        //---------------------------------------------------------------------------------------
-
 
         //-------------------------------------------------------
         // Сохраним данные о простоях/ремонтах/доп.работах
@@ -1009,6 +1011,10 @@ class DriverWorkController extends Controller
             $sd["error"] = $res->msg;
             connectify('error', $res->obj['name'] ?? 'id:' . $res->obj['id'], $res->msg);
         } else {
+            // Регистрация расчета ЗП сотрудника за месяц
+            driver_work::refr_stf_month_chrg_calc(11, $res->obj['staffid'], $res->obj['wrkdate'], \Auth::user()->id);
+            //dd($res->obj);
+
             $sd['success'] = 'Запись (' . $id . ': '
                 . ($res->obj['name'] ?? '') . ') удалена';
             objlog::log_info($this->sysobjid, 0, $sd['success'], 5);
