@@ -38,6 +38,12 @@ class fuelcard extends Model
             ->withDefault();
     }
 
+    public function suporg()
+    {
+        return $this->hasOne(org::class, 'id', 'suporgid')
+            ->withDefault();
+    }
+
     public function ref_machine()
     {
         return $this->hasOne(machine::class, 'id', 'ref_machineid')

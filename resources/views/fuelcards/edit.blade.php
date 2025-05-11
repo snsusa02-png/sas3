@@ -86,6 +86,33 @@
 
                                 <div class="row">
 
+                                    <div class="form-group offset-md-0 col-md-12">
+                                        <label for="name" class="required"><span id="lbl_suporg">Поставщик топлива</span>:</label>
+                                        @if ($usrrights['save'])
+                                            <div class="input-group mb-3 ">
+                                                <input type="text" name="suporg_name" required id="suporg_name"
+                                                       class="ac_name ac_suporg_name form-control font-weight-bold"
+                                                       value="{{old('suporg_name',$rec->suporg->info??'')}}">
+                                                <input type="text" class="form-control text-center small ac_status"
+                                                       title=""
+                                                       style="display: none; border: #d7f3e3; max-width: 30px" readonly>
+                                                <input type="hidden" name="suporgid" class="ac_id" id="suporgid"
+                                                       data-gk="1"
+                                                       value="{{old('suporgid',$rec->suporgid)}}">
+                                                <a class="btn btn-light id_lnk" data-id="suporgid" data-obj="orgs"
+                                                   target="_blank">
+                                                    <i class="fa fa-info text-info" aria-hidden="true"></i>
+                                                </a>
+                                            </div>
+                                            <div></div>
+                                        @else
+                                            <div class="font-weight-bold">{{$rec->suporgid->info??''}}</div>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <div class="row">
+
 {{--                                    <div class="form-group col-md-12">--}}
 {{--                                        <label for="orgid" class="required">Владелец:</label>--}}
 {{--                                        {!! Form::select('orgid', $data->orgs, $rec->orgid,--}}

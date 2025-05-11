@@ -1,4 +1,50 @@
-﻿2025-05-04 ------------------------------------------------------------------------
+﻿2025-05-11 ------------------------------------------------------------------------
+ ALTER TABLE `fuelcards` ADD COLUMN `suporgid` BIGINT UNSIGNED NULL AFTER `name`;
+
+ ALTER TABLE fuelcards ADD INDEX `fuelcards_suporgid_foreign` (`suporgid` ASC) VISIBLE;
+ ALTER TABLE `fuelcards` ALTER INDEX `fuelcards_suporgid_foreign` INVISIBLE;
+
+ALTER TABLE `fuelcards`
+ADD CONSTRAINT `fuelcards_suporgid_foreign`
+  FOREIGN KEY (`suporgid`)
+  REFERENCES `orgs` (`id`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+
+
+2025-05-10 ------------------------------------------------------------------------
+-- "лечение" суммы начисленной ЗП, расчитаной по устаревшим почасовым ставкам
+-- 1 восстановление ставки за день
+update `driver_works` as dw
+	set dw.day_hr_rate = hr_day_Rate(dw.wrkdate, dw.staffid, dw.wrktypeid)
+	WHERE 1=1
+    and dw.wrkdate>='2025-05-01'
+    and dw.day_hr_rate <> hr_day_Rate(dw.wrkdate, dw.staffid, dw.wrktypeid);
+
+-- 2 восстановление ставки за ночь
+update `driver_works` as dw
+	set dw.night_hr_rate = hr_night_Rate(dw.wrkdate, dw.staffid, dw.wrktypeid)
+	WHERE 1=1
+    and dw.wrkdate>='2025-05-01'
+    and dw.night_hr_rate <> hr_night_Rate(dw.wrkdate, dw.staffid, dw.wrktypeid);
+
+-- 3 пересчет ЗП за часы работы
+update `driver_works` as dw
+	set dw.hrs_salary =  dw.day_wrkhrs * dw.day_hr_rate + dw.night_wrkhrs * dw.night_hr_rate
+	WHERE 1=1
+    and dw.wrkdate>='2025-05-01'
+    and dw.hrs_salary != dw.day_wrkhrs * dw.day_hr_rate + dw.night_wrkhrs * dw.night_hr_rate;
+
+-- 4 пересчет сводной ЗП
+update `driver_works` as dw
+	set dw.salary_sum = dw.hrs_salary + dw.raid_sum + dw.breaks_sum
+	WHERE 1=1
+    and dw.wrkdate >='2025-05-01'
+    and dw.salary_sum != dw.hrs_salary + dw.raid_sum + dw.breaks_sum;
+
+--- end of repair -------------
+
+2025-05-04 ------------------------------------------------------------------------
 -- проверка на отсутствие пересекающихся периодов работы
 select count(1) as cnt
  from driver_works as dw

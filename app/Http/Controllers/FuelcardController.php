@@ -217,11 +217,13 @@ class FuelcardController extends Controller
         //
         $messages = [
             'num.required' => 'Укажите номер карты',
+            'suporgid.required' => 'Укажите организацию-поставщика',
             'orgid.required' => 'Укажите организацию - владельца карты',
         ];
 
         $rules = [
             "num" => "required",
+            "suporgid" => "required",
             "orgid" => "required",
         ];
 
@@ -241,6 +243,7 @@ class FuelcardController extends Controller
         $rec->name = $request->get('name');
         $rec->num = $request->get('num');
         $rec->notes = mb_substr($request->get('notes'), 0, 160);
+        $rec->suporgid = $request->get('suporgid');
         $rec->orgid = $request->get('orgid');
         $rec->ref_machineid = $request->get('ref_machineid');
         $rec->active = $request->get('active', 0);
