@@ -80,6 +80,7 @@ class FuelcardController extends Controller
             , 's_name' => ''
             , 's_num' => ''
             , 's_orgid' => ''
+            , 's_suporgid' => ''
             , 's_ref_machineid' => ''
         ];
 
@@ -99,6 +100,9 @@ class FuelcardController extends Controller
                 } elseif ($item == 's_orgid') {
                     $sc = $sc . " and fc.orgid = '{$val}'";
 
+                } elseif ($item == 's_suporgid') {
+                    $sc = $sc . " and fc.suporgid = '{$val}'";
+
                 } elseif ($item == 's_ref_machineid') {
                     $sc = $sc . " and fc.ref_machineid = '{$val}'";
 
@@ -112,6 +116,9 @@ class FuelcardController extends Controller
             ->leftJoin('orgs as o', function ($j) {
                 $j->on('o.id', 'fc.orgid');
             })
+            ->leftJoin('orgs as so', function ($j) {
+                $j->on('so.id', 'fc.suporgid');
+            })
             ->leftJoin('machines as m', function ($j) {
                 $j->on('m.id', 'fc.ref_machineid');
             })
@@ -120,6 +127,7 @@ class FuelcardController extends Controller
             })
             ->whereraw($sc)
             ->select('fc.id', 'fc.num', 'fc.name', 'fc.active', 'fc.orgid', 'o.name as org_name'
+                , 'so.name as suporg_name'
                 , db::raw("concat(m.regnum, ' (', m.name, ', ', mo.name, ')' ) as ref_machine_name") );
 
         //Сортировка пользователя ----------------------------------------
@@ -145,6 +153,8 @@ class FuelcardController extends Controller
         $data->pageitmcnts = $this->pageitmcnts;
 
         $data->orgs = org::lstFor(['in_fuelcards' => 1]);
+
+        $data->suporgs = org::lstFor(['in_fuelcards_suporgid' => 1]);
 
         $data->ref_machines = machine::lstFor(['in_fuelcards' => 1]);
 

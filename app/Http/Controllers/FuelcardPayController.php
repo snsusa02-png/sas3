@@ -98,6 +98,7 @@ class FuelcardPayController extends Controller
         // - параметры поиска: массив из имени и значенния по-умолчанию -----------------------------------------------
         $param_names = [
             's_pageitmcnt' => 10
+            , 's_suporgid' => ''
             , 's_cardid' => ''
             , 's_cardnum' => ''
             , 's_machineid' => ''
@@ -121,6 +122,9 @@ class FuelcardPayController extends Controller
 
                 } elseif ($item == 's_cardnum') {
                     $sc .= " and fc.num like '%" . mb_strtoupper($val) . "%'";
+
+                } elseif ($item == 's_suporgid') {
+                    $sc = $sc . " and fc.suporgid = {$val}";
 
                 } elseif ($item == 's_machineid') {
                     $sc = $sc . " and fcp.machineid = {$val}";
@@ -149,9 +153,7 @@ class FuelcardPayController extends Controller
 
                 } elseif ($item == 's_paytypeid') {
                     $sc .= " and mro.paytypeid = {$val}";
-
                 }
-
             }
         }
         //var_dump($sc);
@@ -161,6 +163,9 @@ class FuelcardPayController extends Controller
         $recs = fuelcard_pay::from('fuelcard_pays as fcp')
             ->join('fuelcards as fc', function ($join) {
                 $join->on('fc.id', '=', 'fcp.cardid');
+            })
+            ->leftjoin('orgs as so', function ($join) {
+                $join->on('so.id', '=', 'fc.suporgid');
             })
             ->join('machines as m', function ($join) {
                 $join->on('m.id', '=', 'fcp.machineid');
@@ -178,6 +183,7 @@ class FuelcardPayController extends Controller
                 , 'fc.name as card_name'
                 , 'os.lname as driver_name'
                 , db::raw("concat(m.regnum,' ',m.name) as machine_name")
+                , 'so.name as suporg_name'
             );
 
         //Сортировка пользователя ----------------------------------------
@@ -216,7 +222,11 @@ class FuelcardPayController extends Controller
         $data->cards = fuelcard::lstFor([
             'in_fuelcard_pays' => 1,
         ]);
-        //dd($data->cards);
+
+        $data->suporgs = org::lstFor([
+            'in_fuelcards_suporgid' => 1,
+        ]);
+//        dd($data->suporgs);
 
         $data->paytypes = fuelcard_pay::paydirs();
 

@@ -110,6 +110,7 @@
                                 <td>Авто</td>
                                 <td>Объем, л</td>
                                 <td>Сумма, &#8381;</td>
+                                <td>Поставщик</td>
                                 <td class="text-center;">
 
                                     @if (isset($data->template_id))
@@ -204,6 +205,17 @@
                                 <td>
                                 </td>
                                 <td></td>
+                                <td>
+                                    <div class="input-group">
+                                        {!! Form::select('s_suporgid', $data->suporgs??[], $search_params['s_suporgid']??'',
+                                                        [
+                                                        'class' => 'form-control small',
+                                                        'placeholder' => '-любой-',
+                                                        'onChange' => 'this.form.submit()',
+                                                        ])
+                                                        !!}
+                                    </div>
+                                </td>
                                 <td>
                                     <div class="input-group-btn">
                                         <button type="submit" class="btn btn-sm btn-success"
@@ -308,6 +320,8 @@
                                         <td class="text-right">
                                             {{number_format($item->paysum,2)}}
                                         </td>
+                                        <td class="small">{{$item->suporg_name}}</td>
+
 
                                         <td class="text-right">
                                             <a href="{{ route($thisSysObjCode.'.edit',$item->id)}}"

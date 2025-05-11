@@ -72,6 +72,7 @@
                                        title="Сортировать">№ карты и название {!! sort_mark('fc.num',$sort_params) !!}</a>
                                 </td>
                                 <td>Закреплена за</td>
+                                <td>Поставщик</td>
 
                                 <td style="text-align: center;">
                                     @if ($usrrights['create'])
@@ -128,7 +129,17 @@
                                                         !!}
                                     </div>
                                 </td>
-
+                                <td>
+                                    <div class="input-group">
+                                        {!! Form::select('s_suporgid', $data->suporgs??[], $search_params['s_suporgid']??'',
+                                                        [
+                                                        'class' => 'form-control small',
+                                                        'placeholder' => '-любой-',
+                                                        'onChange' => 'this.form.submit()',
+                                                        ])
+                                                        !!}
+                                    </div>
+                                </td>
                                 <td>
                                     <div class="input-group-btn">
                                         <button type="submit" class="btn btn-sm btn-outline-secondary"
@@ -182,6 +193,7 @@
                                         </div>
                                     </td>
                                     <td>{{$item->ref_machine_name}}</td>
+                                    <td>{{$item->suporg_name}}</td>
                                     <td style="text-align: center;">
                                         <a href="{{ route('fuelcards.edit',$item->id)}}"
                                            class="btn btn-sm btn-primary"
