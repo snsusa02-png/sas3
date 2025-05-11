@@ -111,6 +111,7 @@ class FuelcardPayReportController extends Controller
             , 's_quarter' => $yearQuarter
             , 's_year' => $year
             , 's_orgid' => ''
+            , 's_suporgid' => ''
             , 's_mchntypeid' => ''
             , 's_fuelcardid' => ''
         ];
@@ -175,6 +176,9 @@ class FuelcardPayReportController extends Controller
                 if ($item == 's_ownorgid') {
                     $sc = $sc . " and m.orgid = '{$val}'";
 
+                } elseif ($item == 's_suporgid') {
+                    $sc = $sc . " and fc.suporgid = {$val}";
+
                 } elseif ($item == 's_mchntypeid') {
                     $sc = $sc . " and m.mchntypeid = {$val}";
 
@@ -205,6 +209,8 @@ class FuelcardPayReportController extends Controller
             $recs = fuelcard_pay::from('fuelcard_pays as fp')
                 ->join('machines as m', 'm.id', 'fp.machineid')
                 ->join('mchntypes as mt', 'mt.id', 'm.mchntypeid')
+                ->join('fuelcards as fc', 'fc.id', 'fp.cardid')
+                ->leftjoin('orgs as so', 'so.id', 'fc.suporgid')
                 ->select('fp.machineid'
                     , db::raw("concat(m.name, ', ', m.regnum) as machine_name")
                     , 'm.mchntypeid', 'mt.name as mchntype_name'
@@ -258,6 +264,9 @@ class FuelcardPayReportController extends Controller
         ]);
         $data->fuelcards = collect($data->fuelcards)->sortBy('name')->reverse()->toArray();
         //dd($data->fuelcards);
+
+        $data->suporgs = org::lstFor(['in_fuelcards_suporgid' => 1]);
+
 
         // расчет средней цены --------------------
         $paySum = $fuelQty = $data->avgPrice = 0;

@@ -165,6 +165,17 @@ $action_url = route('reports.rep' . $thisObjId);
                                                             !!}
                                         </div>
                                     @endif
+                                    @if(1==1)
+                                        <div class="form-group col-md-2">
+                                            <label for="s_mchntypeid">Поставщик:</label>
+                                            {!! Form::select('s_suporgid', $data->suporgs??[], $search_params['s_suporgid']??'',
+                                                            [
+                                                            'class' => 'form-control',
+                                                            'placeholder' => '-все-',
+                                                            ])
+                                                            !!}
+                                        </div>
+                                    @endif
 
                                 </div>
                             @endif
