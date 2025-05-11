@@ -1483,6 +1483,11 @@ class org extends Model
                         //организация указана в fuelcards
                         $sc .= " and " . (($val == 0) ? "not" : "")
                             . " exists (select 1 from fuelcards as fc where fc.orgid=o.id)";
+
+                    } elseif ($key == 'in_fuelcards_suporgid') {
+                        //организация указана в fuelcards как поставщик
+                        $sc .= " and " . (($val == 0) ? "not" : "")
+                            . " exists (select 1 from fuelcards as fc where fc.suporgid=o.id)";
                     }
 
                 }
