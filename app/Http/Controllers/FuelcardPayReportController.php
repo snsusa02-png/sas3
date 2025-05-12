@@ -179,6 +179,9 @@ class FuelcardPayReportController extends Controller
                 } elseif ($item == 's_suporgid') {
                     $sc = $sc . " and fc.suporgid = {$val}";
 
+                } elseif ($item == 's_orgid') {
+                    $sc = $sc . " and fc.orgid = {$val}";
+
                 } elseif ($item == 's_mchntypeid') {
                     $sc = $sc . " and m.mchntypeid = {$val}";
 
@@ -266,6 +269,8 @@ class FuelcardPayReportController extends Controller
         //dd($data->fuelcards);
 
         $data->suporgs = org::lstFor(['in_fuelcards_suporgid' => 1]);
+
+        $data->orgs = org::lstFor(['in_fuelcards' => 1]);
 
 
         // расчет средней цены --------------------

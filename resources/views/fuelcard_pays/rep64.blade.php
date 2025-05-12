@@ -97,7 +97,7 @@ $action_url = route('reports.rep' . $thisObjId);
                                                         !!}
                                     </div>
 
-                                    <div class="form-group col-md-2 dpt_3 " style="display: none">
+                                    <div class="form-group col-md-1 dpt_3 " style="display: none">
                                         <label for="s_quarter" class="required">Квартал:</label>
                                         {!! Form::select('s_quarter', $data->quarters??[], $search_params['s_quarter'],
                                                         [
@@ -144,7 +144,7 @@ $action_url = route('reports.rep' . $thisObjId);
                                         </div>
                                     @endif
                                     @if(1==1)
-                                        <div class="form-group col-md-3">
+                                        <div class="form-group col-md-2">
                                             <label for="s_mchntypeid">Вид техники:</label>
                                             {!! Form::select('s_mchntypeid', $data->mchntypes, $search_params['s_mchntypeid']??'',
                                                             [
@@ -167,8 +167,20 @@ $action_url = route('reports.rep' . $thisObjId);
                                     @endif
                                     @if(1==1)
                                         <div class="form-group col-md-2">
-                                            <label for="s_mchntypeid">Поставщик:</label>
+                                            <label for="s_suporgid">Поставщик:</label>
                                             {!! Form::select('s_suporgid', $data->suporgs??[], $search_params['s_suporgid']??'',
+                                                            [
+                                                            'class' => 'form-control',
+                                                            'placeholder' => '-все-',
+                                                            ])
+                                                            !!}
+                                        </div>
+                                    @endif
+
+                                    @if(1==1)
+                                        <div class="form-group col-md-2">
+                                            <label for="s_orgid">Владелец карты:</label>
+                                            {!! Form::select('s_orgid', $data->orgs??[], $search_params['s_orgid']??'',
                                                             [
                                                             'class' => 'form-control',
                                                             'placeholder' => '-все-',
