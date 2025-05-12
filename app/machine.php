@@ -460,6 +460,7 @@ class machine extends Model
                 $lst = self::from('machines as m')
                     ->whereRaw($sc)
                     ->select('id', db::raw("concat(m.regnum, ' - ', m.name ) as name") )
+                    ->orderby('name')
                     ->get()
                     ->pluck('name', 'id')->toArray();
             } else {
