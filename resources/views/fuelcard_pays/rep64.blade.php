@@ -226,11 +226,11 @@ $action_url = route('reports.rep' . $thisObjId);
 
             @else
                 <?php
+                $sub_title = '';
                 $s_period_type = $search_params['s_period_type'] ?? '';
                 $ownorgid = $search_params['s_ownorgid'] ?? '';
                 $s_begdate = $search_params['s_begdate'] ?? '';
                 $s_enddate = $search_params['s_enddate'] ?? '';
-
                 $routes = [
                     915 => 'invoices.edit'
                 ];
@@ -259,7 +259,8 @@ $action_url = route('reports.rep' . $thisObjId);
                     <div class="font-weight-bold mt-2" align="center"
                          style="font-size: 18px;">
                         <h4>{{$thisTitle}}</h4>
-                        {{$data->period_title}}
+                        <h5>
+                        {!! $data->sub_title !!}</h5>
 
                         <span class="small ml-3 d-print-none"><br>по состоянию на {{now()}}</span>
 
@@ -279,6 +280,7 @@ $action_url = route('reports.rep' . $thisObjId);
                         <tr class="text-left small" valign="top">
                             {{--                            <td class="text-center">Дата</td>--}}
                             <td class="text-left">№ Авто</td>
+                            <td class="text-center">№ карты</td>
                             <td class="text-right">Объем топлива, л</td>
                             <td class="text-right">Сумма, &#8381;</td>
                             <td class="text-right">Средняя цена, &#8381;/л</td>
@@ -307,6 +309,7 @@ $action_url = route('reports.rep' . $thisObjId);
                                        class="text-decoration-none">{{$rec->machine_name}}</a>
                                     <div class="float-right small" >{{$rec->mchntype_name}}</div>
                                 </td>
+                                <td class="text-center small">{{$rec->card_num}}
                                 <td class="text-right">{{number_format($rec->fuelqty,0)}}
                                 <td class="text-right">{{number_format($rec->paysum,2)}}
                                 <td class="text-right small {{$td_class}}">{{number_format($rec->paysum/$rec->fuelqty,2)}}
@@ -325,10 +328,10 @@ $action_url = route('reports.rep' . $thisObjId);
                         @if(1==1)
 
                             <tr class="text-left" style="background-color: #dacf64">
-                                <td colspan="6" class="text-left pl-2"></td>
+                                <td colspan="7" class="text-left pl-2"></td>
                             </tr>
                             <tr>
-                                <td colspan="1" class="text-right">Всего:</td>
+                                <td colspan="2" class="text-right">Всего:</td>
                                 <td class="text-right font-weight-bold">{{number_format($fuelQty,2)}}</td>
                                 <td class="text-right font-weight-bold">{{number_format($paySum,2)}}</td>
                                 <td class="text-right font-weight-bold small">{{number_format($paySum/$fuelQty,2)}}</td>

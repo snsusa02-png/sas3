@@ -214,7 +214,7 @@ class FuelcardPayReportController extends Controller
                 ->join('mchntypes as mt', 'mt.id', 'm.mchntypeid')
                 ->join('fuelcards as fc', 'fc.id', 'fp.cardid')
                 ->leftjoin('orgs as so', 'so.id', 'fc.suporgid')
-                ->select('fp.machineid'
+                ->select('fp.machineid', 'fp.cardid', 'fc.num as card_num'
                     , db::raw("concat(m.name, ', ', m.regnum) as machine_name")
                     , 'm.mchntypeid', 'mt.name as mchntype_name'
                     , db::raw("sum(fp.paysum) as paysum")
@@ -224,7 +224,7 @@ class FuelcardPayReportController extends Controller
                     , db::raw("max(paydate) as max_paydate")
                 )
                 ->whereRaw($sc)
-                ->groupBy(['fp.machineid'])
+                ->groupBy(['fp.machineid', 'fp.cardid'])
                 ->orderby('mchntype_name', 'asc')
                 ->orderby('machine_name', 'asc')
                 ->get();
@@ -290,22 +290,37 @@ class FuelcardPayReportController extends Controller
         $s_enddate = $search_params['s_enddate'] ?? '';
 
         //dd($search_params['s_year']);
-        $data->period_title = '';
+        $data->sub_title = '';
+
+        $period_title = '';
 
         if ($s_period_type == 1) {
-            $data->period_title = 'за ' . date_format(date_create($s_begdate), 'd.m.Y');
+            $period_title = 'за ' . date_format(date_create($s_begdate), 'd.m.Y');
         } elseif ($s_period_type == 2)
-            $data->period_title = ($data->monthes[$search_params['s_month']] ?? '') . ' ' . ($search_params['s_year'] ?? '');
+            $period_title = ($data->monthes[$search_params['s_month']] ?? '') . ' ' . ($search_params['s_year'] ?? '');
         elseif ($s_period_type == 3)
-            $data->period_title = $search_params['s_quarter'] . ' квартал ' . ($search_params['s_year'] ?? '');
+            $period_title = $search_params['s_quarter'] . ' квартал ' . ($search_params['s_year'] ?? '');
         elseif ($s_period_type == 4)
-            $data->period_title = ($search_params['s_year'] ?? '') . ' год';
+            $period_title = ($search_params['s_year'] ?? '') . ' год';
         else {
             if (isset($s_begdate) and $s_begdate <> '')
-                $data->period_title .= ' с ' . date_format(date_create($s_begdate), 'd.m.Y');
+                $period_title .= ' с ' . date_format(date_create($s_begdate), 'd.m.Y');
             if (isset($s_enddate) and $s_enddate <> '')
-                $data->period_title .= ' по ' . date_format(date_create($s_enddate), 'd.m.Y');
+                $period_title .= ' по ' . date_format(date_create($s_enddate), 'd.m.Y');
         }
+        $data->sub_title .= 'Период: <b>' . $period_title .'</b>';
+
+        //$s_orgid = $search_params['s_orgid']??'';
+        if (isset($search_params['s_suporgid'])){
+            $data->sub_title .= '<br>Поставщик: <b>'. $data->suporgs[$search_params['s_suporgid']] .'</b>';
+        }
+        if (isset($search_params['s_orgid'])){
+            $data->sub_title .= '<br>Владелец: <b>'. $data->orgs[$search_params['s_orgid']] .'</b>';
+        }
+        if (isset($search_params['s_fuelcardid'])){
+            $data->sub_title .= '<br>Карта: <b>'. $data->fuelcards[$search_params['s_fuelcardid']] .'</b>';
+        }
+
         //dd($s_period_type,$s_begdate, $s_enddate, $data->period_title,  date_format(date_create($s_begdate), 'd.m.Y'));
 
         if ($export2xls == "1") {
