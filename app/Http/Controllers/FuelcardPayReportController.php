@@ -311,7 +311,7 @@ class FuelcardPayReportController extends Controller
         $data->sub_title .= 'Период: <b>' . $period_title .'</b>';
 
         if ( !is_null($search_params['s_suporgid']??null)){
-            $data->sub_title .= '<br>Поставщик: <b>'. $data->suporgs[$search_params['s_suporgid']] .'</b>';
+            $data->sub_title .= '<br>Поставщик: <b>'. ($data->suporgs[$search_params['s_suporgid']]??'-') .'</b>';
         }
         if (!is_null($search_params['s_orgid']??null)){
             $data->sub_title .= '<br>Владелец: <b>'. $data->orgs[$search_params['s_orgid']] .'</b>';
