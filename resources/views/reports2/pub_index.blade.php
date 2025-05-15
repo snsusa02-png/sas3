@@ -326,7 +326,13 @@
                                             </a>
                                             <div class="ml-3 mt-1 font-italic small">
                                                 {{$rec->descript}}
+                                                @if($usrrights['edit_report']??false)
+                                                <a href="{{route('reports.edit',$rec->id)}}" target="_blank"><i
+                                                        class="fa fa-external-link text-info"
+                                                        aria-hidden="true"></i></a>
+                                                @endif
                                             </div>
+
                                             <div class="tagcloud01 mt-0 ml-3 tags float-right">
                                                 <ul>
                                                     @foreach($rec->tags as $tag)

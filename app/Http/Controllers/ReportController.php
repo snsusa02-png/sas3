@@ -447,7 +447,6 @@ class ReportController extends Controller
             'edit_report' => usrsysright::isUserHasRightByCode_cached($userid, 'admin-global'),
         );
 
-
         //2020-09-28 Меняем концепцию - если у пользователя нет прав на чтение (ВСЕХ записей), то здесь не блокируем,
         //а смотрим дальше по месту - есть ли он в списке читателей для каждого договора
 
@@ -615,7 +614,7 @@ class ReportController extends Controller
                         ->toArray();
                 });
 
-        //dd($data->rep_tagtypes);
+        //dd($data->tagtypes);
         return view('reports2.pub_index', compact(
             'recs', 'data', 'search_params', 'sort_params', 'usrrights'));
     }
