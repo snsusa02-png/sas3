@@ -310,15 +310,17 @@ class FuelcardPayReportController extends Controller
         }
         $data->sub_title .= 'Период: <b>' . $period_title .'</b>';
 
-        //$s_orgid = $search_params['s_orgid']??'';
-        if (isset($search_params['s_suporgid'])){
-            $data->sub_title .= '<br>Поставщик: <b>'. $data->suporgs[$search_params['s_suporgid']] .'</b>';
+        if ( !is_null($search_params['s_suporgid']??null)){
+            $data->sub_title .= '<br>Поставщик: <b>'. $data->suporgs[$search_params['s_suporgid']??''] .'</b>';
         }
-        if (isset($search_params['s_orgid'])){
+        if (!is_null($search_params['s_orgid']??null)){
             $data->sub_title .= '<br>Владелец: <b>'. $data->orgs[$search_params['s_orgid']] .'</b>';
         }
-        if (isset($search_params['s_fuelcardid'])){
+        if (!is_null($search_params['s_fuelcardid']??null)){
             $data->sub_title .= '<br>Карта: <b>'. $data->fuelcards[$search_params['s_fuelcardid']] .'</b>';
+        }
+        if (!is_null($search_params['s_mchntypeid']??null)){
+            $data->sub_title .= '<br>Техника: <b>'. $data->mchntypes[$search_params['s_mchntypeid']] .'</b>';
         }
 
         //dd($s_period_type,$s_begdate, $s_enddate, $data->period_title,  date_format(date_create($s_begdate), 'd.m.Y'));
