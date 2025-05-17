@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Exports\rep61Export;
+use App\Exports\rep2xlsx_vdr_export;
+
 use App\fuelcard;
 use App\fuelcard_pay;
 use App\mchn_raid;
@@ -80,9 +82,19 @@ class FuelcardPayReportController extends Controller
 
         $userid = \Auth::user()->id;
 
+        $retURL = route('home');
         if (!usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.read'))
-            return redirect(route('home'))
+            return redirect($retURL)
                 ->with(['error' => 'У вас нет полномочий для работы с платежами для этой организации!']);
+
+        $report = \App\report::find($report_id);
+
+        if (!isset($report))
+            return redirect($retURL);
+
+//        $thisTitle = $report->title ?? $report->name;
+//        $action_url = route('reports.rep' . $report_id);
+
 
         // - параметры поиска: массив из имени и значения по-умолчанию -----------------------------------------------
         $export2xls = $request->get('xls') ?? 0;
@@ -240,6 +252,9 @@ class FuelcardPayReportController extends Controller
         }
 
         $data = new \stdClass();
+        $data->title = $report->title ?? $report->name;
+        $data->action_url = route('reports.rep' . $report_id);
+
         $data->period_types = [1 => 'день', 2 => 'месяц', 3 => 'квартал', 4 => 'год', 9 => 'календарь'];
 
         $data->monthes = Config::get('constants.monthes');
@@ -326,14 +341,15 @@ class FuelcardPayReportController extends Controller
         //dd($s_period_type,$s_begdate, $s_enddate, $data->period_title,  date_format(date_create($s_begdate), 'd.m.Y'));
 
         if ($export2xls == "1") {
-            $response = Excel::download(new rep61Export($recs, $data), "rep_income_daily.xlsx", \Maatwebsite\Excel\Excel::XLSX);
+
+            $response = Excel::download(new rep2xlsx_vdr_export('exports.rep64xls', $recs, $data), "rep_all_fuelpays.xlsx", \Maatwebsite\Excel\Excel::XLSX);
 
             //$response= Excel::download(new InvoicesExport, 'invoices.xls', \Maatwebsite\Excel\Excel::XLS);
             //HERE IS THE MAGIC FOLKS
             ob_end_clean();
             return $response;
         }
-//dd($data);
+        //dd($data);
         return view('fuelcard_pays.rep' . $report_id, compact('recs', 'search_params', 'data'));
     }
 
