@@ -137,6 +137,7 @@ class orgController extends Controller
         $s_orggrpid = "";
         $s_flagtypeid = "";
         $s_rating = "";
+        $s_curatorid = "";
 
         if ($request->isMethod('post')) {
             $s_name = $request->get("s_name");
@@ -147,6 +148,7 @@ class orgController extends Controller
             $s_orggrpid = $request->get("s_orggrpid");
             $s_flagtypeid = $request->get("s_flagtypeid");
             $s_rating = $request->get("s_rating");
+            $s_curatorid = $request->get("s_curatorid");
 
             //сохраним параметры поиска в сессии
             session(['search_setname' => $this->objcode]);
@@ -159,6 +161,7 @@ class orgController extends Controller
                 's_orggrpid' => $s_orggrpid,
                 's_flagtypeid' => $s_flagtypeid,
                 's_rating' => $s_rating,
+                's_curatorid' => $s_curatorid,
             ]]);
         } else {
             if (session('search_setname') == $this->objcode) {
@@ -173,6 +176,7 @@ class orgController extends Controller
                     $s_orggrpid = $params['s_orggrpid'] ?? null;
                     $s_flagtypeid = $params['s_flagtypeid'] ?? null;
                     $s_rating = $params['s_rating'] ?? null;
+                    $s_curatorid = $params['s_curatorid'] ?? null;
                 }
             } else
                 //зачистим чужие параметры поиска
@@ -188,6 +192,7 @@ class orgController extends Controller
             "s_orggrpid" => $s_orggrpid,
             "s_flagtypeid" => $s_flagtypeid,
             "s_rating" => $s_rating,
+            "s_curatorid" => $s_curatorid,
         ];
 
         $needSearch = false;
@@ -269,6 +274,9 @@ class orgController extends Controller
 
             if (strlen($s_flagtypeid) > 0)
                 $sc .= " and exists(select 1 from objflags f where f.sysobjid=111 and f.objid=o.id and f.flagtypeid=" . $s_flagtypeid . ')';
+
+            if (strlen($s_curatorid) > 0)
+                $sc .= " and exists(select 1 from org_curators c where c.orgid=o.id and c.active=1 and c.staffid=" . $s_curatorid . ')';
         }
         // --------------------------------------------------------------------
 
@@ -345,6 +353,7 @@ class orgController extends Controller
 
         $data->sysobj = sysobj::find($this->sysobjid);
 
+        $data->curators = orgstaff::lstFor(['in_org_curators_now'=>2]);
 
         return view($this->sysobjcode . '.index', compact('recs', 'data'
             , 'rec0', 's_statuscodes', 'ratings'

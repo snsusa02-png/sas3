@@ -412,6 +412,10 @@ class orgstaff extends Model
                         $sc .= " and exists( select 1 from org_curators as oc where oc.staffid=os.id
                             and oc.active=1 and now() between oc.begdt and ifnull(oc.enddt,now()) )";
 
+                    } elseif ($key == 'in_org_curators') {
+                        //сотрудник должен быть куратором организации
+                        $sc .= " and exists( select 1 from org_curators as oc where oc.staffid=os.id )";
+
                     } elseif ($key == 'staff_in_fuelcard_pays') {
                         $sc .= " and exists( select 1 from fuelcard_pays as fcp where fcp.driverid=os.id )";
                     }
