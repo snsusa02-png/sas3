@@ -58,13 +58,28 @@
                         </div>
                         <div class="form-group offset-md-0 col-md-4">
                             <label for="descript">Куратор:</label>
-                            {!! Form::select('s_curatorid',  $data->curators??[], $data->search_params['s_curatorid'] ?? '',
-                             [
-                             'class' => 'form-control',
-                             'placeholder' => '-',
-                             'title' => 'Отбор контрагентов по куратору',
-                              'data-toggle' => 'tooltip',
-                             ]) !!}
+{{--                            {!! Form::select('s_curatorid',  $data->curators??[], $data->search_params['s_curatorid'] ?? '',--}}
+{{--                             [--}}
+{{--                             'class' => 'form-control',--}}
+{{--                             'placeholder' => '-',--}}
+{{--                             'title' => 'Отбор контрагентов по куратору',--}}
+{{--                              'data-toggle' => 'tooltip',--}}
+{{--                             ]) !!}--}}
+{{--                            @dd($data->curators)--}}
+                            <select name="s_curatorid" class="form-control">
+                                <option value="">-</option>
+                                <option value="-1"
+                                        @if ("-1" == $data->search_params['s_curatorid'] ??'')
+                                        SELECTED
+                                    @endif>-куратор не определён-</option>
+                                @foreach($data->curators??[] as $key=>$val)
+                                    <option value="{{$key}}"
+                                    @if ($key == $data->search_params['s_curatorid'] ??'')
+                                        SELECTED
+                                    @endif>{{$val}}</option>
+                                @endforeach
+                            </select>
+
                         </div>
                     </div>
                 </div>

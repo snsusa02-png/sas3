@@ -276,7 +276,10 @@ class orgController extends Controller
                 $sc .= " and exists(select 1 from objflags f where f.sysobjid=111 and f.objid=o.id and f.flagtypeid=" . $s_flagtypeid . ')';
 
             if (strlen($s_curatorid) > 0)
-                $sc .= " and exists(select 1 from org_curators c where c.orgid=o.id and c.active=1 and c.staffid=" . $s_curatorid . ')';
+                if ($s_curatorid == '-1')
+                    $sc .= " and not exists(select 1 from org_curators c where c.orgid=o.id and c.active=1)";
+                else
+                    $sc .= " and exists(select 1 from org_curators c where c.orgid=o.id and c.active=1 and c.staffid={$s_curatorid})";
         }
         // --------------------------------------------------------------------
 
@@ -353,7 +356,7 @@ class orgController extends Controller
 
         $data->sysobj = sysobj::find($this->sysobjid);
 
-        $data->curators = orgstaff::lstFor(['in_org_curators_now'=>2]);
+        $data->curators = orgstaff::lstFor(['in_org_curators_now' => 2]);
 
         return view($this->sysobjcode . '.index', compact('recs', 'data'
             , 'rec0', 's_statuscodes', 'ratings'
