@@ -123,14 +123,25 @@
                 </table>
 
                 <table class="table table-bordered text-center" style="width:100%" border="1" cellspacing="0">
-                    <tr>
-                        <td>{{$rec->doctype->ownorg_label}}:</td>
-                        <td><b>{{$rec->ownorg->name}}</b></td>
-                        <td class="text-left">
-                            <span class="sm-caps">ИНН:{{$rec->ownorg->inn}} КПП:{{$rec->ownorg->kpp}}</span>
-                            <br>{{$rec->ownorg->address}}
-                        </td>
-                    </tr>
+                    @if($rec->saleorgid)
+                        <tr>
+                            <td>Продавец:</td>
+                            <td><b>{{$rec->saleorg->name}}</b></td>
+                            <td class="text-left">
+                                <span class="sm-caps">ИНН:{{$rec->saleorg->inn}} КПП:{{$rec->saleorg->kpp}}</span>
+                                <br>{{$rec->saleorg->address}}
+                            </td>
+                        </tr>
+                    @else
+                        <tr>
+                            <td>{{$rec->doctype->ownorg_label}}:</td>
+                            <td><b>{{$rec->ownorg->name}}</b></td>
+                            <td class="text-left">
+                                <span class="sm-caps">ИНН:{{$rec->ownorg->inn}} КПП:{{$rec->ownorg->kpp}}</span>
+                                <br>{{$rec->ownorg->address}}
+                            </td>
+                        </tr>
+                    @endif
                     <tr>
                         <td>{{$rec->doctype->wrh_label}}:</td>
                         <td><b>{{$rec->wrh->name}}</b></td>
