@@ -919,8 +919,8 @@ class OrgChargeController extends Controller
                             select staffid, EXTRACT( YEAR_MONTH FROM `wrkdate` ) as ym,  count(1) as cnt
                                 , sum(day_wrkhrs + night_wrkhrs) as wrkhrs
                                 from driver_works dw where 1=1
-                                /*and  wrkdate between CAST(DATE_FORMAT('{$begdate}' ,'%Y-%m-01') as DATE)  and '{$enddate}'*/
-                                and  wrkdate between CAST(DATE_FORMAT('2023-08-09' ,'%Y-%m-01') as DATE)  and last_day('2023-08-09')
+                                and  wrkdate between CAST(DATE_FORMAT('{$begdate}' ,'%Y-%m-01') as DATE)  and '{$enddate}'
+                                /*and  wrkdate between CAST(DATE_FORMAT('2023-08-09' ,'%Y-%m-01') as DATE)  and last_day('2023-08-09')*/
                                 and dw.active=1
                                 group by staffid, ym) wh
                             on wh.wrkhrs is not null
