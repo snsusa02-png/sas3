@@ -29,3 +29,6 @@ informers,U,id
 task_statuses,U,id
 wrhdoctypes,U,id
 expensetypes,U,id
+prizetypes,U,id
+prize_rate_sets,U,id
+prs_hr_items,U,id

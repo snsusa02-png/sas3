@@ -1,0 +1,2 @@
+id,name,ownorgid,prizetypeid,begdate,enddate,notes,active,created_at,created_by,updated_at,updated_by
+1,"премия >= 340 часов с 1.05.2025",NULL,1,2025-05-01,NULL,NULL,1,"2025-05-10 06:06:31",1,"2025-05-10 06:06:31",1
