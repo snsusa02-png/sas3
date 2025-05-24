@@ -856,4 +856,136 @@ class OrgChargeController extends Controller
 
         return view('org_charges.rep' . $report_id, compact('search_params', 'data', 'recs'));
     }
+
+    function rep73(Request $request)
+    {
+        //Оценка премии за работу свыше 340 часов (тип 1)
+
+        $report_id = 73;
+
+        $returl = $request->get('returl') ?? route('stf_chrg_calcs.index');
+        $userid = Auth::user()->id;
+        $export2xls = $request->get('xls') ?? 0;
+
+        $data = new \stdClass();
+        $data->returl = $returl;
+
+        $param_names = [
+            's_ym' => null,
+            's_begdate' => date_create()->format('01-m-Y'),
+            's_enddate' => date_create()->format('d-m-Y'),
+            's_ownorgid' => null,
+            's_stf_name' => null,
+        ];
+        $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);
+
+        $s_ym = $search_params['s_ym'];
+        $s_begdate = $search_params['s_begdate'];
+        $s_enddate = $search_params['s_enddate'];
+        $s_ownorgid = $search_params['s_ownorgid'];
+        $s_stf_name = $search_params['s_stf_name'];
+
+        $need_search = false;
+        if ($s_ym <> '') {
+            //dd( $s_ym . '-01', date_create($s_ym . '-01' ) );
+            $date = date_create($s_ym . '-01')->format('Y-m-d');
+            //dd($date);
+
+            $date = $date ?? date_create()->format('d-m-Y');
+            $data->begdate = date_create($date)->format('Y-m-01');   //Первый день месяца
+            $data->enddate = date_create($date)->format('Y-m-t');    //Последний день месяца
+            $need_search = true;
+
+        } elseif ($s_begdate <> '' and $s_enddate <> '') {
+            $data->begdate = date_create($s_begdate)->format('Y-m-d');   //Первый день месяца
+            $data->enddate = date_create($s_enddate)->format('Y-m-d');    //Последний день месяца
+            $need_search = true;
+        }else
+            $recs=null;
+
+//        dd($data);
+        if ($need_search) {
+            $begdate = date_create($data->begdate)->format('Y-m-d');
+            $enddate = date_create($data->enddate)->format('Y-m-d');
+
+            $sql =
+                "select wh.staffid, os.lname, os.fname, os.mname, o.name as orgname
+                    , i.hr_rate
+                    , wh.wrkhrs
+                    , if(i.hr_rate>0, wh.wrkhrs - i.min_wrkhrs, 0) as prize_hrs
+                    , (wh.wrkhrs - i.min_wrkhrs)*i.hr_rate as prize_sum
+                    from prs_hr_items as i
+                        join (
+                            select staffid, EXTRACT( YEAR_MONTH FROM `wrkdate` ) as ym,  count(1) as cnt
+                                , sum(day_wrkhrs + night_wrkhrs) as wrkhrs
+                                from driver_works dw where 1=1
+                                /*and  wrkdate between CAST(DATE_FORMAT('{$begdate}' ,'%Y-%m-01') as DATE)  and '{$enddate}'*/
+                                and  wrkdate between CAST(DATE_FORMAT('2023-08-09' ,'%Y-%m-01') as DATE)  and last_day('2023-08-09')
+                                and dw.active=1
+                                group by staffid, ym) wh
+                            on wh.wrkhrs is not null
+                                and wh.wrkhrs between i.min_wrkhrs and i.max_wrkhrs-0.001
+                        join orgstaff os on os.id=wh.staffid
+                        join orgs as o on o.id=os.orgid
+                        join prize_rate_sets as prs
+                            on prs.id = i.prs_id
+                            and prs.prizetypeid = 1 /*-- p_prizetypeid*/
+                            and ifnull(prs.ownorgid, os.orgid)=os.orgid
+                            and prs.active=1
+                            /*-- период действия набора ставок*/
+                             and '{$begdate}' between prs.begdate and ifnull(prs.enddate, '{$begdate}')
+                        /*join stf_prizetypes spt
+                            on spt.prizetypeid=prs.prizetypeid
+                            and spt.staffid=os.id*/
+                        where 1=1 /*and hr_rate > 0*/";
+
+            if (isset($s_ownorgid))
+                $sql .= " and os.orgid={$s_ownorgid}";
+
+            if (isset($s_stf_name))
+                $sql .= " and concat(' ', os.lname, ' ', os.fname, ' ', ifnull(os.mname, ' ')) like '% {$s_stf_name}%'";
+
+//            $sql .= " order by o.name, dep_name, os.lname, os.fname, os.id, ct.dir desc, ct.ordr, scc.docdate";
+            $sql .= " order by wrkhrs desc, os.lname, os.fname";
+            //" order by os.lname, os.fname, os.id, ct.dir desc, ct.ordr, scc.docdate";
+
+            $recs = DB::select(DB::raw($sql));
+
+//            dd($sql, $recs);
+        }
+
+        // Заполним массив "Год.Месяц" уникальными значениями из первичных данных
+        $month_names = Config::get('constants.monthes');
+        Cache::forget('stf_chrg_calc_monthes');
+        $data->yms = Cache::remember('stf_chrg_calc_monthes', now()->addMinutes(15)
+            , function () {
+                return stf_chrg_calc::selectRaw("date_format(forbegdate, '%Y-%m') as ym")->distinct()->orderby('ym', 'desc')
+                    ->get()->pluck('ym', 'ym')->toArray();
+            });
+        //dd($data->monthes);
+        foreach ($data->yms as $key => $val) {
+            $y = substr($val, 0, 4);
+            $m = 0 + substr($val, 5);
+
+            $data->yms[$val] = $month_names[$m] . ' ' . $y;
+            //dd($key,$val, $m, $y, $data->yms[$val]);
+        }
+        //dd($data->yms);
+        //dd($data, $sql, $recs);
+
+        $data->ownorgs = org::lstFor_cached(['in_stf_chrg_calcs' => 1]);
+
+        //занесем в журнал
+        objlog::log_info(855, $report_id, 'запрошен отчет;');
+//        if ($export2xls == "1") {
+//            $response = Excel::download(new rep54Export($recs, $data), "Платежи за " . Str::slug($data->$date) . ".xlsx", \Maatwebsite\Excel\Excel::XLSX);
+//
+//            //$response= Excel::download(new InvoicesExport, 'invoices.xls', \Maatwebsite\Excel\Excel::XLS);
+//            //HERE IS THE MAGIC FOLKS
+//            ob_end_clean();
+//            return $response;
+//        }
+
+        return view('org_charges.rep' . $report_id, compact('search_params', 'data', 'recs'));
+    }
 }
