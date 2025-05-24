@@ -71,7 +71,7 @@ $first_col_id = null;
 
                             @if(1==1)
                                 <div class="row">
-                                    @if(1==0)
+                                    @if(1==1)
                                         <div class="form-group col-md-2 dpt_1" style="">
                                             <label for="s_month" class="required">Год-Месяц:</label>
                                             {!! Form::select('s_ym', $data->yms??[], $search_params['s_ym']??old('s_ym'),
@@ -210,7 +210,7 @@ $first_col_id = null;
 
                         <tr class="text-left">
                             <td class="text-left small">{{$rec->lname}} {{$rec->fname}} {{$rec->mname}}
-                                <div class="small float-right">{{$rec->orgname}}</div> </td>
+                                <div class="small float-right">{{$rec->orgname}}<br>{{$rec->postname}}</div> </td>
                             <td class="text-right small">{{number_format($rec->wrkhrs,2)}}</td>
                             <td class="text-right small">{{number_format($rec->prize_hrs,2)}}</td>
                             <td class="text-right small">{{number_format($rec->hr_rate,2)}}</td>

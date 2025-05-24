@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\bdgtacnttype;
 use App\chargetype;
 use App\doctype;
+use App\driver_work;
 use App\objflag;
 use App\objlog;
 use App\org;
@@ -909,7 +910,7 @@ class OrgChargeController extends Controller
             $enddate = date_create($data->enddate)->format('Y-m-d');
 
             $sql =
-                "select wh.staffid, os.lname, os.fname, os.mname, o.name as orgname
+                "select wh.staffid, os.lname, os.fname, os.mname, os.postname, o.name as orgname
                     , i.hr_rate
                     , wh.wrkhrs
                     , if(i.hr_rate>0, wh.wrkhrs - i.min_wrkhrs, 0) as prize_hrs
@@ -920,7 +921,7 @@ class OrgChargeController extends Controller
                                 , sum(day_wrkhrs + night_wrkhrs) as wrkhrs
                                 from driver_works dw where 1=1
                                 and  wrkdate between CAST(DATE_FORMAT('{$begdate}' ,'%Y-%m-01') as DATE)  and '{$enddate}'
-                                /*and  wrkdate between CAST(DATE_FORMAT('2023-08-09' ,'%Y-%m-01') as DATE)  and last_day('2023-08-09')*/
+                                -- and  wrkdate between CAST(DATE_FORMAT('2023-08-09' ,'%Y-%m-01') as DATE)  and last_day('2023-08-09')
                                 and dw.active=1
                                 group by staffid, ym) wh
                             on wh.wrkhrs is not null
@@ -957,12 +958,20 @@ class OrgChargeController extends Controller
         // Заполним массив "Год.Месяц" уникальными значениями из первичных данных
         $month_names = Config::get('constants.monthes');
         Cache::forget('stf_chrg_calc_monthes');
-        $data->yms = Cache::remember('stf_chrg_calc_monthes', now()->addMinutes(15)
+//        $data->yms = Cache::remember('stf_chrg_calc_monthes', now()->addMinutes(15)
+//            , function () {
+//                return stf_chrg_calc::selectRaw("date_format(forbegdate, '%Y-%m') as ym")->distinct()->orderby('ym', 'desc')
+//                    ->get()->pluck('ym', 'ym')->toArray();
+//            });
+        //Cache::forget('rep73_ym');
+        $data->yms = Cache::remember('rep73_ym', now()->addMinutes(15)
             , function () {
-                return stf_chrg_calc::selectRaw("date_format(forbegdate, '%Y-%m') as ym")->distinct()->orderby('ym', 'desc')
+                return driver_work::selectRaw("date_format(wrkdate, '%Y-%m') as ym")
+                    ->where('wrkdate','>=','2025-05-01')
+                    ->distinct()->orderby('ym', 'desc')
                     ->get()->pluck('ym', 'ym')->toArray();
             });
-        //dd($data->monthes);
+        //dd($data->yms);
         foreach ($data->yms as $key => $val) {
             $y = substr($val, 0, 4);
             $m = 0 + substr($val, 5);
