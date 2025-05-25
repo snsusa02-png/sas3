@@ -969,7 +969,7 @@ class OrgChargeController extends Controller
         $data->yms = Cache::remember('rep73_ym', now()->addMinutes(15)
             , function () {
                 return driver_work::selectRaw("date_format(wrkdate, '%Y-%m') as ym")
-                    //->where('wrkdate','>=','2025-04-01')
+                    ->where('wrkdate','>=','2025-04-01')
                     ->distinct()->orderby('ym', 'desc')
                     ->get()->pluck('ym', 'ym')->toArray();
             });
