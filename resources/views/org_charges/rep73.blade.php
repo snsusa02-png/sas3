@@ -190,6 +190,7 @@ $first_col_id = null;
                     <thead>
                     <tr class="text-left small" valign="top">
                         <td class="text-left">Водитель</td>
+                        <td class="text-left">Период работ, кол-во смен</td>
                         <td class="text-left">Отработано всего, ч</td>
                         <td class="text-left">Отработано свыше 340 ч, ч</td>
                         <td class="text-left">Ставка, &#8381;/ч</td>
@@ -211,6 +212,7 @@ $first_col_id = null;
                         <tr class="text-left">
                             <td class="text-left small">{{$rec->lname}} {{$rec->fname}} {{$rec->mname}}
                                 <div class="small float-right">{{$rec->orgname}}<br>{{$rec->postname}}</div> </td>
+                            <td class="text-center small">{{date_format(date_create($rec->min_wrkdate), 'd')}} - {{date_format(date_create($rec->max_wrkdate), 'd')}}, {{$rec->cnt}}</td>
                             <td class="text-right small">{{number_format($rec->wrkhrs,2)}}</td>
                             <td class="text-right small">{{number_format($rec->prize_hrs,2)}}</td>
                             <td class="text-right small">{{number_format($rec->hr_rate,2)}}</td>
@@ -228,7 +230,7 @@ $first_col_id = null;
                         {{--                                <td colspan="13" class="text-left pl-2"></td>--}}
                         {{--                            </tr>--}}
                         <tr>
-                            <td colspan="2" class="text-right">Всего:</td>
+                            <td colspan="3" class="text-right">Всего:</td>
                             <td class="text-right font-weight-bold">{{number_format($totPrizeHrs,2)}}</td>
                             <td></td>
                             <td class="text-right font-weight-bold">{{number_format($totPrizeSum,2)}}</td>

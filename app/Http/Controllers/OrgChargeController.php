@@ -915,13 +915,15 @@ class OrgChargeController extends Controller
                     , wh.wrkhrs
                     , if(i.hr_rate>0, wh.wrkhrs - i.min_wrkhrs, 0) as prize_hrs
                     , (wh.wrkhrs - i.min_wrkhrs)*i.hr_rate as prize_sum
+                    , wh.min_wrkdate, wh.max_wrkdate, wh.cnt
                     from prs_hr_items as i
                         join (
                             select staffid, EXTRACT( YEAR_MONTH FROM `wrkdate` ) as ym,  count(1) as cnt
                                 , sum(day_wrkhrs + night_wrkhrs) as wrkhrs
+                                , min(wrkdate) as min_wrkdate, max(wrkdate) as max_wrkdate
                                 from driver_works dw where 1=1
-                                and  wrkdate between CAST(DATE_FORMAT('{$begdate}' ,'%Y-%m-01') as DATE)  and '{$enddate}'
-                                -- and  wrkdate between CAST(DATE_FORMAT('2023-08-09' ,'%Y-%m-01') as DATE)  and last_day('2023-08-09')
+                                 and wrkdate between CAST(DATE_FORMAT('{$begdate}' ,'%Y-%m-01') as DATE)  and '{$enddate}'
+                                -- and wrkdate between CAST(DATE_FORMAT('2023-08-09' ,'%Y-%m-01') as DATE)  and last_day('2023-08-09')
                                 and dw.active=1
                                 group by staffid, ym) wh
                             on wh.wrkhrs is not null
@@ -934,7 +936,7 @@ class OrgChargeController extends Controller
                             and ifnull(prs.ownorgid, os.orgid)=os.orgid
                             and prs.active=1
                             /*-- период действия набора ставок*/
-                             and '{$begdate}' between prs.begdate and ifnull(prs.enddate, '{$begdate}')
+                              and '{$begdate}' between prs.begdate and ifnull(prs.enddate, '{$begdate}')
                         /*join stf_prizetypes spt
                             on spt.prizetypeid=prs.prizetypeid
                             and spt.staffid=os.id*/
@@ -967,7 +969,7 @@ class OrgChargeController extends Controller
         $data->yms = Cache::remember('rep73_ym', now()->addMinutes(15)
             , function () {
                 return driver_work::selectRaw("date_format(wrkdate, '%Y-%m') as ym")
-                    ->where('wrkdate','>=','2025-05-01')
+                    //->where('wrkdate','>=','2025-04-01')
                     ->distinct()->orderby('ym', 'desc')
                     ->get()->pluck('ym', 'ym')->toArray();
             });
