@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\fuelcard;
 use App\fuelcard_pay;
 use App\machine;
+use App\mchntype;
 use App\obj_finoper;
 use App\objlog;
 use App\objtag;
@@ -107,6 +108,7 @@ class FuelcardPayController extends Controller
             , 's_paytypeid' => ''
             , 's_timestatuscode' => 2   //вчера
             , 's_paydate' => ''
+            , 's_mchntypeid' => ''
         ];
 
         $search_params = $this->search_params($request, $param_names);
@@ -132,6 +134,10 @@ class FuelcardPayController extends Controller
                 } elseif ($item == 's_machine_name') {
                     $sc .= " and exists(select 1 from machines as m
                             where m.id=fcp.machineid and concat(m.regnum,' - ', m.name) like '%" . mb_strtoupper($val) . "%')";
+
+                } elseif ($item == 's_mchntypeid') {
+                    $sc .= " and exists(select 1 from machines as m
+                            where m.id=fcp.machineid and mchntypeid = {$val})";
 
                 } elseif ($item == 's_driverid') {
                     $sc = $sc . " and fcp.driverid = {$val}";
@@ -170,12 +176,16 @@ class FuelcardPayController extends Controller
             ->join('machines as m', function ($join) {
                 $join->on('m.id', '=', 'fcp.machineid');
             })
+            ->leftjoin('mchntypes as mt', function ($join) {
+                $join->on('mt.id', '=', 'm.mchntypeid');
+            })
             ->leftjoin('orgstaff as os', function ($join) {
                 $join->on('os.id', '=', 'fcp.driverid');
             })
             ->whereraw($sc)
             ->select('fcp.id', 'fcp.paydate', 'fcp.cardid'
-                , 'fcp.machineid', 'fcp.driverid', 'fcp.notes'
+                , 'fcp.machineid', 'mt.name as mchntype_name'
+                , 'fcp.driverid', 'fcp.notes'
                 , 'fcp.paydir', 'fcp.paysum', 'fcp.fuel_qty'
                 , 'fcp.active'
                 //, db::raw("concat(fc.num,' - ',ifnull(fc.name, ' ')) as card_num")
@@ -214,6 +224,11 @@ class FuelcardPayController extends Controller
         $data->machines = machine::getFor(
             ['in_fuelcard_pays' => 1,], ['m.id', db::raw("concat(m.regnum,' - ',m.name) as name")]
         )->pluck('name', 'id')->toArray();
+
+        $data->mchntypes = mchntype::lstFor([
+            'in_fuelcard_pays' => 1,
+        ]);
+        //dd($search_params['s_mchntypeid'],$data->mchntypes);
 
         $data->drivers = orgstaff::lstFor([
             'staff_in_fuelcard_pays' => 1,

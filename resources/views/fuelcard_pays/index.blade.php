@@ -107,7 +107,7 @@
                                 <td>#</td>
                                 <td>Дата</td>
                                 <td># карты</td>
-                                <td>Авто</td>
+                                <td>Авто, тип</td>
                                 <td>Объем, л</td>
                                 <td>Сумма, &#8381;</td>
                                 <td>Поставщик</td>
@@ -178,6 +178,7 @@
                                 <td>
                                     <div class="row">
                                         <div class="col-md-12">
+
                                             <input type="text" name="s_machine_name" list="machines"
                                                    class="form-control"
                                                    value="{{$search_params['s_machine_name']}}">
@@ -186,6 +187,16 @@
                                                     <option value="{{ $val }}">
                                                 @endforeach
                                             </datalist>
+                                            <div class="input-group">
+                                                {!! Form::select('s_mchntypeid', $data->mchntypes??[], $search_params['s_mchntypeid']??'',
+                                                                [
+                                                                'class' => 'form-control small',
+                                                                'placeholder' => '-любой-',
+                                                                'onChange' => 'this.form.submit()',
+                                                                ])
+                                                                !!}
+                                            </div>
+
                                         </div>
                                         @if(1==0) then
                                         <div class="col-md-6">
@@ -312,6 +323,7 @@
                                             @if (isset($item->driver_name))
                                                 / {{$item->driver_name}}
                                             @endif
+                                            <div class="float-right small">{{$item->mchntype_name}}</div>
                                             <div class="float-right small">{{$item->notes}}</div>
                                         </td>
                                         <td class="text-center">
