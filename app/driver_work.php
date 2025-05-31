@@ -309,25 +309,28 @@ class driver_work extends Model
         return $result;
     }
 
-    public static function refr_stf_month_chrg_calc($p_chargetypeid, $p_staffid, $p_wrkdate, $p_userid)
+    public static function refr_stf_month_chrg_calc( $p_staffid, $p_wrkdate, $p_userid)
     {
-        // ----------------------------------------------------------------------------------------------
-        // Регистрация расчета ЗП
-
-        //Подсчитаем общую сумму ЗП сотрудника за весь месяц
-        $int_begdate = date_create($p_wrkdate)->format('Y-m-01');
-        $int_enddate = date_create($p_wrkdate)->format('Y-m-t');
-        $salary_sum = driver_work::where('staffid', $p_staffid)
-            ->wherebetween('wrkdate', [$int_begdate, $int_enddate])
-            ->sum('salary_sum');
-        //dd($salary_sum);
-
         $orgstaff = orgstaff::find($p_staffid);
 
+        // -- 11 --------------------------------------------------------------------------------------------
+        // Регистрация расчета ЗП
+        $chargetypeid = 11;
+
         // Определим - существует ли необходимость привязки начисления этой организации к общей ведомости
-        $orgcharge = org_charge::where(['orgid' => $orgstaff->orgid, 'chargetypeid' => $p_chargetypeid])->first();
+        $orgcharge = org_charge::where(['orgid' => $orgstaff->orgid, 'chargetypeid' => $chargetypeid])->first();
 
         if (isset($orgcharge)) {
+
+            //Подсчитаем общую сумму ЗП сотрудника за ВЕСЬ месяц от указанной даты $p_wrkdate
+            $int_begdate = date_create($p_wrkdate)->format('Y-m-01');
+            $int_enddate = date_create($p_wrkdate)->format('Y-m-t');
+
+            // сумма начисленной ЗП
+            $charge_sum = driver_work::where('staffid', $p_staffid)
+                ->wherebetween('wrkdate', [$int_begdate, $int_enddate])
+                ->sum('salary_sum');
+            //dd($charge_sum);
 
             // Сформируем детали расчета - для сохранения в поле примечания (stf_chrg_calc.notes)
             $sql = "select group_concat(notes separator '; ') notes from (SELECT concat(
@@ -350,6 +353,7 @@ class driver_work extends Model
                 , 'ref_sysobjid' => self::$sysobjid
                 , 'ref_objid' => 0
                 , 'docdate' => $int_begdate
+                , 'orgchargeid' => $orgcharge->id
             ])->first();
             if (!isset($stfchrgcalc)) {
 
@@ -367,7 +371,7 @@ class driver_work extends Model
                 ]);
             }
             $stfchrgcalc->staffid = $p_staffid;
-            $stfchrgcalc->charge_sum = $salary_sum;
+            $stfchrgcalc->charge_sum = $charge_sum;
             $stfchrgcalc->notes = $notes;
 
             $stfchrgcalc->updated_by = $p_userid;
@@ -375,7 +379,102 @@ class driver_work extends Model
             //dd($stfchrgcalc);
             $stfchrgcalc->save();
         }
-        //---------------------------------------------------------------------------------------
+        //-- end of 11 -------------------------------------------------------------------------------------
+
+        // -- 54 - Регистрация расчета Премии за работу свыше 340 часов ------------------------------------
+        $chargetypeid = 54;
+
+        // Определим - существует ли необходимость привязки начисления этой организации к общей ведомости
+        $orgcharge = org_charge::where(['orgid' => $orgstaff->orgid, 'chargetypeid' => $chargetypeid])->first();
+
+        if (isset($orgcharge)) {
+
+            //Подсчитаем общую сумму рабочих часов сотрудника за ВЕСЬ месяц от указанной даты $p_wrkdate
+            $int_begdate = date_create($p_wrkdate)->format('Y-m-01');
+            $int_enddate = date_create($p_wrkdate)->format('Y-m-t');
+            $sql = "select i.hr_rate
+                    , wh.wrkhrs
+                    , if(i.hr_rate>0, wh.wrkhrs - i.min_wrkhrs, 0) as prize_hrs
+                    , (wh.wrkhrs - i.min_wrkhrs)*i.hr_rate as prize_sum
+                    , wh.min_wrkdate, wh.max_wrkdate, wh.cnt
+                    from prs_hr_items as i
+                        join (
+                            select staffid, EXTRACT( YEAR_MONTH FROM `wrkdate` ) as ym,  count(1) as cnt
+                                , sum(day_wrkhrs + night_wrkhrs) as wrkhrs
+                                , min(wrkdate) as min_wrkdate, max(wrkdate) as max_wrkdate
+                                from driver_works dw where 1=1
+                                and wrkdate between CAST(DATE_FORMAT('{$int_begdate}' ,'%Y-%m-01') as DATE)  and '{$int_enddate}'
+                                 /*and wrkdate between CAST(DATE_FORMAT('2023-08-09' ,'%Y-%m-01') as DATE)  and last_day('2023-08-09')*/
+                                and dw.active=1
+                                and dw.staffid = {$p_staffid}
+                                group by staffid, ym) wh
+                            on wh.wrkhrs is not null
+                                and wh.wrkhrs between i.min_wrkhrs and i.max_wrkhrs-0.001
+                        join orgstaff os on os.id=wh.staffid
+                        join orgs as o on o.id=os.orgid
+                        join prize_rate_sets as prs
+                            on prs.id = i.prs_id
+                            and prs.prizetypeid = 1 /*-- p_prizetypeid*/
+                            and ifnull(prs.ownorgid, os.orgid)=os.orgid
+                            and prs.active=1
+                            /*-- период действия набора ставок*/
+                            --  and '{$int_begdate}' between prs.begdate and ifnull(prs.enddate, '{$int_begdate}')
+                        /*join stf_prizetypes spt
+                            on spt.prizetypeid=prs.prizetypeid
+                            and spt.staffid=os.id*/
+                        where 1=1 /*and hr_rate > 0*/";
+            $rslt = DB::select(DB::raw($sql));
+
+            //dd($rslt, $rslt[0], $rslt[0]->prize_sum, $orgcharge);
+            if (isset($rslt)){
+
+                $charge_sum = $rslt[0]->prize_sum + 0;
+                //Сформируем детали расчета - для сохранения в поле примечания (stf_chrg_calc.notes)
+                $notes = 'Всего отработано часов: '.$rslt[0]->wrkhrs
+                    .', из них свыше 340: '.$rslt[0]->prize_hrs
+                    . ' по ставке '.$rslt[0]->hr_rate . ' р/час';
+
+            }else{
+                $charge_sum = 0;
+                $notes = '';
+            }
+            //dd($notes, $charge_sum);
+
+            // Так как привязываем совокупную запись, то берем "общий" идентификатор - "0"
+            $stfchrgcalc = stf_chrg_calc::where([
+                'staffid' => $p_staffid
+                , 'ref_sysobjid' => self::$sysobjid
+                , 'ref_objid' => 0  // "общий" идентификатор
+                , 'docdate' => $int_begdate
+                , 'orgchargeid' => $orgcharge->id
+            ])->first();
+
+            if (!isset($stfchrgcalc)) {
+
+                $stfchrgcalc = new stf_chrg_calc([
+                    "staffid" => $p_staffid,
+                    "orgchargeid" => $orgcharge->id,
+                    "charge_dir" => $orgcharge->chargetype->dir,
+                    "docdate" => $int_begdate,
+                    "forbegdate" => $int_begdate,
+                    "forenddate" => $int_enddate,
+                    "created_by" => $p_userid,
+                    "created_at" => now(),
+                    "ref_sysobjid" => self::$sysobjid,
+                    "ref_objid" => 0,
+                ]);
+            }
+            $stfchrgcalc->staffid = $p_staffid;
+            $stfchrgcalc->charge_sum = $charge_sum;
+            $stfchrgcalc->notes = $notes;
+
+            $stfchrgcalc->updated_by = $p_userid;
+            $stfchrgcalc->updated_at = now();
+            //dd($stfchrgcalc);
+            $stfchrgcalc->save();
+        }
+        //-- end of 54 -------------------------------------------------------------------------------------
+
     }
 
 }

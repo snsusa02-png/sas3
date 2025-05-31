@@ -959,12 +959,6 @@ class OrgChargeController extends Controller
 
         // Заполним массив "Год.Месяц" уникальными значениями из первичных данных
         $month_names = Config::get('constants.monthes');
-        Cache::forget('stf_chrg_calc_monthes');
-//        $data->yms = Cache::remember('stf_chrg_calc_monthes', now()->addMinutes(15)
-//            , function () {
-//                return stf_chrg_calc::selectRaw("date_format(forbegdate, '%Y-%m') as ym")->distinct()->orderby('ym', 'desc')
-//                    ->get()->pluck('ym', 'ym')->toArray();
-//            });
         //Cache::forget('rep73_ym');
         $data->yms = Cache::remember('rep73_ym', now()->addMinutes(15)
             , function () {

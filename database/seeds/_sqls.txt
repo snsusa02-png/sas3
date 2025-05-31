@@ -1,5 +1,15 @@
-﻿2025-05-24 ------------------------------------------------------------------------
-INSERT INTO `reports` (`id`, `name`, `acsid`, `acs_rightid`, `public`, `active`, `use_cnt`) VALUES ('73', 'Оценка премии за работу свыше 340 часов', '1', '100', '1', '1', '0');
+﻿2025-05-31 ------------------------------------------------------------------------
+INSERT INTO `chargetypes` (`id`, `dir`, `name`, `active`, `ordr`, `use_price`) VALUES ('54', '1', 'Премия за работу свыше 340 часов', '1', '55', '0');
+
+INSERT INTO `org_charges` (`orgid`, `chargetypeid`, `begdate`, `charge_period`, `active`) VALUES ('31', '54', '2025-05-01', 'M', '1');
+INSERT INTO `org_charges` (`orgid`, `chargetypeid`, `begdate`, `charge_period`, `active`) VALUES ('32', '54', '2025-05-01', 'M', '1');
+INSERT INTO `org_charges` (`orgid`, `chargetypeid`, `begdate`, `charge_period`, `active`) VALUES ('33', '54', '2025-05-01', 'M', '1');
+INSERT INTO `org_charges` (`orgid`, `chargetypeid`, `begdate`, `charge_period`, `active`) VALUES ('35', '54', '2025-05-01', 'M', '1');
+
+
+2025-05-24 ------------------------------------------------------------------------
+INSERT INTO `reports` (`id`, `name`, `acsid`, `acs_rightid`, `public`, `active`, `use_cnt`)
+VALUES ('73', 'Оценка премии за работу свыше 340 часов', '1', '100', '1', '1', '0');
 
 2025-05-16 ------------------------------------------------------------------------
 INSERT INTO `opertypes` (`id`, `name`, `active`) VALUES ('11', 'Производство газоблоков', '1');
