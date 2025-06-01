@@ -1,6 +1,5 @@
 ﻿2025-05-31 ------------------------------------------------------------------------
 INSERT INTO `extsys_sysobjs` (`extsysid`, `sysobjid`, `active`) VALUES ('5', '482', '1');
-UPDATE `extsys_sysobjs` SET `sysobjid` = '489' WHERE (`id` = '1');
 UPDATE `extsystems` SET `name` = '1С Бухгалтерия' WHERE (`id` = '5');
 
 

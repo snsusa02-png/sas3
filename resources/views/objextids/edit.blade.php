@@ -92,15 +92,16 @@
 
 
 								<div class="form-group">
-									<label for="extsysid">Внешняя система:</label>
+									<label for="extsysid" class="required">Внешняя система:</label>
 									{!! Form::select('extsysid', $rec->extsystems, old('extsysid',$rec->extsysid),
 									['class' => 'form-control',
-									'placeholder'=>'-укажите систему-']) !!}
+									'placeholder'=>'-укажите систему-'
+									, 'required'=>'required']) !!}
 
 								</div>
 								<div class="form-group">
-									<label for="extid">Идентификатор:</label>
-									<input type="text" class="form-control" name="extid"
+									<label for="extid" class="required">Идентификатор:</label>
+									<input type="text" class="form-control" name="extid" required
 										   {{$inputReadOnly}}
 										   value="{{old('extid',$rec->extid)}}"/>
 								</div>
