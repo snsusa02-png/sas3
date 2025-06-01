@@ -128,6 +128,13 @@
                                             <i class="fa fa-plus"></i>
                                         </a>
                                     @endif
+                                        @if ($usrrights['load']??false)
+                                            <a href="{{ route($thisSysObjCode.'.load')}}"
+                                               class="btn btn-success btn-sm"
+                                               title="Загрузить записи об использовании запчастей в формате файла XLS">
+                                                <i class="fa fa-upload" aria-hidden="true"></i>
+                                            </a>
+                                        @endif
 
                                 </td>
                             </tr>

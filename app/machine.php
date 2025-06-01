@@ -266,8 +266,9 @@ class machine extends Model
             // -------------------------------------------------------------------------------
 
             //Связи с внешними системами
-            if (1 == 0) {
-                if (usrsysright::isUserHasRightByCode($userid, 'objextids.read')) {
+            if (1 == 1) {
+                //if (usrsysright::isUserHasRightByCode($userid, 'objextids.read')) {
+                if (1==1) {
                     $recs = objextid::from('objextids as oi')
                         ->join('extsystems as es', 'es.id', 'oi.extsysid')
                         ->where('oi.objid', $machineid)

@@ -807,6 +807,10 @@ Route::put('mchn_spare_usages/{id}/admindelete', "MchnSpareUsageController@admin
 Route::get('mchn_spare_usages/{id}/make_template', "MchnSpareUsageController@make_template")->name('mchn_spare_usages.make_template');
 Route::get('mchn_spare_usages/{id}/clone', "MchnSpareUsageController@clone")->name('mchn_spare_usages.clone');
 
+//загрузка новых записей об организациях из файла в формате XLS
+Route::get('mchn_spare_usages/load/xls', "MchnSpareUsageController@load")->name('mchn_spare_usages.load');
+Route::put('mchn_spare_usages/import/xls', "MchnSpareUsageController@import")->name('mchn_spare_usages.import');
+
 //// Отчет о работе ----------------------------------------------------------------------------------------------------
 //Route::match(array('GET', 'POST'), '/wrkreps/', "WrkrepController@index")->name('wrkreps.index');
 //Route::get('wrkreps/create', "WrkrepController@create")->name('wrkreps.create');
@@ -848,6 +852,8 @@ Route::get('machines/{id}', 'MachineController@edit')->name('machines.edit');
 Route::match(array('POST', 'PUT'), 'machines/{id}', "MachineController@update")->name('machines.update');
 Route::put('machines/{id}/delete', "MachineController@destroy")->name("machines.delete");
 Route::put('machines/{id}/admindelete', "MachineController@admindelete")->name("machines.admindelete");
+
+Route::get('machines/machine_extids/{orgid}', "MachineController@machine_extids")->name('machine_extids.index');
 
 Route::get('machines/mchn_rqsts/{machineid}', "MachineController@mchn_rqsts")->name('machine_rqsts.index');
 

@@ -2,11 +2,13 @@
 
 namespace App;
 
+use App\Imports\invoiceImport;
 use App\Traits\DeleteTrait;
 use App\Traits\FilesTrait;
 use App\Traits\Result;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
+use Maatwebsite\Excel\Facades\Excel;
 
 class mchn_spare_usage extends Model
 {
@@ -258,4 +260,106 @@ class mchn_spare_usage extends Model
         return $result;
     }
 
+    public static function import_001($file, $rec)
+    {
+        //Импорт списка организаций из xlsx-файла в формате ___
+
+        $userid = \Auth::user()->id;
+        $result = new Result();
+
+        $array = Excel::toArray(new invoiceImport, $file);
+        $array = $array[0];
+        //dd($array);
+
+        //Названия полей ожидаем в первой строке
+        $fields = $array[0];
+        //dd($fields);
+        if (!(
+            in_array('Код', $fields)
+            and in_array('Выручка, ', $fields)
+            and in_array('ДатаДляВыгрузки', $fields)
+        )) {
+            $result->err = 1;
+            $result->msg = 'Файл должен содержать колонки "Код", "Выручка,", "ДатаДляВыгрузки"!';
+            $rec->result = $result;
+            return $rec;
+        }
+
+        $extsysid = $rec->extsysid;
+
+        //перевернем колонки
+        $fld_idx = array_flip($fields);
+
+        $items_add_cnt = 0; //кол-во новых записей
+        $items_upd_cnt = 0; //кол-во обновленных записей
+        $items_skp_cnt = 0; //кол-во пропущенных/не идентифицированных записей
+
+        for ($i = 1; $i < count($array); $i++) {
+
+            $code = $array[$i][$fld_idx['Код']];
+            $machine_name = $array[$i][$fld_idx['Покупатель']];
+            $sum = $array[$i][$fld_idx['Выручка, ']];
+            $date = $array[$i][$fld_idx['ДатаДляВыгрузки']];
+            $date = date_format(date_create_from_format('d.m.Y', $date), 'Y-m-d');
+            //$kpp = (isset($fld_idx['kpp'])) ? $array[$i][$fld_idx['kpp']] : null;
+            //dd($machine_name, $code, $sum, $date);
+
+            if (isset($code)) {
+
+                // определим идентификатор авто/спецтехники по коду внешней системы
+                $machineid = objextid::where([
+                        'sysobjid' => 482,  //machine
+                        'extsysid' => $extsysid,
+                        'extid' => $code,
+                    ])->first()->objid ?? null;
+
+                if (isset($machineid)) {
+
+                    // может быть уже добавляли?
+                    $lineid = $extsysid.':'.$date.':'.$i; // локальный идентификатор порыии данных, характеризующий источник, дату данных и положение порции в файле
+                    $rec = mchn_spare_usage::where([
+                        'machineid' => $machineid,
+                        'operdate' => $date,
+                        'notes' => $lineid])->first();
+                    //dd ($rec);
+
+                    if (!isset($rec)) {
+
+                        $rec = new self([
+                            'machineid' => $machineid,
+                            'operdate' => $date,
+                            'spare_sum' => $sum,
+                            'qty' => 1,
+                            'price' => $sum,
+                            'notes' => $lineid
+                        ]);
+                        ++$items_add_cnt;
+                    } else
+                        ++$items_upd_cnt;
+
+                    //$org->name = $array[$i][$fld_idx['name'] ?? ''] ?? '';
+                    //необязательно-присутствующие поля. Обновляем только при наличии - чтобы не затереть предыдущее значение
+//                if (isset($fld_idx['address']))
+//                    $org->address = $array[$i][$fld_idx['address']];
+
+                    //dd($rec);
+                    $rec->save();
+
+                }else ++$items_skp_cnt;
+            }else ++$items_skp_cnt;
+        }
+
+        $result->msg .= "- добавлено записей: {$items_add_cnt}" . PHP_EOL;
+        $result->msg .= "- изменено записей: {$items_upd_cnt}" . PHP_EOL;
+        $tclass = ($items_skp_cnt > 0)?'text-danger':'';
+        $result->msg .= "- пропущено записей: <span class='{$tclass}'>{$items_skp_cnt}</span>" . PHP_EOL;
+
+        $rec->result = $result;
+        //--------------------------------------------------------------------------
+
+        return $rec;
+    }
+
 }
+
+

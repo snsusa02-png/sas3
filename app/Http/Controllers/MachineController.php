@@ -8,6 +8,7 @@ use App\mchnrqst;
 use App\org;
 use App\mchntype;
 use App\usrsysright;
+use App\objextid;
 use App\group;
 use App\objflag;
 use App\objlog;
@@ -494,6 +495,17 @@ class MachineController extends Controller
         }
 
         return view($this->sysobjcode . '.load', compact('rec', "usrrights"));
+    }
+
+    public
+    function machine_extids($id)
+    {
+        $machine = machine::findOrFail($id);
+
+        $recs = objextid::where('sysobjid', $this->sysobjid)
+            ->where('objid', $id)
+            ->with('extsys')->get();
+        return view($this->sysobjcode . '.machine_extids', compact('machine', 'recs'));
     }
 
 }

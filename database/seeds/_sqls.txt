@@ -1,4 +1,10 @@
 ﻿2025-05-31 ------------------------------------------------------------------------
+INSERT INTO `extsys_sysobjs` (`extsysid`, `sysobjid`, `active`) VALUES ('5', '482', '1');
+UPDATE `extsys_sysobjs` SET `sysobjid` = '489' WHERE (`id` = '1');
+UPDATE `extsystems` SET `name` = '1С Бухгалтерия' WHERE (`id` = '5');
+
+
+2025-05-31 ------------------------------------------------------------------------
 INSERT INTO `chargetypes` (`id`, `dir`, `name`, `active`, `ordr`, `use_price`) VALUES ('54', '1', 'Премия за работу свыше 340 часов', '1', '55', '0');
 
 INSERT INTO `org_charges` (`orgid`, `chargetypeid`, `begdate`, `charge_period`, `active`) VALUES ('31', '54', '2025-05-01', 'M', '1');

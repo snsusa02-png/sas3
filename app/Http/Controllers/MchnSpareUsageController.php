@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\extsystem;
 use App\mchn_spare_usage;
 use App\machine;
 use App\objlog;
 use App\objtag;
+use App\org;
 use App\srs_hr_item;
 use App\sysobj;
+use App\Traits\Result;
 use App\Traits\SearchDataTrait;
 use App\Traits\snsTrait;
 use App\user_template;
@@ -52,7 +55,9 @@ class MchnSpareUsageController extends Controller
 
         $usrrights['save'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.update');
         $usrrights['manager'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.manager');
-        $usrrights['set_lockdate'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.set_lockdate');;
+        $usrrights['set_lockdate'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.set_lockdate');
+
+        $usrrights['load'] = $usrrights['create'];
 
         if ($recid > 0) {
 
@@ -555,5 +560,69 @@ class MchnSpareUsageController extends Controller
         }
         return response()->json($result);
     }
+
+    public function load()
+    {
+        $userid = \Auth::user()->id;
+        $usrrights = $this->setInterfaceRight(-1);
+        $rec = new \stdClass();
+        $rec->title = 'Импорт записей об использовании запчастей';
+        $rec->extsystems = extsystem::lstFor_cached(['for_sysobjid' => $this->sysobjid], 5);
+        //dd($rec->extsystems);
+
+        return view($this->sysobjcode . '.load', compact('rec', "usrrights"));
+    }
+
+    public function import(Request $request)
+    {
+        //Импорт без сохранения файла на диск. Только обработка
+
+        $messages = [
+            'doc.required' => 'Не указан файл с данными',
+        ];
+
+        $rules = [
+            "extsystemid" => "required",
+            "doc" => "required",
+        ];
+
+        $request->validate($rules, $messages);
+
+        $userid = \Auth::user()->id;
+        //$returl = $request->get('retroute');
+
+        $usrrights = $this->setInterfaceRight(-1);
+        $result = new Result();
+        $rec = new \stdClass();
+
+        $rec->extsysid = $request->extsystemid;
+
+        if ($request->hasfile('doc')) {
+
+            $file = $request->doc;
+
+            $filesize = $file->getSize();
+            $name = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $extension = $file->getClientOriginalExtension();
+            //dd($name, $extension, $filesize);
+
+            if (1 == 1)
+                $rec = mchn_spare_usage::import_001($file, $rec);
+            else {
+                $result->err = 1;
+                $result->msg = 'Не определена процедура импорта!';
+            }
+            //--------------------------------------------------------------------------------
+            //dd($result->msg);
+
+
+        } else {
+            $result->err = 1;
+            $result->msg = 'Файл с данными не загружен!';
+        }
+
+        return view($this->sysobjcode . '.load', compact('rec', "usrrights"));
+    }
+
 
 }

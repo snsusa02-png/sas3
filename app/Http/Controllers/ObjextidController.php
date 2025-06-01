@@ -10,6 +10,7 @@ use App\group;
 use App\objlog;
 use App\org;
 use App\refitem;
+use App\machine;
 use App\sysobj;
 use App\User;
 use App\usrsysright;
@@ -138,6 +139,12 @@ class ObjextidController extends Controller
                     $obj = org::select('name')->find($rec->objid);
                     $rec->objname = $obj->name ?? '-?-';
                     $rec->retRoute = route('orgs.edit', $rec->objid);
+
+                } elseif ($rec->sysobjid == 482) {
+                    //Machines
+                    $obj = machine::select('name')->find($rec->objid);
+                    $rec->objname = $obj->name ?? '-?-';
+                    $rec->retRoute = route('machines.edit', $rec->objid);
 
                 } elseif ($rec->sysobjid == 202) {
                     //Wrhs
