@@ -132,8 +132,8 @@
                 @foreach($rec->items as $itm)
                     <DL class="page-break">
                         <DD>
-                            <TABLE WIDTH=96% BORDER=2 BORDERCOLOR="#f79646" CELLPADDING=7 CELLSPACING=0 FRAME=BELOW
-                                   RULES=ROWS BGCOLOR="#ffffff">
+                            <TABLE WIDTH=95% BORDER=2 BORDERCOLOR="#f79646" CELLPADDING=7 CELLSPACING=0 FRAME=BELOW
+                                   RULES=ROWS BGCOLOR="#ffffff" style="font-family: Times New Roman, serif;">
                                 <COL WIDTH=200>
 {{--                                <COL WIDTH=600>--}}
                                 <TR VALIGN=TOP>
@@ -144,7 +144,7 @@
                                         <P CLASS="western" ALIGN=CENTER STYLE="margin-bottom: 0cm"><BR>
                                         </P>
                                         <P CLASS="western" ALIGN=CENTER STYLE="margin-bottom: 0cm">
-                                            <span style="COLOR:#984806;font-size: 14pt;">
+                                            <span style="COLOR:#984806;font-size: 16pt;">
                                                 <B>{{$rec->saleorg->name}}</B></span></P>
                                         <P ALIGN=CENTER STYLE="margin-left: 1.27cm; margin-bottom: 0cm">
                                             <span style="COLOR:#833c0b; font-size: 12pt">
@@ -175,8 +175,8 @@
                         <BR>
                     </P>
                     <P CLASS="western" ALIGN=CENTER STYLE="text-indent: 1.25cm; margin-bottom: 0cm; line-height: 100%">
-                        <span FACE="Times New Roman, serif"
-                              SIZE=5><B>Паспорт качества № {{$itm->id}} от {{date_create($rec->docdate)->format('d.m.Y')}} </B></span>
+                        <span style="font-family: Times New Roman, serif; font-size: 18pt;">
+                            <B>Паспорт качества № {{$itm->id}} от {{date_create($rec->docdate)->format('d.m.Y')}} </B></span>
                     </P>
                     <P CLASS="western" ALIGN=CENTER STYLE="text-indent: 1.25cm; margin-bottom: 0cm; line-height: 100%">
                         на изделия бетонные и железобетонные</P>
