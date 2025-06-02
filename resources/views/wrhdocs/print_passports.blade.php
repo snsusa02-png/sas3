@@ -176,7 +176,7 @@
                     </P>
                     <P CLASS="western" ALIGN=CENTER STYLE="text-indent: 1.25cm; margin-bottom: 0cm; line-height: 100%">
                         <span FACE="Times New Roman, serif"
-                              SIZE=5><B>Паспорт качества № 498 от {{date_create($rec->docdate)->format('d.m.Y')}} </B></span>
+                              SIZE=5><B>Паспорт качества № {{$itm->id}} от {{date_create($rec->docdate)->format('d.m.Y')}} </B></span>
                     </P>
                     <P CLASS="western" ALIGN=CENTER STYLE="text-indent: 1.25cm; margin-bottom: 0cm; line-height: 100%">
                         на изделия бетонные и железобетонные</P>
@@ -227,7 +227,7 @@
             window.onafterprint = function () {
                 setTimeout(function () {
                     window.close();
-                }, 50000);
+                }, 300);
             }
 
             window.onfocus = function () {
