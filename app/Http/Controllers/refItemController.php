@@ -895,6 +895,7 @@ class refItemController extends Controller
             }
 
             $refitem->descript = $request->get('descript');
+            $refitem->specification = $request->get('specification');
 
             $refitem->active = $request->get('active', 0);
             $refitem->saleenddate = $request->get('saleenddate');

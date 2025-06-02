@@ -1440,8 +1440,7 @@ class WrhdocController extends Controller
             ->with(['success' => 'Вы находитесь в созданной копии']);
     }
 
-    public
-    function print($id)
+    public function print($id)
     {
         if (!isset($id))
             return redirect()->back()->with('error', 'Не задана исходная запись!');
@@ -1478,6 +1477,52 @@ class WrhdocController extends Controller
         }
 
         $view = "wrhdocs.print";
+        return view($view,
+            compact('rec', 'data'));
+    }
+
+    public function print_form($id, $formid)
+    {
+        if (!isset($id))
+            return redirect()->back()->with('error', 'Не задана исходная запись!');
+
+        $formid = 2;
+
+        $userid = \Auth::user()->id;
+
+
+        $rec = wrhdoc::find($id);
+        //dd($rec->saleorg);
+        //dd($rec->saleorg, $rec->saleorg->boss_name??$rec->saleorg->boss_fullname,$rec->saleorg->boss_postname, $rec->saleorg->boss_fullname);
+
+        if (!isset($rec))
+            return redirect()->back()->with('error', 'Не найдена указанная запись!');
+
+        $rec->items = wrhdoclst::from('wrhdoclst as dl')
+            ->join('refitems as ri', 'ri.id', 'dl.refitmid')
+            ->join('unittypes as ut', 'ut.id', 'ri.unittypeid')
+            ->where('dl.docid', $id)
+            ->select('dl.*', 'ri.name as ri_name', 'ut.name as ut_name', 'ut.decimal_dgts', 'ri.grossweight as ri_grossweight')
+            ->get();
+
+        $data = new \stdClass();
+
+        /*if ($rec->doctype->forstock == -1) {
+            $data->src_signer_label = 'Отпустил';
+            $data->src_signer_name = \Auth::user()->short_fio;
+
+            $data->tgt_signer_label = 'Получил';
+            $data->tgt_signer_name = '';
+
+        } else {
+            $data->src_signer_label = '';
+            $data->src_signer_name = '';
+
+            $data->tgt_signer_label = 'Получил';
+            $data->tgt_signer_name = \Auth::user()->short_fio;
+        }*/
+
+        $view = "wrhdocs.print_passports";
         return view($view,
             compact('rec', 'data'));
     }

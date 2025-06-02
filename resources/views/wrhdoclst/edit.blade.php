@@ -31,7 +31,12 @@
         <?php
         //Отображать или нет Цену/Сумму определяется типом документа
         $showPrice = ($rec->wrhdoc->doctype->useprice == 1);
-        $showCompound = ($rec->ri_produced == 1);
+        $showCompound = ($rec->ri_produced == 1 or $rec->ri_disassembly == 1);
+        if ($rec->prod_dir == 1)
+            $prodLabel = 'Изготовлено по составу';
+        elseif ($rec->prod_dir = -1)
+            $prodLabel = 'Разукомплектовано по рецепту';
+
         //        dd($showPrice,$showCompound, $rec->ri_produced);
 
         //Отображать или нет кол-во из предшествующего документа определяется типом документа
@@ -93,7 +98,7 @@
                                     <div class="row">
                                         <div class="offset-md-0 col-md-12">
                                             <div class="form-group list-inline">
-                                                <label for="">Изготовлено по составу:</label>
+                                                <label for="">{{$prodLabel}}</label>
                                                 <div class="input-group">
                                                     @if( 1==0)
                                                         {{ Form::hidden('cmpndid', $rec->cmpndid, ['id'=>'cmpnd_on_date', 'class'=>'ac_id']) }}
@@ -306,7 +311,8 @@
                             <caption>
                             </caption>
                             <tr>
-                                <td colspan="4" class="text-right"><h6 class="mr-2">Расход материала "<b>{{$rec->refitem->name}}</b>" в произведенных изделиях</h6></td>
+                                <td colspan="4" class="text-right"><h6 class="mr-2">Расход материала
+                                        "<b>{{$rec->refitem->name}}</b>" в произведенных изделиях</h6></td>
                             </tr>
                             <tr>
                                 <th>Изделие</th>
@@ -318,16 +324,17 @@
                             @foreach($rec->raw_in_prod_lst as $item)
                                 <tr>
                                     <td><span class="small">{{$item->refitmid}}</span>
-                                        <a href="{{ route('wrhdoclst.edit', $item->id) }}">{{$item->refitm_name}}</a></td>
+                                        <a href="{{ route('wrhdoclst.edit', $item->id) }}">{{$item->refitm_name}}</a>
+                                    </td>
                                     <td class="text-right">{{number_format($item->prod_qty, $item->prod_dec_dgts??3)}}</td>
                                     <td class="text-right">{{number_format($item->max_qty, $dec_dgts)}}</td>
                                     <td class="text-right">{{number_format($item->tot_qty, $dec_dgts)}}</td>
                                 @php($tot_raw_qty = $tot_raw_qty + $item->tot_qty )
                             @endforeach
-                        <tr>
-                            <td colspan="3" class="text-right">Итого, {{$raw_unit}}:</td>
-                            <td class="text-right font-weight-bold">{{number_format($tot_raw_qty, $dec_dgts)}}</td>
-                        </tr>
+                            <tr>
+                                <td colspan="3" class="text-right">Итого, {{$raw_unit}}:</td>
+                                <td class="text-right font-weight-bold">{{number_format($tot_raw_qty, $dec_dgts)}}</td>
+                            </tr>
                         </table>
                     </div>
                 </div>
