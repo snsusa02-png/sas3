@@ -132,10 +132,10 @@
                 @foreach($rec->items as $itm)
                     <DL class="page-break">
                         <DD>
-                            <TABLE WIDTH=800 BORDER=2 BORDERCOLOR="#f79646" CELLPADDING=7 CELLSPACING=0 FRAME=BELOW
+                            <TABLE WIDTH=96% BORDER=2 BORDERCOLOR="#f79646" CELLPADDING=7 CELLSPACING=0 FRAME=BELOW
                                    RULES=ROWS BGCOLOR="#ffffff">
                                 <COL WIDTH=200>
-                                <COL WIDTH=600>
+{{--                                <COL WIDTH=600>--}}
                                 <TR VALIGN=TOP>
                                     <TD  BGCOLOR="#ffffff">
                                         <IMG SRC="/images/logos/investstroitorg.png" ALIGN=BOTTOM WIDTH=200 BORDER=0>
@@ -227,7 +227,7 @@
             window.onafterprint = function () {
                 setTimeout(function () {
                     window.close();
-                }, 500);
+                }, 50000);
             }
 
             window.onfocus = function () {
