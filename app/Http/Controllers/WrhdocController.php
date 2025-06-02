@@ -1486,7 +1486,7 @@ class WrhdocController extends Controller
         if (!isset($id))
             return redirect()->back()->with('error', 'Не задана исходная запись!');
 
-        $formid = 2;
+        $formid = 2;    // условно, соответствует Паспорту ЖБИ
 
         $userid = \Auth::user()->id;
 
@@ -1502,6 +1502,7 @@ class WrhdocController extends Controller
             ->join('refitems as ri', 'ri.id', 'dl.refitmid')
             ->join('unittypes as ut', 'ut.id', 'ri.unittypeid')
             ->where('dl.docid', $id)
+            ->whereNotNull('ri.specification')  //С не пустой спецификацией
             ->select('dl.*', 'ri.name as ri_name', 'ut.name as ut_name', 'ut.decimal_dgts', 'ri.grossweight as ri_grossweight')
             ->get();
 
