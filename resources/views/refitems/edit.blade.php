@@ -354,6 +354,16 @@
                                             </div>
                                         </div>
 
+                                        <div class="row">
+                                            <div class="offset-md-0 col-md-12">
+                                                <div class="form-group">
+                                                    <label for="descript">Спецификация:</label>
+                                                    <textarea class="form-control rounded-0" name="specification"
+                                                              id="specification"
+                                                              rows="6">{{$rec->specification}}</textarea>
+                                                </div>
+                                            </div>
+                                        </div>
 
                                     </div>
                                 </div>
