@@ -135,6 +135,12 @@
                                 </td>
                                 <td>
                                     <div class="input-group">
+                                        {!! Form::select('s_extsys_not', ['not'=>'нет в'], $search_params['s_extsys_not']??'',
+                                                        [
+                                                        'class' => 'form-control small',
+                                                        'placeholder' => '-',
+                                                        ])
+                                                        !!}
                                         {!! Form::select('s_extsysid', $data->extsystems??[], $search_params['s_extsysid']??'',
                                                         [
                                                         'class' => 'form-control small',

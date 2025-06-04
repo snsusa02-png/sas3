@@ -20,6 +20,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Traits\Result;
+use function PHPUnit\Framework\isEmpty;
 
 class MachineController extends Controller
 {
@@ -89,6 +90,7 @@ class MachineController extends Controller
             , 's_orgid' => ''
             , 's_flagtypeid' => ''
             , 's_extsysid' => ''
+            , 's_extsys_not' => ''
         ];
 
         $search_params = $this->search_params($request, $param_names);
@@ -115,11 +117,19 @@ class MachineController extends Controller
                         and f.objid=m.id and f.flagtypeid={$val})";
 
                 } elseif ($item == 's_extsysid') {
-                    $sc .= " and exists(select 1 from objextids ei
+                    $not = $search_params['s_extsys_not']??'';
+                    $sc .= " and {$not} exists(select 1 from objextids ei
                                 where ei.sysobjid={$this->sysobjid} and ei.objid=m.id and ei.extsysid={$val})";
+                } elseif ($item == 's_extsys_not') {
+                    if ($val == 'not' and isEmpty($search_params['s_extsys_not'])){
+                        // особый случай - отрицание при аустой системе, => любая внешняя система
+                        $sc .= " and not exists(select 1 from objextids ei
+                                where ei.sysobjid={$this->sysobjid} and ei.objid=m.id)";
+                    }
                 }
             }
         }
+        //dd($search_params['s_extsysid']<>'' or $search_params['s_extsys_not']<>'' );
         //-------------------------------------------------------------------------------------------------------------
 
 
