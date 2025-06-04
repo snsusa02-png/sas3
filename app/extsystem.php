@@ -80,6 +80,9 @@ class extsystem extends Model
                     } elseif ($key == 'for_sysobjid') {
                         $sc .= " and exists(select 1 from extsys_sysobjs as so where so.extsysid=es.id and so.sysobjid={$val})";
 
+                    } elseif ($key == 'in_sysobjid') {
+                        $sc .= " and exists(select 1 from objextids as ei where ei.extsysid=es.id and ei.sysobjid={$val})";
+
                     }
                 }
 

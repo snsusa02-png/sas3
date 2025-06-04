@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\extsystem;
 use App\machine;
 use App\mchn_opertype;
 use App\mchnrqst;
@@ -87,6 +88,7 @@ class MachineController extends Controller
             , 's_regnum' => ''
             , 's_orgid' => ''
             , 's_flagtypeid' => ''
+            , 's_extsysid' => ''
         ];
 
         $search_params = $this->search_params($request, $param_names);
@@ -111,6 +113,10 @@ class MachineController extends Controller
                 } elseif ($item == 's_flagtypeid') {
                     $sc .= " and exists(select 1 from objflags f where f.sysobjid={$this->sysobjid}
                         and f.objid=m.id and f.flagtypeid={$val})";
+
+                } elseif ($item == 's_extsysid') {
+                    $sc .= " and exists(select 1 from objextids ei
+                                where ei.sysobjid={$this->sysobjid} and ei.objid=m.id and ei.extsysid={$val})";
                 }
             }
         }
@@ -125,7 +131,14 @@ class MachineController extends Controller
                 $j->on('mt.id', 'm.mchntypeid');
             })
             ->whereraw($sc)
-            ->select('m.id', 'm.name', 'm.active', 'm.regnum', 'm.orgid', 'o.name as org_name', 'mt.name as typename');
+            ->select('m.id', 'm.name', 'm.active', 'm.regnum', 'm.orgid', 'o.name as org_name', 'mt.name as typename'
+                , DB::raw(" (select group_concat( concat(es.name, ': ', ei.extid) separator ';')
+                    from objextids ei
+                    join extsystems es on es.id=ei.extsysid
+                    where ei.sysobjid=482
+                    AND ei.objid=m.id
+                    )  as lst_extsys_id")
+            );
 
         //Сортировка пользователя ----------------------------------------
         $sort_params = session('sort_params_' . $this->objcode . '.index');
@@ -151,9 +164,11 @@ class MachineController extends Controller
 
         $data->orgs = org::lstFor(['in_machines' => 1]);
 
+        $data->extsystems = extsystem::lstFor(['in_sysobjid' => $this->sysobjid]);
+
         $objgroups = group::lstOrgGroups_cache();
 
-        $usedflags = objflag::lstUsedFlagsForSysObj_cache(482);
+        $usedflags = objflag::lstUsedFlagsForSysObj_cache($this->sysobjid);
 
         $usedmchntypes = mchntype::usedTypes();
 

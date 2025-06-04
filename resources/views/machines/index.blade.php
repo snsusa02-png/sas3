@@ -73,6 +73,7 @@
                                        class="btn btn-sm"
                                        title="Сортировать">Тип {!! sort_mark('mt.name',$sort_params) !!}</a>
                                 </td>
+                                <td class="small">ID во внешних ИС</td>
 
                                 <td style="text-align: center;">
                                     @if ($usrrights['create'])
@@ -131,7 +132,17 @@
                                                         ])
                                                         !!}
                                     </div>
-
+                                </td>
+                                <td>
+                                    <div class="input-group">
+                                        {!! Form::select('s_extsysid', $data->extsystems??[], $search_params['s_extsysid']??'',
+                                                        [
+                                                        'class' => 'form-control small',
+                                                        'placeholder' => '-',
+                                                        'onChange' => 'this.form.submit()',
+                                                        ])
+                                                        !!}
+                                    </div>
                                 </td>
                                 <td>
                                     <div class="input-group-btn">
@@ -162,7 +173,7 @@
                                 ?>
                                 @if($item->orgid <> $cur_orgid)
                                     <tr style="background-color: #cbeef6">
-                                        <td colspan="6">
+                                        <td colspan="7">
                                             <a href="{{route('orgs.edit',$item->orgid)}}"
                                                target="_blank"><b>{{$item->org_name}}</b></a>
                                         </td>
@@ -190,6 +201,9 @@
                                     </td>
                                     <td class="small text-left">
                                         {{$item->typename}}
+                                    </td>
+                                    <td class="small text-center">
+                                        {{$item->lst_extsys_id}}
                                     </td>
                                     <td style="text-align: center;">
                                         <a href="{{ route('machines.edit',$item->id)}}"

@@ -20,7 +20,6 @@ unittypes,U,id
 pay_categories,U,id
 objlinktypes,U,id
 roletypes,U,id
-sysobj_roletypes,U,id
 orgnametypes,U,id
 addresstypes,U,id
 sysobj_addresstypes,U,id
