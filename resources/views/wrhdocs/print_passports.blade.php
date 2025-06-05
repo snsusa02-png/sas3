@@ -6,15 +6,34 @@
     <script src="{{ asset('js/orderprint.js') }}" defer></script>
     <style>
         @media print {
+            body, html {
+                margin:0;
+                padding:0;
+            }
+            .container{
+                padding-bottom: 1px;
+            }
+
+            @page :last{
+                size:auto; /*отключает пустую последнюю страницу*/
+                margin:0;
+            }
+
             .no-print, .no-print * {
                 display: none !important;
             }
 
             .page, .page-break {
-                /*break-after: page;*/
+                /*break-after: page;
                 page-break-inside: avoid;
-                page-break-before: always;
+                page-break-before: always;*/
+
+                break-inside: avoid;
+                break-before: page;
+                break-after: auto;
             }
+
+
         }
 
         .sheet {
@@ -130,85 +149,92 @@
                 $ri_grossweight = 0;
                 ?>
                 @foreach($rec->items as $itm)
-                    <DL class="page-break">
-                        <DD>
-                            <TABLE WIDTH=95% BORDER=2 BORDERCOLOR="#f79646" CELLPADDING=7 CELLSPACING=0 FRAME=BELOW
-                                   RULES=ROWS BGCOLOR="#ffffff" style="font-family: Times New Roman, serif;">
-                                <COL WIDTH=200>
-{{--                                <COL WIDTH=600>--}}
-                                <TR VALIGN=TOP>
-                                    <TD  BGCOLOR="#ffffff">
-                                        <IMG SRC="/images/logos/investstroitorg.png" ALIGN=BOTTOM WIDTH=200 BORDER=0>
-                                    </TD>
-                                    <TD  BGCOLOR="#ffffff">
-                                        <P CLASS="western" ALIGN=CENTER STYLE="margin-bottom: 0cm"><BR>
-                                        </P>
-                                        <P CLASS="western" ALIGN=CENTER STYLE="margin-bottom: 0cm">
+                    <div class="page-break">
+                        <DL>
+                            <DD>
+                                <TABLE WIDTH=95% BORDER=2 BORDERCOLOR="#f79646" CELLPADDING=7 CELLSPACING=0 FRAME=BELOW
+                                       RULES=ROWS BGCOLOR="#ffffff" style="font-family: Times New Roman, serif;">
+                                    <COL WIDTH=200>
+                                    {{--                                <COL WIDTH=600>--}}
+                                    <TR VALIGN=TOP>
+                                        <TD BGCOLOR="#ffffff">
+                                            <IMG SRC="/images/logos/investstroitorg.png" ALIGN=BOTTOM WIDTH=200
+                                                 BORDER=0>
+                                        </TD>
+                                        <TD BGCOLOR="#ffffff">
+                                            <P CLASS="western" ALIGN=CENTER STYLE="margin-bottom: 0cm"><BR>
+                                            </P>
+                                            <P CLASS="western" ALIGN=CENTER STYLE="margin-bottom: 0cm">
                                             <span style="COLOR:#984806;font-size: 16pt;">
                                                 <B>{{$rec->saleorg->name}}</B></span></P>
-                                        <P ALIGN=CENTER STYLE="margin-left: 1.27cm; margin-bottom: 0cm">
+                                            <P ALIGN=CENTER STYLE="margin-left: 1.27cm; margin-bottom: 0cm">
                                             <span style="COLOR:#833c0b; font-size: 12pt">
                                                 {{$rec->saleorg->address}}</span></P>
-                                    </TD>
-                                </TR>
-                                <TR>
-                                    <TD COLSPAN=2 VALIGN=TOP BGCOLOR="#ffffff">
-                                        <P ALIGN=CENTER STYLE="margin-bottom: 0cm">
-                                            <FONT COLOR="#984806">СИСТЕМА ДОБРОВОЛЬНОЙ СЕРТИФИКАЦИИ</FONT>
-                                        </P>
-                                        <P ALIGN=CENTER STYLE="margin-bottom: 0cm"><FONT
-                                                COLOR="#984806">&laquo;СТЭЙЛ.ОЦЕНКА
-                                                И ПОДТВЕРЖДЕНИЕ СООТВЕТСТВИЯ ИСПЫТАТЕЛЬНЫХ
-                                                ЛАБОРАТОРИЙ (ЦЕНТРОВ)&raquo;</FONT></P>
-                                        <P ALIGN=CENTER STYLE="margin-bottom: 0cm"><FONT
-                                                COLOR="#984806">Аттестат
-                                                аккредитации испытательной лаборатории ООО
-                                                &laquo;СПЕЦБЕТОН&raquo;</FONT></P>
-                                        <P CLASS="western" ALIGN=CENTER><FONT COLOR="#984806">№ИЛ-ССК-00481
-                                                от 05.05.2023 г. до 05.05.2028 г.</FONT></P>
-                                    </TD>
-                                </TR>
-                            </TABLE>
-                    </DL>
-                    <P ALIGN=CENTER
-                       STYLE="margin-right: -0.25cm; margin-top: 0.07cm; margin-bottom: 0cm; line-height: 115%; widows: 0; orphans: 0">
-                        <BR>
-                    </P>
-                    <P CLASS="western" ALIGN=CENTER STYLE="text-indent: 1.25cm; margin-bottom: 0cm; line-height: 100%">
+                                        </TD>
+                                    </TR>
+                                    <TR>
+                                        <TD COLSPAN=2 VALIGN=TOP BGCOLOR="#ffffff">
+                                            <P ALIGN=CENTER STYLE="margin-bottom: 0cm">
+                                                <FONT COLOR="#984806">СИСТЕМА ДОБРОВОЛЬНОЙ СЕРТИФИКАЦИИ</FONT>
+                                            </P>
+                                            <P ALIGN=CENTER STYLE="margin-bottom: 0cm"><FONT
+                                                    COLOR="#984806">&laquo;СТЭЙЛ.ОЦЕНКА
+                                                    И ПОДТВЕРЖДЕНИЕ СООТВЕТСТВИЯ ИСПЫТАТЕЛЬНЫХ
+                                                    ЛАБОРАТОРИЙ (ЦЕНТРОВ)&raquo;</FONT></P>
+                                            <P ALIGN=CENTER STYLE="margin-bottom: 0cm"><FONT
+                                                    COLOR="#984806">Аттестат
+                                                    аккредитации испытательной лаборатории ООО
+                                                    &laquo;СПЕЦБЕТОН&raquo;</FONT></P>
+                                            <P CLASS="western" ALIGN=CENTER><FONT COLOR="#984806">№ИЛ-ССК-00481
+                                                    от 05.05.2023 г. до 05.05.2028 г.</FONT></P>
+                                        </TD>
+                                    </TR>
+                                </TABLE>
+                        </DL>
+                        <P ALIGN=CENTER
+                           STYLE="margin-right: -0.25cm; margin-top: 0.07cm; margin-bottom: 0cm; line-height: 115%; widows: 0; orphans: 0">
+                            <BR>
+                        </P>
+                        <P CLASS="western" ALIGN=CENTER
+                           STYLE="text-indent: 1.25cm; margin-bottom: 0cm; line-height: 100%">
                         <span style="font-family: Times New Roman, serif; font-size: 18pt;">
                             <B>Паспорт качества № {{$itm->id}} от {{date_create($rec->docdate)->format('d.m.Y')}} </B></span>
-                    </P>
-                    <P CLASS="western" ALIGN=CENTER STYLE="text-indent: 1.25cm; margin-bottom: 0cm; line-height: 100%">
-                        на изделия бетонные и железобетонные</P>
-                    <P CLASS="western" ALIGN=CENTER STYLE="text-indent: 1.25cm; margin-bottom: 0cm; line-height: 100%">
-                        <BR>
-                    </P>
-                    <OL class="item_spec">
-                        <LI>Наименование организации &ndash; изготовителя:
-                            <b>{{$rec->saleorg->name}}</b>, {{$rec->saleorg->address}}</LI>
-                        <LI>Наименование организации потребителя: <b>{{$rec->org->name}}</b>, {{$rec->org->address}}
-                        </LI>
-                        <LI>Наименование и марка изделия : <b>{{$itm->refitem->name}}</b></li>
-                        <LI>Количество изделий ({{$itm->refitem->unit?:'шт'}}):
-                            <b>{{number_format($itm->qty, $itm->decimal_dgts)}}</b> {{$itm->refitem->unit?:'шт'}}</LI>
-                        <div class="item_spec">
-                        <?php
-                            if (isset($itm->refitem->specification)) {
-                                $tarr = explode(chr(13) . chr(10), $itm->refitem->specification);
-                                foreach ($tarr as $elm) {
-                                    echo "<li>{$elm}</li>";
+                        </P>
+                        <P CLASS="western" ALIGN=CENTER
+                           STYLE="text-indent: 1.25cm; margin-bottom: 0cm; line-height: 100%">
+                            на изделия бетонные и железобетонные</P>
+                        <P CLASS="western" ALIGN=CENTER
+                           STYLE="text-indent: 1.25cm; margin-bottom: 0cm; line-height: 100%">
+                            <BR>
+                        </P>
+                        <OL class="item_spec">
+                            <LI>Наименование организации &ndash; изготовителя:
+                                <b>{{$rec->saleorg->name}}</b>, {{$rec->saleorg->address}}</LI>
+                            <LI>Наименование организации потребителя: <b>{{$rec->org->name}}</b>, {{$rec->org->address}}
+                            </LI>
+                            <LI>Наименование и марка изделия : <b>{{$itm->refitem->name}}</b></li>
+                            <LI>Количество изделий ({{$itm->refitem->unit?:'шт'}}):
+                                <b>{{number_format($itm->qty, $itm->decimal_dgts)}}</b> {{$itm->refitem->unit?:'шт'}}
+                            </LI>
+                            <div class="item_spec">
+                                <?php
+                                if (isset($itm->refitem->specification)) {
+                                    $tarr = explode(chr(13) . chr(10), $itm->refitem->specification);
+                                    foreach ($tarr as $elm) {
+                                        echo "<li>{$elm}</li>";
+                                    }
+                                    //dd($tarr);
                                 }
-                                //dd($tarr);
-                            }
-                            ?>
-                        </div>
-                    </OL>
+                                ?>
+                            </div>
+                        </OL>
 
-                    <P ALIGN=JUSTIFY STYLE="margin-left: 1.27cm; line-height: 150%"></P>
-                    <P ALIGN=JUSTIFY style="margin-left: 1.27cm; font-family: 'Times New Roman, Times, serif'; font-size: 13pt;">
-                        <br>{{$rec->saleorg->boss_postname}} {{$rec->saleorg->name}} {{$rec->saleorg->boss_name??$rec->saleorg->boss_fullname}}
-                    </P>
-
+                        <P ALIGN=JUSTIFY STYLE="margin-left: 1.27cm; line-height: 150%"></P>
+                        <P ALIGN=JUSTIFY
+                           style="margin-left: 1.27cm; font-family: 'Times New Roman, Times, serif'; font-size: 13pt;">
+                            <br>{{$rec->saleorg->boss_postname}} {{$rec->saleorg->name}} {{$rec->saleorg->boss_name??$rec->saleorg->boss_fullname}}
+                        </P>
+                    </div>
                 @endforeach
             @endfor
         </div>
