@@ -256,7 +256,7 @@ $action_url = route('reports.rep' . $thisObjId);
                             <td class="text-left">Продукция</td>
                             <td class="text-center">ЕИ</td>
                             <td class="text-right">Кол-во, ЕИ</td>
-                            <td class="text-right">Сумма отгрузки, руб</td>
+                            <td class="text-right">Сумма, руб</td>
                         </tr>
 
                         </thead>
@@ -301,7 +301,7 @@ $action_url = route('reports.rep' . $thisObjId);
                             @if($rec->orgid <> $cur_orgid)
                                 @if($cur_orgid <> -1)
                                     <tr>
-                                        <td colspan="5" class="text-right">Всего:</td>
+                                        <td colspan="5" class="text-right">Всего по "{{$cur_orgname}}":</td>
                                         <td class="text-right font-weight-bold">{{number_format($orgSum,2)}}</td>
                                     </tr>
                                     <?php
@@ -331,7 +331,7 @@ $action_url = route('reports.rep' . $thisObjId);
 {{--                                    </a>--}}
                                 </td>
                                 <td class="text-center small">{{$rec->unit}}</td>
-                                <td class="text-right">{{number_format($rec->itmqty,3)}}</td>
+                                <td class="text-right">{{number_format($rec->itmqty,$rec->decimal_dgts??3)}}</td>
                                 <td class="text-right">{{number_format($rec->itmsum,2)}}</td>
                             </tr>
                             <?php
