@@ -1378,7 +1378,9 @@ order by income_sum desc";
         if ($need_search) {
 
             //------------------------------
-            $sql = "select mro.mr_id, ot.name, mr.wrkdate
+            $sql = "select mro.mr_id
+    /*, ot.name*/
+        , mr.wrkdate
 , dw.staffid, os.lname, os.fname, os.mname
 , dw.machineid, m.regnum, m.name as machine_name
 , GROUP_CONCAT(sup.name SEPARATOR ', ') as sup_name
