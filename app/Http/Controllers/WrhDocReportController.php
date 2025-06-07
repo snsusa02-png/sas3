@@ -1479,18 +1479,18 @@ class WrhDocReportController extends Controller
             // 2025-06-06
             //dd($sc);
             $sql = "select d.saleorgid, so.name as saleorgname
-	, d.orgid, bo.name as orgname
-    , i.refitmid, ri.name as itmname, ri.unit
-	, sum(i.qty) as itmqty, sum(sum) as itmsum
-    from wrhdoclst as i
-    join refitems as ri on ri.id=i.refitmid
-	join wrhdocs d on d.id=i.docid
-    join wrhdoctypes dt on dt.id=d.doctypeid and dt.forsale=1
-    join orgs as so on so.id=d.saleorgid
-    join orgs as bo on bo.id=d.orgid
-    where {$sc}
-    group by d.saleorgid, d.orgid, i.refitmid
-    order by saleorgname, d.saleorgid, orgname, d.orgid, itmsum desc, itmname";
+            , d.orgid, bo.name as orgname
+            , i.refitmid, ri.name as itmname, ri.unit
+            , sum(i.qty) as itmqty, sum(i.qty*i.price) as itmsum
+            from wrhdoclst as i
+            join refitems as ri on ri.id=i.refitmid
+            join wrhdocs d on d.id=i.docid
+            join wrhdoctypes dt on dt.id=d.doctypeid and dt.forsale=1
+            join orgs as so on so.id=d.saleorgid
+            join orgs as bo on bo.id=d.orgid
+            where {$sc}
+            group by d.saleorgid, d.orgid, i.refitmid
+            order by saleorgname, d.saleorgid, orgname, d.orgid, itmsum desc, itmname";
             $recs = DB::select(DB::raw($sql));
             //dd($sc, $s_begdate, $sql, $recs);
 
