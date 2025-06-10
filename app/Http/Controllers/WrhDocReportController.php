@@ -15,6 +15,7 @@ use App\Traits\SearchDataTrait;
 //use App\user_template;
 use App\usrsysright;
 use App\wrhdoc;
+use App\wrh;
 use App\wrhdoclst;
 use http\Env\Response;
 use Illuminate\Http\Request;
@@ -1380,7 +1381,7 @@ class WrhDocReportController extends Controller
             , 's_year' => $year
             , 's_orgid' => ''
             , 's_itmtypeid' => ''
-            , 's_fuelcardid' => ''
+            , 's_wrhid' => ''
         ];
 
         $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);
@@ -1449,10 +1450,12 @@ class WrhDocReportController extends Controller
 
                 } elseif ($item == 's_itmtypeid') {
                     $sc = $sc . " and ri.itmtypeid = {$val}";
-                    $sc0 .= " and ri0.itmtypeid = {$val}";
 
                 } elseif ($item == 's_refitmid') {
                     $sc = $sc . " and i.refitmid = {$val}";
+
+                } elseif ($item == 's_wrhid') {
+                    $sc = $sc . " and d.wrhid = {$val}";
 
                 } elseif ($item == 's_begdate') {
                     $sc = $sc . " and d.docdate >= '{$val}'";
@@ -1517,13 +1520,22 @@ class WrhDocReportController extends Controller
                     ->get()->pluck('year', 'year')->toArray();
             });
 
-//        $data->ownorgs = org::lstFor_cached([
-//            'in_mchn_raids_ownorgid' => 1,
-//        ]);
+        $data->ownorgs = org::lstFor_cached([
+            'in_wrhdocs_ownorgid' => 1,
+        ]);
+        //dd($data->ownorgs);
+
         $data->saleorgs = org::lstFor_cached([
             'in_wrhdocs_saleorgid' => 1,
         ]);
         //dd($data->saleorgs);
+
+        $data->wrhs = wrh::lstFor_cached([
+            'in_wrhdocs_wrhid' => 1,
+            'in_wrhdocs_forsale' => 1,
+        ]);
+        //dd($data->wrhs);
+
 //        $data->orgs = org::lstFor_cached([
 //            'in_mr_opers' => 1,
 //            'not_flagtypeid' => 12,
@@ -1538,16 +1550,17 @@ class WrhDocReportController extends Controller
 //        $data->fuelcards = collect($data->fuelcards)->sortBy('name')->reverse()->toArray();
 //        //dd($data->fuelcards);
 
-//        $data->itmtypes = wrhdoclst::from("wrhdoclst as di")
-//            ->join("wrhdocs as d", "d.id", "di.docid")
-//            ->join("refitems as ri", "ri.id", "di.refitmid")
-//            ->join("itmtypes as it", "it.id", "ri.itmtypeid")
-//            ->where("d.doctypeid", 10)  //Поступление от производства
-//            ->select('it.id', 'it.name')
-//            ->distinct()
-//            ->orderby('name', 'asc')
-//            ->get()
-//            ->pluck('name', 'id');
+        $data->itmtypes = wrhdoclst::from("wrhdoclst as di")
+            ->join("wrhdocs as d", "d.id", "di.docid")
+            ->join("refitems as ri", "ri.id", "di.refitmid")
+            ->join("itmtypes as it", "it.id", "ri.itmtypeid")
+            ->join("wrhdoctypes as dt", "dt.id", "d.doctypeid")
+            ->where("dt.forsale", 1)  //Реализация
+            ->select('it.id', 'it.name')
+            ->distinct()
+            ->orderby('name', 'asc')
+            ->get()
+            ->pluck('name', 'id');
         //dd($data->itmtypes);
 
 

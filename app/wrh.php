@@ -350,6 +350,19 @@ class wrh extends Model
                         //                    } elseif ($key == 'not_in_cwp_workid') {
 //                        $sc .= " and not exists( select 1 from cwp_works as w where w.keyworkid=kw.id
 //                        and w.cwp_id={$val[0]} and w.id<>{$val[1]})";
+
+                    } elseif ($key == 'in_wrhdocs_wrhid') {
+                        // использовалась в документах складского учета как склад-источник
+                        $sc .= " and " . (($val == 0) ? "not" : "")
+                            . " exists (select 1 from wrhdocs as d where d.wrhid=w.id)";
+
+                    } elseif ($key == 'in_wrhdocs_forsale') {
+                        // использовалась в документах складского учета как склад-источник
+                        $sc .= " and " . (($val == 0) ? "not" : "")
+                            . " exists (select 1 from wrhdocs as d
+                            join wrhdoctypes as dt on dt.id=d.doctypeid
+                            where d.wrhid=w.id and dt.forsale={$val})";
+
                     }
                 }
 
@@ -379,6 +392,23 @@ class wrh extends Model
             asort($lst);
             //dd($sc,$lst);
             return $lst;
+        } else
+            return null;
+    }
+
+    static public function lstFor_cached($params, $cache_minutes = null)
+    {
+        //2025-06-10 SNS. кэшируемый результат списка
+
+        if (isset($params) and is_countable($params) and count($params) > 0) {
+
+            $hash = md5(serialize($params));
+
+            Cache::forget('lstFor_' . $hash);
+            return Cache::remember('lstFor_' . $hash, now()->addMinutes($cache_minutes ?? 5)
+                , function () use ($params) {
+                    return self::lstFor($params);
+                });
         } else
             return null;
     }

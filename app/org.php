@@ -1221,6 +1221,11 @@ class org extends Model
                             . " exists (select 1 from invoices as inv
                                     where inv.orgid=o.id and inv.categoryid=12)";
 
+                    } elseif ($key == 'in_wrhdocs_ownorgid') {
+                        // использовалась в документах складского учета как Компания-владелец
+                        $sc .= " and " . (($val == 0) ? "not" : "")
+                            . " exists (select 1 from wrhdocs as d where d.ownorgid=o.id)";
+
                     } elseif ($key == 'in_documents_ownorg') {
                         // использовалась в архиве документов как Компания-регистратор (в чьей канцелярии)
                         $sc .= " and " . (($val == 0) ? "not" : "")
@@ -1351,6 +1356,11 @@ class org extends Model
                         // использовалась в документах склада как Компания-владелец склада
                         $sc .= " and " . (($val == 0) ? "not" : "")
                             . " exists (select 1 from wrhdocs as d where d.ownorgid=o.id)";
+
+                    } elseif ($key == 'in_wrhdocs_saleorgid') {
+                        // использовалась в документах склада как Компания-продавец товара
+                        $sc .= " and " . (($val == 0) ? "not" : "")
+                            . " exists (select 1 from wrhdocs as d where d.saleorgid=o.id)";
 
                     } elseif ($key == 'in_wrhdocs_org') {
                         // использовалась в документах склада как Компания-контрагент

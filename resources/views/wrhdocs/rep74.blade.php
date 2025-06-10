@@ -116,10 +116,21 @@ $action_url = route('reports.rep' . $thisObjId);
                                                         ])
                                                         !!}
                                     </div>
-                                    @if(1==0)
+                                    @if(1==1)
                                         <div class="form-group col-md-3">
                                             <label for="s_ownorgid" class="">Владелец:</label>
                                             {!! Form::select('s_ownorgid', $data->ownorgs??[], $search_params['s_ownorgid'],
+                                                            [
+                                                            'class' => 'form-control',
+                                                            'placeholder' => '-все-',
+                                                            ])
+                                                            !!}
+                                        </div>
+                                    @endif
+                                    @if(1==1)
+                                        <div class="form-group col-md-3">
+                                            <label for="s_ownorgid" class="">Склад:</label>
+                                            {!! Form::select('s_wrhid', $data->wrhs??[], $search_params['s_wrhid']??'',
                                                             [
                                                             'class' => 'form-control',
                                                             'placeholder' => '-все-',
@@ -152,7 +163,7 @@ $action_url = route('reports.rep' . $thisObjId);
                                                             !!}
                                         </div>
                                     @endif
-                                    @if(1==0)
+                                    @if(1==1)
                                         <div class="form-group col-md-3">
                                             <label for="s_categoryid">Категория продукции:</label>
                                             {!! Form::select('s_itmtypeid', $data->itmtypes, $search_params['s_itmtypeid']??'',
