@@ -1005,7 +1005,7 @@ class AnaliticsController extends Controller
             ['title' => 'заказчик', 'jointbl' => 'o', 'fld' => 'mro.orgid', 'lbl' => 'orgid', 'show_val' => 'ifnull(o.name,"-не определен-")'],
             ['title' => 'диспетчер', 'jointbl' => 'ds', 'fld' => 'mro.disp_staffid', 'lbl' => 'disp_staffid', 'show_val' => 'ifnull(ds.name,"-нет-")'],
             ['title' => 'поставщик', 'jointbl' => 'so', 'fld' => 'mro.suporgid', 'lbl' => 'suporgid', 'show_val' => 'ifnull(so.name,"-не известен-")'],
-            ['title' => 'груз/услуга', 'jointbl' => 'ri', 'fld' => 'mro.refitmid', 'lbl' => 'refitmid', 'show_val' => 'ifnull(ri.name,"-не известен-")'],
+            ['title' => 'груз/услуга', 'jointbl' => 'ri', 'fld' => 'mro.refitmid', 'lbl' => 'refitmname', 'show_val' => 'ifnull(ri.name,"-не известен-")'],
             ['title' => 'водитель', 'jointbl' => 'os', 'fld' => 'mr.driverid', 'lbl' => 'driverid', 'show_val' => 'ifnull(os.name,"-не известен-")'],
             ['title' => 'тип оплаты', 'jointbl' => 'pt', 'fld' => 'mro.paytypeid', 'lbl' => 'paytypeid', 'show_val' => 'ifnull(pt.name,"-не известен-")'],
             ['title' => 'место поставщика', 'jointbl' => 'p_l', 'fld' => 'mro.sup_placeid', 'lbl' => 'sup_placeid', 'show_val' => 'ifnull(p_l.name,"-не известно-")'],
