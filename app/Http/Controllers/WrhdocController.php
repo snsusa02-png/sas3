@@ -1279,16 +1279,23 @@ class WrhdocController extends Controller
         $src_doctypeid = 10;    // "Родительский" документ должен быть типа 10 - Накладная на прием товара (от производства)
         $chld_doctypeid = 5;    // 'Акт списания на производство'
 
+        $err_route = route('wrhdocs.edit', $srcdocid);
+        $sd = array();
+
         if (!isset($chld_doctypeid))
             return false;
 
         $srcdoc = wrhdoc::find($srcdocid);
-        if (!isset($srcdoc))
-            return false;
+        if (!isset($srcdoc)) {
+            $sd["error"] = 'Указанный документ не найден!';
+            return redirect($err_route)->with($sd);
+        }
 
         //"Родительский" документ должен быть утвержден
-        if ($srcdoc->docsigned <> 1)
-            return false;
+        if ($srcdoc->docsigned <> 1){
+            $sd["error"] = 'Исходный документ должен быть утвержден!';
+            return redirect($err_route)->with($sd);
+        }
 
         //"Родительский" документ должен быть типа 10 - Накладная на прием товара (от производства)
         if ($srcdoc->doctypeid <> $src_doctypeid)
@@ -1310,6 +1317,7 @@ class WrhdocController extends Controller
             ->whereNotNull('dl.cmpndid')
             ->select(db::raw("count(1) as itm_cnt"), db::raw("sum(c.docsigned) as actv_cnt"))
             ->first();
+        //dd($cnts, $srcdocid, $cnts->actv_cnt, $cnts->itm_cnt);
 
         if ($cnts->actv_cnt > 0 and $cnts->actv_cnt == $cnts->itm_cnt) {
             $userid = \Auth::user()->id;
@@ -1395,6 +1403,9 @@ class WrhdocController extends Controller
             DB::commit();
 
             return redirect(route('wrhdocs.edit', $doc->id));
+        }else{
+            $sd["error"] = 'Не все используемые рецепты утверждены! Создание документа списания на производство невозможно.';
+            return redirect($err_route)->with($sd);
         }
 
     }
