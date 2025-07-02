@@ -231,13 +231,14 @@
                                         <td class="c">{{$item->wrh->name}}</td>
                                         <td class="text-center">
                                             <span class="{{$status_name_class}}"> {{$item->statusname}}</span>
-
-                                            <a href="{{ route($thisSysObjCode.'.clone',$item->id)}}"
-                                               class="btn btn-sm btn-warning ml-1"
-                                               title="Создать копию записи"
-                                               onclick="return confirm('Создать копию записи?')">
-                                                <i class="fa fa-files-o" aria-hidden="true"></i>
-                                            </a>
+                                            @if ($usrrights['create'])
+                                                <a href="{{ route($thisSysObjCode.'.clone',$item->id)}}"
+                                                   class="btn btn-sm btn-warning ml-1"
+                                                   title="Создать копию записи"
+                                                   onclick="return confirm('Создать копию записи?')">
+                                                    <i class="fa fa-files-o" aria-hidden="true"></i>
+                                                </a>
+                                            @endif
                                         </td>
                                         <td class="text-right">
                                             <a href="{{ route('wrhdocs.edit',$item->id)}}"
