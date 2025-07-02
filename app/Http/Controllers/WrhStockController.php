@@ -165,7 +165,10 @@ left join (SELECT refitmid, orgid, max(price) as price
 where "
                     . $sc
                     . " order by `w`.`name` asc, `w`.`id` asc
-, `wb`.`name` asc, `wb`.`id` asc, `oo`.`name` asc, `ws`.`ownorgid` asc, `itmtype_ordr` asc, `itmtype_name` asc, `ri`.`itmtypeid` asc, `ri`.`name` asc";
+, `wb`.`name` asc, `wb`.`id` asc
+, `oo`.`name` asc, `ws`.`ownorgid` asc
+, `itmtype_ordr` asc, `itmtype_name` asc, `ri`.`itmtypeid` asc
+, `ri`.`name` asc";
 
                 $recs = DB::select(DB::raw($sql));
                 //dd($recs);
