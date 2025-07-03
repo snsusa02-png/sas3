@@ -207,7 +207,7 @@ $action_url = route('reports.rep' . $thisObjId);
                        title="печать">
                         <i class="fa fa-print" aria-hidden="true"></i>
                     </a>
-                        @if(1==1)
+                        @if(1==0)
                             <a class="btn btn-success btn-sm mr-3"
                                href="{{ route('reports.rep61')  }}?xls=1" title="Выгрузить результаты в Excel">
                                         <i class="fa fa-file-excel-o" aria-hidden="true"></i>
