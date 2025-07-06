@@ -1400,6 +1400,7 @@ Route::get('wrhdocs/{id}/clone', "WrhdocController@clone")->name('wrhdocs.clone'
 Route::get('wrhdocs/{id}/print', "WrhdocController@print")->name('wrhdocs.print');
 Route::get('wrhdocs/{id}/print/{formid}', "WrhdocController@print_form")->name('wrhdocs.print_form');
 Route::get('wrhdocs/{id}/make_doc5', "WrhdocController@make_doc5")->name("wrhdocs.make_doc5");
+Route::get('wrhdocs/0/make_docs10', "WrhdocController@make_docs10")->name("wrhdocs.make_docs10");
 
 //Полный пересчет остатков на складах
 Route::get('wrh_stocks/recalc', "WrhdocController@recalc_stock")->name('recalc_stock');

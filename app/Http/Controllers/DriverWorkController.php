@@ -887,7 +887,7 @@ class DriverWorkController extends Controller
 
         // Регистрация расчета ЗП сотрудника за месяц
         driver_work::refr_stf_month_chrg_calc($rec->staffid, $rec->wrkdate, $userid);
-        if(1==0) {
+        if (1 == 0) {
             // ----------------------------------------------------------------------------------------------
             // Регистрация расчета ЗП
 
@@ -1011,9 +1011,11 @@ class DriverWorkController extends Controller
             $sd["error"] = $res->msg;
             connectify('error', $res->obj['name'] ?? 'id:' . $res->obj['id'], $res->msg);
         } else {
-            // Регистрация расчета ЗП сотрудника за месяц
-            driver_work::refr_stf_month_chrg_calc(11, $res->obj['staffid'], $res->obj['wrkdate'], \Auth::user()->id);
-            //dd($res->obj);
+            if (isset($res->obj['staffid'])) {
+                // Регистрация расчета ЗП сотрудника за месяц
+                driver_work::refr_stf_month_chrg_calc($res->obj['staffid'], $res->obj['wrkdate'], \Auth::user()->id);
+                //dd($res->obj);
+            }
 
             $sd['success'] = 'Запись (' . $id . ': '
                 . ($res->obj['name'] ?? '') . ') удалена';

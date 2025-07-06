@@ -39,6 +39,7 @@ class objflag extends Model
 
     public static function getFlags4Obj($sysobjid, $objid)
     {
+        //Cache::forget('getFlags4Obj_' . $sysobjid . '_' . $objid);
         return Cache::remember('getFlags4Obj_' . $sysobjid . '_' . $objid, now()->addMinutes(10)
             , function () use ($sysobjid, $objid) {
                 return static::from('objflags as o')
@@ -71,12 +72,31 @@ class objflag extends Model
                 $j->on('f.flagtypeid', 'ft.id')
                     ->where('objid', $objid);
             })
+            //2025-06-15
+            //->where('ft.forsysobjid', $sysobjid)
+            //2025-07-05
             ->where('ft.forsysobjid', $sysobjid)
             ->where('ft.active', 1)
             ->select('ft.id', 'ft.name', 'ft.name as flagtype_name', 'f.id as objflagid')
             ->orderby('ft.name')
             ->get();
     }
+
+    /*2025-06-15 Флаги, установленные для объекта $sysobjid, $objid */
+    public static function FlagsForObj($sysobjid, $objid)
+    {
+        //return Cache::remember('FlagsForObj' . $sysobjid . '_' . $objid, now()->addMinutes(10)
+        //    , function () use ($sysobjid, $objid) {
+                return static::from('objflags as f')
+                    ->join('flagtypes as ft', 'ft.id', 'f.flagtypeid')
+                    ->where('f.sysobjid', $sysobjid)
+                    ->where('f.objid', $objid)
+                    ->select('ft.id', 'ft.name', 'ft.name as flagtype_name', 'f.id as objflagid')
+                    ->orderby('ft.name')
+                    ->get();
+        //    });
+    }
+
 
     public static function IsSetObjFlag($sysobjid, $objid, $flagtypeid)
     {

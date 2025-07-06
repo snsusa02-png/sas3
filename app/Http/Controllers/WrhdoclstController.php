@@ -125,8 +125,12 @@ class WrhdoclstController extends Controller
             }
 
             $rec->ri_produced = $rec->wrhdoc->doctype->ri_produced ?? 0;
+            $rec->ri_disassembly = $rec->wrhdoc->doctype->ri_disassembly ?? 0;
 
-            if ($rec->ri_produced == 1) {
+            if ($rec->ri_produced == 1 or $rec->ri_disassembly == 1) {
+                // 2025-04-13 нужно отличить рецепты на производство от рецептов на разборку
+                $rec->prod_dir = ($rec->ri_produced == 1) ? 1 : -1;
+
                 $rec->cmpnd_ownorgid = $rec->wrhdoc->ownorgid;
                 $rec->cmpnd_on_date = $rec->wrhdoc->docdate;
                 $rec->cmpnd_name = $rec->ri_compound->info;
@@ -135,7 +139,9 @@ class WrhdoclstController extends Controller
                 $rec->cmpnd_lst = ri_cmpnd_item::from('ri_cmpnd_items as rici')
                     ->join('refitems as ri', 'ri.id', 'rici.refitmid')
                     ->join('unittypes as ut', 'ut.id', 'ri.unittypeid')
+                    ->join('ri_compounds as ric', 'ric.id', 'rici.cmpndid')
                     ->where('rici.cmpndid', $rec->cmpndid)
+                    ->where('ric.prod_dir', $rec->prod_dir)
                     ->select('rici.refitmid', 'rici.max_qty'
 //                        , db::raw("concat(ri.name, ' : ', rici.max_qty, ' ', ri.unit) as name")
                         , 'ri.name'
@@ -146,7 +152,7 @@ class WrhdoclstController extends Controller
                 //dd($rec->cmpnd_lst);
             }
 
-            // Если позиция нвходится в документе, который связан с документом на производство
+            // Если позиция находится в документе, который связан с документом на производство
             if ($rec->wrhdoc->predoc->doctype->ri_produced ?? 0 == 1) {
                 //dd( $rec->wrhdoc->predocid, $rec->refitmid);
                 // то соберем - в какие произведенные изделия и в каких количествах был потрачен материал $rec->refitmid
@@ -279,7 +285,7 @@ class WrhdoclstController extends Controller
                 //Изменили товар
                 // => отменим влияние прежнего товара
 
-                //Произведенм необходимый контроль и манипуляции с кол-вом данного товара на складе и в заказе
+                //Произведет необходимый контроль и манипуляции с кол-вом данного товара на складе и в заказе
                 //Вернет реально допустимуое кол-во
                 $rslt = wrhdoclst::RefItmQtyAdd2Doc($rec->refitmid, -$rec->qty, $rec->wrhdoc);
                 //$add_qty = $rslt->qty;

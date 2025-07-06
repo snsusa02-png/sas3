@@ -312,6 +312,10 @@ class driver_work extends Model
     public static function refr_stf_month_chrg_calc( $p_staffid, $p_wrkdate, $p_userid)
     {
         $orgstaff = orgstaff::find($p_staffid);
+        //dd($p_staffid, isset($orgstaff), $orgstaff);
+
+        if (!isset($orgstaff))
+            return;
 
         // -- 11 --------------------------------------------------------------------------------------------
         // Регистрация расчета ЗП

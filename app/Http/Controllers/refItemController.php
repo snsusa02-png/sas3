@@ -740,6 +740,7 @@ class refItemController extends Controller
                 ->orderBy('begdate', 'desc')
                 ->get();
 
+
             if (1 == 0) {
                 $rec->offers = equiprqst_item::from('equiprqst_items as eri')
                     ->join('eritm_offers as ofr', 'ofr.eritmid', 'eri.id')
@@ -773,6 +774,16 @@ class refItemController extends Controller
 //                    ->get();
                 //dd($rec->last_bot_ri_lims);
             }
+
+            //2025-06-15
+            //$rec->flags = objflag::FlagTypesForObj($this->sysobjid, $rec->id);
+            //$rec->flags = objflag::getFlags4Obj($this->sysobjid, $rec->id);
+
+            //$rec->flags = objflag::FlagsForObj($this->sysobjid, $rec->id);
+            //dd($rec->flags, $this->sysobjid, $rec->id);
+            //2025-07-05
+            $rec->flags = objflag::FlagTypesForObj(105, $rec->id);
+            //dd($rec->flags);
 
 
             return view('refitems.edit',
@@ -905,6 +916,26 @@ class refItemController extends Controller
 
             //Установим флаг 21 (изменились характеристики товаров) для условно-общего товара id="0")
             objflag::UpdObjFlag(105, 0, 21);
+
+            //2025-07-05
+            // Сохранение флагов --------------------------------------------------------------------
+            $setflags = $request->get('flagid');
+            $allflags = $request->get('lstflags');
+            $allflags = isset($allflags) ? substr($allflags, 1) : '';
+            if (isset($allflags)) {
+                $allflags = explode(',', $allflags);
+
+                foreach ($allflags as $flagid) {
+                    if (isset($setflags[$flagid])) {
+                        objflag::AddObjFlag($this->sysobjid, $refitem->id, $flagid);
+                    } else {
+                        objflag::DelObjFlag($this->sysobjid, $refitem->id, $flagid);
+                    }
+                }
+                //dd(1);
+            }
+            // --------------------------------------------------------------------------------------
+
 
             Cache::forget('lst_ri_brands'); //Бренды, использованные в прайслисте
 

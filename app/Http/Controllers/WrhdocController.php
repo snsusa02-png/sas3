@@ -10,6 +10,7 @@ use App\order;
 use App\orditem;
 use App\org_place;
 use App\refitem;
+use App\ri_compound;
 use App\sysobj_lockdate;
 use App\usrsysright;
 use App\org;
@@ -312,6 +313,13 @@ class WrhdocController extends Controller
                 'name' => 'Получение на линии',
                 'url' => route('dlvrydocs.index'),
                 'title' => 'Получение материала на объекте'
+            ]);
+        }
+        if (usrsysright::isUserHasRightByCode($userid, 'wrhdocs.sign')) {
+            $t_coll->push((object)[
+                'name' => 'Восполнение',
+                'url' => route('wrhdocs.make_docs10'),
+                'title' => 'Производство недостающей продукции'
             ]);
         }
 //        if (usrsysright::isUserHasRightByCode($userid, 'admin-global')) {
@@ -847,7 +855,8 @@ class WrhdocController extends Controller
 
                 //$limit_stock = true; //todo: сделать преференцию "Не снижать запас ниже 0"
                 // Преференция для владельца товара: FlagTypeID = 190: Если есть, то можно снижать товарный запас < 0
-                $limit_stock = !objflag::IsSetObjFlag(111, $rec->ownorgid, 190);
+                $org_limit_stock = !objflag::IsSetObjFlag(111, $rec->ownorgid, 190);
+                $limit_stock = $org_limit_stock;
 
                 DB::beginTransaction();
 
@@ -893,6 +902,14 @@ class WrhdocController extends Controller
                         else
                             //значение для документа
                             $itm_forstock = $forstock;
+
+                        //если можно снижать запас менее 0 по организации, то дальше не проверяем
+                        if (!$org_limit_stock)
+                            $limit_stock = $org_limit_stock;
+                        else
+                            //проверим, можно ли снижаться ниже 0 для конкретного товара
+                            $limit_stock = !objflag::IsSetObjFlag(105, $itm->refitmid, 190);
+
 
                         $sc1 = '';
                         // если документ снижает товарный запас
@@ -1408,6 +1425,146 @@ class WrhdocController extends Controller
             return redirect($err_route)->with($sd);
         }
 
+    }
+
+    //создание документов на производство недостающих товарных позиций
+    public function make_docs10(){
+        $tgt_doctypeid = 10;
+        $ret_route = route('wrhdocs.index');
+        $sd = array();
+
+        $userid = \Auth::user()->id;
+        $userid=78;
+        //dd($userid);
+
+
+        $itm_cnt = wrh_stock::from('wrh_stocks as s')
+            // ограничение по организации пользователя
+            ->join('orgstaff as os', function ($join) use ($userid) {
+                $join->on('os.orgid', '=', 's.ownorgid')
+                    ->where("os.userid", $userid);
+            })
+            ->where('s.qty','<',0)
+            ->whereExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('ri_compounds as ric')
+                    ->whereRaw('ric.refitmid = s.refitmid')
+                    ->where('ric.active',1)
+                    ->whereRaw('curdate() between ric.begdate and ifnull(ric.enddate, curdate())');
+            })
+            ->count();
+        //dd($itm_cnt);
+
+        if($itm_cnt>0){
+            $ditms = wrh_stock::from('wrh_stocks as s')
+                // ограничение по организации пользователя
+                ->join('orgstaff as os', function ($join) use ($userid) {
+                    $join->on('os.orgid', '=', 's.ownorgid')
+                        ->where("os.userid", $userid);
+                })
+                ->where('s.qty','<',0)
+                ->whereExists(function ($query) {
+                    $query->select(DB::raw(1))
+                        ->from('ri_compounds as ric')
+                        ->whereRaw('ric.refitmid = s.refitmid')
+                        ->where('ric.active',1)
+                        ->whereRaw('curdate() between ric.begdate and ifnull(ric.enddate, curdate())');
+                })
+                ->select('s.ownorgid','s.wrhid','s.boxid', db::raw("count(distinct s.refitmid) as qty"))
+                ->groupBy('s.ownorgid', 's.wrhid', 's.boxid')
+                ->get();
+//            dd($ditms);
+
+            $doc_cnt = 0;
+
+            DB::beginTransaction();
+
+            foreach ($ditms as $src){
+                $doc_cnt++;
+
+                $disp_staffid = orgstaff::where('userid', $userid)
+                    ->where('orgid',$src->ownorgid)
+                    ->first()->id;
+                //dd($userid, $disp_staffid);
+
+                //определим макс.№ док-та для этого типа и владельца
+                $docnum = wrhdoc::where('doctypeid', 10)
+                    ->where('ownorgid',$src->ownorgid)
+                    ->max('docnum')+1;
+
+                //dd($doc_cnt, $docnum);
+                $doc = new wrhdoc([
+                    'ownorgid' => $src->ownorgid,
+                    'orgid' => $src->ownorgid,
+                    'doctypeid' => $tgt_doctypeid,  //'Поступление товара от производства'
+                    'wrhid' => $src->wrhid,       //склад
+                    'boxid' => $src->boxid,       //отделение
+                    'docnum' => $docnum,   //
+                    'docdate' => date_format(date_create(), 'Y-m-d'),   //
+                    'disp_staffid' => $disp_staffid,
+                    'remarks' => 'восполнение недостающих запасов',
+                    'created_at' => now(),
+                    'updated_by' => $userid,
+                    ]);
+                //dd($doc);
+                $doc->save();
+
+                if ($doc_cnt==1)
+                    $ret_route = route('wrhdocs.edit', $doc->id);
+
+                $items = wrh_stock::from('wrh_stocks as s')
+                    ->where('s.qty','<',0)
+                    ->where('s.ownorgid',$src->ownorgid)
+                    ->where('s.wrhid',$src->wrhid)
+                    ->where('s.boxid',$src->boxid)
+                    ->whereExists(function ($query) {
+                        $query->select(DB::raw(1))
+                            ->from('ri_compounds as ric')
+                            ->whereRaw('ric.refitmid = s.refitmid')
+                            ->where('ric.active',1)
+                            ->whereRaw('curdate() between ric.begdate and ifnull(ric.enddate, curdate())');
+                    })
+                    ->select('s.refitmid', db::raw("sum(-s.qty) as qty"))
+                    ->groupBy('s.refitmid')
+                    ->get();
+                //dd($items);
+
+                //Сформируем состав документа на производство
+                foreach ($items as $itm) {
+
+                    // определим рецептуру изготовления
+                    $cmpndid = ri_compound::where(['active' => 1, 'refitmid' => $itm->refitmid, 'ownorgid' => $src->ownorgid])
+                        ->whereRaw('curdate() between begdate and ifnull(enddate, curdate())')
+                        ->first()->id;
+                    //dd($cmpndid);
+                    $item = wrhdoclst::where(['docid' => $doc->id, 'refitmid' => $itm->refitmid])->first();
+                    if (!isset($item)) {
+                        $item = new wrhdoclst([
+                            'docid' => $doc->id,
+                            'refitmid' => $itm->refitmid,
+                        ]);
+                    }
+                    $item->cmpndid = $cmpndid;
+                    $item->qty = $itm->qty;
+                    //$item->price = $itm->price;
+                    $item->updated_at = now();
+                    $item->updated_by = $userid;
+                    //dd($item);
+                    $item->save();
+
+                }
+            }
+            DB::commit();
+
+
+            //Сформируекм список Владельцев/Складовв/Отделений с недостающими товарами
+
+
+            $sd["success"]="Создан документ(ы) для восполнения недостачи {$itm_cnt} товарных позиций.";
+        }else
+            $sd["success"]="Восполнение не требуется!";
+
+        return redirect($ret_route)->with($sd);
     }
 
     public function recalc_stock()
