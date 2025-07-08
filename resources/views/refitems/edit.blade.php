@@ -254,7 +254,14 @@
                                               rows="3">{{$rec->descript}}</textarea>
                                 </div>
 
-                                <?php
+
+
+
+
+
+
+
+                            <?php
                                 $length_unit_name = env("LENGTH_UNIT_NAME", "см");
                                 ?>
 
@@ -365,6 +372,41 @@
                                             </div>
                                         </div>
 
+
+                                        @if(isset($rec->flags))
+                                            <?php
+                                            $show = ($rec->id == -1) ? 'show' : '';
+                                            ?>
+                                            <div class="row">
+                                                <div class="offset-md-1 col-md-11">
+                                                    <div class="form-group">
+                                                        <label for="ppp">Особенности товарной позиции:</label>
+                                                        <button data-toggle="collapse" data-target="#objflaglist"
+                                                                type="button"
+                                                                class="btn btn-light btn-sm"><i
+                                                                class="fa fa-eye-slash"
+                                                                aria-hidden="true"></i>
+                                                        </button>
+
+                                                        <ul class="collapse {{$show}}" id="objflaglist">
+                                                            <?php
+                                                            $lstFlags = '';
+                                                            ?>
+                                                            @foreach($rec->flags as $flag)
+                                                                <li><label><input type="checkbox" class="" style="display:inline;"
+                                                                                  name="flagid[{{$flag->id}}]"
+                                                                            {{(isset($flag->objflagid))?'checked':''}}/>&nbsp;{{$flag->name}}
+                                                                    </label></li>
+                                                                @php($lstFlags.=','.$flag->id)
+                                                            @endforeach
+                                                            <input type="hidden" name="lstflags" value="{{$lstFlags}}">
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+
+                                        
                                     </div>
                                 </div>
 
@@ -527,6 +569,8 @@
                     @includeif('refitems/_compounds')
 
                     {{--					@include('refitems/ri_images')--}}
+
+                    @include('objflags._flags')
 
 
 

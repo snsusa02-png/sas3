@@ -31,7 +31,7 @@
                     <h4>{{$thisTitle}}</h4>
 
                     <div class="row mb-2">
-                        <div class="offset-md-4 col-md-8 ">
+                        <div class="offset-md-3 col-md-9 ">
                             <div class="subnav shift text-right">
                                 @if(isset($data->top_right_menu))
                                     <ul>
@@ -222,7 +222,8 @@
                                     <tr style="{{$trStyle}}">
                                         <td scope="row" class="small text-right">{{$loop->index+1+$rec0}}</td>
                                         <td><a href="{{ route('wrhdocs.edit',$item->id)}}"
-                                               target="_self">№{{$item->docnum}} от <span class="small">{{date_format(date_create($item->docdate),'d.m.Y')}}</span></a>
+                                               target="_self">№{{$item->docnum}} от <span
+                                                    class="small">{{date_format(date_create($item->docdate),'d.m.Y')}}</span></a>
                                             <div class="small">{{$item->doctype->name}}</div>
                                             <div class="">{{$item->ownorg_name}}</div>
                                             <div class="">{{$item->org_name}}</div>
