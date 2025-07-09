@@ -1434,16 +1434,20 @@ class WrhdocController extends Controller
         $sd = array();
 
         $userid = \Auth::user()->id;
-        $userid=78;
+        //$userid=78;
         //dd($userid);
+        $userorgid = \Auth::user()->curorgid;
+//        dd($userorgid);
+
 
 
         $itm_cnt = wrh_stock::from('wrh_stocks as s')
             // ограничение по организации пользователя
-            ->join('orgstaff as os', function ($join) use ($userid) {
-                $join->on('os.orgid', '=', 's.ownorgid')
-                    ->where("os.userid", $userid);
-            })
+//            ->join('orgstaff as os', function ($join) use ($userid) {
+//                $join->on('os.orgid', '=', 's.ownorgid')
+//                    ->where("os.userid", $userid);
+//            })
+            ->where('s.ownorgid', $userorgid)
             ->where('s.qty','<',0)
             ->whereExists(function ($query) {
                 $query->select(DB::raw(1))
@@ -1458,10 +1462,11 @@ class WrhdocController extends Controller
         if($itm_cnt>0){
             $ditms = wrh_stock::from('wrh_stocks as s')
                 // ограничение по организации пользователя
-                ->join('orgstaff as os', function ($join) use ($userid) {
-                    $join->on('os.orgid', '=', 's.ownorgid')
-                        ->where("os.userid", $userid);
-                })
+//                ->join('orgstaff as os', function ($join) use ($userid) {
+//                    $join->on('os.orgid', '=', 's.ownorgid')
+//                        ->where("os.userid", $userid);
+//                })
+                ->where('s.ownorgid', $userorgid)
                 ->where('s.qty','<',0)
                 ->whereExists(function ($query) {
                     $query->select(DB::raw(1))

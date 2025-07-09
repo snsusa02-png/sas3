@@ -1,4 +1,11 @@
 ﻿2025-06-15 ------------------------------------------------------------------------
+select `ft`.`id`, `ft`.`name`, `ft`.`name` as `flagtype_name`, `f`.`id` as `objflagid` from `flagtypes` as `ft`
+left join `objflags` as `f` on `f`.`flagtypeid` = `ft`.`id` and `objid` = 1481
+where `ft`.`active` = 1  and ft.forsysobjid=105
+order by `ft`.`name` asc;
+
+2025-06-15 ------------------------------------------------------------------------
+
 INSERT INTO `objflags` (`sysobjid`, `objid`, `flagtypeid`) VALUES ('105', '1481', '190');
 INSERT INTO `objflags` (`sysobjid`, `objid`, `flagtypeid`) VALUES ('105', '1761', '190');
 
