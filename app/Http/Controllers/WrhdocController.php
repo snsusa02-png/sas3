@@ -420,7 +420,7 @@ class WrhdocController extends Controller
             'active_or_current' => $rec->placeid,
         ]);
         //dd($rec->places);
-        if(is_null($rec->placeid) and sizeof($rec->places) == 1)
+        if (is_null($rec->placeid) and sizeof($rec->places) == 1)
             $rec->placeid = array_key_first($rec->places);
         //dd($rec->placeid);
 
@@ -558,7 +558,7 @@ class WrhdocController extends Controller
 
         //Потенциальное право на создание документа на списание материалов на производство.
         // Ниже (в blade) будет проверяться необходимость
-        $usrrights['make_doc5'] = ($rec->doctypeid==10 and $rec->docsigned == 1);
+        $usrrights['make_doc5'] = ($rec->doctypeid == 10 and $rec->docsigned == 1);
 
         if ($usrrights['safe_save']) {
             //установим минимально-допустимую дату для wrkdate
@@ -591,27 +591,27 @@ class WrhdocController extends Controller
                 ->get();
 
         //dd($rec->finopers);
-            $usrrights['obj_expenses.create'] = true;
-            $usrrights['obj_expenses.update'] = true;
-            $rec->expenses = obj_expense::from('obj_expenses as oe')
-                ->leftjoin('opertypes as ot', 'ot.id', 'oe.opertypeid')
-                ->leftjoin('expensetypes as et', 'et.id', 'oe.expensetypeid')
-                ->where('oe.sysobjid', $this->sysobjid)
-                ->where('oe.objid', $rec->id)
-                ->select('oe.*'
-                    , 'ot.name as opertype_name'
-                    , 'et.name as expensetype_name'
-                )
-                ->orderBy('oe.operdate')
-                ->get();
+        $usrrights['obj_expenses.create'] = true;
+        $usrrights['obj_expenses.update'] = true;
+        $rec->expenses = obj_expense::from('obj_expenses as oe')
+            ->leftjoin('opertypes as ot', 'ot.id', 'oe.opertypeid')
+            ->leftjoin('expensetypes as et', 'et.id', 'oe.expensetypeid')
+            ->where('oe.sysobjid', $this->sysobjid)
+            ->where('oe.objid', $rec->id)
+            ->select('oe.*'
+                , 'ot.name as opertype_name'
+                , 'et.name as expensetype_name'
+            )
+            ->orderBy('oe.operdate')
+            ->get();
 
         //dd($this->sysobjid, $rec->id, $rec->expenses);
 //        dd($usrrights);
         // подсчитаем общие затраты: ------------------------------------
         $rec->tot_expense_sum = 0;
-        foreach ($rec->items as $itm )
-            $rec->tot_expense_sum += $itm->qty*$itm->price;
-       foreach ($rec->expenses as $itm )
+        foreach ($rec->items as $itm)
+            $rec->tot_expense_sum += $itm->qty * $itm->price;
+        foreach ($rec->expenses as $itm)
             $rec->tot_expense_sum += $itm->expense_sum;
 //        dd($rec->tot_expense_sum);
 
@@ -763,7 +763,7 @@ class WrhdocController extends Controller
     public
     function destroy($id)
     {
-        $res = wrhdoc::delete_by_id($id, $this->sysobjid );
+        $res = wrhdoc::delete_by_id($id, $this->sysobjid);
         $route = "";
         $sd = array();
         if ($res->err == 1) {
@@ -1309,7 +1309,7 @@ class WrhdocController extends Controller
         }
 
         //"Родительский" документ должен быть утвержден
-        if ($srcdoc->docsigned <> 1){
+        if ($srcdoc->docsigned <> 1) {
             $sd["error"] = 'Исходный документ должен быть утвержден!';
             return redirect($err_route)->with($sd);
         }
@@ -1420,7 +1420,7 @@ class WrhdocController extends Controller
             DB::commit();
 
             return redirect(route('wrhdocs.edit', $doc->id));
-        }else{
+        } else {
             $sd["error"] = 'Не все используемые рецепты утверждены! Создание документа списания на производство невозможно.';
             return redirect($err_route)->with($sd);
         }
@@ -1428,7 +1428,8 @@ class WrhdocController extends Controller
     }
 
     //создание документов на производство недостающих товарных позиций
-    public function make_docs10(){
+    public function make_docs10()
+    {
         $tgt_doctypeid = 10;
         $ret_route = route('wrhdocs.index');
         $sd = array();
@@ -1440,7 +1441,6 @@ class WrhdocController extends Controller
 //        dd($userorgid);
 
 
-
         $itm_cnt = wrh_stock::from('wrh_stocks as s')
             // ограничение по организации пользователя
 //            ->join('orgstaff as os', function ($join) use ($userid) {
@@ -1448,18 +1448,18 @@ class WrhdocController extends Controller
 //                    ->where("os.userid", $userid);
 //            })
             ->where('s.ownorgid', $userorgid)
-            ->where('s.qty','<',0)
+            ->where('s.qty', '<', 0)
             ->whereExists(function ($query) {
                 $query->select(DB::raw(1))
                     ->from('ri_compounds as ric')
                     ->whereRaw('ric.refitmid = s.refitmid')
-                    ->where('ric.active',1)
+                    ->where('ric.active', 1)
                     ->whereRaw('curdate() between ric.begdate and ifnull(ric.enddate, curdate())');
             })
             ->count();
         //dd($itm_cnt);
 
-        if($itm_cnt>0){
+        if ($itm_cnt > 0) {
             $ditms = wrh_stock::from('wrh_stocks as s')
                 // ограничение по организации пользователя
 //                ->join('orgstaff as os', function ($join) use ($userid) {
@@ -1467,15 +1467,15 @@ class WrhdocController extends Controller
 //                        ->where("os.userid", $userid);
 //                })
                 ->where('s.ownorgid', $userorgid)
-                ->where('s.qty','<',0)
+                ->where('s.qty', '<', 0)
                 ->whereExists(function ($query) {
                     $query->select(DB::raw(1))
                         ->from('ri_compounds as ric')
                         ->whereRaw('ric.refitmid = s.refitmid')
-                        ->where('ric.active',1)
+                        ->where('ric.active', 1)
                         ->whereRaw('curdate() between ric.begdate and ifnull(ric.enddate, curdate())');
                 })
-                ->select('s.ownorgid','s.wrhid','s.boxid', db::raw("count(distinct s.refitmid) as qty"))
+                ->select('s.ownorgid', 's.wrhid', 's.boxid', db::raw("count(distinct s.refitmid) as qty"))
                 ->groupBy('s.ownorgid', 's.wrhid', 's.boxid')
                 ->get();
 //            dd($ditms);
@@ -1484,18 +1484,18 @@ class WrhdocController extends Controller
 
             DB::beginTransaction();
 
-            foreach ($ditms as $src){
+            foreach ($ditms as $src) {
                 $doc_cnt++;
 
                 $disp_staffid = orgstaff::where('userid', $userid)
-                    ->where('orgid',$src->ownorgid)
+                    ->where('orgid', $src->ownorgid)
                     ->first()->id;
                 //dd($userid, $disp_staffid);
 
                 //определим макс.№ док-та для этого типа и владельца
                 $docnum = wrhdoc::where('doctypeid', 10)
-                    ->where('ownorgid',$src->ownorgid)
-                    ->max('docnum')+1;
+                        ->where('ownorgid', $src->ownorgid)
+                        ->max('docnum') + 1;
 
                 //dd($doc_cnt, $docnum);
                 $doc = new wrhdoc([
@@ -1510,23 +1510,24 @@ class WrhdocController extends Controller
                     'remarks' => 'восполнение недостающих запасов',
                     'created_at' => now(),
                     'updated_by' => $userid,
-                    ]);
+                ]);
                 //dd($doc);
                 $doc->save();
 
-                if ($doc_cnt==1)
+                if ($doc_cnt == 1)
                     $ret_route = route('wrhdocs.edit', $doc->id);
 
                 $items = wrh_stock::from('wrh_stocks as s')
-                    ->where('s.qty','<',0)
-                    ->where('s.ownorgid',$src->ownorgid)
-                    ->where('s.wrhid',$src->wrhid)
-                    ->where('s.boxid',$src->boxid)
+                    ->where('s.qty', '<', 0)
+                    ->where('s.ownorgid', $src->ownorgid)
+                    ->where('s.wrhid', $src->wrhid)
+                    ->where('s.boxid', $src->boxid)
                     ->whereExists(function ($query) {
                         $query->select(DB::raw(1))
                             ->from('ri_compounds as ric')
                             ->whereRaw('ric.refitmid = s.refitmid')
-                            ->where('ric.active',1)
+                            ->whereRaw('ric.ownorgid = s.ownorgid')
+                            ->where('ric.active', 1)
                             ->whereRaw('curdate() between ric.begdate and ifnull(ric.enddate, curdate())');
                     })
                     ->select('s.refitmid', db::raw("sum(-s.qty) as qty"))
@@ -1538,24 +1539,29 @@ class WrhdocController extends Controller
                 foreach ($items as $itm) {
 
                     // определим рецептуру изготовления
-                    $cmpndid = ri_compound::where(['active' => 1, 'refitmid' => $itm->refitmid, 'ownorgid' => $src->ownorgid])
+                    $cmpnd = ri_compound::where(['active' => 1
+                        , 'refitmid' => $itm->refitmid
+                        , 'ownorgid' => $src->ownorgid])
                         ->whereRaw('curdate() between begdate and ifnull(enddate, curdate())')
-                        ->first()->id;
-                    //dd($cmpndid);
-                    $item = wrhdoclst::where(['docid' => $doc->id, 'refitmid' => $itm->refitmid])->first();
-                    if (!isset($item)) {
-                        $item = new wrhdoclst([
-                            'docid' => $doc->id,
-                            'refitmid' => $itm->refitmid,
-                        ]);
+                        ->first();
+                    if (isset($cmpnd)) {
+                        $cmpndid = $cmpnd->id;
+                        //dd($cmpndid);
+                        $item = wrhdoclst::where(['docid' => $doc->id, 'refitmid' => $itm->refitmid])->first();
+                        if (!isset($item)) {
+                            $item = new wrhdoclst([
+                                'docid' => $doc->id,
+                                'refitmid' => $itm->refitmid,
+                            ]);
+                        }
+                        $item->cmpndid = $cmpndid;
+                        $item->qty = $itm->qty;
+                        //$item->price = $itm->price;
+                        $item->updated_at = now();
+                        $item->updated_by = $userid;
+                        //dd($item);
+                        $item->save();
                     }
-                    $item->cmpndid = $cmpndid;
-                    $item->qty = $itm->qty;
-                    //$item->price = $itm->price;
-                    $item->updated_at = now();
-                    $item->updated_by = $userid;
-                    //dd($item);
-                    $item->save();
 
                 }
             }
@@ -1565,9 +1571,9 @@ class WrhdocController extends Controller
             //Сформируекм список Владельцев/Складовв/Отделений с недостающими товарами
 
 
-            $sd["success"]="Создан документ(ы) для восполнения недостачи {$itm_cnt} товарных позиций.";
-        }else
-            $sd["success"]="Восполнение не требуется!";
+            $sd["success"] = "Создан документ(ы) для восполнения недостачи {$itm_cnt} товарных позиций.";
+        } else
+            $sd["success"] = "Восполнение не требуется!";
 
         return redirect($ret_route)->with($sd);
     }
