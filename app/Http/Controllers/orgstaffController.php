@@ -118,7 +118,7 @@ class orgstaffController extends Controller
             if (isset($val) and strlen($val) > 0) {
 
                 if ($item == 's_name') {
-                    $sc = $sc . " and concat(os.lname,' ',os.fname,' ',ifnull(os.mname,'')) like '%" . mb_strtoupper($val) . "%'";
+                    $sc = $sc . " and concat(' ', os.lname,' ',os.fname,' ',ifnull(os.mname,'')) like '% " . mb_strtoupper($val) . "%'";
 
                 } elseif ($item == 's_orgflagid') {
                     $sc .= " and exists(select 1 from objflags f where f.sysobjid=111 and f.objid=os.orgid and f.flagtypeid={$val})";
@@ -646,7 +646,7 @@ class orgstaffController extends Controller
 
         $sc = "1=1";
         if (strlen($search_name) > 0) {
-            $sc = $sc . " and lname like '%" . mb_strtoupper($search_name) . "%'";
+            $sc = $sc . " and concat(' ', lname) like '% " . mb_strtoupper($search_name) . "%'";
         }
         if (strlen($s_postname) > 0) {
             $sc = $sc . " and postname like '" . ($s_postname) . "%'";

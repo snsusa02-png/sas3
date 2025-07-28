@@ -1514,3 +1514,23 @@ Route::get('/obj_expenses/{id}/edit', "ObjExpenseController@edit")->name('obj_ex
 Route::match(array('POST', 'PUT'), 'obj_expenses/{id}', "ObjExpenseController@update")->name('obj_expenses.update');
 Route::put('/obj_expenses/{id}/delete', "ObjExpenseController@destroy")->name("obj_expenses.delete");
 //---------------------------------------------------------------------------------
+
+// idcards - идентифицирующие карты сотрудников - для регистрации операций/расходов по сотрдунику --------------------------------------------------------------------------------
+Route::match(array('GET', 'POST'), '/idcards', "IdcardController@index")->name('idcards.index');
+Route::get('/idcards/sort/{field}', 'IdcardController@index_sort')->name('idcards.sort');
+Route::get('idcards/create', "IdcardController@create")->name('idcards.create');
+Route::get('idcards/{id}', 'IdcardController@edit')->name('idcards.edit');
+Route::match(array('POST', 'PUT'), 'idcards/{id}', "IdcardController@update")->name('idcards.update');
+Route::put('idcards/{id}/delete', "IdcardController@destroy")->name("idcards.delete");
+Route::put('idcards/{id}/admindelete', "IdcardController@admindelete")->name("idcards.admindelete");
+
+Route::get('idcard_staffs/create/{cardid}', "IdcardStaffController@create")->name('idcard_staffs.create');
+Route::get('idcard_staffs/edit/{id}/{cardid}', 'IdcardStaffController@edit')->name('idcard_staffs.edit');
+Route::match(array('POST', 'PUT'), 'idcard_staffs/{id}', "IdcardStaffController@update")->name('idcard_staffs.update');
+Route::put('idcard_staffs/{id}/delete', "IdcardStaffController@destroy")->name("idcard_staffs.delete");
+
+//загрузка новых записей об удержаниях сотрудника из файла в формате XLS с идентификацией сотрудника по номеру карты IDCard
+//stf_chrg_calcs
+//mchn_spare_usages
+Route::get('stf_chrg_calcs/load/xls', "StfChrgCalcController@load")->name('stf_chrg_calcs.load');
+Route::put('stf_chrg_calcs/import/xls', "StfChrgCalcController@import")->name('stf_chrg_calcs.import');

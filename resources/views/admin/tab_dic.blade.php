@@ -74,6 +74,12 @@
             </a>
         @endif
 
+        @if (\App\usrsysright::isUserHasRightByCode(\Auth::user()->id,'paydocs.read'))
+            <a href="{{route('idcards.index')}}"
+               class="list-group-item list-group-item-action">Идентификационные карты сотрудников
+            </a>
+        @endif
+
         @if (\App\usrsysright::isUserHasRightByCode(\Auth::user()->id,'route_points.read'))
             <a href="{{route('route_points.index')}}"
                class="list-group-item list-group-item-action">Баллы по маршрутам

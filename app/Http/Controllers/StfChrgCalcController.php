@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\extsystem;
 use App\objlog;
 use App\org;
 use App\org_charge;
 use App\stf_chrg_calc;
 use App\sysobj;
+use App\Traits\Result;
 use App\Traits\SearchDataTrait;
 use App\Traits\snsTrait;
 use App\usrsysright;
@@ -63,6 +65,7 @@ class StfChrgCalcController extends Controller
         }
 
         $usrrights['edit'] = $usrrights['save'];
+        $usrrights['load'] = $usrrights['create'];
 
         return $usrrights;
     }
@@ -374,6 +377,70 @@ class StfChrgCalcController extends Controller
             Log::error('user_acs::list_for:' . $e->getMessage());
         }
         return response()->json($result);
+    }
+
+    //2025-07-28
+    public function load()
+    {
+        $userid = \Auth::user()->id;
+        $usrrights = $this->setInterfaceRight(-1);
+        $rec = new \stdClass();
+        $rec->title = 'Импорт записей об удержаниях из ЗП сотрудников';
+        $rec->extsystems = extsystem::lstFor_cached(['for_sysobjid' => $this->sysobjid], 5);
+        //dd($rec->extsystems);
+
+        return view($this->sysobjcode . '.load', compact('rec', "usrrights"));
+    }
+
+    public function import(Request $request)
+    {
+        //Импорт без сохранения файла на диск. Только обработка
+
+        $messages = [
+            'doc.required' => 'Не указан файл с данными',
+        ];
+
+        $rules = [
+            //"extsystemid" => "required",
+            "doc" => "required",
+        ];
+
+        $request->validate($rules, $messages);
+
+        $userid = \Auth::user()->id;
+        //$returl = $request->get('retroute');
+
+        $usrrights = $this->setInterfaceRight(-1);
+        $result = new Result();
+        $rec = new \stdClass();
+
+        $rec->extsysid = $request->extsystemid;
+
+        if ($request->hasfile('doc')) {
+
+            $file = $request->doc;
+
+            $filesize = $file->getSize();
+            $name = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $extension = $file->getClientOriginalExtension();
+            //dd($name, $extension, $filesize);
+
+            if (1 == 1)
+                $rec = stf_chrg_calc::import_001($file, $rec);
+            else {
+                $result->err = 1;
+                $result->msg = 'Не определена процедура импорта!';
+            }
+            //--------------------------------------------------------------------------------
+            //dd($result->msg);
+
+
+        } else {
+            $result->err = 1;
+            $result->msg = 'Файл с данными не загружен!';
+        }
+
+        return view($this->sysobjcode . '.load', compact('rec', "usrrights"));
     }
 
 }

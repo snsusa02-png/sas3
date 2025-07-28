@@ -23,7 +23,7 @@
             <div class="container">
 
                 <?php
-                $thisTitle = "Фактические начисления/удержания, примененные к сотрудникам организаций холдинга";
+                $thisTitle = "Фактические начисления/удержания, применённые к сотрудникам организаций холдинга";
 
                 $breadcrumbs = [
                     'Сервис' => "/admin",
@@ -77,6 +77,14 @@
                                             <i class="fa fa-plus"></i>
                                         </a>
                                     @endif
+                                    @if ($usrrights['load']??false)
+                                        <a href="{{ route($thisSysObjCode.'.load')}}"
+                                           class="btn btn-success btn-sm"
+                                           title="Загрузить записи о начисленных удержаниях сотрудников в файла XLS">
+                                            <i class="fa fa-upload" aria-hidden="true"></i>
+                                        </a>
+                                    @endif
+
                                 </td>
                             </tr>
                             <tr style="text-align: center;">
