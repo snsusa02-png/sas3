@@ -81,6 +81,19 @@
 {{--                                        </div>--}}
 {{--                                    </div>--}}
 
+
+                                    <div class="row">
+                                        <div class="form-group offset-md-2 col-md-9">
+                                            <label for="datatypeid" class="required"
+                                                   title="Тип данных">Тип данных:</label>
+                                            {!! Form::select('datatypeid', $rec->datatypes, $rec->datatypeid??null,
+                                             [
+                                             'class' => 'form-control required',
+                                             'placeholder' => '-выбор-',
+                                             'required' => 'required',
+                                             ]) !!}
+                                        </div>
+                                    </div>
                                 @else
                                     <div class="row">
                                         <div class="form-group col-md-12">
