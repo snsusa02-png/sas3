@@ -114,6 +114,9 @@ class stf_chrg_calc extends Model
     public static function import_001($file, $rec)
     {
         //Импорт сумм удержаний сотрудников из xlsx-файла в формате ___, идентификация сотрудника по номеру карты (IdCard)
+        // Ожидаемые колонки:
+        // Начало периода	Конец периода	Номер карты оплаты	Сумма
+
 
         $userid = \Auth::user()->id;
         $result = new Result();
@@ -126,11 +129,6 @@ class stf_chrg_calc extends Model
         // Начало периода	Конец периода	Номер карты оплаты	Сумма
         $fields = $array[0];
 //        dd($fields
-//            , in_array('Начало периода', $fields)
-//            , in_array('Конец периода', $fields)
-//            , in_array('Номер карты оплаты', $fields)
-//            , in_array('Сумма', $fields)
-//            , '---'
 //            , in_array('Начало периода', $fields)
 //            and in_array('Конец периода', $fields)
 //            and in_array('Номер карты оплаты', $fields)
@@ -149,7 +147,7 @@ class stf_chrg_calc extends Model
             return $rec;
         }
 
-        $extsysid = $rec->extsysid;
+        //$extsysid = $rec->extsysid;
 
         //перевернем колонки
         $fld_idx = array_flip($fields);

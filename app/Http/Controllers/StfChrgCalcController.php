@@ -222,7 +222,7 @@ class StfChrgCalcController extends Controller
         $rec->orgid = $rec->orgstaff->orgid;
         $rec->_obj_info = $rec->orgstaff->Info;
         $rec->_ref_sysobj_info = $rec->ref_sysobj->name;
-        if ($rec->ref_objid != 0){
+        if ($rec->ref_objid != 0) {
             $rec->_ref_sysobj_info .= " ({$rec->ref_objid})";
         }
 
@@ -386,8 +386,14 @@ class StfChrgCalcController extends Controller
         $usrrights = $this->setInterfaceRight(-1);
         $rec = new \stdClass();
         $rec->title = 'Импорт записей об удержаниях из ЗП сотрудников';
-        $rec->extsystems = extsystem::lstFor_cached(['for_sysobjid' => $this->sysobjid], 5);
+        //$rec->extsystems = extsystem::lstFor_cached(['for_sysobjid' => $this->sysobjid], 5);
         //dd($rec->extsystems);
+        $rec->datatypes = array(
+            1 => 'Затраты по столовой. Идентификация сотрудника по картам',
+            2 => 'Нарушение инструкции. - не настроено -',
+            3 => 'Корпоративная связь. - не настроено -'
+        );
+        //dd($rec->datatypes);
 
         return view($this->sysobjcode . '.load', compact('rec', "usrrights"));
     }
@@ -398,10 +404,11 @@ class StfChrgCalcController extends Controller
 
         $messages = [
             'doc.required' => 'Не указан файл с данными',
+            'datatypeid.required' => 'Укажите тип/формат данных в файле с данными',
         ];
 
         $rules = [
-            //"extsystemid" => "required",
+            "datatypeid" => "required",
             "doc" => "required",
         ];
 
@@ -414,7 +421,7 @@ class StfChrgCalcController extends Controller
         $result = new Result();
         $rec = new \stdClass();
 
-        $rec->extsysid = $request->extsystemid;
+        $rec->datatypeid = $request->datatypeid;
 
         if ($request->hasfile('doc')) {
 
@@ -426,10 +433,23 @@ class StfChrgCalcController extends Controller
             //dd($name, $extension, $filesize);
 
             if (1 == 1)
-                $rec = stf_chrg_calc::import_001($file, $rec);
+                if ($rec->datatypeid == 1)
+                    $rec = stf_chrg_calc::import_001($file, $rec);
+//                elseif ($rec->datatypeid == 2)
+//                    $rec = stf_chrg_calc::import_002($file, $rec);
+//                elseif ($rec->datatypeid == 3)
+//                    $rec = stf_chrg_calc::import_003($file, $rec);
+                else {
+                    $result->err = 1;
+                    $result->msg = 'Не настроен обработчик для заданного формата данных!';
+                    $rec->result = $result;
+
+                }
             else {
                 $result->err = 1;
                 $result->msg = 'Не определена процедура импорта!';
+                $rec->result = $result;
+
             }
             //--------------------------------------------------------------------------------
             //dd($result->msg);
@@ -438,7 +458,10 @@ class StfChrgCalcController extends Controller
         } else {
             $result->err = 1;
             $result->msg = 'Файл с данными не загружен!';
+            $rec->result = $result;
+
         }
+        //dd($rec->result);
 
         return view($this->sysobjcode . '.load', compact('rec', "usrrights"));
     }
