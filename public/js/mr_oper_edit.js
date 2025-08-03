@@ -42,12 +42,19 @@ $(document).ready(function () {
         $("#org_placename").val('')
     });
 
+    // $("#refitmid").change(function () {
+    //     alert($("#refitmid").val());
+    // });
+
 
     function recalc_driver_sum() {
         const sale_dir = $("#sale_dir").val();
         const opertypeid = $("#opertypeid").val();
+        const producttypeid = $("#producttypeid").val();
 
-        if ( sale_dir == +1 && (opertypeid == 3 || opertypeid == 4 || opertypeid == 9) ) {
+        if ( sale_dir == +1
+            && (opertypeid == 3 || opertypeid == 4 || opertypeid == 9)
+            && producttypeid == 1 ) {
             //alert(sale_dir);
             //% вознаграждения водителя в зависимости от вида операции
             //const k2 = 0.1;     // 10%

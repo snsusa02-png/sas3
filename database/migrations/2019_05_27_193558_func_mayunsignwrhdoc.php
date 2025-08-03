@@ -35,10 +35,12 @@ class FuncMayunsignwrhdoc extends Migration
                         select refitmid, sum(qty) as qty 
                           from( select refitmid, qty from wrh_stocks s
                                 where s.wrhid=m_wrhid
+					and not exists(select 1 from `objflags` as f WHERE f.flagtypeid=190 and f.sysobjid=105 and f.objid=s.refitmid)
                                 union
                                 select refitmid, sum(-qty) as qty 
                                   from wrhdoclst as dl 
                                  where docid=p_DocID 
+				 	and not exists(select 1 from `objflags` as f WHERE f.flagtypeid=190 and f.sysobjid=105 and f.objid=dl.refitmid)
                                  group by refitmid) as a
                         group by refitmid) as b
                 where b.qty<0;

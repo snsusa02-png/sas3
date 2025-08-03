@@ -13,7 +13,7 @@ UPDATE `mchn_opertypes` SET `driver_fee_pcnt` = '13' WHERE (`id` = '123');
 ALTER TABLE `mchn_raids`
 ADD COLUMN `driver_fee_pcnt` DECIMAL(5,1) NULL
     COMMENT 'Вознаграждение водителя - % от суммы продажи'
-    AFTER `hour_fuel_cost`;
+    AFTER `driver_contractid`;
 
 2025-08-02 ------------------------------------------------------------------------
 SELECT refitmid, sum(-s.qty) as qty
