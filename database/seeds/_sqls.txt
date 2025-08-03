@@ -1,4 +1,31 @@
-﻿2025-06-15 ------------------------------------------------------------------------
+﻿2025-08-02 ------------------------------------------------------------------------
+ALTER TABLE `mchn_opertypes`
+ADD COLUMN `driver_fee_pcnt` DECIMAL(5,1) NULL
+    COMMENT 'Вознаграждение водителя - % от суммы продажи'
+    AFTER `hour_fuel_cost`;
+
+UPDATE `mchn_opertypes` SET `driver_fee_pcnt` = '10' WHERE (`id` = '8');
+UPDATE `mchn_opertypes` SET `driver_fee_pcnt` = '13' WHERE (`id` = '12');
+UPDATE `mchn_opertypes` SET `driver_fee_pcnt` = '13' WHERE (`id` = '111');
+UPDATE `mchn_opertypes` SET `driver_fee_pcnt` = '13' WHERE (`id` = '122');
+UPDATE `mchn_opertypes` SET `driver_fee_pcnt` = '13' WHERE (`id` = '123');
+
+ALTER TABLE `mchn_raids`
+ADD COLUMN `driver_fee_pcnt` DECIMAL(5,1) NULL
+    COMMENT 'Вознаграждение водителя - % от суммы продажи'
+    AFTER `hour_fuel_cost`;
+
+2025-08-02 ------------------------------------------------------------------------
+SELECT refitmid, sum(-s.qty) as qty
+ FROM `wrh_stocks` s
+	WHERE qty<0
+    and exists(select 1 from ri_compounds ric
+        where ric.refitmid = s.refitmid
+        and ric.ownorgid = s.ownorgid
+        and ric.active=1)
+    group by s.refitmid;
+
+2025-06-15 ------------------------------------------------------------------------
 select `ft`.`id`, `ft`.`name`, `ft`.`name` as `flagtype_name`, `f`.`id` as `objflagid` from `flagtypes` as `ft`
 left join `objflags` as `f` on `f`.`flagtypeid` = `ft`.`id` and `objid` = 1481
 where `ft`.`active` = 1  and ft.forsysobjid=105

@@ -780,6 +780,15 @@ class MchnRaidController extends Controller
             $rec->machineid = $request->get('machineid');
             $rec->mot_id = $request->get('mot_id');
 
+            //2025-08-03
+            $mot = mchn_opertype::where([
+                'machineid' => $rec->machineid,
+                'opertypeid' => $rec->opertypeid
+            ])->first();
+            $rec->mot_id = $mot->id;
+            $rec->driver_fee_pcnt = $mot->driver_fee_pcnt;
+            //dd($rec->machineid, $rec->opertypeid, $mot, $rec->mot_id, $rec->driver_fee_pcnt);
+
 
             //Перепривяжем рейс к отчету о работе
             // - найдем/создадим такой отчет и привяжем

@@ -56,6 +56,7 @@
                                 {{ Form::hidden('mr_id', $rec->mr_id) }}
                                 {{ Form::hidden('wrkdate', $rec->mchn_raid->wrkdate,['id'=>'wrkdate']) }}
                                 {{ Form::hidden('opertypeid', $rec->mchn_raid->opertypeid,['id'=>'opertypeid']) }}
+                                {{ Form::hidden('driver_fee_pcnt', $rec->mchn_raid->driver_fee_pcnt??8,['id'=>'driver_fee_pcnt']) }}
                                 {{ Form::hidden('ttt', 0) }}
 
                                 <div class="row">

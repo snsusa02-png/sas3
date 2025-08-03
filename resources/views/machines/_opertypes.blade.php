@@ -30,6 +30,7 @@
                         <td>#</td>
                         <td class="text-left">Операция</td>
                         <td class="text-right">Расценки, руб</td>
+                        <td class="text-right">Расценки, %</td>
                         <td/>
                     </tr>
                     </thead>
@@ -52,6 +53,9 @@
                                 {{number_format($itm->hour_work_cost,2)}}
                                 /
                                 {{number_format($itm->hour_fuel_cost,2)}}
+                            </td>
+                            <td class="text-right {{$lineclass}}" nowrap style="">
+                            {{number_format($itm->driver_fee_pcnt,1)}}
                             </td>
                             <td class="text-right">
                                 @if(1==1)

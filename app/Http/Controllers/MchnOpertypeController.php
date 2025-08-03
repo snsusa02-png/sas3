@@ -175,6 +175,11 @@ class MchnOpertypeController extends Controller
         $rec->opertypeid = $request->get('opertypeid');
         $rec->name = $rec->opertype->name;
         $rec->descript = $request->get('descript');
+
+        $rec->hour_work_cost = $request->get('hour_work_cost');
+        $rec->hour_fuel_cost = $request->get('hour_fuel_cost');
+        $rec->driver_fee_pcnt = $request->get('driver_fee_pcnt');
+
         $rec->active = $request->get('active', 1);
 
         $rec->updated_by = $userid;

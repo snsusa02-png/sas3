@@ -1456,7 +1456,8 @@ class WrhdocController extends Controller
                     ->where('ric.active', 1)
                     ->whereRaw('curdate() between ric.begdate and ifnull(ric.enddate, curdate())');
             })
-            ->count();
+          ->count();
+        //->tosql();
         //dd($itm_cnt);
 
         if ($itm_cnt > 0) {
@@ -1478,7 +1479,7 @@ class WrhdocController extends Controller
                 ->select('s.ownorgid', 's.wrhid', 's.boxid', db::raw("count(distinct s.refitmid) as qty"))
                 ->groupBy('s.ownorgid', 's.wrhid', 's.boxid')
                 ->get();
-//            dd($ditms);
+            //dd($ditms);
 
             $doc_cnt = 0;
 
@@ -1487,6 +1488,7 @@ class WrhdocController extends Controller
             foreach ($ditms as $src) {
                 $doc_cnt++;
 
+                //dd($userid, $src->ownorgid);
                 $disp_staffid = orgstaff::where('userid', $userid)
                     ->where('orgid', $src->ownorgid)
                     ->first()->id;
@@ -1533,7 +1535,8 @@ class WrhdocController extends Controller
                     ->select('s.refitmid', db::raw("sum(-s.qty) as qty"))
                     ->groupBy('s.refitmid')
                     ->get();
-                //dd($items);
+                //->toSQL();
+                //dd($src->ownorgid, $src->wrhid, $src->boxid, $items);
 
                 //Сформируем состав документа на производство
                 foreach ($items as $itm) {

@@ -257,6 +257,7 @@ class MachineController extends Controller
             'machineid' => $machine->id,
         ], [
             'mot.id', 'mot.name', 'mot.active', 'mot.hour_work_cost', 'mot.hour_fuel_cost'
+            , 'mot.driver_fee_pcnt'
         ]);
 
 //dd($machine->controrgs);

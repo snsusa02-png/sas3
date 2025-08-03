@@ -119,21 +119,30 @@
                                 </div>
 
                                 <div class="row">
-                                    <div class="form-group offset-md-2 col-md-2">
-                                        <label for="active" style="color: rgb(73, 80, 87);">Активный:</label>
-                                        {!! Form::checkbox('active', 1, $rec->active==1,['class'=>'form-control']) !!}
-                                    </div>
-                                    <div class="form-group offset-md-0 col-md-4">
+                                    <div class="form-group offset-md-0 col-md-3">
                                         <label for="address">Работа в час, &#8381;:</label>
                                         <input type="number" class="form-control text-right" name="hour_work_cost"
                                                min="0" step="0.01" readonly
                                                value="{{old('hour_work_cost',$rec->hour_work_cost)}}"/>
                                     </div>
-                                    <div class="form-group col-md-4">
+                                    <div class="form-group col-md-3">
                                         <label for="hour_fuel_cost">Топливо в час, &#8381;:</label>
                                         <input type="number" class="form-control text-right" name="hour_fuel_cost"
                                                min="0" step="0.01" readonly
                                                value="{{old('hour_fuel_cost',$rec->hour_fuel_cost)}}"/>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="driver_fee_pcnt">Вознагр. водителя от суммы продажи, %:</label>
+                                        <input type="number" class="form-control text-right" name="driver_fee_pcnt"
+                                               min="0" step="0.1" max="15"
+                                               value="{{old('driver_fee_pcnt',$rec->driver_fee_pcnt)}}"/>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="form-group offset-md-2 col-md-2">
+                                        <label for="active" style="color: rgb(73, 80, 87);">Активный:</label>
+                                        {!! Form::checkbox('active', 1, $rec->active==1,['class'=>'form-control']) !!}
                                     </div>
                                 </div>
 

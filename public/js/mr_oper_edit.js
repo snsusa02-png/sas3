@@ -49,13 +49,16 @@ $(document).ready(function () {
 
         if ( sale_dir == +1 && (opertypeid == 3 || opertypeid == 4 || opertypeid == 9) ) {
             //alert(sale_dir);
-            //% вознаграждения водителя в зависимомти от вида операции
+            //% вознаграждения водителя в зависимости от вида операции
             //const k2 = 0.1;     // 10%
             var k2 = 0;
             if (opertypeid == 3)    //Трал
                 k2 = 0.1;   // 10%
-            else if (opertypeid == 4)    //Манипулятор
-                k2 = 0.13;  // 13%
+            else if (opertypeid == 4) {    //Манипулятор
+                //k2 = 0.13;  // 13%
+                k2 = (parseFloat($("#driver_fee_pcnt").val())?? 13) / 100;
+                //alert(k2);
+            }
             else if (opertypeid == 9)    //Рефрижераторные перевозки
                 k2 = 0.15;  // 15%
 
