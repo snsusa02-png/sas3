@@ -58,6 +58,7 @@ $first_col_id = null;
                             @if(1==1)
                                 <div class="row">
 
+                                    @if(1==0)
                                     <div class="form-group col-md-2 dpt_1" style="">
                                         <label for="s_month" class="required">Год-Месяц:</label>
                                         {!! Form::select('s_ym', $data->yms??[], $search_params['s_ym']??old('s_ym'),
@@ -68,6 +69,18 @@ $first_col_id = null;
                                                         ])
                                                         !!}
                                     </div>
+                                    @else
+                                    <div class="form-group col-md-3 dpt_1" style="">
+                                        <label for="s_month" class="required">Уч. период:</label>
+                                        {!! Form::select('s_period', $data->for_periods??[], $search_params['s_period']??old('s_period'),
+                                                        [
+                                                        'id' => 's_period',
+                                                        'class' => 'form-control',
+                                                        'placeholder' => '-укажите-',
+                                                        ])
+                                                        !!}
+                                    </div>
+                                    @endif
 
                                     @if(1==1)
                                         <div class="form-group col-md-3">

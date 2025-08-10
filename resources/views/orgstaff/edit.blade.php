@@ -636,6 +636,7 @@
                             @include('obj_addresses._list')
                             @include('stf_payrolltypes._list')
                             @include('stf_charges._list')
+                            @include('stf_prl_periods._list')
                             @include('stf_chrg_calcs._list')
                             @include('stf_salaries._list')
 {{--                            @include('objflags._flags')--}}

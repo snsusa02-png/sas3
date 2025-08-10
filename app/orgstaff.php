@@ -87,6 +87,12 @@ class orgstaff extends Model
             ->orderby('docdate', 'desc');
     }
 
+    public function prl_periods()
+    {
+        return $this->hasMany(stf_prl_period::class, 'staffid', 'id')
+            ->orderby('begdate', 'desc');
+    }
+
     public function getNamePostAttribute()
     {
         if (isset($this->id)) {

@@ -543,6 +543,7 @@ class OrgChargeController extends Controller
 
         $param_names = [
             's_ym' => null,
+            's_period' => null,
             's_ownorgid' => null,
             's_depname' => null,
             's_stf_name' => null,
@@ -550,11 +551,13 @@ class OrgChargeController extends Controller
         $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);
 
         $s_ym = $search_params['s_ym'];
+        $s_period = $search_params['s_period'];
         $s_ownorgid = $search_params['s_ownorgid'];
         $s_depname = $search_params['s_depname'];
         $s_stf_name = $search_params['s_stf_name'];
 
-        if ($s_ym <> '') {
+//        if ($s_ym <> '') {
+        if ($s_period <> '') {
             //dd( $s_ym . '-01', date_create($s_ym . '-01' ) );
             $date = date_create($s_ym . '-01')->format('Y-m-d');
             //dd($date);
@@ -569,9 +572,15 @@ class OrgChargeController extends Controller
                     join orgstaff os on os.id=scc.staffid
                     join org_charges as oc 	on oc.id=scc.orgchargeid
                     join chargetypes as ct on ct.id=oc.chargetypeid
-                    where forbegdate <= '" . date_create($data->enddate)->format('Y-m-d') . "'"
-                . " and forEndDate >= '" . date_create($data->begdate)->format('Y-m-d') . "'"
-                . " and scc.charge_sum <> 0";
+                    where scc.charge_sum <> 0";
+
+            if (isset($s_ym))
+                $sql .= " and forbegdate <= '" . date_create($data->enddate)->format('Y-m-d') . "'"
+                    . " and forEndDate >= '" . date_create($data->begdate)->format('Y-m-d') . "'";
+
+            // 2025-08-10
+            if (isset($s_period))
+                $sql .= " and concat(scc.forbegdate, '..', scc.forEndDate) = '{$s_period}'";
 
             if (isset($s_ownorgid))
                 $sql .= " and os.orgid={$s_ownorgid}";
@@ -597,9 +606,13 @@ class OrgChargeController extends Controller
                     join orgs o on o.id=os.orgid
                     join org_charges as oc 	on oc.id=scc.orgchargeid
                     join chargetypes as ct on ct.id=oc.chargetypeid
-                    where forbegdate <= '" . date_create($data->enddate)->format('Y-m-d') . "'"
-                . " and forEndDate >= '" . date_create($data->begdate)->format('Y-m-d') . "'"
-                . " and scc.charge_sum <> 0";
+                    where scc.charge_sum <> 0";
+
+//                " and forbegdate <= '" . date_create($data->enddate)->format('Y-m-d') . "'"
+//                . " and forEndDate >= '" . date_create($data->begdate)->format('Y-m-d') . "'"
+            // 2025-08-10
+            if (isset($s_period))
+                $sql .= " and concat(scc.forbegdate, '..', scc.forEndDate) = '{$s_period}'";
 
             if (isset($s_ownorgid))
                 $sql .= " and os.orgid={$s_ownorgid}";
@@ -638,6 +651,14 @@ class OrgChargeController extends Controller
         }
         //dd($data->yms);
         //dd($data, $sql, $recs);
+
+        $data->for_periods = stf_chrg_calc::
+        selectRaw("concat(forbegdate,'..', forenddate) as period")
+            ->distinct()
+            ->orderby('period', 'desc')
+            ->get()
+            ->pluck('period', 'period')->toArray();
+        //dd($data->for_periods);
 
         $data->ownorgs = org::lstFor_cached(['in_stf_chrg_calcs' => 1]);
 
@@ -702,6 +723,7 @@ class OrgChargeController extends Controller
         $s_enddate = $search_params['s_enddate'];
         $s_ownorgid = $search_params['s_ownorgid'];
         $s_stf_name = $search_params['s_stf_name'];
+        //dd($s_ym, $s_begdate);
 
         if ($s_ym <> '') {
             //dd( $s_ym . '-01', date_create($s_ym . '-01' ) );
@@ -754,8 +776,10 @@ class OrgChargeController extends Controller
 	join stf_chrg_calcs scc on scc.staffid=os.id
 	join org_charges as oc 	on oc.id=scc.orgchargeid
 	join chargetypes as ct on ct.id=oc.chargetypeid
-	where scc.docdate between '"
-            . date_create($s_begdate)->format('Y-m-d') . "' and '" . date_create($s_enddate)->format('Y-m-d') . "'";
+	where 1=1";
+
+            $sql .= " and scc.docdate between '"
+                . date_create($s_begdate)->format('Y-m-d') . "' and '" . date_create($s_enddate)->format('Y-m-d') . "'";
 
             if (isset($s_ownorgid))
                 $sql .= " and os.orgid={$s_ownorgid}";
@@ -769,13 +793,13 @@ class OrgChargeController extends Controller
 	            order by os.lname, os.fname, os.id";
 
             $recs = DB::select(DB::raw($sql));
-//            dd($recs);
+            //dd($recs);
 
         } else {
             $recs = null;
         }
 
-        foreach ($recs as $rec){
+        foreach ($recs as $rec) {
 
             $sql = "SELECT ct.dir, oc.chargetypeid, ct.name as chargetype_name
                     , scc.charge_sum charge_sum
@@ -787,8 +811,8 @@ class OrgChargeController extends Controller
                     join org_charges as oc 	on oc.id=scc.orgchargeid
                     join chargetypes as ct on ct.id=oc.chargetypeid
                     where 1=1"
-                    . " and scc.staffid={$rec->staffid}"
-                    . " and scc.docdate between '" . date_create($s_begdate)->format('Y-m-d') . "' and '" . date_create($s_enddate)->format('Y-m-d') . "'";
+                . " and scc.staffid={$rec->staffid}"
+                . " and scc.docdate between '" . date_create($s_begdate)->format('Y-m-d') . "' and '" . date_create($s_enddate)->format('Y-m-d') . "'";
 
 //            if (isset($s_ownorgid))
 //                $sql .= " and os.orgid={$s_ownorgid}";
@@ -802,8 +826,8 @@ class OrgChargeController extends Controller
 
             // данные о рвбочих часах из stf_wrkHrs
             $rec->wrkhrs = stf_wrkhr::where('staffid', $rec->staffid)
-                ->where('yr',date('Y', strtotime($s_begdate)))
-                ->where('mn',date('m', strtotime($s_begdate)))
+                ->where('yr', date('Y', strtotime($s_begdate)))
+                ->where('mn', date('m', strtotime($s_begdate)))
                 ->get();
 
             $sql = "SELECT wrktypeid, wt.name as wrktypename"
@@ -813,9 +837,9 @@ class OrgChargeController extends Controller
                 . " FROM driver_works dw"
                 . " join wrktypes wt on wt.id=dw.wrktypeid"
                 . " where wrkdate between '" . date_create($s_begdate)->format('Y-m-d') . "' and '" . date_create($s_enddate)->format('Y-m-d') . "'"
-                    . " and staffid={$rec->staffid}"
-                    . " and day_wrkhrs+night_wrkhrs>0"
-                    . " group by  wrktypeid, day_hr_rate, night_hr_rate";
+                . " and staffid={$rec->staffid}"
+                . " and day_wrkhrs+night_wrkhrs>0"
+                . " group by  wrktypeid, day_hr_rate, night_hr_rate";
             $rec->drvrhrs = DB::select(DB::raw($sql));
 //            if ($rec->staffid==53)
 //                dd($sql, $rec);
@@ -901,8 +925,8 @@ class OrgChargeController extends Controller
             $data->begdate = date_create($s_begdate)->format('Y-m-d');   //Первый день месяца
             $data->enddate = date_create($s_enddate)->format('Y-m-d');    //Последний день месяца
             $need_search = true;
-        }else
-            $recs=null;
+        } else
+            $recs = null;
 
 //        dd($data);
         if ($need_search) {
@@ -963,7 +987,7 @@ class OrgChargeController extends Controller
         $data->yms = Cache::remember('rep73_ym', now()->addMinutes(15)
             , function () {
                 return driver_work::selectRaw("date_format(wrkdate, '%Y-%m') as ym")
-                    ->where('wrkdate','>=','2025-04-01')
+                    ->where('wrkdate', '>=', '2025-04-01')
                     ->distinct()->orderby('ym', 'desc')
                     ->get()->pluck('ym', 'ym')->toArray();
             });

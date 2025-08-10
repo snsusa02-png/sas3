@@ -23,10 +23,10 @@
             ?>
         @else
             <?php
-            $thisSysObjId = 1212;
+            $thisSysObjId = 1235;
             $sysobjid = $thisSysObjId;
-            $sysobjcode = 'stf_chrg_calcs';
-            $thisTitle = "Регистрация начисления/удержания для сотрудника";
+            $sysobjcode = 'stf_prl_periods';
+            $thisTitle = "Регистрация индивидуального периода начисления/удержания для сотрудника";
 
             $retRoute = $rec->retURL;
 
@@ -37,11 +37,11 @@
             //Отображать или нет Цену/Сумму определяется типом документа
             //$showPrice = ($rec->orgcharge->chargetype->useprice == 1);
             // dd($rec->org_charge->chargetype->use_price);
-            $use_price = $rec->org_charge->chargetype->use_price;
-            $showPrice = ($use_price == 1);
+//            $use_price = $rec->org_charge->chargetype->use_price;
+//            $showPrice = ($use_price == 1);
             //$usrrightsvar_dump($showPrice);
             //$usrrights['save'] = (1 == 0);
-
+            $showPrice = true;
             $sum_ro = '';
             if ($showPrice) {
                 $sum_ro = 'readonly';
@@ -51,8 +51,6 @@
                 $sum_class = 'offset-md-9';
                 $qty_class = 'd-none';
             }
-            // 2025-08-10 ввел отображение forBegDate, forEndDate в одной строке с суммой
-            $sum_class = 'offset-md-3';
             ?>
 
             <div class="container">
@@ -81,6 +79,7 @@
                                     @csrf
                                     {{ Form::hidden('id', $rec->id, ['id'=>'id']) }}
                                     {{ Form::hidden('retURL', $rec->retURL, ['id'=>'retURL']) }}
+                                    {{ Form::hidden('ttt', 0) }}
 
                                     <div class="row">
                                         <div class="form-group col-md-12 driver_info" style="">
@@ -108,197 +107,42 @@
                                     </div>
 
 
-                                    <div class="row">
-                                        <div class="form-group col-md-12">
-                                            <label for="orgcharge_name" class="required">Тип
-                                                начисления/удержания:</label>
-                                            <div class="input-group">
-                                                @if ($usrrights['save'])
-                                                    <div class="input-group mb-3 "><input type="text"
-                                                                                          name="orgcharge_name"
-                                                                                          id="orgcharge_name"
-                                                                                          class="orgcharge_name form-control ac_name font-weight-bold"
-                                                                                          value="{{old('orgcharge_name',$rec->org_charge->chargetype->name)}}">
-                                                        <input type="text"
-                                                               class="form-control text-center small ac_status"
-                                                               style="display: none; border: #d7f3e3; max-width: 30px"
-                                                               readonly>
-                                                        <input type="hidden" name="orgchargeid" class="ac_id"
-                                                               id="orgchargeid"
-                                                               value="{{old('orgchargeid', $rec->orgchargeid)}}">
-                                                        <a class="btn btn-light" id="orgchargeid_lnk"
-                                                           target="_blank">
-                                                            <i class="fa fa-info text-info" aria-hidden="true"></i>
-                                                        </a>
-                                                        <input type="hidden" name="use_price" id="use_price"
-                                                               class="use_price"
-                                                               value="{{$use_price}}">
-                                                    </div>
-                                                @else
-                                                    <div
-                                                        class="font-weight-bold">{{$rec->org_charge->chargetype->name}}</div>
-                                                    <input type="hidden" name="orgchargeid" id="orgchargeid"
-                                                           value="{{$rec->orgchargeid}}">
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
                                     <div class="row" id="calc_dates_div ">
-                                        <div class="offset-md-0 col-md-3 {{$qty_class}}" id="calcbegdate_div">
-                                            <label for="name" class="required">За период с:</label>
+                                        <div class="offset-md-3 col-md-3 {{$qty_class}}" id="begdate_div">
+                                            <label for="name" class="required">Период с:</label>
                                             @if ($usrrights['save'])
                                                 <input type="date" class="form-control text-center font-weight-bold"
-                                                       name="calcbegdate" id="calcbegdate"
-                                                       max="{{today()->format('Y-m-d')}}"
-                                                       value="{{old('calcbegdate',$rec->calcbegdate)}}"/>
+                                                       name="begdate" id="begdate"
+{{--                                                       max="{{today()->format('Y-m-d')}}"--}}
+                                                       value="{{old('begdate',$rec->begdate)}}"/>
                                             @else
                                                 <div
                                                     class="font-weight-bold text-center ">
-                                                    {{date_create($rec->calcbegddate)->format('d.m.Y')}}
-                                                    {{ Form::hidden('calcbegddate', $rec->calcbegdate,['id'=>'calcbegdate']) }}
+                                                    {{date_create($rec->begdate)->format('d.m.Y')}}
+                                                    {{ Form::hidden('begdate', $rec->begdate,['id'=>'begdate']) }}
                                                 </div>
                                             @endif
                                         </div>
-                                        <div class="offset-md-0 col-md-3 {{$qty_class}}" id="calcenddate_div">
+                                        <div class="offset-md-0 col-md-3 {{$qty_class}}" id="enddate_div">
                                             <label for="name" class="required">по:</label>
                                             @if ($usrrights['save'] and $showPrice)
                                                 <input type="date" class="form-control text-center font-weight-bold"
-                                                       name="calcenddate" id="calcenddate"
-                                                       max="{{today()->format('Y-m-d')}}"
-                                                       value="{{old('calcenddate',$rec->calcenddate)}}"/>
-                                            @else
-                                                <div
-                                                    class="font-weight-bold text-center">
-                                                    {{date_create($rec->calcenddate)->format('d.m.Y')}}
-                                                    {{ Form::hidden('calcenddate', $rec->calcenddate,['id'=>'calcbegddate']) }}
-                                                </div>
-                                            @endif
-                                        </div>
-                                        <div id="qty_div"
-                                             class="offset-md-0 col-md-3 {{$qty_class}}">
-                                            <div class="form-group list-inline input-group">
-                                                <label for="">Количество, ЕИ:</label>
-                                                @if ($usrrights['save'])
-                                                    <input type="text"
-                                                           class="form-control text-right font-weight-bold"
-                                                           id="charge_qty" name="charge_qty"
-                                                           value="{{$rec->charge_qty}}"
-                                                    />
-                                                    <div class="input-group-append">
-                                                        <a id="refr_qty" onclick1="refrQty()" title="Поиск"
-                                                           class="btn btn-sm btn-secondary form-control">
-                                                            <i class="fa fa-refresh" aria-hidden="true"></i>
-                                                        </a>
-                                                    </div>
-
-                                                @else
-                                                    <div
-                                                        class="font-weight-bold text-right">
-                                                        {{number_format($rec->charge_qty,2)}}
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        </div>
-
-                                        <div id="price_div" class="offset-md-0 col-md-3  {{$qty_class}}">
-                                            <div class="form-group list-inline">
-                                                <label for="price">Ставка, &#x20bd;/ЕИ:</label>
-                                                @if ($usrrights['save'])
-                                                    <input type="text" class="form-control text-right bold"
-                                                           id="charge_price" name="charge_price"
-                                                           value="{{$rec->charge_price}}"
-                                                    />
-                                                @else
-                                                    <div
-                                                        class="font-weight-bold text-right">
-                                                        {{number_format($rec->charge_price,2)}}
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-
-                                        <div class="offset-md-0 col-md-3" id="forbegdate_div">
-                                            <label for="name" class="required">За период с:</label>
-                                            @if ($usrrights['save'])
-                                                <input type="date" class="form-control text-center font-weight-bold"
-                                                       name="forbegdate" id="forbegdate"
+                                                       name="enddate" id="enddate"
 {{--                                                       max="{{today()->format('Y-m-d')}}"--}}
-                                                       value="{{old('forbegdate',$rec->forbegdate)}}"/>
-                                            @else
-                                                <div
-                                                    class="font-weight-bold text-center ">
-                                                    {{date_create($rec->forbegdate)->format('d.m.Y')}}
-                                                    {{ Form::hidden('forbegdate', $rec->forbegdate,['id'=>'forbegdate']) }}
-                                                </div>
-                                            @endif
-                                        </div>
-                                        <div class="offset-md-0 col-md-3" id="forenddate_div">
-                                            <label for="name" class="required">по:</label>
-                                            @if ($usrrights['save'] )
-                                                <input type="date" class="form-control text-center font-weight-bold"
-                                                       name="forenddate" id="forenddate"
-                                                       max="{{today()->format('Y-m-d')}}"
-                                                       value="{{old('forenddate',$rec->forenddate)}}"/>
+                                                       value="{{old('enddate',$rec->enddate)}}"/>
                                             @else
                                                 <div
                                                     class="font-weight-bold text-center">
-                                                    {{date_create($rec->forenddate)->format('d.m.Y')}}
-                                                    {{ Form::hidden('forenddate', $rec->forenddate,['id'=>'forenddate']) }}
+                                                    {{date_create($rec->enddate)->format('d.m.Y')}}
+                                                    {{ Form::hidden('enddate', $rec->enddate,['id'=>'enddate']) }}
                                                 </div>
                                             @endif
                                         </div>
 
-                                        <div id="sum_div" class="form-group col-md-3 {{$sum_class}}">
-                                            <label for="charge_sum" class="required">Сумма, &#8381;:</label>
-                                            @if ($usrrights['save'])
-                                                <input type="number"
-                                                       class="charge_sum form-control font-weight-bold text-right"
-                                                       name="charge_sum" id="charge_sum" {{$sum_ro}}
-                                                       value="{{ old('charge_sum',$rec->charge_sum) }}"/>
-                                            @else
-                                                <div
-                                                    class="font-weight-bold text-right">
-                                                    {{number_format($rec->charge_sum,2)}}
-                                                </div>
-                                            @endif
-                                        </div>
                                     </div>
 
                                     <div class="row">
-                                        <div class="form-group offset-md-0 col-md-4">
-                                            <label for="name" class="required">Дата:</label>
-                                            @if ($usrrights['save'])
-                                                <input type="date" class="form-control text-center font-weight-bold"
-                                                       name="docdate" id="docdate"
-                                                       min="{{$rec->wrkdate_min}}"
-                                                       max="{{today()->format('Y-m-d')}}"
-                                                       value="{{old('docdate',$rec->docdate)}}"/>
-                                            @else
-                                                <div
-                                                    class="font-weight-bold text-center">
-                                                    {{date_create($rec->docdate)->format('d.m.Y')}}
-                                                    {{ Form::hidden('docdate', $rec->docdate,['id'=>'docdate']) }}
-                                                </div>
-                                            @endif
-                                        </div>
-                                        {{--                                        <div class="form-group offset-md-0 col-md-4">--}}
-                                        {{--                                            <label for="name" class="required">№ документа:</label>--}}
-                                        {{--                                            @if ($usrrights['edit'])--}}
-                                        {{--                                                <input type="text" class="form-control text-center font-weight-bold"--}}
-                                        {{--                                                       name="docnum" id="docnum"--}}
-                                        {{--                                                       value="{{old('docnum',$rec->docnum)}}"/>--}}
-                                        {{--                                            @else--}}
-                                        {{--                                                <div--}}
-                                        {{--                                                    class="font-weight-bold text-center">--}}
-                                        {{--                                                    {{$rec->docnum}}--}}
-                                        {{--                                                    {{ Form::hidden('docnum', $rec->docnum,['id'=>'docnum']) }}--}}
-                                        {{--                                                </div>--}}
-                                        {{--                                            @endif--}}
-                                        {{--                                        </div>--}}
-                                        <div class="form-group offset-md-0 col-md-8">
+                                        <div class="form-group offset-md-3 col-md-9">
                                             <label for="name" class="">Примечание:</label>
                                             @if ($usrrights['save'])
                                                 <input type="text" class="form-control" name="notes" maxlength="160"

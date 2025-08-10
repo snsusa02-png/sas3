@@ -102,6 +102,9 @@ class stf_chrg_calc extends Model
 
                         $sc .= " and scc.forbegdate <= '" . date_create($enddate)->format('Y-m-d') . "'"
                             . " and scc.forEndDate >= '" . date_create($begdate)->format('Y-m-d') . "'";
+
+                    } elseif ($key == 's_period') {
+                        $sc = $sc . " and concat(scc.forbegdate, '..', scc.forEndDate) = '" . $val . "'";
                     }
                 }
 

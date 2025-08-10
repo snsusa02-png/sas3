@@ -309,7 +309,7 @@ class driver_work extends Model
         return $result;
     }
 
-    public static function refr_stf_month_chrg_calc( $p_staffid, $p_wrkdate, $p_userid)
+    public static function refr_stf_month_chrg_calc($p_staffid, $p_wrkdate, $p_userid)
     {
         $orgstaff = orgstaff::find($p_staffid);
         //dd($p_staffid, isset($orgstaff), $orgstaff);
@@ -327,8 +327,20 @@ class driver_work extends Model
         if (isset($orgcharge)) {
 
             //Подсчитаем общую сумму ЗП сотрудника за ВЕСЬ месяц от указанной даты $p_wrkdate
-            $int_begdate = date_create($p_wrkdate)->format('Y-m-01');
-            $int_enddate = date_create($p_wrkdate)->format('Y-m-t');
+            $spp = stf_prl_period::from('stf_prl_periods as spp')
+                ->where('spp.staffid', $p_staffid)
+                ->whereRaw('? between spp.begdate and spp.enddate', [$p_wrkdate])
+                ->first();
+            //dd($spp);
+
+            if (isset($spp)) {
+                $int_begdate=$spp->begdate;
+                $int_enddate=$spp->enddate;
+            } else {
+                $int_begdate = date_create($p_wrkdate)->format('Y-m-01');
+                $int_enddate = date_create($p_wrkdate)->format('Y-m-t');
+            }
+            //dd($int_begdate, $int_enddate);
 
             // сумма начисленной ЗП
             $charge_sum = driver_work::where('staffid', $p_staffid)
@@ -430,15 +442,15 @@ class driver_work extends Model
             $rslt = DB::select(DB::raw($sql));
 
             //dd($rslt, $rslt[0], $rslt[0]->prize_sum, $orgcharge);
-            if (isset($rslt)){
+            if (isset($rslt)) {
 
                 $charge_sum = $rslt[0]->prize_sum + 0;
                 //Сформируем детали расчета - для сохранения в поле примечания (stf_chrg_calc.notes)
-                $notes = 'Всего отработано часов: '.$rslt[0]->wrkhrs
-                    .', из них свыше 340: '.$rslt[0]->prize_hrs
-                    . ' по ставке '.$rslt[0]->hr_rate . ' р/час';
+                $notes = 'Всего отработано часов: ' . $rslt[0]->wrkhrs
+                    . ', из них свыше 340: ' . $rslt[0]->prize_hrs
+                    . ' по ставке ' . $rslt[0]->hr_rate . ' р/час';
 
-            }else{
+            } else {
                 $charge_sum = 0;
                 $notes = '';
             }

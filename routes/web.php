@@ -1285,6 +1285,13 @@ Route::get('stf_chrg_calcs/{id}/edit', "StfChrgCalcController@edit")->name('stf_
 Route::match(array('POST', 'PUT'), 'stf_chrg_calcs/{id}', "StfChrgCalcController@update")->name('stf_chrg_calcs.update');
 Route::get('stf_chrg_calcs/{id}/delete', "StfChrgCalcController@destroy")->name("stf_chrg_calcs.delete");
 
+// stf_prl_periods - Периоды начисления/выдачи ЗП сотрудников
+Route::get('stf_prl_periods/{staffid}/create', "StfPrlPeriodController@create")->name('stf_prl_periods.create');
+Route::get('stf_prl_periods/{id}/edit', "StfPrlPeriodController@edit")->name('stf_prl_periods.edit');
+Route::match(array('POST', 'PUT'), 'stf_prl_periods/{id}', "StfPrlPeriodController@update")->name('stf_prl_periods.update');
+Route::get('stf_prl_periods/{id}/delete', "StfPrlPeriodController@destroy")->name("stf_prl_periods.delete");
+
+
 // stf_wrkhrs - учет рабочих часов сотрудника
 Route::match(array('GET', 'POST'), '/stf_wrkhrs', "StfWrkhrController@index")->name('stf_wrkhrs.index');
 Route::get('stf_wrkhrs/{staffid}/create', "StfWrkhrController@create")->name('stf_wrkhrs.create');

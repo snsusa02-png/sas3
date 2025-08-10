@@ -524,6 +524,7 @@ class orgController extends Controller
 
         //$rec->flags = objflag::FlagTypesForOrg($rec->id);
         $rec->flags = objflag::FlagTypesForObj(111, $rec->id);
+        //dd($rec->flags);
 
         $rec->kinds = org::$kinds;
 

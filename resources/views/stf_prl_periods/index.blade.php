@@ -72,7 +72,6 @@
                                 <td>#</td>
                                 <td>Организация, Сотрудник</td>
                                 <td>Учет. дата</td>
-                                <td>Учет. период</td>
                                 <td>Вид</td>
                                 <td>Начисление, руб</td>
                                 <td>Удержание, руб</td>
@@ -115,18 +114,6 @@
                                                             [
                                                             'id' => 's_ym',
                                                             'class' => 'form-control',
-                                                            'placeholder' => '-укажите-',
-                                                            'onChange' => 'this.form.submit()',
-                                                            ])
-                                                            !!}
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="input-group">
-                                        {!! Form::select('s_period', $data->for_periods??[], $data->search_params['s_period'],
-                                                            [
-                                                            'id' => 's_period',
-                                                            'class' => 'form-control small',
                                                             'placeholder' => '-укажите-',
                                                             'onChange' => 'this.form.submit()',
                                                             ])
@@ -215,12 +202,6 @@
                                     {{--                                    <td class="small">{{date_format(date_create($rec->forbegdate), 'd.m.Y')}}--}}
                                     {{--                                            - {{isset($rec->enddate)?date_format(date_create($rec->forenddate), 'd.m.Y'):'...'}}</td>--}}
                                     <td class="small">{{date_format(date_create($rec->docdate), 'd.m.Y')}}</td>
-                                    <td class="small text-center">
-                                        @if( isset($rec->forbegdate) and isset($rec->forenddate))
-                                            {{date_format(date_create($rec->forbegdate), 'd.m.Y')}} ..
-                                            {{date_format(date_create($rec->forenddate), 'd.m.Y')}}
-                                        @endif
-                                    </td>
 
                                     {{--                                    <td>{{$data->dirs[$rec->charge_dir]??'-'}}: {{$rec->chargetype_name}}</td>--}}
                                     <td><a href="{{ route('stf_chrg_calcs.edit',$rec->id)}}?returl={{$retURL}}"

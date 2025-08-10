@@ -70,10 +70,11 @@ class orgstaffController extends Controller
         $usrrights['agr2'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.agr2');
         //$usrrights['regpay'] = usrsysright::isUserHasRightByCode_cached($userid, $this->sysobjcode . '.regpay');
 
-        $usrrights['stf_payrolltypes.read'] = usrsysright::isUserHasRightByCode_cached($userid, 'stf_payrolltypes.read');
-        $usrrights['stf_salaries.read'] = usrsysright::isUserHasRightByCode_cached($userid, 'stf_salaries.read');
-        $usrrights['stf_charges.read'] = usrsysright::isUserHasRightByCode_cached($userid, 'stf_charges.read');
-        $usrrights['stf_chrg_calcs.read'] = usrsysright::isUserHasRightByCode($userid, 'stf_chrg_calcs.read');
+        $usrrights['stf_payrolltypes.read'] = usrsysright::isUserHasRightByCode_cached($userid, sysobj::acl_sysobjcode('stf_payrolltypes').'.read');
+        $usrrights['stf_salaries.read'] = usrsysright::isUserHasRightByCode_cached($userid,  sysobj::acl_sysobjcode('stf_salaries').'.read');
+        $usrrights['stf_charges.read'] = usrsysright::isUserHasRightByCode_cached($userid, sysobj::acl_sysobjcode('stf_charges').'.read');
+        $usrrights['stf_chrg_calcs.read'] = usrsysright::isUserHasRightByCode($userid,  sysobj::acl_sysobjcode('stf_chrg_calcs').'.read');
+        $usrrights['stf_prl_periods.read'] = usrsysright::isUserHasRightByCode($userid, sysobj::acl_sysobjcode('stf_prl_periods').'.read');
 
         $this->sysobjcode = $tmp_sysobjcode;
 
