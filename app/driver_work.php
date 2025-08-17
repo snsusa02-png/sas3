@@ -367,7 +367,7 @@ class driver_work extends Model
                     $int_enddate = date('Y-m-d', strtotime($nxt_begdate . ' -1 day'));
                 }
             }
-            dd($int_begdate, $int_enddate);
+            //dd($int_begdate, $int_enddate);
 
             // сумма начисленной ЗП
             $charge_sum = driver_work::where('staffid', $p_staffid)
