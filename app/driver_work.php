@@ -339,6 +339,21 @@ class driver_work extends Model
             } else {
                 $int_begdate = date_create($p_wrkdate)->format('Y-m-01');
                 $int_enddate = date_create($p_wrkdate)->format('Y-m-t');
+
+
+                //2025-08-17 учтем, что предыдущий период мог быть "нестандартным",
+                // поэтому новый (текущий) период  должен нвчинатся после окончания предыдущего
+                //SELECT max(enddate) as pre_enddate FROM `stf_prl_periods` spp where spp.staffid=584 and enddate < '2025-08-15'
+                //$ym = date_create($p_wrkdate)->format('Y-m');
+                $pre_enddate = stf_prl_period::from('stf_prl_periods as spp')
+                    ->where('spp.staffid', $p_staffid)
+                    ->where('spp.enddate', '<', $p_wrkdate)
+                    //->whereRaw("date_format(spp.enddate, '%Y-%m')='{$ym}'")
+                    ->whereRaw("date_format(spp.enddate, '%Y-%m')=date_format('{$p_wrkdate}', '%Y-%m')")
+                    ->max('enddate');
+                if (isset($pre_enddate)){
+                    $int_begdate = date('Y-m-d', strtotime($pre_enddate . ' +1 day'));
+                }
             }
             //dd($int_begdate, $int_enddate);
 

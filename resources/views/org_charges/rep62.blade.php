@@ -288,7 +288,9 @@ $first_col_id = null;
                                                 <td class="text-right ">{{number_format($itm->night_wrkhrs, 2)}}</td>
                                                 <td class="text-right font-weight-bold ">{{number_format($itm->night_hr_rate*$itm->night_wrkhrs, 2)}}</td>
 
-                                                <td class="text-right font-weight-bold ">{{number_format($itm->breaks_sum, 2)}}</td>
+{{--                                                <td class="text-right font-weight-bold ">{{number_format($itm->breaks_sum, 2)}}</td>--}}
+{{--                                                <td class="text-right font-weight-bold ">{{number_format($itm->repair_sum, 2)}}</td>--}}
+                                                <td class="text-right font-weight-bold ">{{number_format($itm->wait_sum, 2)}}</td>
                                                 <td class="text-right font-weight-bold ">{{number_format($itm->repair_sum, 2)}}</td>
 
                                                 <td class="text-right font-weight-bold ">{{number_format(
