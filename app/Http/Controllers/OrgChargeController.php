@@ -765,6 +765,9 @@ class OrgChargeController extends Controller
             $data->begdate = date_create($s_begdate)->format('Y-m-d');   //Первый день месяца
             $data->enddate = date_create($s_enddate)->format('Y-m-d');    //Последний день месяца
 
+            $s_begdate_ymd = date_create($s_begdate)->format('Y-m-d');
+            $s_enddate_ymd = date_create($s_enddate)->format('Y-m-d');
+
             $sql = "SELECT os.id as staffid, os.lname, os.fname, os.mname
 	, os.orgid, o.name as org_name
 	, upper (os.depname) as dep_name
@@ -778,8 +781,10 @@ class OrgChargeController extends Controller
 	join chargetypes as ct on ct.id=oc.chargetypeid
 	where 1=1";
 
-            $sql .= " and scc.docdate between '"
-                . date_create($s_begdate)->format('Y-m-d') . "' and '" . date_create($s_enddate)->format('Y-m-d') . "'";
+            //$sql .= " and scc.docdate between '". date_create($s_begdate)->format('Y-m-d') . "' and '" . date_create($s_enddate)->format('Y-m-d') . "'";
+            $sql .= " and scc.forbegdate between '{$s_begdate_ymd}' and '{$s_enddate_ymd}'"
+            . " and scc.forenddate between '{$s_begdate_ymd}' and '{$s_enddate_ymd}'";
+
 
             if (isset($s_ownorgid))
                 $sql .= " and os.orgid={$s_ownorgid}";
@@ -812,7 +817,11 @@ class OrgChargeController extends Controller
                     join chargetypes as ct on ct.id=oc.chargetypeid
                     where 1=1"
                 . " and scc.staffid={$rec->staffid}"
-                . " and scc.docdate between '" . date_create($s_begdate)->format('Y-m-d') . "' and '" . date_create($s_enddate)->format('Y-m-d') . "'";
+                //. " and scc.docdate between '" . date_create($s_begdate)->format('Y-m-d') . "' and '" . date_create($s_enddate)->format('Y-m-d') . "'";
+                . " and scc.forbegdate between '{$s_begdate_ymd}' and '{$s_enddate_ymd}'"
+                . " and scc.forenddate between '{$s_begdate_ymd}' and '{$s_enddate_ymd}'"
+                ;
+
 
 //            if (isset($s_ownorgid))
 //                $sql .= " and os.orgid={$s_ownorgid}";
