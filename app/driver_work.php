@@ -395,7 +395,10 @@ class driver_work extends Model
                 'staffid' => $p_staffid
                 , 'ref_sysobjid' => self::$sysobjid
                 , 'ref_objid' => 0
-                , 'docdate' => $int_begdate
+//                , 'docdate' => $int_begdate
+            //2025-08-17
+                , 'forbegdate' => $int_begdate
+                , 'forenddate' => $int_enddate
                 , 'orgchargeid' => $orgcharge->id
             ])->first();
             if (!isset($stfchrgcalc)) {
