@@ -358,16 +358,16 @@ class driver_work extends Model
                 //2025-08-17 учтем, что следующий период мог быть "нестандартным",
                 // поэтому новый (текущий) период  должен заканчиваться перед началом следующего
                 //SELECT min(enddate) as nxt_enddate FROM `stf_prl_periods` spp where spp.staffid=584 and begdate > '2025-07-01'
-                $nxt_enddate = stf_prl_period::from('stf_prl_periods as spp')
+                $nxt_begdate = stf_prl_period::from('stf_prl_periods as spp')
                     ->where('spp.staffid', $p_staffid)
                     ->where('spp.begdate', '>', $p_wrkdate)
                     ->whereRaw("date_format(spp.begdate, '%Y-%m')=date_format('{$p_wrkdate}', '%Y-%m')")
                     ->min('begdate');
-                if (isset($nxt_enddate)){
-                    $int_enddate = date('Y-m-d', strtotime($nxt_enddate . ' -1 day'));
+                if (isset($nxt_begdate)){
+                    $int_enddate = date('Y-m-d', strtotime($nxt_begdate . ' -1 day'));
                 }
             }
-            //dd($int_begdate, $int_enddate);
+            dd($int_begdate, $int_enddate);
 
             // сумма начисленной ЗП
             $charge_sum = driver_work::where('staffid', $p_staffid)
