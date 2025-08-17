@@ -296,7 +296,7 @@ $first_col_id = null;
                                                 <td class="text-right font-weight-bold ">{{number_format(
                                                     $itm->day_hr_rate*$itm->day_wrkhrs
                                                     +$itm->night_hr_rate*$itm->night_wrkhrs
-                                                    +$itm->breaks_sum
+                                                    +$itm->wait_sum
                                                     +$itm->repair_sum, 2)}}
                                                 </td>
                                             </tr>
