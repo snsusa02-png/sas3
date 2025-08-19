@@ -849,7 +849,7 @@ class OrgChargeController extends Controller
                 . " join wrktypes wt on wt.id=dw.wrktypeid"
                 . " where wrkdate between '" . date_create($s_begdate)->format('Y-m-d') . "' and '" . date_create($s_enddate)->format('Y-m-d') . "'"
                 . " and staffid={$rec->staffid}"
-                . " and day_wrkhrs+night_wrkhrs>0"
+                . " and day_wrkhrs+night_wrkhrs+breaks_sum>0"
                 . " group by  wrktypeid, day_hr_rate, night_hr_rate";
             $rec->drvrhrs = DB::select(DB::raw($sql));
 //            if ($rec->staffid==53)

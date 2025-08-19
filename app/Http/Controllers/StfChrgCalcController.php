@@ -316,12 +316,11 @@ class StfChrgCalcController extends Controller
         $rec->docnum = $request->get('docnum');
         $rec->notes = $request->get('notes');
 
-        //$rec->forbegdate = $request->get('forbegdate');
-        //$rec->forenddate = $request->get('forenddate');
+        $rec->forbegdate = $request->get('forbegdate');
+        $rec->forenddate = $request->get('forenddate');
         //Упрощенный вариант, вычислим  от даты начисления/удержания
-        $rec->forbegdate = '' . date_create($rec->docdate)->format('Y-m-01');
-        $rec->forenddate = '' . date_create($rec->docdate)->format('Y-m-t');
-        //$rec->forenddate = $request->get('forenddate');
+//        $rec->forbegdate = '' . date_create($rec->docdate)->format('Y-m-01');
+//        $rec->forenddate = '' . date_create($rec->docdate)->format('Y-m-t');
 
         $rec->active = $request->get('active') ?? 1;
 

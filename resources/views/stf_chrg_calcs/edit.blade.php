@@ -240,7 +240,7 @@
                                             @if ($usrrights['save'] )
                                                 <input type="date" class="form-control text-center font-weight-bold"
                                                        name="forenddate" id="forenddate"
-                                                       max="{{today()->format('Y-m-d')}}"
+{{--                                                       max="{{today()->format('Y-m-d')}}"--}}
                                                        value="{{old('forenddate',$rec->forenddate)}}"/>
                                             @else
                                                 <div
