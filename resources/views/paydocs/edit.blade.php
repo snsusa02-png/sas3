@@ -317,9 +317,10 @@
                 </div>
 
                 @if($rec->id<>-1)
-                    <div class="col-md-3">
+                    <div class="col-md-5">
                         @include('objfiles.obj_files')
                         {{--                        @include('obj_readers._readers')--}}
+                        @include('paydocs.linked_mr_opers')
                     </div>
                 @endif
             </div>

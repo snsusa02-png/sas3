@@ -288,4 +288,19 @@ class paydoc extends Model
 
     }
 
+    public function linked_mr_opers()
+    {
+        return $this->hasMany(obj_link::class, 'objid', 'id')
+            ->join('mr_opers as mro', 'mro.id', 'obj_links.lnkobjid')
+            ->join('mchn_raids as mr', 'mr.id', 'mro.mr_id')
+            ->join('refitems as ri', 'ri.id', 'mro.refitmid')
+            ->join('orgs as oo', 'oo.id', 'mro.suporgid')
+            ->join('orgs as o', 'o.id', 'mro.orgid')
+            ->where([
+                'sysobjid' => self::$sysobjid,
+                'lnksysobjid' => 1107,
+            ])
+            ->select('obj_links.*', 'mr.wrkdate', 'mro.*', 'ri.name as ri_name', 'oo.name as suporg_name', 'o.name as org_name');
+    }
+
 }
