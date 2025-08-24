@@ -450,6 +450,7 @@ class PayDocReportController extends Controller
                     , db::raw("trim(group_concat( mro.name SEPARATOR ' ')) as notes")
                     , db::raw("sum(mro.raid_qty) as raid_qty")
                     , db::raw("concat(os.lname, ' ', os.fname) as disp_name")
+                    , db::raw("sum((select pd.paydir*pd.paysum	from obj_links ol  join paydocs as pd on pd.id=ol.lnkobjid	where ol.sysobjid=1107 and ol.lnksysobjid=520 and ol.objid=mro.id )) as paid_sum")
                 )
                 ->groupBy('operdate', 'sysobjid', 'org_placename', 'mro.refitmid', 'mro.itm_price', 'mro.disp_staffid');
 
@@ -469,6 +470,7 @@ class PayDocReportController extends Controller
                     , db::raw("trim(group_concat( mro.name SEPARATOR ' ')) as notes")
                     , db::raw("sum(mro.raid_qty) as raid_qty")
                     , db::raw("concat(os.lname, ' ', os.fname) as disp_name")
+                    , db::raw("sum((select pd.paydir*pd.paysum	from obj_links ol  join paydocs as pd on pd.id=ol.lnkobjid	where ol.sysobjid=1107 and ol.lnksysobjid=520 and ol.objid=mro.id )) as paid_sum")
                 )
                 //->groupBy('operdate', 'sysobjid', 'org_placename', 'mro.refitmid', 'mro.itm_price');
                 ->groupBy('operdate', 'sysobjid', 'org_placename', 'mro.refitmid', 'mro.itm_price', 'mro.disp_staffid');
@@ -494,6 +496,7 @@ class PayDocReportController extends Controller
                     , db::raw("null as notes")
                     , db::raw("null as raid_qty")
                     , db::raw("concat(os.lname, ' ', os.fname) as disp_name")
+                    , db::raw("sum((select pd.paydir*pd.paysum	from obj_links ol join paydocs as pd on pd.id=ol.lnkobjid	where ol.sysobjid=204 and ol.lnksysobjid=520 and ol.objid=d.id )) as paid_sum")
                 )
                 ->groupBy('operdate', 'sysobjid', 'org_placename', 'i.refitmid', 'i.price', 'd.disp_staffid');
 
@@ -510,6 +513,7 @@ class PayDocReportController extends Controller
                     , db::raw("null as notes")
                     , db::raw("null as raid_qty")
                     , db::raw("null as disp_name")
+                    , db::raw("null as paid_sum")
                 )
                 ->unionall($sells)
                 ->unionall($buys)

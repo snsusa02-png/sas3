@@ -213,8 +213,13 @@ $usrrights['link_tasks'] = \App\usrsysright::isUserHasRightByCode_cached($userid
                             <td class="text-right small calced" data-num="{{$rec->raid_qty}}">{{$sh_raid_qty}}</td>
                             <td class="text-right small calced" data-num="{{$rec->qty}}">{{$sh_qty}}</td>
                             <td class="text-right small">{{$sh_price}}</td>
-                            <td class="text-right calced {{$td_class}}"
-                                data-num="{{$rec->opersum}}">{{number_format($rec->opersum,2)}}</td>
+{{--                            <td class="text-right calced0 {{$td_class}}"--}}
+                            <td class="text-right"
+                                ><span class="calced {{$td_class}}" data-num="{{$rec->opersum}}">{{number_format($rec->opersum,2)}}</span>
+                            @if(isset($rec->paid_sum))
+                                <div class="small text-right text-secondary">оплата: {{number_format($rec->paid_sum,2)}}</div>
+                            @endif
+                            </td>
                             <td class="text-right small calced {{$tdс_class}}"
                                 data-num="{{$curSum}}">{{number_format($curSum,2)}}</td>
                             <td class="text-left small">{{$rec->disp_name}}</td>
