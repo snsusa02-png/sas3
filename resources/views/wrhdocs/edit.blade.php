@@ -70,7 +70,7 @@
         </style>
         <div class="container">
             <div class="row">
-                <div class="col-md-9">
+                <div class="col-md-8">
                     <div class="card mt-3">
 
                         @include('layouts.edit_msgs')
@@ -626,6 +626,8 @@
                             </div>
                         </div>
                     @endif
+
+                    @include('wrhdocs.linked_paydocs')
                 </div>
 
             </div>

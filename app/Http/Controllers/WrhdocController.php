@@ -138,6 +138,9 @@ class WrhdocController extends Controller
 
         $usrrights['edit'] = $usrrights['save'];
 
+        $usrrights['paydocs.read'] = usrsysright::isUserHasRightByCode_cached($userid, 'paydocs.read');
+        $usrrights['paydocs.create'] = usrsysright::isUserHasRightByCode_cached($userid, 'paydocs.create');
+
 //        dd($usrrights);
         return $usrrights;
     }

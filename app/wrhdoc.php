@@ -1548,4 +1548,17 @@ class wrhdoc extends Model
 
     }
 
+    public function linked_paydocs()
+    {
+        return $this->hasMany(obj_link::class, 'objid', 'id')
+            ->join('paydocs as pd', 'pd.id', 'obj_links.lnkobjid')
+            ->join('orgs as oo', 'oo.id', 'pd.ownorgid')
+            ->join('orgs as o', 'o.id', 'pd.orgid')
+            ->where([
+                'sysobjid' => self::$sysobjid,
+                'lnksysobjid' => 520,
+            ])
+            ->select('obj_links.*', 'pd.*', 'oo.name as ownorg_name', 'o.name as org_name');
+    }
+
 }

@@ -307,7 +307,54 @@ class PaydocController extends Controller
                             }
                         }
                     }
+                    elseif ($rsn_sysobjid == 204) {
+                        //основание платежа - операция mr_opers из mchn_raids -----------------
+                        $rsn_obj = \App\wrhdoc::find($rsn_objid);
+                        //dd($rsn_obj, $rsn_obj->doctype);
+                        if (isset($rsn_obj)) {
 
+                            $sale_dir = $rsn_obj->doctype->forsale;
+                            if ( $sale_dir <> 0) {
+
+                                if ($sale_dir > 0) {
+                                    $newData['ownorgid'] = $rsn_obj->saleorgid;
+                                    $newData['orgid'] = $rsn_obj->orgid;
+
+                                } elseif ($sale_dir < 0) {
+                                    $newData['ownorgid'] = $rsn_obj->saleorgid;
+                                    $newData['orgid'] = $rsn_obj->orgid;
+                                }
+                                $newData['paydir'] = $sale_dir;
+                                $newData['paytypeid'] = $rsn_obj->paytypeid;
+//                                $newData['contractid'] = $rsn_obj->mchn_raid->contractid;
+//                                $newData['opertypeid'] = $rsn_obj->mchn_raid->opertypeid;
+
+                                $newData['docdate'] = $rsn_obj->docdate;
+                                $newData['paydate'] = $rsn_obj->docdate;
+
+                                $newData['reason'] = $rsn_obj->doctype->name
+                                    . ' №'. $rsn_obj->docnum
+                                    . ' от '. date_format(date_create($rsn_obj->docdate), 'd.m.Y');
+
+                                //вычислим остаток
+                                $paySum = paydoc::from('paydocs as pd')
+                                    ->whereRaw("exists(select 1 from obj_links as l
+                                        where sysobjid={$rsn_sysobjid} and objid={$rsn_objid}
+                                        and lnksysobjid=520 and lnkobjid=pd.id)")
+                                    ->sum(db::raw("pd.paydir*pd.paysum"));
+//                                dd($rsn_obj);
+                                $restSum = round($rsn_obj->docsum - $sale_dir * $paySum, 2);
+                                if ($restSum < 0) {
+                                    $restSum = -$restSum;
+                                    $newData['paydir'] = -$newData['paydir'];
+                                }
+                                $newData['paysum'] = $restSum;
+
+                                //dd($restSum);
+                                //dd($newData);
+                            }
+                        }
+                    }
                 }
                 //dd($rsn_sysobjid, $rsn_objid);
                 // -------------------------------------------------------------
