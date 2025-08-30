@@ -290,22 +290,22 @@ $first_col_id = null;
                                                 </td>
                                                 <td class="text-right ">{{number_format($itm->day_hr_rate, 0)}}</td>
                                                 <td class="text-right ">{{number_format($itm->day_wrkhrs, 2)}}</td>
-                                                <td class="text-right font-weight-bold ">{{number_format($itm->day_hr_rate*$itm->day_wrkhrs, 2)}}</td>
+                                                <td class="text-right font-weight-bold ">{!!number_format($itm->day_hr_rate*$itm->day_wrkhrs, 2, '.', '&nbsp;')!!}</td>
 
                                                 <td class="text-right ">{{number_format($itm->night_hr_rate, 0)}}</td>
                                                 <td class="text-right ">{{number_format($itm->night_wrkhrs, 2)}}</td>
-                                                <td class="text-right font-weight-bold ">{{number_format($itm->night_hr_rate*$itm->night_wrkhrs, 2)}}</td>
+                                                <td class="text-right font-weight-bold ">{!! number_format($itm->night_hr_rate*$itm->night_wrkhrs, 2, '.', '&nbsp;')!!}</td>
 
 {{--                                                <td class="text-right font-weight-bold ">{{number_format($itm->breaks_sum, 2)}}</td>--}}
 {{--                                                <td class="text-right font-weight-bold ">{{number_format($itm->repair_sum, 2)}}</td>--}}
-                                                <td class="text-right font-weight-bold ">{{number_format($itm->wait_sum, 2)}}</td>
-                                                <td class="text-right font-weight-bold ">{{number_format($itm->repair_sum, 2)}}</td>
+                                                <td class="text-right font-weight-bold ">{!! number_format($itm->wait_sum, 2, '.', '&nbsp;')!!}</td>
+                                                <td class="text-right font-weight-bold ">{!! number_format($itm->repair_sum, 2, '.', '&nbsp;')!!}</td>
 
-                                                <td class="text-right font-weight-bold ">{{number_format(
+                                                <td class="text-right font-weight-bold ">{!! number_format(
                                                     $itm->day_hr_rate*$itm->day_wrkhrs
                                                     +$itm->night_hr_rate*$itm->night_wrkhrs
                                                     +$itm->wait_sum
-                                                    +$itm->repair_sum, 2)}}
+                                                    +$itm->repair_sum, 2, '.', '&nbsp;')!!}
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -359,7 +359,7 @@ $first_col_id = null;
                                 <table class="tbl table-bordered text-center rep-details mb-2" style="border: 2px solid black;" width="100%" >
                                     <tr>
                                         <td style="font-size: xx-large">ЗАРПЛАТА:</td>
-                                        <td style="font-size: xx-large">{{number_format($rec->salary_sum,2, '.', ' ')}} руб</td>
+                                        <td style="font-size: xx-large">{!! number_format($rec->salary_sum,2, '.', '&nbsp;')!!} руб</td>
                                         <td class="small" style="width: 130pt;"><br>
                                             <hr size="1" style="margin-bottom:0rem;">
                                             <sup style="font-size: 0.6em">(ФИО и подпись)</sup></td>
@@ -385,7 +385,7 @@ $first_col_id = null;
                                             <td class="small">
                                                     {{$chrg->notes}}
                                             </td>
-                                            <td class="text-right small">{{number_format($chrg->dir*$chrg->charge_sum, 2, '.', ' ')}}</td>
+                                            <td class="text-right small">{!! number_format($chrg->dir*$chrg->charge_sum, 2, '.', '&nbsp;')!!}</td>
                                             <td class="small" style="width: 130pt;"></td>
                                         </tr>
                                         <?php
@@ -408,7 +408,7 @@ $first_col_id = null;
                                 <table class="tbl table-bordered text-center rep-details mb-2" style="border: 2px solid black;" width="100%" >
                                     <tr>
                                         <td style="font-size: xx-large">ИТОГО К ВЫДАЧЕ:</td>
-                                        <td style="font-size: xx-large">{{number_format($totOutSum,2, '.', ' ')}} руб</td>
+                                        <td style="font-size: xx-large">{!!number_format($totOutSum,2, '.', '&nbsp;')!!} руб</td>
                                         <td class="small" style="width: 130pt;"><br>
                                             <hr size="1" style="margin-bottom:0rem;">
                                             <sup style="font-size: 0.6em">(ФИО и подпись)</sup></td>
