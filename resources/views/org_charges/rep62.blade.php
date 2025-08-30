@@ -46,9 +46,17 @@ $first_col_id = null;
         .rep-data td {
             padding: 5px;
             border-collapse: collapse;
-            border: 1px solid #e2e2e2;
+            border0: 1px solid #e2e2e2;
         }
-
+        .rep-details0 table {
+            border-collapse: collapse;
+            border: 2px solid black;
+        }
+        .rep-details td {
+            padding: 3px;
+            border-collapse: collapse;
+            border: 1px solid black;
+        }
         .page {
             background-color: white;
         }
@@ -157,7 +165,7 @@ $first_col_id = null;
 
         @if (isset($recs))
 
-            <div class="page p-2 container-fluid">
+            <div class="page p-2 container-fluid" style="font-family: 'Times New Roman'">
 
                 {{--                <div class="mt-2 text-center"--}}
                 {{--                     style="font-size: 18px;">--}}
@@ -199,7 +207,7 @@ $first_col_id = null;
                     @endif
 
                     <table id="results"
-                           class="table table-sm table-striped0 rep-data mt-3"
+                           class="table table-borderless rep-data mt-3" border="0"
                            style="background-color: snow; font-size:16px; max-width:960px; align-self: center">
                         <thead>
                         </thead>
@@ -231,9 +239,9 @@ $first_col_id = null;
                         //echo('<hr>');var_dump('$pre_chargetypeid =', $pre_chargetypeid);
                         ?>
                         <tr>
-                            <td colspan="2" align="center"><img src="/images/signs/gerb.jpg"
-                                                                style="width:100px;text-align: center">
-                                <br>РАБОЧАЯ ВЕДОМОСТЬ
+                            <td colspan="2" align="center" style="font-size: x-large">
+                                <img src="/images/signs/gerb.jpg" style="width:150px;text-align: center">
+                                <h3><b style="letter-spacing: 2px;">РАБОЧАЯ ВЕДОМОСТЬ</b></h3>
                             </td>
                         </tr>
                         <tr class="text-left {{$tr_class}}" style="{{$tstyle}}">
@@ -253,14 +261,14 @@ $first_col_id = null;
                         @if (count($rec->drvrhrs) > 0)
                             <tr>
                                 <td class="text-left " colspan="2">
-                                    <table class="tbl table-sm table-striped" width="100%">
+                                    <table class="tbl table-sm table-bordered rep-details mb-2" style="border: 2px solid black;" width="100%">
                                         <tr class="small">
-                                            <th rowspan="2">Вид работ</th>
-                                            <th colspan="3" class="text-center">День</th>
-                                            <th colspan="3" class="text-center">Ночь</th>
-                                            <th colspan="1" class="text-center">Простой</th>
-                                            <th colspan="1" class="text-center">Ремонт</th>
-                                            <th rowspan="2" class="text-center">Итого, &#8381;</th>
+                                            <td rowspan="2">Вид работ</td>
+                                            <td colspan="3" class="text-center">День</td>
+                                            <td colspan="3" class="text-center">Ночь</td>
+                                            <td colspan="1" class="text-center">Простой</td>
+                                            <td colspan="1" class="text-center">Ремонт</td>
+                                            <td rowspan="2" class="text-center">Итого, &#8381;</td>
                                         </tr>
                                         <tr class="small">
                                             <td>Ставка, &#8381;</td>
@@ -309,7 +317,7 @@ $first_col_id = null;
                         @if (count($rec->wrkhrs) > 0)
                             <tr>
                                 <td class="text-left " colspan="2">
-                                    <table class="tbl table-sm table-striped" width="100%">
+                                    <table class="tbl table-sm table-bordered mb-2" width="100%">
                                         <tr class="small">
                                             <th rowspan="2">Вид работ</th>
                                             <th colspan="3" class="text-center">День</th>
@@ -348,31 +356,59 @@ $first_col_id = null;
 
                         <tr>
                             <td class="text-right" style="text-align: center;" colspan="2">
+                                <table class="tbl table-bordered text-center rep-details mb-2" style="border: 2px solid black;" width="100%" >
+                                    <tr>
+                                        <td style="font-size: xx-large">ЗАРПЛАТА:</td>
+                                        <td style="font-size: xx-large">{{number_format($rec->salary_sum,2, '.', ' ')}} руб</td>
+                                        <td class="small" style="width: 130pt;"><br>
+                                            <hr size="1" style="margin-bottom:0rem;">
+                                            <sup style="font-size: 0.6em">(ФИО и подпись)</sup></td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-right" style="text-align: center;" colspan="2">
                                 @php($totOutSum=0)
-                                <table class="tbl text-center" width="100%">
+                                <table class="tbl text-center rep-details mb-2" width="100%" style="border: 2px solid black;">
+                                    <tr>
+                                        <td></td>
+                                        <td class="text-center">Комментарий:</td>
+                                        <td class="text-center">Сумма:</td>
+                                        <td class="text-center">Подпись:</td>
+                                    </tr>
                                     @foreach($rec->charges as $chrg)
                                         <tr>
                                             <td>
-                                                ({{$chrg->dir==1?'+':'-'}})
                                                 {{$chrg->chargetype_name}}
-                                                <span class="small float-right">
-{{--                                    ({{date_format(date_create($rec->docdate),'d.m.Y')}} {{isset($rec->notes)?', '.$rec->notes:''}})--}}
-                                                    {{$chrg->notes}}
-                                </span>
                                             </td>
-                                            <td class="text-right small">{{number_format($chrg->charge_sum, 2)}}</td>
-                                            <td class="small" style="width: 130pt;"><br>
-                                                <hr size="1" style="margin-bottom:0rem;">
-                                                <sup style="font-size: 0.6em">(ФИО и подпись)</sup></td>
+                                            <td class="small">
+                                                    {{$chrg->notes}}
+                                            </td>
+                                            <td class="text-right small">{{$chrg->dir==1?' ':'-'}}{{number_format($chrg->charge_sum, 2)}}</td>
+                                            <td class="small" style="width: 130pt;"></td>
                                         </tr>
                                         <?php
                                         $totOutSum += ($chrg->dir * $chrg->charge_sum);
                                         //                                        $totSum += ($chrg->dir * $chrg->charge_sum);
                                         ?>
                                     @endforeach
+{{--                                    <tr>--}}
+{{--                                        <td class="text-right font-weight-bold" style="font-size: 1.2rem">Итого к выдаче:</td>--}}
+{{--                                        <td class="text-right font-weight-bold" style="font-size: 1.2rem">{{number_format($totOutSum, 2)}}</td>--}}
+{{--                                        <td class="small" style="width: 130pt;"><br>--}}
+{{--                                            <hr size="1" style="margin-bottom:0rem;">--}}
+{{--                                            <sup style="font-size: 0.6em">(ФИО и подпись)</sup></td>--}}
+{{--                                    </tr>--}}
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-right" style="text-align: center;" colspan="2">
+                                <table class="tbl table-bordered text-center rep-details mb-2" style="border: 2px solid black;" width="100%" >
                                     <tr>
-                                        <td class="text-right font-weight-bold" style="font-size: 1.2rem">Итого к выдаче:</td>
-                                        <td class="text-right font-weight-bold" style="font-size: 1.2rem">{{number_format($totOutSum, 2)}}</td>
+                                        <td style="font-size: xx-large">ИТОГО К ВЫДАЧЕ:</td>
+                                        <td style="font-size: xx-large">{{number_format($totOutSum,2, '.', ' ')}} руб</td>
                                         <td class="small" style="width: 130pt;"><br>
                                             <hr size="1" style="margin-bottom:0rem;">
                                             <sup style="font-size: 0.6em">(ФИО и подпись)</sup></td>

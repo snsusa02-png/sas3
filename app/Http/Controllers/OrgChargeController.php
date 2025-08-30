@@ -12,6 +12,7 @@ use App\org;
 use App\org_charge;
 use App\orgdep;
 use App\orgpost;
+use App\orgstaff;
 use App\place;
 use App\stf_chrg_calc;
 use App\stf_salary;
@@ -769,22 +770,22 @@ class OrgChargeController extends Controller
             $s_enddate_ymd = date_create($s_enddate)->format('Y-m-d');
 
             $sql = "SELECT os.id as staffid, os.lname, os.fname, os.mname
-	, os.orgid, o.name as org_name
-	, upper (os.depname) as dep_name
-	, os.postname
-	, sum(ct.dir*scc.charge_sum) as charge_sum
-	, count(1) as cnt
-	FROM orgstaff os
-	join orgs o on o.id=os.orgid
-	join stf_chrg_calcs scc on scc.staffid=os.id
-	join org_charges as oc 	on oc.id=scc.orgchargeid
-	join chargetypes as ct on ct.id=oc.chargetypeid
-	where 1=1";
+                    , os.orgid, o.name as org_name
+                    , upper (os.depname) as dep_name
+                    , os.postname
+                    , sum(ct.dir*scc.charge_sum) as charge_sum
+                    , count(1) as cnt
+                    FROM orgstaff os
+                    join orgs o on o.id=os.orgid
+                    join stf_chrg_calcs scc on scc.staffid=os.id
+                    join org_charges as oc 	on oc.id=scc.orgchargeid
+                    join chargetypes as ct on ct.id=oc.chargetypeid
+                    where 1=1";
 
             //$sql .= " and scc.docdate between '". date_create($s_begdate)->format('Y-m-d') . "' and '" . date_create($s_enddate)->format('Y-m-d') . "'";
             $sql .= " and scc.forbegdate between '{$s_begdate_ymd}' and '{$s_enddate_ymd}'"
             . " and scc.forenddate between '{$s_begdate_ymd}' and '{$s_enddate_ymd}'";
-
+            //dd($sql);
 
             if (isset($s_ownorgid))
                 $sql .= " and os.orgid={$s_ownorgid}";
@@ -796,15 +797,29 @@ class OrgChargeController extends Controller
 
             $sql .= "group by os.id
 	            order by os.lname, os.fname, os.id";
-
+//dd($sql);
             $recs = DB::select(DB::raw($sql));
             //dd($recs);
 
         } else {
             $recs = null;
+            return redirect()->route('reports.pub_index');
         }
 
         foreach ($recs as $rec) {
+
+            //2025-08-30 - подсчитаем толко ЗАРПЛАТУ ---------------------------------
+            $rec->salary_sum = orgstaff::from('orgstaff as os')
+                ->join('stf_chrg_calcs as scc', 'scc.staffid', 'os.id')
+                ->join('org_charges as oc', 'oc.id', 'scc.orgchargeid')
+                ->join('chargetypes as ct', 'ct.id', 'oc.chargetypeid')
+                ->where('os.id', $rec->staffid)
+                ->where('ct.id', 11)    // Зарплата
+                ->whereRaw("scc.forbegdate between '{$s_begdate_ymd}' and '{$s_enddate_ymd}'"
+                . " and scc.forenddate between '{$s_begdate_ymd}' and '{$s_enddate_ymd}'")
+                ->sum('scc.charge_sum');
+            //dd($rec->salary_sum );
+            //-------------------------------------------------------------------------
 
             $sql = "SELECT ct.dir, oc.chargetypeid, ct.name as chargetype_name
                     , scc.charge_sum charge_sum
@@ -821,13 +836,6 @@ class OrgChargeController extends Controller
                 . " and scc.forbegdate between '{$s_begdate_ymd}' and '{$s_enddate_ymd}'"
                 . " and scc.forenddate between '{$s_begdate_ymd}' and '{$s_enddate_ymd}'"
                 ;
-
-
-//            if (isset($s_ownorgid))
-//                $sql .= " and os.orgid={$s_ownorgid}";
-
-//            if (isset($s_stf_name))
-//                $sql .= " and concat(' ', os.lname, ' ', os.fname, ' ', ifnull(os.mname, ' ')) like '% {$s_stf_name}%'";
 
             $sql .= " order by ct.dir desc, ct.ordr, scc.docdate";
             $rec->charges = DB::select(DB::raw($sql));
