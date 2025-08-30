@@ -385,7 +385,7 @@ $first_col_id = null;
                                             <td class="small">
                                                     {{$chrg->notes}}
                                             </td>
-                                            <td class="text-right small">{{$chrg->dir==1?' ':'-'}}{{number_format($chrg->charge_sum, 2)}}</td>
+                                            <td class="text-right small">{{number_format($chrg->dir*$chrg->charge_sum, 2, '.', ' ')}}</td>
                                             <td class="small" style="width: 130pt;"></td>
                                         </tr>
                                         <?php
