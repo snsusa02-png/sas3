@@ -246,11 +246,11 @@ $first_col_id = null;
                         </tr>
                         <tr class="text-left {{$tr_class}}" style="{{$tstyle}}">
                             <td colspan="1" class="text-left" data-npp="{{$npp}}">
-                                <b>{{$rec->lname}} {{$rec->fname}} {{$rec->mname}}</b>,
-                                <div class="small"> должность: <i>{{$rec->postname}}</i>,
-                                    подразделение: <i>{{$rec->dep_name??'-не указано-'}},
-                                        {{$rec->org_name}}</i>
-                                </div>
+                                <b>{{$rec->lname}} {{$rec->fname}} {{$rec->mname}}</b>
+{{--                                <div class="small"> должность: <i>{{$rec->postname}}</i>,--}}
+{{--                                    подразделение: <i>{{$rec->dep_name??'-не указано-'}},--}}
+{{--                                        {{$rec->org_name}}</i>--}}
+{{--                                </div>--}}
                             </td>
                             <td align="center">за период <br><b>{{date_create($data->begdate)->format('d.m.Y')}}
                                     - {{date_create($data->enddate)->format('d.m.Y')}}</b></td>

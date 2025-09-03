@@ -6,6 +6,7 @@ use App\bdgtacnttype;
 use App\chargetype;
 use App\doctype;
 use App\driver_work;
+use App\Exports\rep2xlsx_vdr_export;
 use App\objflag;
 use App\objlog;
 use App\org;
@@ -30,6 +31,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
 use function PHPUnit\Framework\isEmpty;
 
 class OrgChargeController extends Controller
@@ -559,13 +561,19 @@ class OrgChargeController extends Controller
 
 //        if ($s_ym <> '') {
         if ($s_period <> '') {
-            //dd( $s_ym . '-01', date_create($s_ym . '-01' ) );
-            $date = date_create($s_ym . '-01')->format('Y-m-d');
-            //dd($date);
+            $data->s_period = $s_period;
+            $dates = explode("..", $s_period);
+            $data->begdate = date_create($dates[0])->format('Y-m-d');
+            $data->enddate = date_create($dates[1])->format('Y-m-d');
 
-            $date = $date ?? date_create()->format('d-m-Y');
-            $data->begdate = date_create($date)->format('Y-m-01');   //Первый день месяца
-            $data->enddate = date_create($date)->format('Y-m-t');    //Последний день месяца
+            //dd($s_period, $dates, $data->begdate, $data->enddate);
+            //dd( $s_ym . '-01', date_create($s_ym . '-01' ) );
+//            $date = date_create($s_ym . '-01')->format('Y-m-d');
+//            //dd($date);
+//
+//            $date = $date ?? date_create()->format('d-m-Y');
+//            $data->begdate = date_create($date)->format('Y-m-01');   //Первый день месяца
+//            $data->enddate = date_create($date)->format('Y-m-t');    //Последний день месяца
 
             // Какие виды начислений/Удержаний попали в рассматриваемый месяц
             $sql = "SELECT ct.id as id, ct.name, sum(scc.charge_sum) charge_sum
@@ -685,14 +693,16 @@ class OrgChargeController extends Controller
 
         //занесем в журнал
         objlog::log_info(855, $report_id, 'запрошен отчет;');
-//        if ($export2xls == "1") {
-//            $response = Excel::download(new rep54Export($recs, $data), "Платежи за " . Str::slug($data->$date) . ".xlsx", \Maatwebsite\Excel\Excel::XLSX);
-//
-//            //$response= Excel::download(new InvoicesExport, 'invoices.xls', \Maatwebsite\Excel\Excel::XLS);
-//            //HERE IS THE MAGIC FOLKS
-//            ob_end_clean();
-//            return $response;
-//        }
+
+        if ($export2xls == "1") {
+            //dd($recs);
+            //$response = Excel::download(new rep54Export($recs, $data), "Платежи за " . Str::slug($data->$date) . ".xlsx", \Maatwebsite\Excel\Excel::XLSX);
+            $response = Excel::download(new rep2xlsx_vdr_export('exports.rep56xls', $recs, $data), "Начисления_и_удержания_{$s_period}.xlsx", \Maatwebsite\Excel\Excel::XLSX);
+
+            //HERE IS THE MAGIC FOLKS
+            ob_end_clean();
+            return $response;
+        }
 
         return view('org_charges.rep' . $report_id, compact('search_params', 'data', 'recs'));
     }
