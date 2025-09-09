@@ -48,15 +48,18 @@ $first_col_id = null;
             border-collapse: collapse;
             border0: 1px solid #e2e2e2;
         }
+
         .rep-details0 table {
             border-collapse: collapse;
             border: 2px solid black;
         }
+
         .rep-details td {
             padding: 3px;
             border-collapse: collapse;
             border: 1px solid black;
         }
+
         .page {
             background-color: white;
         }
@@ -120,7 +123,19 @@ $first_col_id = null;
                                         </div>
                                     @endif
                                     @if(1==1)
-                                        <div class="form-group col-md-3">
+                                        <div class="form-group col-md-2">
+                                            <label for="s_depname" class="">Подразделение:</label>
+                                            {!! Form::select('s_depname', $data->depnames, $search_params['s_depname'],
+                                                            [
+                                                            'class' => 'form-control',
+                                                            'placeholder' => '-все-',
+                                                            ])
+                                                            !!}
+                                        </div>
+                                    @endif
+
+                                    @if(1==1)
+                                        <div class="form-group col-md-2">
                                             <label for="s_ownorgid" class="">Сотрудник:</label>
                                             {!! Form::text('s_stf_name', $search_params['s_stf_name'],
                                                             [
@@ -203,7 +218,7 @@ $first_col_id = null;
                     $tstyle = '';
                     ?>
                     @if($cur_staffid <> -1)
-                            <div class="pagebreak"> </div>
+                        <div class="pagebreak"></div>
                     @endif
 
                     <table id="results"
@@ -247,10 +262,10 @@ $first_col_id = null;
                         <tr class="text-left {{$tr_class}}" style="{{$tstyle}}">
                             <td colspan="1" class="text-left" data-npp="{{$npp}}">
                                 <b>{{$rec->lname}} {{$rec->fname}} {{$rec->mname}}</b>
-{{--                                <div class="small"> должность: <i>{{$rec->postname}}</i>,--}}
-{{--                                    подразделение: <i>{{$rec->dep_name??'-не указано-'}},--}}
-{{--                                        {{$rec->org_name}}</i>--}}
-{{--                                </div>--}}
+                                {{--                                <div class="small"> должность: <i>{{$rec->postname}}</i>,--}}
+                                {{--                                    подразделение: <i>{{$rec->dep_name??'-не указано-'}},--}}
+                                {{--                                        {{$rec->org_name}}</i>--}}
+                                {{--                                </div>--}}
                             </td>
                             <td align="center">за период <br><b>{{date_create($data->begdate)->format('d.m.Y')}}
                                     - {{date_create($data->enddate)->format('d.m.Y')}}</b></td>
@@ -261,7 +276,8 @@ $first_col_id = null;
                         @if (count($rec->drvrhrs) > 0)
                             <tr>
                                 <td class="text-left " colspan="2">
-                                    <table class="tbl table-sm table-bordered rep-details mb-2" style="border: 2px solid black;" width="100%">
+                                    <table class="tbl table-sm table-bordered rep-details mb-2"
+                                           style="border: 2px solid black;" width="100%">
                                         <tr class="small">
                                             <td rowspan="2">Вид работ</td>
                                             <td colspan="3" class="text-center">День</td>
@@ -296,8 +312,8 @@ $first_col_id = null;
                                                 <td class="text-right ">{{number_format($itm->night_wrkhrs, 2)}}</td>
                                                 <td class="text-right font-weight-bold ">{!! number_format($itm->night_hr_rate*$itm->night_wrkhrs, 2, '.', '&nbsp;')!!}</td>
 
-{{--                                                <td class="text-right font-weight-bold ">{{number_format($itm->breaks_sum, 2)}}</td>--}}
-{{--                                                <td class="text-right font-weight-bold ">{{number_format($itm->repair_sum, 2)}}</td>--}}
+                                                {{--                                                <td class="text-right font-weight-bold ">{{number_format($itm->breaks_sum, 2)}}</td>--}}
+                                                {{--                                                <td class="text-right font-weight-bold ">{{number_format($itm->repair_sum, 2)}}</td>--}}
                                                 <td class="text-right font-weight-bold ">{!! number_format($itm->wait_sum, 2, '.', '&nbsp;')!!}</td>
                                                 <td class="text-right font-weight-bold ">{!! number_format($itm->repair_sum, 2, '.', '&nbsp;')!!}</td>
 
@@ -356,10 +372,13 @@ $first_col_id = null;
 
                         <tr>
                             <td class="text-right" style="text-align: center;" colspan="2">
-                                <table class="tbl table-bordered text-center rep-details mb-2" style="border: 2px solid black;" width="100%" >
+                                <table class="tbl table-bordered text-center rep-details mb-2"
+                                       style="border: 2px solid black;" width="100%">
                                     <tr>
                                         <td style="font-size: xx-large">ЗАРПЛАТА:</td>
-                                        <td style="font-size: xx-large">{!! number_format($rec->salary_sum,2, '.', '&nbsp;')!!} руб</td>
+                                        <td style="font-size: xx-large">{!! number_format($rec->salary_sum,2, '.', '&nbsp;')!!}
+                                            руб
+                                        </td>
                                         <td class="small" style="width: 130pt;"><br>
                                             <hr size="1" style="margin-bottom:0rem;">
                                             <sup style="font-size: 0.6em">(ФИО и подпись)</sup></td>
@@ -370,7 +389,8 @@ $first_col_id = null;
                         <tr>
                             <td class="text-right" style="text-align: center;" colspan="2">
                                 @php($totOutSum=0)
-                                <table class="tbl text-center rep-details mb-2" width="100%" style="border: 2px solid black;">
+                                <table class="tbl text-center rep-details mb-2" width="100%"
+                                       style="border: 2px solid black;">
                                     <tr>
                                         <td></td>
                                         <td class="text-center">Комментарий:</td>
@@ -383,7 +403,7 @@ $first_col_id = null;
                                                 {{$chrg->chargetype_name}}
                                             </td>
                                             <td class="small">
-                                                    {{$chrg->notes}}
+                                                {{$chrg->notes}}
                                             </td>
                                             <td class="text-right small">{!! number_format($chrg->dir*$chrg->charge_sum, 2, '.', '&nbsp;')!!}</td>
                                             <td class="small" style="width: 130pt;"></td>
@@ -393,22 +413,25 @@ $first_col_id = null;
                                         //                                        $totSum += ($chrg->dir * $chrg->charge_sum);
                                         ?>
                                     @endforeach
-{{--                                    <tr>--}}
-{{--                                        <td class="text-right font-weight-bold" style="font-size: 1.2rem">Итого к выдаче:</td>--}}
-{{--                                        <td class="text-right font-weight-bold" style="font-size: 1.2rem">{{number_format($totOutSum, 2)}}</td>--}}
-{{--                                        <td class="small" style="width: 130pt;"><br>--}}
-{{--                                            <hr size="1" style="margin-bottom:0rem;">--}}
-{{--                                            <sup style="font-size: 0.6em">(ФИО и подпись)</sup></td>--}}
-{{--                                    </tr>--}}
+                                    {{--                                    <tr>--}}
+                                    {{--                                        <td class="text-right font-weight-bold" style="font-size: 1.2rem">Итого к выдаче:</td>--}}
+                                    {{--                                        <td class="text-right font-weight-bold" style="font-size: 1.2rem">{{number_format($totOutSum, 2)}}</td>--}}
+                                    {{--                                        <td class="small" style="width: 130pt;"><br>--}}
+                                    {{--                                            <hr size="1" style="margin-bottom:0rem;">--}}
+                                    {{--                                            <sup style="font-size: 0.6em">(ФИО и подпись)</sup></td>--}}
+                                    {{--                                    </tr>--}}
                                 </table>
                             </td>
                         </tr>
                         <tr>
                             <td class="text-right" style="text-align: center;" colspan="2">
-                                <table class="tbl table-bordered text-center rep-details mb-2" style="border: 2px solid black;" width="100%" >
+                                <table class="tbl table-bordered text-center rep-details mb-2"
+                                       style="border: 2px solid black;" width="100%">
                                     <tr>
                                         <td style="font-size: xx-large">ИТОГО К ВЫДАЧЕ:</td>
-                                        <td style="font-size: xx-large">{!!number_format($totOutSum,2, '.', '&nbsp;')!!} руб</td>
+                                        <td style="font-size: xx-large">{!!number_format($totOutSum,2, '.', '&nbsp;')!!}
+                                            руб
+                                        </td>
                                         <td class="small" style="width: 130pt;"><br>
                                             <hr size="1" style="margin-bottom:0rem;">
                                             <sup style="font-size: 0.6em">(ФИО и подпись)</sup></td>
