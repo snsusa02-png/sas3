@@ -38,6 +38,12 @@ $first_col_id = null;
         .page {
             background-color: white;
         }
+        .rep-details td {
+            padding: 1px;
+            border-collapse: collapse;
+            /*border: 1px solid gray;*/
+        }
+
     </style>
 
     <div class="container">
@@ -132,7 +138,7 @@ $first_col_id = null;
                                 </button>
 
                                 <a class="btn btn-close btn-light btn-sm"
-                                   href="{{ $retURL  }}">
+                                   href="{{ $retURL }}">
                                     <i class="fa fa-window-close-o" aria-hidden="true"></i>
                                     Закрыть
                                 </a>
@@ -178,7 +184,7 @@ $first_col_id = null;
                                         <i class="fa fa-file-excel-o" aria-hidden="true"></i>
                                     </a>
                     @endif
-                        <a class="btn btn-close btn-info btn-sm"
+                        <a class="btn btn-close btn-info btn-sm d-print-none"
                            href="{{ $retURL }}">
                                         <i class="fa fa-times" aria-hidden="true"></i>
                                     </a>
@@ -267,48 +273,46 @@ $first_col_id = null;
                                 @if($rec->dw_cnt>0)
 
                                     <table class="tbl table-sm table-bordered rep-details mb-0"
-                                           style="border: 1px solid black;font-size: 9px;" width="100%">
+                                           style="border: 1px solid black;font-size: 8pt;" width="100%">
                                         <tr class="small">
-                                            <td rowspan="2" style=" padding: 2px;">Вид работ</td>
-                                            <td colspan="3" style=" padding: 2px;" class="text-center">День</td>
-                                            <td colspan="3" style=" padding: 2px;" class="text-center">Ночь</td>
-                                            <td colspan="1" style=" padding: 2px;" class="text-center">Простой</td>
-                                            <td colspan="1" style=" padding: 2px;" class="text-center">Ремонт</td>
-                                            <td rowspan="2" style=" padding: 2px;"class="text-center">Итого, &#8381;</td>
+                                            <td rowspan="2" >Вид работ</td>
+                                            <td colspan="3"  class="text-center">День</td>
+                                            <td colspan="3"  class="text-center">Ночь</td>
+                                            <td colspan="1"  class="text-center">Простой</td>
+                                            <td colspan="1"  class="text-center">Ремонт</td>
+                                            <td rowspan="2" class="text-center">Итого, &#8381;</td>
                                         </tr>
                                         <tr class="small">
-                                            <td style="padding: 2px; width: 38px;">Ставка, &#8381;</td>
-                                            <td style="padding: 2px; width: 28px;">Часов</td>
-                                            <td style="padding: 2px; width: 46px;">Сумма, &#8381;</td>
+                                            <td style="width: 38px;">Ставка, &#8381;</td>
+                                            <td style="width: 28px;">Часов</td>
+                                            <td style="width: 46px;">Сумма, &#8381;</td>
 
-                                            <td  style="padding: 2px; width: 38px;">Ставка, &#8381;</td>
-                                            <td style="padding: 2px; width: 28px;">Часов</td>
-                                            <td style="padding: 2px; width: 46px;">Сумма, &#8381;</td>
+                                            <td  style="width: 38px;">Ставка, &#8381;</td>
+                                            <td style="width: 28px;">Часов</td>
+                                            <td style="width: 46px;">Сумма, &#8381;</td>
 
-                                            <td style="padding: 2px; width: 46px;">Сумма, &#8381;</td>
+                                            <td style="width: 46px;">Сумма, &#8381;</td>
 
-                                            <td style="padding: 2px; width: 64px;">Сумма, &#8381;</td>
+                                            <td style="width: 64px;">Сумма, &#8381;</td>
                                         </tr>
                                         @php($salary_sum = 0)
                                         @foreach($rec->wrkhrs as $itm)
                                             <tr class="small">
-                                                <td  style="padding: 2px;" >
+                                                <td  >
                                                     {{$itm->wrktypename??'-'}}
                                                 </td>
-                                                <td  style="padding: 2px;" class="text-right ">{{number_format($itm->day_hr_rate, 0)}}</td>
-                                                <td  style="padding: 2px;" class="text-right ">{{number_format($itm->day_wrkhrs, 2)}}</td>
-                                                <td  style="padding: 2px;" class="text-right font-weight-bold ">{!!number_format($itm->day_hr_rate*$itm->day_wrkhrs, 2, '.', '&nbsp;')!!}</td>
+                                                <td  class="text-right ">{{number_format($itm->day_hr_rate, 0)}}</td>
+                                                <td  class="text-right ">{{number_format($itm->day_wrkhrs, 2)}}</td>
+                                                <td  class="text-right font-weight-bold ">{!!number_format($itm->day_hr_rate*$itm->day_wrkhrs, 2, '.', '&nbsp;')!!}</td>
 
-                                                <td  style="padding: 2px;" class="text-right ">{{number_format($itm->night_hr_rate, 0)}}</td>
-                                                <td  style="padding: 2px;" class="text-right ">{{number_format($itm->night_wrkhrs, 2)}}</td>
-                                                <td  style="padding: 2px;" class="text-right font-weight-bold ">{!! number_format($itm->night_hr_rate*$itm->night_wrkhrs, 2, '.', '&nbsp;')!!}</td>
+                                                <td  class="text-right ">{{number_format($itm->night_hr_rate, 0)}}</td>
+                                                <td  class="text-right ">{{number_format($itm->night_wrkhrs, 2)}}</td>
+                                                <td  class="text-right font-weight-bold ">{!! number_format($itm->night_hr_rate*$itm->night_wrkhrs, 2, '.', '&nbsp;')!!}</td>
 
-                                                {{--                                                <td class="text-right font-weight-bold ">{{number_format($itm->breaks_sum, 2)}}</td>--}}
-                                                {{--                                                <td class="text-right font-weight-bold ">{{number_format($itm->repair_sum, 2)}}</td>--}}
-                                                <td  style="padding: 2px;" class="text-right font-weight-bold ">{!! number_format($itm->wait_sum, 2, '.', '&nbsp;')!!}</td>
-                                                <td  style="padding: 2px;" class="text-right font-weight-bold ">{!! number_format($itm->repair_sum, 2, '.', '&nbsp;')!!}</td>
+                                                <td  class="text-right font-weight-bold ">{!! number_format($itm->wait_sum, 2, '.', '&nbsp;')!!}</td>
+                                                <td  class="text-right font-weight-bold ">{!! number_format($itm->repair_sum, 2, '.', '&nbsp;')!!}</td>
 
-                                                <td style="padding: 2px;" class="text-right font-weight-bold ">{!! number_format(
+                                                <td class="text-right font-weight-bold ">{!! number_format(
                                                     $itm->day_hr_rate*$itm->day_wrkhrs
                                                     +$itm->night_hr_rate*$itm->night_wrkhrs
                                                     +$itm->wait_sum
@@ -324,8 +328,8 @@ $first_col_id = null;
                                         @endforeach
                                         @if($rec->dw_cnt>1)
                                             <tr align="right" class="small text-right font-weight-bold ">
-                                                <td style="padding: 2px;" colspan="9">Всего:</td>
-                                                <td style="padding: 2px; width: 64px;">{!! number_format($salary_sum, 2, '.', '&nbsp;')!!}</td>
+                                                <td colspan="9">Всего:</td>
+                                                <td style="width: 64px;">{!! number_format($salary_sum, 2, '.', '&nbsp;')!!}</td>
                                             </tr>
                                         @endif
                                     </table>
