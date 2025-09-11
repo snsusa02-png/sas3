@@ -285,20 +285,20 @@ $first_col_id = null;
                                             <td colspan="2"  class="text-center">Ремонт</td>
                                             <td rowspan="2" class="text-center">Итого, &#8381;</td>
                                         </tr>
-                                        <tr class="small">
-                                            <td style="width: 38px;">Ставка, &#8381;</td>
-                                            <td style="width: 28px;">Часов</td>
-                                            <td style="width: 46px;">Сумма, &#8381;</td>
+                                        <tr class="small text-center">
+                                            <td style="width: 38px;">ставка, &#8381;/ч</td>
+                                            <td style="width: 28px;">часы</td>
+                                            <td style="width: 46px;">cумма</td>
 
-                                            <td  style="width: 38px;">Ставка, &#8381;</td>
-                                            <td style="width: 28px;">Часов</td>
-                                            <td style="width: 46px;">Сумма, &#8381;</td>
+                                            <td  style="width: 38px;">cтавка, &#8381;/ч</td>
+                                            <td style="width: 28px;">часы</td>
+                                            <td style="width: 46px;">сумма</td>
 
-                                            <td style="width: 28px;">Часов</td>
-                                            <td style="width: 46px;">Сумма, &#8381;</td>
+                                            <td style="width: 28px;">часы</td>
+                                            <td style="width: 46px;">сумма</td>
 
-                                            <td style="width: 28px;">Часов</td>
-                                            <td style="width: 64px;">Сумма, &#8381;</td>
+                                            <td style="width: 28px;">часы</td>
+                                            <td style="width: 64px;">сумма</td>
                                         </tr>
                                         @php($salary_sum = 0)
                                         @foreach($rec->wrkhrs as $itm)
