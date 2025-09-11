@@ -392,7 +392,7 @@ $first_col_id = null;
                                         <td style="font-size: xx-large">{!! number_format($rec->salary_sum,2, '.', '&nbsp;')!!}
                                             руб
                                         </td>
-                                        <td class="small" style="width: 6cm;"><br>
+                                        <td class="small" style="width: 8cm;"><br>
                                             <hr size="1" style="margin-bottom:0rem;">
                                             <sup style="font-size: 0.6em">(ФИО и подпись)</sup></td>
                                     </tr>
@@ -408,7 +408,7 @@ $first_col_id = null;
                                         <td></td>
                                         <td class="text-center">Комментарий:</td>
                                         <td class="text-center">Сумма:</td>
-                                        <td class="text-center" style="width: 6cm;">Подпись:</td>
+                                        <td class="text-center" style="width: 8cm;">Подпись:</td>
                                     </tr>
                                     @foreach($rec->charges as $chrg)
                                         <tr>
@@ -445,7 +445,7 @@ $first_col_id = null;
                                         <td style="font-size: xx-large">{!!number_format($totOutSum,2, '.', '&nbsp;')!!}
                                             руб
                                         </td>
-                                        <td class="small" style="width:6cm;"><br>
+                                        <td class="small" style="width:8cm;"><br>
                                             <hr size="1" style="margin-bottom:0rem;">
                                             <sup style="font-size: 0.6em">(ФИО и подпись)</sup></td>
                                     </tr>
