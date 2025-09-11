@@ -284,7 +284,7 @@ $first_col_id = null;
                                             <td colspan="3" class="text-center">Ночь</td>
                                             <td colspan="2" class="text-center">Простой</td>
                                             <td colspan="2" class="text-center">Ремонт</td>
-                                            <td rowspan="2" class="text-center">Итого, &#8381;</td>
+                                            <td colspan="2" class="text-center">Итого</td>
                                         </tr>
                                         <tr class="small text-center">
                                             <td>Ставка, &#8381;/ч</td>
@@ -300,6 +300,10 @@ $first_col_id = null;
 
                                             <td>Часов</td>
                                             <td>Сумма</td>
+
+                                            <td>Часов</td>
+                                            <td>Сумма</td>
+
                                         </tr>
                                         @foreach($rec->drvrhrs as $itm)
                                             <tr class="small">
@@ -320,6 +324,12 @@ $first_col_id = null;
                                                 <td class="text-center ">{{number_format($itm->repair_hrs, 2)}}</td>
                                                 <td class="text-right font-weight-bold ">{!! number_format($itm->repair_sum, 2, '.', '&nbsp;')!!}</td>
 
+                                                <td class="text-center ">{{number_format(
+                                                    $itm->day_wrkhrs
+                                                    + $itm->night_wrkhrs
+                                                    + $itm->wait_hrs
+                                                    + $itm->repair_hrs
+                                                    , 2)}}</td>
                                                 <td class="text-right font-weight-bold ">{!! number_format(
                                                     $itm->day_hr_rate*$itm->day_wrkhrs
                                                     +$itm->night_hr_rate*$itm->night_wrkhrs
@@ -382,7 +392,7 @@ $first_col_id = null;
                                         <td style="font-size: xx-large">{!! number_format($rec->salary_sum,2, '.', '&nbsp;')!!}
                                             руб
                                         </td>
-                                        <td class="small" style="width: 150pt;"><br>
+                                        <td class="small" style="width: 6cm;"><br>
                                             <hr size="1" style="margin-bottom:0rem;">
                                             <sup style="font-size: 0.6em">(ФИО и подпись)</sup></td>
                                     </tr>
@@ -398,7 +408,7 @@ $first_col_id = null;
                                         <td></td>
                                         <td class="text-center">Комментарий:</td>
                                         <td class="text-center">Сумма:</td>
-                                        <td class="text-center" style="width: 150pt;">Подпись:</td>
+                                        <td class="text-center" style="width: 6cm;">Подпись:</td>
                                     </tr>
                                     @foreach($rec->charges as $chrg)
                                         <tr>
@@ -435,7 +445,7 @@ $first_col_id = null;
                                         <td style="font-size: xx-large">{!!number_format($totOutSum,2, '.', '&nbsp;')!!}
                                             руб
                                         </td>
-                                        <td class="small" style="width: 150pt;"><br>
+                                        <td class="small" style="width:6cm;"><br>
                                             <hr size="1" style="margin-bottom:0rem;">
                                             <sup style="font-size: 0.6em">(ФИО и подпись)</sup></td>
                                     </tr>

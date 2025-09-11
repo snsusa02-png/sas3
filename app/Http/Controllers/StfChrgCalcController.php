@@ -50,6 +50,8 @@ class StfChrgCalcController extends Controller
 
         $usrrights['save'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.update');
         $usrrights['delete'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.delete');
+        $usrrights['delete_ref'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.delete_ref');
+        $usrrights['delete_ref'] = usrsysright::isUserHasRightByCode($userid, $this->acl_sysobjcode . '.delete_ref');
 
         if ($recid > 0) {
             //для существующих записей проверим открытость периода
@@ -249,7 +251,10 @@ class StfChrgCalcController extends Controller
         if (isset($rec->ref_sysobjid)) {
             //Запрещаем изменять/удалять запись, если она была создана из другого места
             $usrrights['save'] = false;
+
             $usrrights['delete'] = false;
+            // 2025-09-11 Если есть особое право на удаление записей, созданных внешним процессом, то можно удалять
+            $usrrights['delete'] = $usrrights['delete_ref'];
         }
 
         $rec->retURL = $request->get('returl') ?? route('stf_chrg_calcs.index');
