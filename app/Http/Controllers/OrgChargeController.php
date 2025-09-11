@@ -860,24 +860,28 @@ class OrgChargeController extends Controller
             $rec->charges = DB::select(DB::raw($sql));
 
 
-            // данные о рвбочих часах из stf_wrkHrs
+            // данные о рабочих часах из stf_wrkHrs (Табель)
             $rec->wrkhrs = stf_wrkhr::where('staffid', $rec->staffid)
                 ->where('yr', date('Y', strtotime($s_begdate)))
                 ->where('mn', date('m', strtotime($s_begdate)))
                 ->get();
 
-            $sql = "SELECT wrktypeid, wt.name as wrktypename"
-                . ", day_hr_rate, sum(day_wrkhrs) as  day_wrkhrs, night_hr_rate, sum(night_wrkhrs) as  night_wrkhrs"
-                . ", sum(breaks_sum) as breaks_sum "
-//                . ", sum(repair_sum) as repair_sum "
-                . ", sum((SELECT sum(brk_sum) FROM `dw_breaks` b where b.dw_id=dw.id and wrktypeid=11)) as repair_sum"
-                . ", sum((SELECT sum(brk_sum) FROM `dw_breaks` b where b.dw_id=dw.id and wrktypeid=22)) as wait_sum"
-                . " FROM driver_works dw"
-                . " join wrktypes wt on wt.id=dw.wrktypeid"
-                . " where wrkdate between '" . date_create($s_begdate)->format('Y-m-d') . "' and '" . date_create($s_enddate)->format('Y-m-d') . "'"
-                . " and staffid={$rec->staffid}"
-                . " and day_wrkhrs+night_wrkhrs+breaks_sum>0"
-                . " group by  wrktypeid, day_hr_rate, night_hr_rate";
+            $sql =
+                "select dw.wrktypeid, wt.name as wrktypename
+                            , dw.day_hr_rate, sum(dw.day_wrkhrs) as day_wrkhrs
+                            , dw.night_hr_rate, sum(dw.night_wrkhrs) as night_wrkhrs
+                            , sum(dw.salary_sum) as salary_sum
+                            , sum(b11.day_hrs+b11.night_hrs) as repair_hrs, sum(b11.brk_sum) as repair_sum
+                            , sum(b22.day_hrs+b22.night_hrs) as wait_hrs, sum(b22.brk_sum) as wait_sum
+                        from driver_works as dw
+                        join wrktypes as wt on wt.id=dw.wrktypeid
+                        left join dw_breaks b11 on b11.dw_id=dw.id and b11.wrktypeid=11 -- repair_sum
+                        left join dw_breaks b22 on b22.dw_id=dw.id and b22.wrktypeid=22	-- wait_sum
+                        where dw.staffid={$rec->staffid}
+                            and dw.wrkdate between '{$s_begdate}' and '{$s_enddate}'
+                            and (dw.day_hr_rate is not null or dw.night_hr_rate is not null)
+                        group by dw.wrktypeid, dw.day_hr_rate, dw.night_hr_rate";
+
             $rec->drvrhrs = DB::select(DB::raw($sql));
 //            if ($rec->staffid==53)
 //                dd($sql, $rec);

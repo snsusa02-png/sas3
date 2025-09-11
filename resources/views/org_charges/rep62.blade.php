@@ -282,39 +282,42 @@ $first_col_id = null;
                                             <td rowspan="2">Вид работ</td>
                                             <td colspan="3" class="text-center">День</td>
                                             <td colspan="3" class="text-center">Ночь</td>
-                                            <td colspan="1" class="text-center">Простой</td>
-                                            <td colspan="1" class="text-center">Ремонт</td>
+                                            <td colspan="2" class="text-center">Простой</td>
+                                            <td colspan="2" class="text-center">Ремонт</td>
                                             <td rowspan="2" class="text-center">Итого, &#8381;</td>
                                         </tr>
-                                        <tr class="small">
-                                            <td>Ставка, &#8381;</td>
+                                        <tr class="small text-center">
+                                            <td>Ставка, &#8381;/ч</td>
                                             <td>Часов</td>
-                                            <td>Сумма, &#8381;</td>
+                                            <td>Сумма</td>
 
-                                            <td>Ставка, &#8381;</td>
+                                            <td>Ставка, &#8381;/ч</td>
                                             <td>Часов</td>
-                                            <td>Сумма, &#8381;</td>
+                                            <td>Сумма</td>
 
-                                            <td>Сумма, &#8381;</td>
+                                            <td>Часов</td>
+                                            <td>Сумма</td>
 
-                                            <td>Сумма, &#8381;</td>
+                                            <td>Часов</td>
+                                            <td>Сумма</td>
                                         </tr>
                                         @foreach($rec->drvrhrs as $itm)
                                             <tr class="small">
                                                 <td>
                                                     {{$itm->wrktypename}}
                                                 </td>
-                                                <td class="text-right ">{{number_format($itm->day_hr_rate, 0)}}</td>
-                                                <td class="text-right ">{{number_format($itm->day_wrkhrs, 2)}}</td>
+                                                <td class="text-center ">{{number_format($itm->day_hr_rate, 0)}}</td>
+                                                <td class="text-center ">{{number_format($itm->day_wrkhrs, 2)}}</td>
                                                 <td class="text-right font-weight-bold ">{!!number_format($itm->day_hr_rate*$itm->day_wrkhrs, 2, '.', '&nbsp;')!!}</td>
 
-                                                <td class="text-right ">{{number_format($itm->night_hr_rate, 0)}}</td>
-                                                <td class="text-right ">{{number_format($itm->night_wrkhrs, 2)}}</td>
+                                                <td class="text-center ">{{number_format($itm->night_hr_rate, 0)}}</td>
+                                                <td class="text-center ">{{number_format($itm->night_wrkhrs, 2)}}</td>
                                                 <td class="text-right font-weight-bold ">{!! number_format($itm->night_hr_rate*$itm->night_wrkhrs, 2, '.', '&nbsp;')!!}</td>
 
-                                                {{--                                                <td class="text-right font-weight-bold ">{{number_format($itm->breaks_sum, 2)}}</td>--}}
-                                                {{--                                                <td class="text-right font-weight-bold ">{{number_format($itm->repair_sum, 2)}}</td>--}}
+                                                <td class="text-center ">{{number_format($itm->wait_hrs, 2)}}</td>
                                                 <td class="text-right font-weight-bold ">{!! number_format($itm->wait_sum, 2, '.', '&nbsp;')!!}</td>
+
+                                                <td class="text-center ">{{number_format($itm->repair_hrs, 2)}}</td>
                                                 <td class="text-right font-weight-bold ">{!! number_format($itm->repair_sum, 2, '.', '&nbsp;')!!}</td>
 
                                                 <td class="text-right font-weight-bold ">{!! number_format(
