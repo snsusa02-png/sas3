@@ -212,7 +212,8 @@ $first_col_id = null;
                     <tr class="text-left small" style="vertical-align:middle;">
                         <td class="text-right small" style="width: 38px">№п/п</td>
                         <td class="text-center " style="width: 38px">ФИО</td>
-                        <td class="text-center " style="width: 160px">Ставка, рабочие часы</td>
+                        <td class="text-center " style="width: 36px">Рабоч. дней</td>
+                        <td class="text-center " style="width: 190px">Ставка, рабочие часы</td>
                         @foreach($data->cols as $col)
                             <?php
                             if (is_null($first_col_id))
@@ -262,6 +263,7 @@ $first_col_id = null;
                             </td>
                             <td class="text-left small" data-npp="{{$npp}}">
                                 {{$rec->name}}
+                                <br><div class="float-right small text-secondary">{{$rec->staffid}}</div>
                                 @if(1==0)
                                     <a class="d-print-none "
                                        href="{{ route('stf_chrg_calcs.create', $rec->staffid)}}?returl={{Request::url()}}"
@@ -269,6 +271,7 @@ $first_col_id = null;
                                 @endif
                             </td>
 
+                            <td class="text-center small">{{$rec->wrkdays}}</td>
                             <td style="padding: 1px;">
                                 @if($rec->dw_cnt>0)
 
@@ -278,8 +281,8 @@ $first_col_id = null;
                                             <td rowspan="2" >Вид работ</td>
                                             <td colspan="3"  class="text-center">День</td>
                                             <td colspan="3"  class="text-center">Ночь</td>
-                                            <td colspan="1"  class="text-center">Простой</td>
-                                            <td colspan="1"  class="text-center">Ремонт</td>
+                                            <td colspan="2"  class="text-center">Простой</td>
+                                            <td colspan="2"  class="text-center">Ремонт</td>
                                             <td rowspan="2" class="text-center">Итого, &#8381;</td>
                                         </tr>
                                         <tr class="small">
@@ -291,8 +294,10 @@ $first_col_id = null;
                                             <td style="width: 28px;">Часов</td>
                                             <td style="width: 46px;">Сумма, &#8381;</td>
 
+                                            <td style="width: 28px;">Часов</td>
                                             <td style="width: 46px;">Сумма, &#8381;</td>
 
+                                            <td style="width: 28px;">Часов</td>
                                             <td style="width: 64px;">Сумма, &#8381;</td>
                                         </tr>
                                         @php($salary_sum = 0)
@@ -301,22 +306,26 @@ $first_col_id = null;
                                                 <td  >
                                                     {{$itm->wrktypename??'-'}}
                                                 </td>
-                                                <td  class="text-right ">{{number_format($itm->day_hr_rate, 0)}}</td>
-                                                <td  class="text-right ">{{number_format($itm->day_wrkhrs, 2)}}</td>
+                                                <td  class="text-center ">{{number_format($itm->day_hr_rate, 0)}}</td>
+                                                <td  class="text-center ">{{number_format($itm->day_wrkhrs, 2)}}</td>
                                                 <td  class="text-right font-weight-bold ">{!!number_format($itm->day_hr_rate*$itm->day_wrkhrs, 2, '.', '&nbsp;')!!}</td>
 
-                                                <td  class="text-right ">{{number_format($itm->night_hr_rate, 0)}}</td>
-                                                <td  class="text-right ">{{number_format($itm->night_wrkhrs, 2)}}</td>
+                                                <td  class="text-center ">{{number_format($itm->night_hr_rate, 0)}}</td>
+                                                <td  class="text-center ">{{number_format($itm->night_wrkhrs, 2)}}</td>
                                                 <td  class="text-right font-weight-bold ">{!! number_format($itm->night_hr_rate*$itm->night_wrkhrs, 2, '.', '&nbsp;')!!}</td>
 
+                                                <td  class="text-center ">{{number_format($itm->b22_day_hrs + $itm->b22_night_hrs, 2)}}</td>
                                                 <td  class="text-right font-weight-bold ">{!! number_format($itm->wait_sum, 2, '.', '&nbsp;')!!}</td>
+
+                                                <td  class="text-center ">{{number_format($itm->b11_day_hrs + $itm->b11_night_hrs, 2)}}</td>
                                                 <td  class="text-right font-weight-bold ">{!! number_format($itm->repair_sum, 2, '.', '&nbsp;')!!}</td>
 
                                                 <td class="text-right font-weight-bold ">{!! number_format(
                                                     $itm->day_hr_rate*$itm->day_wrkhrs
-                                                    +$itm->night_hr_rate*$itm->night_wrkhrs
-                                                    +$itm->wait_sum
-                                                    +$itm->repair_sum, 2, '.', '&nbsp;')!!}
+                                                    + $itm->night_hr_rate*$itm->night_wrkhrs
+                                                    + $itm->wait_sum
+                                                    + $itm->repair_sum
+                                                    , 2, '.', '&nbsp;')!!}
                                                 </td>
                                             </tr>
                                             <?php
@@ -328,7 +337,7 @@ $first_col_id = null;
                                         @endforeach
                                         @if($rec->dw_cnt>1)
                                             <tr align="right" class="small text-right font-weight-bold ">
-                                                <td colspan="9">Всего:</td>
+                                                <td colspan="11">Всего:</td>
                                                 <td style="width: 64px;">{!! number_format($salary_sum, 2, '.', '&nbsp;')!!}</td>
                                             </tr>
                                         @endif
@@ -339,10 +348,10 @@ $first_col_id = null;
                             <?php
                             // вывод начислений
                             foreach ($data->cols as $tcol) {
-                                $sum = (is_null($line_sum[$tcol->id])) ? '' : number_format($line_sum[$tcol->id], 0);
+                                $sum = (is_null($line_sum[$tcol->id])) ? '' : number_format($line_sum[$tcol->id], 0, '.', '&nbsp;');
                                 echo('<td class="text-right">' . $sum . '</td>');
                             }
-                            echo('<td class="text-right font-weight-bold">' . number_format($totOutSum, 0) . '</td>');
+                            echo('<td class="text-right font-weight-bold">' . number_format($totOutSum, 0, '.', '&nbsp;') . '</td>');
                             //                            echo('</tr>');
                             ?>
                         </tr>
@@ -354,8 +363,8 @@ $first_col_id = null;
                         $tdс_class = '';
                         ?>
                         <tr>
-                            <td colspan="{{3+$cols_count}}" class="text-right" data-npp="{{$npp++}}">Всего:</td>
-                            <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totSum,0)}}</td>
+                            <td colspan="{{4+$cols_count}}" class="text-right" data-npp="{{$npp++}}">Всего:</td>
+                            <td class="text-right font-weight-bold {{$td_class}}">{!! number_format($totSum,0, '.', '&nbsp;')!!}</td>
                         </tr>
                     @endif
                     </tbody>

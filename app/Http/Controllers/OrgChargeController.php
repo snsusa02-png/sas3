@@ -1117,10 +1117,10 @@ class OrgChargeController extends Controller
             // основной запрос - сотрудники, соответствующие условиям запроса
             $sql =
                 "select os.id, os.id as staffid, os.orgid, os.name, os.depname
-                    , (select count(distinct dw.wrkdate) as wd_cnt
+                    , (select count(distinct dw.wrkdate)
                         from driver_works as dw
                         where dw.staffid=os.id
-                        and dw.wrkdate between '{$s_begdate}' and '{$s_enddate}') as wrkdays
+                          and dw.wrkdate between '{$s_begdate}' and '{$s_enddate}') as wrkdays
 	                FROM orgstaff os
                     where exists(select 1 from stf_chrg_calcs scc where scc.staffid=os.id
                         and scc.forbegdate between '{$s_begdate}' and '{$s_enddate}'
@@ -1132,32 +1132,33 @@ class OrgChargeController extends Controller
                 $sql .= " and ucase(os.depname)='{$s_depname}'";
 
             if (isset($s_stf_name))
-                $sql .= " and concat(' ', os.lname, ' ', os.fname, ' ', os.mname) like '% {$s_stf_name}%'";
+                // $sql .= " and concat(' ', os.lname, ' ', os.fname, ' ', os.mname) like '% {$s_stf_name}%'";
+                $sql .= " and concat(' ', os.name) like '% {$s_stf_name}%'";
 
             $sql .= " order by ucase(os.depname), os.lname, os.fname";
 
             $recs = DB::select(DB::raw($sql));
             //dd($sql, $recs);
 
-            // 2. дополним основной набоп поднабором данных о рабочих часах и ставках
+            // 2. дополним основной набор поднабором данных о рабочих часах и ставках
             foreach ( $recs as $stf){
 
                 $sql =
-                    "select wrktypeid, wt.name as wrktypename, dw.day_hr_rate, dw.night_hr_rate
-                        , sum(dw.day_wrkhrs) as day_wrkhrs
-                        , sum(dw.day_brkhrs)
-                        , sum(dw.night_wrkhrs) as night_wrkhrs
-                        , sum(dw.night_brkhrs)
-                        , sum(dw.salary_sum) as salary_sum"
-                    . ", sum((SELECT sum(brk_sum) FROM `dw_breaks` b where b.dw_id=dw.id and wrktypeid=11)) as repair_sum"
-                    . ", sum((SELECT sum(brk_sum) FROM `dw_breaks` b where b.dw_id=dw.id and wrktypeid=22)) as wait_sum"
-                    . " from driver_works as dw
+                    "select dw.wrktypeid, wt.name as wrktypename
+                            , dw.day_hr_rate, sum(dw.day_wrkhrs) as day_wrkhrs
+                            , dw.night_hr_rate, sum(dw.night_wrkhrs) as night_wrkhrs
+                            , sum(dw.salary_sum) as salary_sum
+                            , sum(b11.day_hrs) as b11_day_hrs, sum(b11.night_hrs) as b11_night_hrs, sum(b11.brk_sum) as repair_sum
+                            , sum(b22.day_hrs) as b22_day_hrs, sum(b22.night_hrs) as b22_night_hrs, sum(b22.brk_sum) as wait_sum
+                        from driver_works as dw
                         join wrktypes as wt on wt.id=dw.wrktypeid
+                        left join dw_breaks b11 on b11.dw_id=dw.id and b11.wrktypeid=11 -- repair_sum
+                        left join dw_breaks b22 on b22.dw_id=dw.id and b22.wrktypeid=22	-- wait_sum
                         where dw.staffid={$stf->id}
-                        and dw.wrkdate between '{$s_begdate}' and '{$s_enddate}'
-                        and (dw.day_hr_rate is not null or dw.night_hr_rate is not null)
-                        group by dw.wrktypeid, dw.day_hr_rate, dw.night_hr_rate
-                        order by staffid";
+                            and dw.wrkdate between '{$s_begdate}' and '{$s_enddate}'
+                            and (dw.day_hr_rate is not null or dw.night_hr_rate is not null)
+                        group by dw.wrktypeid, dw.day_hr_rate, dw.night_hr_rate";
+
                 $stf->wrkhrs = DB::select(DB::raw($sql));
                 $stf->dw_cnt = count($stf->wrkhrs);
                 //dd($stf, $stf->wrkhrs, $stf->dw_cnt);
@@ -1175,7 +1176,8 @@ class OrgChargeController extends Controller
                     group by oc.chargetypeid";
 
                 $stf->charges = DB::select(DB::raw($sql));
-//                dd($stf, $stf->wrkhrs, $stf->charges);
+                //dd($stf, $stf->charges);
+
             }
             //dd($recs);
 
@@ -1205,7 +1207,8 @@ class OrgChargeController extends Controller
                 $sql .= " and ucase(os.depname)='{$s_depname}'";
 
             if (isset($s_stf_name))
-                $sql .= " and concat(' ', os.lname, ' ', os.fname, ' ', os.mname) like '% {$s_stf_name}%'";
+                //$sql .= " and concat(' ', os.lname, ' ', os.fname, ' ', os.mname) like '% {$s_stf_name}%'";
+                $sql .= " and concat(' ', os.name) like '% {$s_stf_name}%'";
 
             $sql .= " group by ct.id
                     order by ct.dir desc, ct.ordr, cnt desc";
