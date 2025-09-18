@@ -1,4 +1,8 @@
 ﻿-- 2025-09-11 ------------------------------------------------------------------------
+INSERT INTO `extsys_sysobjs` (`id`, `extsysid`, `sysobjid`, `active`) VALUES ('2', '5', '482', '1');
+INSERT INTO `extsys_sysobjs` (`id`, `extsysid`, `sysobjid`, `active`) VALUES ('3', '5', '121', '1');
+
+-- 2025-09-11 ------------------------------------------------------------------------
 INSERT INTO `sysfuncs` (`id`, `code`, `sysobjid`, `name`, `adminrightid`, `active`, `ordr`) VALUES ('679', 'stf_chrg_calcs.delete_ref', '1213', 'Удаление записей, созданных внешним процессом', '1', '1', '5');
 
 -- 2025-09-09 ------------------------------------------------------------------------

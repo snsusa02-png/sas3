@@ -18,6 +18,8 @@
 
             <?php
             $sysobjid = 121;
+            $ThisTitle = "Сотрудник";
+
             $thisSysObjCode = 'orgstaff';
             $orgid = $rec->orgid;
 
@@ -639,6 +641,7 @@
                             @include('stf_prl_periods._list')
                             @include('stf_chrg_calcs._list')
                             @include('stf_salaries._list')
+                            @include('objextids.obj_extids')
 {{--                            @include('objflags._flags')--}}
 
                             @if (count($rec->userrights)>0)

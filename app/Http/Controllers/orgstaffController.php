@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\bdgtacnttype;
 use App\doctype;
+use App\objextid;
 use App\objflag;
 use App\orgdep;
 use App\payrolltype;
@@ -75,6 +76,15 @@ class orgstaffController extends Controller
         $usrrights['stf_charges.read'] = usrsysright::isUserHasRightByCode_cached($userid, sysobj::acl_sysobjcode('stf_charges').'.read');
         $usrrights['stf_chrg_calcs.read'] = usrsysright::isUserHasRightByCode($userid,  sysobj::acl_sysobjcode('stf_chrg_calcs').'.read');
         $usrrights['stf_prl_periods.read'] = usrsysright::isUserHasRightByCode($userid, sysobj::acl_sysobjcode('stf_prl_periods').'.read');
+
+        if($recid==-1){
+            $usrrights['objextids.read'] = false;
+        }else{
+            if (sysobj::isActiveByCode_cache('objextids')) {
+                $usrrights['objextids.read'] = usrsysright::isUserHasRightByCode_cached($userid, 'objextids.read');
+                $usrrights['objextids.create'] = usrsysright::isUserHasRightByCode_cached($userid, 'objextids.create');
+            }
+        }
 
         $this->sysobjcode = $tmp_sysobjcode;
 
@@ -371,6 +381,20 @@ class orgstaffController extends Controller
                 ->orderBy('spr.begdate', 'desc')
                 ->get();
             //dd($rec->stf_payrolltypes);
+
+            //2025-09-18
+            if ($usrrights['objextids.read'])
+                $rec->extids = objextid::from('objextids as ei')
+                    ->join('extsystems as s', 's.id', 'ei.extsysid')
+                    ->where('sysobjid', $this->sysobjid)
+                    ->where('objid', $rec->id)
+                    ->select('ei.id', 's.name as extsysname', 'extid')
+                    ->orderby('s.name')
+                    ->get();
+            else
+                $rec->extids = null;
+            //dd($rec->extids);
+
         }
 
         return view('orgstaff.edit', compact(['rec', 'usrrights']));
