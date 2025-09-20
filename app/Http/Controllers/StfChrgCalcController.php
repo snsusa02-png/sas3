@@ -407,7 +407,7 @@ class StfChrgCalcController extends Controller
         //dd($rec->extsystems);
         $rec->datatypes = array(
             1 => 'Затраты по столовой. Идентификация сотрудника по картам',
-            2 => 'Нарушение инструкции. - не настроено -',
+            2 => 'Удержания по сотрудникам. - Идентификация сотрудника по кодам 1С-Бухгалтерия',
             3 => 'Корпоративная связь. - не настроено -'
         );
         //dd($rec->datatypes);
@@ -452,8 +452,8 @@ class StfChrgCalcController extends Controller
             if (1 == 1)
                 if ($rec->datatypeid == 1)
                     $rec = stf_chrg_calc::import_001($file, $rec);
-//                elseif ($rec->datatypeid == 2)
-//                    $rec = stf_chrg_calc::import_002($file, $rec);
+                elseif ($rec->datatypeid == 2)
+                    $rec = stf_chrg_calc::import_002($file, $rec);
 //                elseif ($rec->datatypeid == 3)
 //                    $rec = stf_chrg_calc::import_003($file, $rec);
                 else {
