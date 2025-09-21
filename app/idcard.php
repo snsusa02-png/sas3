@@ -165,4 +165,166 @@ class idcard extends Model
             return null;
     }
 
+    //2025-09-21
+    static public function addOrUpdate($search_params, $set_params)
+    {
+        if (isset($search_params) and isset($set_params)) {
+
+            $rec = self::where($search_params)->first();
+
+            if (!isset($rec)) {
+                $rec = new self($search_params);
+            }
+            $rec->fill($set_params);
+            $rec->save();
+
+            return $rec;
+        }
+        return null;
+    }
+
+    //2025-09-21
+    public static function import_001($file, $rec)
+    {
+        //Импорт Номеров IDCard и их текущих держателей
+        // Колонки: "Номер карты", "ФИО"
+
+        $orgid  = 31;   // Временное решение - привязываем все к САС ДВ
+        $userid = \Auth::user()->id;
+        $result = new Result();
+
+        $array = Excel::toArray(new invoiceImport, $file);
+        $array = $array[0];
+        //dd($array);
+
+        //Названия полей ожидаем в первой строке
+        $fields = $array[0];
+        // из списка заголовков колонок удалим элементы с пустыми значениями
+        $fields = array_diff($fields, ["", null]);
+        //dd($fields);
+
+        if (!(
+            in_array('ФИО', $fields)
+            and in_array('Номер карты', $fields)
+        )) {
+            $result->err = 1;
+            $result->msg = 'Файл должен содержать колонки "ФИО", "Номер карты"!';
+            $rec->result = $result;
+            return $rec;
+        }
+
+        //перевернем колонки
+        $fld_idx = array_flip($fields);
+        //dd($fld_idx);
+
+        $items_add_cnt = 0; //кол-во новых записей
+        $items_upd_cnt = 0; //кол-во обновленных записей
+        $items_skp_cnt = 0; //кол-во пропущенных записей
+        $skp_list = '';   //список ФИО пропущенных/не идентифицированных записей
+
+        $holder_add_cnt = 0; //кол-во новых записей
+        $holder_upd_cnt = 0; //кол-во обновленных записей
+        $holder_skp_cnt = 0; //кол-во пропущенных записей
+
+        for ($i = 1; $i < count($array); $i++) {
+
+            //$orgid =
+            $cardnum = $array[$i][$fld_idx['Номер карты']];
+            $stfname = $array[$i][$fld_idx['ФИО']];
+            //dd($cardnum, $stfname);   //Адушев Илья
+
+            if (isset($stfname) and isset($cardnum)) {
+
+                $idcard = idcard::addOrUpdate(
+                    ['orgid' => $orgid, 'num' => $cardnum],
+                    ['orgid' => $orgid, 'num' => $cardnum
+                        , 'updated_by' => $userid
+                        , 'updated_at' => now()
+                    ]);
+                if ($idcard->updated_at == $idcard->created_at)
+                    ++$items_add_cnt;
+                else
+                    ++$items_upd_cnt;
+                //dd($idcard);
+
+                if (isset($idcard) and isset($stfname)) {
+
+                    //Определим сотрудника - Ключем считаем полное ФИО
+                    $orgstaff = orgstaff::where([
+                        'name' => $stfname,
+                    ])->first();
+                    //dd($orgstaff);
+
+                    //попробуем искать только по Фамилии и имени
+                    if (!isset($orgstaff)) {
+                        $orgstaff = orgstaff::whereRaw("concat(lname, ' ', fname) = '{$stfname}'")->first();
+                        //dd(123, $orgstaff);
+                    }
+
+                    if (isset($orgstaff)) {
+                        // узнаем, кто является текущим держателем этой карты сейчас
+                        $idcard_staff = idcard_staff::where('cardid', $idcard->id)
+                            ->whereRaw("curdate() between begdate and ifnull(enddate, curdate())")
+                            ->first();
+                        //dd($idcard->id, $idcard_staff);
+
+                        if(!isset($idcard_staff)){
+                            // никому не принадлежит сейчас - привяжем к $orgstaff->id
+                            $idcard_staff = new idcard_staff(
+                                [ 'cardid'=>$idcard->id
+                                , 'staffid'=>$orgstaff->id
+                                , 'begdate'=>today()
+                                , 'enddate'=> null
+                                ]);
+                            $idcard_staff->save();
+                            ++$holder_add_cnt;
+                        }
+                        elseif ($idcard_staff->staffid == $orgstaff->id){
+                            // текущий держатель это сотрудник взятый из файла - ничего не делаем
+                            null;
+                            ++$holder_skp_cnt;
+                        }else{
+                            //Если текущий держатель не является сотрудником взятым из файла,
+                            // то ограничим период текущего держателя и создадим запись о новом держателе этой карты
+                            //dd(today()->modify('-1 day'));
+                            $idcard_staff->enddate = today()->modify('-1 day');
+                            $idcard_staff->save();
+                            //dd($idcard_staff);
+                            ++$holder_upd_cnt;
+
+                            //
+                            $idcard_staff = new idcard_staff(
+                                [ 'cardid'=>$idcard->id
+                                    , 'staffid'=>$orgstaff->id
+                                    , 'begdate'=>today()
+                                    , 'enddate'=> null
+                                ]);
+                            $idcard_staff->save();
+                            ++$holder_add_cnt;
+                        }
+                        //dd($idcard_staff);
+                    } else {
+                        ++$items_skp_cnt;
+                        $skp_list .= '; ' . $stfname;
+                    }
+                }
+            } else{
+                ++$items_skp_cnt;
+                $skp_list .= '; ' . $stfname;
+            }
+        }
+
+        $result->msg .= "- добавлено записей о картах: {$items_add_cnt}" . PHP_EOL;
+        $result->msg .= "- изменено записей о картах: {$items_upd_cnt}" . PHP_EOL;
+        $result->msg .= "- пропущено записей о держателях: {$items_skp_cnt}" . PHP_EOL;
+        if ($items_skp_cnt) {
+            $skp_list = mb_substr($skp_list, 1);
+            $result->msg .= "-- пропущенные записи: <span class='text-secondary small'>{$skp_list}</span>" . PHP_EOL;
+        }
+
+        $rec->result = $result;
+        //--------------------------------------------------------------------------
+
+        return $rec;
+    }
 }

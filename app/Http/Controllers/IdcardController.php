@@ -55,6 +55,8 @@ class IdcardController extends Controller
             $usrrights['mchn_opertypes.create'] = $usrrights['save'];
         }
 
+        $usrrights['load'] = $usrrights['create'];
+
         return $usrrights;
     }
 
@@ -362,68 +364,6 @@ class IdcardController extends Controller
     }
 */
 
-    public function load()
-    {
-        $userid = \Auth::user()->id;
-        $usrrights = $this->setInterfaceRight(-1);
-
-        $rec = new \stdClass();
-
-        return view($this->sysobjcode . '.load', compact('rec', "usrrights"));
-    }
-
-
-    public function import(Request $request)
-    {
-        //Импорт без сохранения файла на диск. Только обработка
-
-        $messages = [
-            'doc.required' => 'Не указан файл с данными',
-        ];
-
-        $rules = [
-            "doc" => "required",
-        ];
-
-        $request->validate($rules, $messages);
-
-        $userid = \Auth::user()->id;
-        //$returl = $request->get('retroute');
-
-        $usrrights = $this->setInterfaceRight(-1);
-        $result = new Result();
-        $rec = new \stdClass();
-
-        $rec->extsysid = 9;   // ? М.б. использовать для связывания по кодам во внешней системе
-        //dd($rec);
-
-        if ($request->hasfile('doc')) {
-
-            $file = $request->doc;
-
-            $filesize = $file->getSize();
-            $name = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-            $extension = $file->getClientOriginalExtension();
-            //dd($name, $extension, $filesize);
-
-            if (1 == 1)
-                $rec = idcard::import_001($file, $rec);
-            else {
-                $result->err = 1;
-                $result->msg = 'Не определена процедура импорта!';
-            }
-            //--------------------------------------------------------------------------------
-            //dd($result->msg);
-
-
-        } else {
-            $result->err = 1;
-            $result->msg = 'Файл с данными не загружен!';
-        }
-
-        return view($this->sysobjcode . '.load', compact('rec', "usrrights"));
-    }
-
     static public function data_for_card(Request $request)
     {
         //2023-09-24 SNS. Данные разные
@@ -453,6 +393,79 @@ class IdcardController extends Controller
             Log::error('idcard::data_for_card:' . $e->getMessage());
         }
         return response()->json($result);
+    }
+
+    public function load()
+    {
+        $userid = \Auth::user()->id;
+        $usrrights = $this->setInterfaceRight(-1);
+        $rec = new \stdClass();
+
+        $rec->datatypes = array(
+            1 => 'Импорт карт и текущих держателей (сотрудников): "Номер карты", "ФИО"',
+            //2 => '- что-то еще...',
+        );
+        //dd($rec->datatypes);
+
+        return view($this->sysobjcode . '.load', compact('rec', "usrrights"));
+    }
+
+    public function import(Request $request)
+    {
+        //Импорт без сохранения файла на диск. Только обработка
+
+        $messages = [
+            'doc.required' => 'Не указан файл с данными',
+            'datatypeid.required' => 'Укажите тип/формат данных в файле с данными',
+        ];
+
+        $rules = [
+            "datatypeid" => "required",
+            "doc" => "required",
+        ];
+
+        $request->validate($rules, $messages);
+
+
+        $userid = \Auth::user()->id;
+        //$returl = $request->get('retroute');
+
+        $usrrights = $this->setInterfaceRight(-1);
+        $result = new Result();
+        $rec = new \stdClass();
+
+        $rec->datatypeid = $request->datatypeid;
+
+        $rec->extsysid = 9;   // ? М.б. использовать для связывания по кодам во внешней системе
+        //dd($rec);
+
+        if ($request->hasfile('doc')) {
+
+            $file = $request->doc;
+
+            $filesize = $file->getSize();
+            $name = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $extension = $file->getClientOriginalExtension();
+            //dd($name, $extension, $filesize);
+
+            if ($rec->datatypeid == 1)
+                $rec = idcard::import_001($file, $rec);
+//            elseif ($rec->datatypeid == 2)
+//                $rec = idcard::import_002($file, $rec);
+            else {
+                $result->err = 1;
+                $result->msg = 'Не настроен обработчик для заданного формата данных!';
+                $rec->result = $result;
+            }
+            //--------------------------------------------------------------------------------
+            //dd($result->msg);
+
+        } else {
+            $result->err = 1;
+            $result->msg = 'Файл с данными не загружен!';
+        }
+
+        return view($this->sysobjcode . '.load', compact('rec', "usrrights"));
     }
 
 }

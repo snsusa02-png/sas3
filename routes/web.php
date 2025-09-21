@@ -1530,6 +1530,8 @@ Route::get('idcards/{id}', 'IdcardController@edit')->name('idcards.edit');
 Route::match(array('POST', 'PUT'), 'idcards/{id}', "IdcardController@update")->name('idcards.update');
 Route::put('idcards/{id}/delete', "IdcardController@destroy")->name("idcards.delete");
 Route::put('idcards/{id}/admindelete', "IdcardController@admindelete")->name("idcards.admindelete");
+Route::get('idcards/load/xls', "IdcardController@load")->name('idcards.load');
+Route::put('idcards/import/xls', "IdcardController@import")->name('idcards.import');
 
 Route::get('idcard_staffs/create/{cardid}', "IdcardStaffController@create")->name('idcard_staffs.create');
 Route::get('idcard_staffs/edit/{id}/{cardid}', 'IdcardStaffController@edit')->name('idcard_staffs.edit');

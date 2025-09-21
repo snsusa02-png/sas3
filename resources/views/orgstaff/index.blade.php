@@ -91,7 +91,7 @@
                                     @if ($usrrights['load']??false)
                                         <a href="{{ route($thisSysObjCode.'.load')}}"
                                            class="btn btn-success btn-sm"
-                                           title="Загрузить записи о технике в формате файла XLS">
+                                           title="Загрузить данные в формате файла XLS">
                                             <i class="fa fa-upload" aria-hidden="true"></i>
                                         </a>
                                     @endif
