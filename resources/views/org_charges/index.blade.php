@@ -46,6 +46,9 @@
                                         <li><a href="{{route('orgstaff.index')}}"
                                                title="Персонал организаций">Персонал</a>
                                         </li>
+                                        <li><a href="{{route('stf_chrg_calcs.index')}}"
+                                               title="Начисления и удержания сотрудников">Начисления по сотрудникам</a>
+                                        </li>
                                         @if(1==0)
                                             <li><a href="{{route('jobtimesheets.index')}}"
                                                    title="Учет рабочего времени">Учет времени</a>

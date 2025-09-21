@@ -13,9 +13,10 @@
         <?php
         $sysobjid = 121;
         $objcode = 'orgstaff';
-        $ThisTitle = "Импорт записей о персонале";
+        //$ThisTitle = "Импорт записей о персонале";
+        $ThisTitle = $rec->title ?? "Импорт записей";
 
-        $retroute = route($objcode.'.index');
+        $retroute = route($objcode . '.index');
 
         ?>
         <style>
@@ -41,15 +42,7 @@
                             </a>
                         </div>
                         <div class="card-body">
-                            @if ($errors->any())
-                                <div class="alert alert-danger">
-                                    <ul>
-                                        @foreach ($errors->all() as $error)
-                                            <li>{{ $error }}</li>
-                                        @endforeach
-                                    </ul>
-                                </div><br/>
-                            @endif
+                            @include('layouts.err_msgs')
 
                             @if (isset($rec->_obj_info))
                                 <div class="row">
@@ -70,13 +63,38 @@
                                 @if(!isset($rec->result))
                                     <div class="row">
                                         <div class="form-group col-md-12">
-                                            <label for="doc">Файл с данными (XLSX):</label>
+                                            <label for="doc" class="required">Файл с данными (XLSX):</label>
                                             <input type="file" class="form-control" name="doc"
                                                    accept=".xls,.xlsx"
-                                                   style="padding: 3px;"/>
+                                                   style="padding: 3px;"
+                                                required/>
                                         </div>
                                     </div>
+{{--                                    <div class="row">--}}
+{{--                                        <div class="form-group col-md-5">--}}
+{{--                                            <label for="extsystemid" class="required0" title="Внешняя система - источник данных">Источник данных:</label>--}}
+{{--                                            {!! Form::select('extsystemid', $rec->extsystems, $rec->extsystemid??null,--}}
+{{--                                             [--}}
+{{--                                             'class' => 'form-control required',--}}
+{{--                                             'placeholder' => '-выбор-',--}}
+{{--                                             'required' => 'required0',--}}
+{{--                                             ]) !!}--}}
+{{--                                        </div>--}}
+{{--                                    </div>--}}
 
+
+                                    <div class="row">
+                                        <div class="form-group offset-md-2 col-md-9">
+                                            <label for="datatypeid" class="required"
+                                                   title="Тип данных">Тип данных:</label>
+                                            {!! Form::select('datatypeid', $rec->datatypes, $rec->datatypeid??null,
+                                             [
+                                             'class' => 'form-control required',
+                                             'placeholder' => '-выбор-',
+                                             'required' => 'required',
+                                             ]) !!}
+                                        </div>
+                                    </div>
                                 @else
                                     <div class="row">
                                         <div class="form-group col-md-12">

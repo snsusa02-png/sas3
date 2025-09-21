@@ -548,7 +548,7 @@ class orgstaff extends Model
 
             if (isset($lname) and isset($fname) and isset($mname)) {
 
-                //определим id владельца техники
+                //определим id организации - места работы сотрудника
                 $orgid = objextid::objid_by_extsysid_extid(9, 111, $orgname) ?? 21;
                 //dd($orgname, $orgid);
 
@@ -596,6 +596,95 @@ class orgstaff extends Model
 
         $result->msg .= "- добавлено записей: {$items_add_cnt}" . PHP_EOL;
         $result->msg .= "- изменено записей: {$items_upd_cnt}" . PHP_EOL;
+
+        $rec->result = $result;
+        //--------------------------------------------------------------------------
+
+        return $rec;
+    }
+
+    public static function import_002($file, $rec)
+    {
+        //Импорт Кодов сотрудника из ПО "1С-бухгалтерия" (ExtSystemID = 5)
+        // Колонки: "ФИО", "Код"
+
+        $extsysid = 5;
+        $userid = \Auth::user()->id;
+        $result = new Result();
+
+        $array = Excel::toArray(new invoiceImport, $file);
+        $array = $array[0];
+        //dd($array);
+
+        //Названия полей ожидаем в первой строке
+        $fields = $array[0];
+        // из списка заголовков колонок удалим элементы с пустыми значениями
+        $fields = array_diff($fields, ["", null]);
+        //dd($fields);
+
+        if (!(
+            in_array('ФИО', $fields)
+            and in_array('Код', $fields)
+        )) {
+            $result->err = 1;
+            $result->msg = 'Файл должен содержать колонки "ФИО", "Код"!';
+            $rec->result = $result;
+            return $rec;
+        }
+
+        //перевернем колонки
+        $fld_idx = array_flip($fields);
+        //dd($fld_idx);
+
+        $items_add_cnt = 0; //кол-во новых записей
+        $items_upd_cnt = 0; //кол-во обновленных записей
+        $items_skp_cnt = 0; //кол-во пропущенных записей
+        $skp_list = '';   //список ФИО пропущенных/не идентифицированных записей
+
+        for ($i = 1; $i < count($array); $i++) {
+
+            $name = $array[$i][$fld_idx['ФИО']];
+            $extid = $array[$i][$fld_idx['Код']];
+            //dd($name, $extId);
+
+            if (isset($name) and isset($extid)) {
+
+                //Определим сотрудника - Ключем считаем полное ФИО
+                $orgstaff = self::where([
+                    'name' => $name,
+                ])->first();
+                //dd($orgstaff);
+
+                if (isset($orgstaff)) {
+                    $extrec = objextid::addOrUpdate(
+                        ['sysobjid' => 121, 'objid' => $orgstaff->id, 'extsysid' => $extsysid],
+                        ['sysobjid' => 121, 'objid' => $orgstaff->id, 'extsysid' => $extsysid
+                            , 'extid' => $extid
+                            , 'updated_by' => $userid
+                            , 'updated_at' => now()
+                        ]);
+                    //dd($extrec);
+                    if ($extrec->updated_at == $extrec->created_at)
+                        ++$items_add_cnt;
+                    else
+                        ++$items_upd_cnt;
+                } else{
+                    ++$items_skp_cnt;
+                    $skp_list .= '; '. $name;
+                }
+            } else{
+                ++$items_skp_cnt;
+                $skp_list .= '; ' . $name;
+            }
+        }
+
+        $result->msg .= "- добавлено записей: {$items_add_cnt}" . PHP_EOL;
+        $result->msg .= "- изменено записей: {$items_upd_cnt}" . PHP_EOL;
+        $result->msg .= "- пропущено записей: {$items_skp_cnt}" . PHP_EOL;
+        if ($items_skp_cnt) {
+            $skp_list = mb_substr($skp_list, 1);
+            $result->msg .= "-- пропущенные записи: <span class='text-secondary small'>{$skp_list}</span>" . PHP_EOL;
+        }
 
         $rec->result = $result;
         //--------------------------------------------------------------------------

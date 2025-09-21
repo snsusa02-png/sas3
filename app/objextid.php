@@ -77,4 +77,23 @@ class objextid extends Model
         //Устарело. 2019-09-19 Можео удалить
         return self::objid_by_extsysid_extid($extsysid, 111, $extid);
     }
+
+    //2025-09-21
+    static public function addOrUpdate($search_params, $set_params)
+    {
+        if (isset($search_params) and isset($set_params)) {
+
+            $rec = self::where($search_params)->first();
+
+            if (!isset($rec)) {
+                $rec = new self($search_params);
+            }
+            $rec->fill($set_params);
+            $rec->save();
+
+            return $rec;
+        }
+        return null;
+    }
+
 }

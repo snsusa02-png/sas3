@@ -795,6 +795,12 @@ class orgstaffController extends Controller
         $usrrights = $this->setInterfaceRight(-1);
         $rec = new \stdClass();
 
+        $rec->datatypes = array(
+            1 => 'Импорт сотрудников: "lname", "fname", "mname", "orgname", "postname", "flags"',
+            2 => 'Коды сотрудников в "1С-Бухгалтерия": "ФИО", "Код"',
+        );
+        //dd($rec->datatypes);
+
         return view($this->sysobjcode . '.load', compact('rec', "usrrights"));
     }
 
@@ -805,13 +811,16 @@ class orgstaffController extends Controller
 
         $messages = [
             'doc.required' => 'Не указан файл с данными',
+            'datatypeid.required' => 'Укажите тип/формат данных в файле с данными',
         ];
 
         $rules = [
+            "datatypeid" => "required",
             "doc" => "required",
         ];
 
         $request->validate($rules, $messages);
+
 
         $userid = \Auth::user()->id;
         //$returl = $request->get('retroute');
@@ -819,6 +828,8 @@ class orgstaffController extends Controller
         $usrrights = $this->setInterfaceRight(-1);
         $result = new Result();
         $rec = new \stdClass();
+
+        $rec->datatypeid = $request->datatypeid;
 
         $rec->extsysid = 9;   // ? М.б. использовать для связывания по кодам во внешней системе
         //dd($rec);
@@ -832,15 +843,17 @@ class orgstaffController extends Controller
             $extension = $file->getClientOriginalExtension();
             //dd($name, $extension, $filesize);
 
-            if (1 == 1)
+            if ($rec->datatypeid == 1)
                 $rec = orgstaff::import_001($file, $rec);
+            elseif ($rec->datatypeid == 2)
+                $rec = orgstaff::import_002($file, $rec);
             else {
                 $result->err = 1;
-                $result->msg = 'Не определена процедура импорта!';
+                $result->msg = 'Не настроен обработчик для заданного формата данных!';
+                $rec->result = $result;
             }
             //--------------------------------------------------------------------------------
             //dd($result->msg);
-
 
         } else {
             $result->err = 1;
