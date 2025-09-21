@@ -284,7 +284,7 @@ $first_col_id = null;
                                             <td colspan="3" class="text-center">Ночь</td>
                                             <td colspan="2" class="text-center">Простой</td>
                                             <td colspan="2" class="text-center">Ремонт</td>
-                                            <td colspan="2" class="text-center">Итого</td>
+                                            <td colspan="3" class="text-center">Итого</td>
                                         </tr>
                                         <tr class="small text-center">
                                             <td>Ставка, &#8381;/ч</td>
@@ -302,6 +302,7 @@ $first_col_id = null;
                                             <td>Сумма</td>
 
                                             <td>Часов</td>
+                                            <td>Дней</td>
                                             <td>Сумма</td>
 
                                         </tr>
@@ -330,6 +331,9 @@ $first_col_id = null;
                                                     + $itm->wait_hrs
                                                     + $itm->repair_hrs
                                                     , 2)}}</td>
+                                                <td class="text-center">
+                                                    {{$itm->wrkdays_cnt}}
+                                                </td>
                                                 <td class="text-right font-weight-bold ">{!! number_format(
                                                     $itm->day_hr_rate*$itm->day_wrkhrs
                                                     +$itm->night_hr_rate*$itm->night_wrkhrs

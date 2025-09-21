@@ -1,4 +1,20 @@
-﻿-- 2025-09-11 ------------------------------------------------------------------------
+﻿-- 2025-09-20 ------------------------------------------------------------------------
+INSERT INTO `chargetypes` (`id`, `dir`, `name`, `active`, `ordr`, `use_price`) VALUES (56, '-1', 'Алименты', '1', '10', '0');
+
+INSERT INTO `org_charges` (`orgid`, `chargetypeid`, `begdate`, `charge_period`, `active`) VALUES ('31', '56', '2025-09-01', 'M', '1');
+INSERT INTO `org_charges` (`orgid`, `chargetypeid`, `begdate`, `charge_period`, `active`) VALUES ('32', '56', '2025-09-01', 'M', '1');
+INSERT INTO `org_charges` (`orgid`, `chargetypeid`, `begdate`, `charge_period`, `active`) VALUES ('33', '56', '2025-09-01', 'M', '1');
+INSERT INTO `org_charges` (`orgid`, `chargetypeid`, `begdate`, `charge_period`, `active`) VALUES ('35', '56', '2025-09-01', 'M', '1');
+
+
+INSERT INTO `objextids` (`id`,`sysobjid`,`objid`,`extsysid`,`extid`,`created_at`,`created_by`,`updated_at`,`updated_by`) VALUES (117,121,289,5,'БП-0000396','2025-09-20 01:07:37',12,'2025-09-20 01:07:37',12);
+INSERT INTO `objextids` (`id`,`sysobjid`,`objid`,`extsysid`,`extid`,`created_at`,`created_by`,`updated_at`,`updated_by`) VALUES (118,121,45,5,'00-0000004','2025-09-20 01:08:25',12,'2025-09-20 01:08:25',12);
+INSERT INTO `objextids` (`id`,`sysobjid`,`objid`,`extsysid`,`extid`,`created_at`,`created_by`,`updated_at`,`updated_by`) VALUES (119,121,512,5,'БП-0000417','2025-09-20 01:09:07',12,'2025-09-20 01:09:07',12);
+INSERT INTO `objextids` (`id`,`sysobjid`,`objid`,`extsysid`,`extid`,`created_at`,`created_by`,`updated_at`,`updated_by`) VALUES (120,121,85,5,'00-0000128','2025-09-20 02:37:49',12,'2025-09-20 02:37:49',12);
+INSERT INTO `objextids` (`id`,`sysobjid`,`objid`,`extsysid`,`extid`,`created_at`,`created_by`,`updated_at`,`updated_by`) VALUES (121,121,106,5,'00-0000087','2025-09-20 03:04:37',12,'2025-09-20 03:04:37',12);
+INSERT INTO `objextids` (`id`,`sysobjid`,`objid`,`extsysid`,`extid`,`created_at`,`created_by`,`updated_at`,`updated_by`) VALUES (122,121,103,5,'00-0000013','2025-09-20 03:05:49',12,'2025-09-20 03:05:49',12);
+
+-- 2025-09-11 ------------------------------------------------------------------------
 INSERT INTO `extsys_sysobjs` (`id`, `extsysid`, `sysobjid`, `active`) VALUES ('2', '5', '482', '1');
 INSERT INTO `extsys_sysobjs` (`id`, `extsysid`, `sysobjid`, `active`) VALUES ('3', '5', '121', '1');
 

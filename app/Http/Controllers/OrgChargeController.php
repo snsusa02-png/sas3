@@ -879,6 +879,7 @@ class OrgChargeController extends Controller
                 "select dw.wrktypeid, wt.name as wrktypename
                             , dw.day_hr_rate, sum(dw.day_wrkhrs) as day_wrkhrs
                             , dw.night_hr_rate, sum(dw.night_wrkhrs) as night_wrkhrs
+                            , count(distinct dw.wrkdate) wrkdays_cnt
                             , sum(dw.salary_sum) as salary_sum
                             , sum(b11.day_hrs+b11.night_hrs) as repair_hrs, sum(b11.brk_sum) as repair_sum
                             , sum(b22.day_hrs+b22.night_hrs) as wait_hrs, sum(b22.brk_sum) as wait_sum
