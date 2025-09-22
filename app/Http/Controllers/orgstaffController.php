@@ -52,7 +52,7 @@ class orgstaffController extends Controller
         $usrrights = array();
         $usrrights['read'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.read');
         $usrrights['create'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.create');
-        $usrrights['load'] = usrsysright::isUserHasRightByCode_cached($userid, 'admin-global');
+//        $usrrights['load'] = usrsysright::isUserHasRightByCode_cached($userid, 'admin-global');
 
         $usrrights['save'] = false;
         $usrrights['delete'] = false;
@@ -62,7 +62,7 @@ class orgstaffController extends Controller
 
         $usrrights['save'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.update');
         $usrrights['delete'] = usrsysright::isUserHasRightByCode_cached($userid, $this->acl_sysobjcode . '.delete');
-
+        $usrrights['load'] = $usrrights['create'];
 
         $tmp_sysobjcode = $this->sysobjcode;
         $this->sysobjcode = 'orgplnpays';
