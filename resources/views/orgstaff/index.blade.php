@@ -53,6 +53,11 @@
                                                    title="Учет рабочего времени">Начисления</a>
                                             </li>
                                         @endif
+                                        @if(1==1)
+                                            <li><a href="{{route('idcards.index')}}"
+                                                   title="Идентификационные карты">ID-карты</a>
+                                            </li>
+                                        @endif
                                     </ul>
                                 </div>
                             </div>

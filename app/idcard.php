@@ -189,7 +189,7 @@ class idcard extends Model
         //Импорт Номеров IDCard и их текущих держателей
         // Колонки: "Номер карты", "ФИО"
 
-        $orgid  = 31;   // Временное решение - привязываем все к САС ДВ
+        $orgid = 31;   // Временное решение - привязываем все к САС ДВ
         $userid = \Auth::user()->id;
         $result = new Result();
 
@@ -268,22 +268,21 @@ class idcard extends Model
                             ->first();
                         //dd($idcard->id, $idcard_staff);
 
-                        if(!isset($idcard_staff)){
+                        if (!isset($idcard_staff)) {
                             // никому не принадлежит сейчас - привяжем к $orgstaff->id
                             $idcard_staff = new idcard_staff(
-                                [ 'cardid'=>$idcard->id
-                                , 'staffid'=>$orgstaff->id
-                                , 'begdate'=>today()
-                                , 'enddate'=> null
+                                ['cardid' => $idcard->id
+                                    , 'staffid' => $orgstaff->id
+                                    , 'begdate' => today()
+                                    , 'enddate' => null
                                 ]);
                             $idcard_staff->save();
                             ++$holder_add_cnt;
-                        }
-                        elseif ($idcard_staff->staffid == $orgstaff->id){
+                        } elseif ($idcard_staff->staffid == $orgstaff->id) {
                             // текущий держатель это сотрудник взятый из файла - ничего не делаем
                             null;
                             ++$holder_skp_cnt;
-                        }else{
+                        } else {
                             //Если текущий держатель не является сотрудником взятым из файла,
                             // то ограничим период текущего держателя и создадим запись о новом держателе этой карты
                             //dd(today()->modify('-1 day'));
@@ -294,10 +293,10 @@ class idcard extends Model
 
                             //
                             $idcard_staff = new idcard_staff(
-                                [ 'cardid'=>$idcard->id
-                                    , 'staffid'=>$orgstaff->id
-                                    , 'begdate'=>today()
-                                    , 'enddate'=> null
+                                ['cardid' => $idcard->id
+                                    , 'staffid' => $orgstaff->id
+                                    , 'begdate' => today()
+                                    , 'enddate' => null
                                 ]);
                             $idcard_staff->save();
                             ++$holder_add_cnt;
@@ -306,9 +305,24 @@ class idcard extends Model
                     } else {
                         ++$items_skp_cnt;
                         $skp_list .= '; ' . $stfname;
+
+                        //Сотрудник(держатель карты) или не указан, или не идентифицирован.
+                        //Возможно нужно ограничить период использования текущего держателя карты
+                        // узнаем, кто является текущим держателем этой карты сейчас
+                        $idcard_staff = idcard_staff::where('cardid', $idcard->id)
+                            ->whereRaw("curdate() between begdate and ifnull(enddate, curdate())")
+                            ->first();
+                        //dd($idcard->id, $idcard_staff);
+                        if (isset($idcard_staff)
+                            and !is_null($idcard_staff->staffid)) {
+                            //владелец есть, ограничим его период действия
+                            $idcard_staff->enddate = today()->modify('-1 day');
+                            $idcard_staff->save();
+                        }
+
                     }
                 }
-            } else{
+            } else {
                 ++$items_skp_cnt;
                 $skp_list .= '; ' . $stfname;
             }
