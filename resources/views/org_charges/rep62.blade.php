@@ -282,7 +282,8 @@ $first_col_id = null;
                                             <td rowspan="2">Вид работ</td>
                                             <td colspan="3" class="text-center">День</td>
                                             <td colspan="3" class="text-center">Ночь</td>
-                                            <td colspan="2" class="text-center">Простой</td>
+                                            <td colspan="1" class="text-center">Простой</td>
+                                            <td colspan="1" class="text-center">Продленка</td>
                                             <td colspan="2" class="text-center">Ремонт</td>
                                             <td colspan="3" class="text-center">Итого</td>
                                         </tr>
