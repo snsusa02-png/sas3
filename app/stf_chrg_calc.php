@@ -158,7 +158,8 @@ class stf_chrg_calc extends Model
 
         $items_add_cnt = 0; //кол-во новых записей
         $items_upd_cnt = 0; //кол-во обновленных записей
-        $items_skp_cnt = 0; //кол-во пропущенных/не идентифицированных записей
+        $items_skp_cnt = [0,0,0]; //кол-во пропущенных/не идентифицированных записей
+        $skp_lst = ['','',''];  // массив с данными пропущенных записей
 
         for ($i = 1; $i < count($array); $i++) {
 
@@ -248,15 +249,30 @@ class stf_chrg_calc extends Model
 
                         //dd($rec);
                         $rec->save();
-                    } else ++$items_skp_cnt;
-                } else ++$items_skp_cnt;
-            } else ++$items_skp_cnt;
+                    } else {
+                        ++$items_skp_cnt[2];
+                        $skp_lst[2] .= ', ' . $cardnum;
+                    }
+                } else {
+                    ++$items_skp_cnt[1];
+                    $skp_lst[1] .= ', ' . $cardnum;
+                }
+            } //else ++$items_skp_cnt[0];
         }
 
         $result->msg .= "- добавлено записей: {$items_add_cnt}" . PHP_EOL;
         $result->msg .= "- изменено записей: {$items_upd_cnt}" . PHP_EOL;
-        $tclass = ($items_skp_cnt > 0) ? 'text-danger' : '';
-        $result->msg .= "- пропущено записей: <span class='{$tclass}'>{$items_skp_cnt}</span>" . PHP_EOL;
+        $all_skp_cnt = array_sum($items_skp_cnt);
+        $tclass = ($all_skp_cnt > 0) ? 'text-danger' : '';
+        $result->msg .= "- пропущено записей: <span class='{$tclass}'>{$all_skp_cnt}, в том числе:" . PHP_EOL;;
+        if($items_skp_cnt[0]>0)
+            $result->msg .= "-- не указан номер карты: {$items_skp_cnt[0]}" . PHP_EOL;
+        if($items_skp_cnt[1]>0)
+            $result->msg .= "-- номер карты не сопоставлен с сотрудником: {$items_skp_cnt[1]} {$skp_lst[1]}" . PHP_EOL;
+        if($items_skp_cnt[2]>0)
+            $result->msg .= "-- тип удержания не задан в организации сотрудника: {$items_skp_cnt[2]} {$skp_lst[2]}" . PHP_EOL;
+
+        $result->msg .= "</span>" . PHP_EOL;
 
         $rec->result = $result;
         //--------------------------------------------------------------------------
