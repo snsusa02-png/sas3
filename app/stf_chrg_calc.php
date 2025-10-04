@@ -158,8 +158,8 @@ class stf_chrg_calc extends Model
 
         $items_add_cnt = 0; //кол-во новых записей
         $items_upd_cnt = 0; //кол-во обновленных записей
-        $items_skp_cnt = [0,0,0]; //кол-во пропущенных/не идентифицированных записей
-        $skp_lst = ['','',''];  // массив с данными пропущенных записей
+        $items_skp_cnt = [0, 0, 0]; //кол-во пропущенных/не идентифицированных записей
+        $skp_lst = ['', '', ''];  // массив с данными пропущенных записей
 
         for ($i = 1; $i < count($array); $i++) {
 
@@ -251,7 +251,10 @@ class stf_chrg_calc extends Model
                         $rec->save();
                     } else {
                         ++$items_skp_cnt[2];
-                        $skp_lst[2] .= ', ' . $cardnum;
+                        $org = org::where('id', $orgstaff->orgid)->first();
+                        $skp_lst[2] .= ', ' . $cardnum
+                            . ' - ' . $orgstaff->id . ': "' . $orgstaff->lname . ' ' . $orgstaff->fname . ' ' . $orgstaff->mname .'"'
+                            . ' - ' . $orgstaff->orgid . ': "' . $org->name . '"';
                     }
                 } else {
                     ++$items_skp_cnt[1];
@@ -265,13 +268,17 @@ class stf_chrg_calc extends Model
         $all_skp_cnt = array_sum($items_skp_cnt);
         $tclass = ($all_skp_cnt > 0) ? 'text-danger' : '';
         $result->msg .= "- пропущено записей: <span class='{$tclass}'>{$all_skp_cnt}, в том числе:" . PHP_EOL;;
-        if($items_skp_cnt[0]>0)
+        if ($items_skp_cnt[0] > 0)
             $result->msg .= "-- не указан номер карты: {$items_skp_cnt[0]}" . PHP_EOL;
-        if($items_skp_cnt[1]>0)
-            $result->msg .= "-- номер карты не сопоставлен с сотрудником: {$items_skp_cnt[1]} {$skp_lst[1]}" . PHP_EOL;
-        if($items_skp_cnt[2]>0)
+        if ($items_skp_cnt[1] > 0) {
+            $skp_lst[1] = mb_substr($skp_lst[1], 2);
+            $result->msg .= "-- номер карты не сопоставлен с сотрудником: {$items_skp_cnt[1]}:"
+                . PHP_EOL . "{$skp_lst[1]}" . PHP_EOL;
+        }
+        if ($items_skp_cnt[2] > 0) {
+            $skp_lst[2] = PHP_EOL . str_replace(',', PHP_EOL, mb_substr($skp_lst[2], 2));
             $result->msg .= "-- тип удержания не задан в организации сотрудника: {$items_skp_cnt[2]} {$skp_lst[2]}" . PHP_EOL;
-
+        }
         $result->msg .= "</span>" . PHP_EOL;
 
         $rec->result = $result;
@@ -305,7 +312,7 @@ class stf_chrg_calc extends Model
 //            and in_array('Период конец', $fields)
 //        );
         //Проверка на наличие колонок с данными привязки ( к сотруднику, к периоду)
-        if (!(1==1
+        if (!(1 == 1
             and in_array('Код', $fields)
             //and in_array('Авансы', $fields)
             and in_array('Период начало', $fields)
@@ -479,7 +486,7 @@ class stf_chrg_calc extends Model
             }
         }
 
-        $result->msg .= "Импорт сумм удержаний сотрудников:" . PHP_EOL. PHP_EOL;
+        $result->msg .= "Импорт сумм удержаний сотрудников:" . PHP_EOL . PHP_EOL;
         $result->msg .= "- добавлено записей: {$items_add_cnt}" . PHP_EOL;
         $result->msg .= "- изменено записей: {$items_upd_cnt}" . PHP_EOL;
         $result->msg .= "- удалено записей: {$items_del_cnt}" . PHP_EOL;
