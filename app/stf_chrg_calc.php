@@ -150,137 +150,141 @@ class stf_chrg_calc extends Model
             return $rec;
         }
 
-        //$extsysid = $rec->extsysid;
+        $chargetypeid = 53; // 53 - Столовая
+        $chargetype = chargetype::where('id', $chargetypeid)->first();
+        if (isset($chargetype)) {
 
-        //перевернем колонки
-        $fld_idx = array_flip($fields);
-        //dd($fld_idx);
+            //перевернем колонки
+            $fld_idx = array_flip($fields);
+            //dd($fld_idx);
 
-        $items_add_cnt = 0; //кол-во новых записей
-        $items_upd_cnt = 0; //кол-во обновленных записей
-        $items_skp_cnt = [0, 0, 0]; //кол-во пропущенных/не идентифицированных записей
-        $skp_lst = ['', '', ''];  // массив с данными пропущенных записей
+            $items_add_cnt = 0; //кол-во новых записей
+            $items_upd_cnt = 0; //кол-во обновленных записей
+            $items_skp_cnt = [0, 0, 0]; //кол-во пропущенных/не идентифицированных записей
+            $skp_lst = ['', '', ''];  // массив с данными пропущенных записей
 
-        for ($i = 1; $i < count($array); $i++) {
+            for ($i = 1; $i < count($array); $i++) {
 
-            $dshift = $array[$i][$fld_idx['Начало периода']];
-            $begdate = date('Y-m-d', strtotime("1899-12-30 +{$dshift} days"));
-            //dd($dshift, $begdate);
-            //$begdate = date_format(date_create_from_format('d.m.Y', $date), 'Y-m-d');
+                $dshift = $array[$i][$fld_idx['Начало периода']];
+                $begdate = date('Y-m-d', strtotime("1899-12-30 +{$dshift} days"));
+                //dd($dshift, $begdate);
+                //$begdate = date_format(date_create_from_format('d.m.Y', $date), 'Y-m-d');
 
-            $dshift = $array[$i][$fld_idx['Конец периода']];
-            //$enddate = date_format(date_create_from_format('d.m.Y', $date), 'Y-m-d');
-            $enddate = date('Y-m-d', strtotime("1899-12-30 +{$dshift} days"));
-            //dd($dshift, $enddate);
+                $dshift = $array[$i][$fld_idx['Конец периода']];
+                //$enddate = date_format(date_create_from_format('d.m.Y', $date), 'Y-m-d');
+                $enddate = date('Y-m-d', strtotime("1899-12-30 +{$dshift} days"));
+                //dd($dshift, $enddate);
 
 
-            $cardnum = $array[$i][$fld_idx['Номер карты оплаты']];
-            $sum = $array[$i][$fld_idx['Сумма']];
+                $cardnum = $array[$i][$fld_idx['Номер карты оплаты']];
+                $sum = $array[$i][$fld_idx['Сумма']];
 
-            //$kpp = (isset($fld_idx['kpp'])) ? $array[$i][$fld_idx['kpp']] : null;
+                //$kpp = (isset($fld_idx['kpp'])) ? $array[$i][$fld_idx['kpp']] : null;
 
-            $date = $begdate;
-            //dd($begdate, $enddate, $cardnum, $sum);
+                $date = $begdate;
+                //dd($begdate, $enddate, $cardnum, $sum);
 
-            if (isset($cardnum)) {
+                if (isset($cardnum)) {
 
-                // определим идентификатор авто/спецтехники по коду внешней системы
-                $staffid = idcard_staff::from('idcard_staffs as ics')
-                        ->join('idcards as ic', function ($join) {
-                            $join->on('ic.id', '=', 'ics.cardid')
-                                ->whereRaw("curdate() between ics.begdate and ifnull(ics.enddate, curdate())");
-                        })
-                        ->where('ic.num', $cardnum)
-                        ->first()->staffid ?? null;
-                //dd($cardnum, $staffid);
+                    // определим идентификатор авто/спецтехники по коду внешней системы
+                    $staffid = idcard_staff::from('idcard_staffs as ics')
+                            ->join('idcards as ic', function ($join) {
+                                $join->on('ic.id', '=', 'ics.cardid')
+                                    ->whereRaw("curdate() between ics.begdate and ifnull(ics.enddate, curdate())");
+                            })
+                            ->where('ic.num', $cardnum)
+                            ->first()->staffid ?? null;
+                    //dd($cardnum, $staffid);
 
-                if (isset($staffid)) {
+                    if (isset($staffid)) {
 
-                    $orgstaff = orgstaff::where('id', $staffid)->first();
-                    //dd($orgstaff->orgid);
+                        $orgstaff = orgstaff::where('id', $staffid)->first();
+                        //dd($orgstaff->orgid);
 
-                    $orgchargeid = org_charge::where([
-                            'orgid' => $orgstaff->orgid
-                            , 'chargetypeid' => 53
-                        ])
-                            ->first()->id ?? null;
-                    //dd($orgchargeid);
+                        $orgchargeid = org_charge::where([
+                                'orgid' => $orgstaff->orgid
+                                , 'chargetypeid' => $chargetype->id
+                            ])
+                                ->first()->id ?? null;
+                        //dd($orgchargeid);
 
-                    if (isset($orgchargeid)) {
+                        if (isset($orgchargeid)) {
 
-                        // может быть уже добавляли?
-                        // локальный идентификатор порции данных, характеризующий источник, дату данных и положение порции в файле
-                        $lineid = '01' . ':' . $staffid . ':' . $begdate . ':' . $enddate;
-                        //. ':' . $i;
-                        //dd($lineid);
+                            // может быть уже добавляли?
+                            // локальный идентификатор порции данных, характеризующий источник, дату данных и положение порции в файле
+                            $lineid = '01' . ':' . $staffid . ':' . $begdate . ':' . $enddate;
+                            //. ':' . $i;
+                            //dd($lineid);
 
-                        $rec = stf_chrg_calc::where([
-                            'staffid' => $staffid,
-                            'orgchargeid' => $orgchargeid,
-                            'forbegdate' => $begdate,
-                            'forenddate' => $enddate,
-                            'notes' => $lineid])
-                            ->first();
-//                        dd ($rec);
-
-                        if (!isset($rec)) {
-
-                            $rec = new self([
+                            $rec = stf_chrg_calc::where([
                                 'staffid' => $staffid,
                                 'orgchargeid' => $orgchargeid,
                                 'forbegdate' => $begdate,
                                 'forenddate' => $enddate,
-                                'notes' => $lineid,
-                                'docdate' => $begdate,
-                                'charge_dir' => -1,
-                                'charge_qty' => 1,
-                                'charge_price' => $sum,
-                                'charge_sum' => $sum,
-                            ]);
-                            ++$items_add_cnt;
-                        } else
-                            ++$items_upd_cnt;
-                        //dd ($rec);
+                                'notes' => $lineid])
+                                ->first();
+//                        dd ($rec);
 
-                        //$org->name = $array[$i][$fld_idx['name'] ?? ''] ?? '';
-                        //необязательно-присутствующие поля. Обновляем только при наличии - чтобы не затереть предыдущее значение
+                            if (!isset($rec)) {
+
+                                $rec = new self([
+                                    'staffid' => $staffid,
+                                    'orgchargeid' => $orgchargeid,
+                                    'forbegdate' => $begdate,
+                                    'forenddate' => $enddate,
+                                    'notes' => $lineid,
+                                    'docdate' => $begdate,
+                                    'charge_dir' => -1,
+                                    'charge_qty' => 1,
+                                    'charge_price' => $sum,
+                                    'charge_sum' => $sum,
+                                ]);
+                                ++$items_add_cnt;
+                            } else
+                                ++$items_upd_cnt;
+                            //dd ($rec);
+
+                            //$org->name = $array[$i][$fld_idx['name'] ?? ''] ?? '';
+                            //необязательно-присутствующие поля. Обновляем только при наличии - чтобы не затереть предыдущее значение
 //                if (isset($fld_idx['address']))
 //                    $org->address = $array[$i][$fld_idx['address']];
 
-                        //dd($rec);
-                        $rec->save();
+                            //dd($rec);
+                            $rec->save();
+                        } else {
+                            ++$items_skp_cnt[2];
+                            $org = org::where('id', $orgstaff->orgid)->first();
+                            $skp_lst[2] .= ', ' . $cardnum
+                                . ' - ' . $orgstaff->id . ': "' . $orgstaff->lname . ' ' . $orgstaff->fname . ' ' . $orgstaff->mname . '"'
+                                . ' - ' . $orgstaff->orgid . ': "' . $org->name . '"';
+                        }
                     } else {
-                        ++$items_skp_cnt[2];
-                        $org = org::where('id', $orgstaff->orgid)->first();
-                        $skp_lst[2] .= ', ' . $cardnum
-                            . ' - ' . $orgstaff->id . ': "' . $orgstaff->lname . ' ' . $orgstaff->fname . ' ' . $orgstaff->mname .'"'
-                            . ' - ' . $orgstaff->orgid . ': "' . $org->name . '"';
+                        ++$items_skp_cnt[1];
+                        $skp_lst[1] .= ', ' . $cardnum;
                     }
-                } else {
-                    ++$items_skp_cnt[1];
-                    $skp_lst[1] .= ', ' . $cardnum;
-                }
-            } //else ++$items_skp_cnt[0];
-        }
+                } //else ++$items_skp_cnt[0];
+            }
 
-        $result->msg .= "- добавлено записей: {$items_add_cnt}" . PHP_EOL;
-        $result->msg .= "- изменено записей: {$items_upd_cnt}" . PHP_EOL;
-        $all_skp_cnt = array_sum($items_skp_cnt);
-        $tclass = ($all_skp_cnt > 0) ? 'text-danger' : '';
-        $result->msg .= "- пропущено записей: <span class='{$tclass}'>{$all_skp_cnt}, в том числе:" . PHP_EOL;;
-        if ($items_skp_cnt[0] > 0)
-            $result->msg .= "-- не указан номер карты: {$items_skp_cnt[0]}" . PHP_EOL;
-        if ($items_skp_cnt[1] > 0) {
-            $skp_lst[1] = mb_substr($skp_lst[1], 2);
-            $result->msg .= "-- номер карты не сопоставлен с сотрудником: {$items_skp_cnt[1]}:"
-                . PHP_EOL . "{$skp_lst[1]}" . PHP_EOL;
+            $result->msg .= "- добавлено записей: {$items_add_cnt}" . PHP_EOL;
+            $result->msg .= "- изменено записей: {$items_upd_cnt}" . PHP_EOL;
+            $all_skp_cnt = array_sum($items_skp_cnt);
+            $tclass = ($all_skp_cnt > 0) ? 'text-danger' : '';
+            $result->msg .= "- пропущено записей: <span class='{$tclass}'>{$all_skp_cnt}, в том числе:" . PHP_EOL;;
+            if ($items_skp_cnt[0] > 0)
+                $result->msg .= "-- не указан номер карты: {$items_skp_cnt[0]}" . PHP_EOL;
+            if ($items_skp_cnt[1] > 0) {
+                $skp_lst[1] = mb_substr($skp_lst[1], 2);
+                $result->msg .= "-- номер карты не сопоставлен с сотрудником: {$items_skp_cnt[1]}:"
+                    . PHP_EOL . "{$skp_lst[1]}" . PHP_EOL;
+            }
+            if ($items_skp_cnt[2] > 0) {
+                $skp_lst[2] = PHP_EOL . str_replace(',', PHP_EOL, mb_substr($skp_lst[2], 2));
+                $result->msg .= "-- тип удержания не задан в организации сотрудника: {$items_skp_cnt[2]} {$skp_lst[2]}" . PHP_EOL;
+            }
+            $result->msg .= "</span>" . PHP_EOL;
+        } else {
+            $result->msg = "<span class='text-danger'>Тип заданного удержания ({$chargetypeid}) не найден!</span>";
         }
-        if ($items_skp_cnt[2] > 0) {
-            $skp_lst[2] = PHP_EOL . str_replace(',', PHP_EOL, mb_substr($skp_lst[2], 2));
-            $result->msg .= "-- тип удержания не задан в организации сотрудника: {$items_skp_cnt[2]} {$skp_lst[2]}" . PHP_EOL;
-        }
-        $result->msg .= "</span>" . PHP_EOL;
-
         $rec->result = $result;
         //--------------------------------------------------------------------------
 
