@@ -406,7 +406,7 @@ class StfChrgCalcController extends Controller
         //$rec->extsystems = extsystem::lstFor_cached(['for_sysobjid' => $this->sysobjid], 5);
         //dd($rec->extsystems);
         $rec->datatypes = array(
-            1 => 'Затраты по столовой. Идентификация сотрудника по картам',
+            1 => 'Затраты по столовой. Идентификация сотрудника по картам столовой',
             2 => 'Удержания по сотрудникам. - Идентификация сотрудника по кодам 1С-Бухгалтерия',
             3 => 'Корпоративная связь. - не настроено -'
         );

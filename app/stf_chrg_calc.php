@@ -120,6 +120,7 @@ class stf_chrg_calc extends Model
         // Ожидаемые колонки:
         // Начало периода	Конец периода	Номер карты оплаты	Сумма
 
+        $rec->title = "Загрузка данных: Затраты по столовой. Идентификация сотрудника по картам столовой";
 
         $userid = \Auth::user()->id;
         $result = new Result();
@@ -216,7 +217,7 @@ class stf_chrg_calc extends Model
                             //. ':' . $i;
                             //dd($lineid);
 
-                            $rec = stf_chrg_calc::where([
+                            $itm = stf_chrg_calc::where([
                                 'staffid' => $staffid,
                                 'orgchargeid' => $orgchargeid,
                                 'forbegdate' => $begdate,
@@ -225,9 +226,9 @@ class stf_chrg_calc extends Model
                                 ->first();
 //                        dd ($rec);
 
-                            if (!isset($rec)) {
+                            if (!isset($itm)) {
 
-                                $rec = new self([
+                                $itm = new self([
                                     'staffid' => $staffid,
                                     'orgchargeid' => $orgchargeid,
                                     'forbegdate' => $begdate,
@@ -242,15 +243,15 @@ class stf_chrg_calc extends Model
                                 ++$items_add_cnt;
                             } else
                                 ++$items_upd_cnt;
-                            //dd ($rec);
+                            //dd ($itm);
 
                             //$org->name = $array[$i][$fld_idx['name'] ?? ''] ?? '';
                             //необязательно-присутствующие поля. Обновляем только при наличии - чтобы не затереть предыдущее значение
 //                if (isset($fld_idx['address']))
 //                    $org->address = $array[$i][$fld_idx['address']];
 
-                            //dd($rec);
-                            $rec->save();
+                            //dd($itm);
+                            $itm->save();
                         } else {
                             ++$items_skp_cnt[2];
                             $org = org::where('id', $orgstaff->orgid)->first();
