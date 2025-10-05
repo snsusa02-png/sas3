@@ -268,6 +268,7 @@ class stf_chrg_calc extends Model
 
             $result->msg .= "- добавлено записей: {$items_add_cnt}" . PHP_EOL;
             $result->msg .= "- изменено записей: {$items_upd_cnt}" . PHP_EOL;
+
             $all_skp_cnt = array_sum($items_skp_cnt);
             $tclass = ($all_skp_cnt > 0) ? 'text-danger' : '';
             $result->msg .= "- пропущено записей: <span class='{$tclass}'>{$all_skp_cnt}, в том числе:" . PHP_EOL;;
@@ -370,8 +371,15 @@ class stf_chrg_calc extends Model
         $items_add_cnt = 0; //кол-во новых записей
         $items_upd_cnt = 0; //кол-во обновленных записей
         $items_del_cnt = 0; //кол-во удаленных записей
-        $items_skp_cnt = 0; //кол-во пропущенных/не идентифицированных записей
+        //$items_skp_cnt = 0; //кол-во пропущенных/не идентифицированных записей
         $skp_extids = '';   //список идентификаторов пропущенных/не идентифицированных записей
+        $items_skp_cnt = [0, 0, 0]; //кол-во пропущенных/не идентифицированных записей
+        $skp_lst = ['', '', ''];  // массив с данными пропущенных записей
+        $skp_rsn = [
+            'не удалось определить сотрудника, связанного с кодом'
+            , 'сотрудник не связан с организацией'
+            , 'в организации нет нужного вида удержания'];
+
 
         for ($i = 1; $i < count($array); $i++) {
 
@@ -402,92 +410,112 @@ class stf_chrg_calc extends Model
                     $orgstaff = orgstaff::where('id', $staffid)->first();
                     //dd($orgstaff->orgid);
 
-                    foreach ($chargetypes as $chargetype) {
-                        //dd("Item=" . $chargetype[0] . ", Value=" . $chargetype[1], is_null( $chargetype[0]));
+                    if (isset($orgstaff->orgid)) {
 
-                        // Если id начисления задано и название начисления находится в списке заголовков
-                        if (!is_null($chargetype[0])
-                            and in_array($chargetype[1], $fields)) {
+                        $org = org::where('id', $orgstaff->orgid)->first();
 
-                            $orgchargeid = org_charge::where([
-                                    'orgid' => $orgstaff->orgid
-                                    , 'chargetypeid' => $chargetype[0]
-                                ])
-                                    ->first()->id ?? null;
-                            //dd($orgstaff->orgid, $orgchargeid);
+                        foreach ($chargetypes as $chargetype) {
+                            //dd("Item=" . $chargetype[0] . ", Value=" . $chargetype[1], is_null( $chargetype[0]));
 
-                            if (isset($orgchargeid)) {
+                            // Если id начисления задано и название начисления находится в списке заголовков
+                            if (!is_null($chargetype[0])
+                                and in_array($chargetype[1], $fields)) {
 
-                                $sum = $array[$i][$fld_idx[$chargetype[1]]];
-                                //$sum2 = $array[$i][$fld_idx['Алименты']];
-                                //dd($begdate, $enddate, $extid, $chargetype[1], $sum);
+                                $orgchargeid = org_charge::where([
+                                        'orgid' => $orgstaff->orgid
+                                        , 'chargetypeid' => $chargetype[0]
+                                    ])
+                                        ->first()->id ?? null;
+                                //dd($orgstaff->orgid, $orgchargeid);
 
-                                // локальный идентификатор порции данных, характеризующий источник, дату данных и положение порции в файле
-                                $lineid = '02' . ':' . $staffid . ':' . $begdate . ':' . $enddate . ':' . $orgchargeid;
-                                //. ':' . $i;
-                                //dd($lineid);
+                                if (isset($orgchargeid)) {
 
-                                if (!is_null($sum)) {
+                                    $sum = $array[$i][$fld_idx[$chargetype[1]]];
+                                    //$sum2 = $array[$i][$fld_idx['Алименты']];
+                                    //dd($begdate, $enddate, $extid, $chargetype[1], $sum);
 
-                                    // может быть уже добавляли?
-                                    $rec = stf_chrg_calc::where([
-                                        'staffid' => $staffid,
-                                        'orgchargeid' => $orgchargeid,
-                                        'forbegdate' => $begdate,
-                                        'forenddate' => $enddate,
-                                        'notes' => $lineid])
-                                        ->first();
-                                    //dd ($rec);
+                                    // локальный идентификатор порции данных, характеризующий источник, дату данных и положение порции в файле
+                                    $lineid = '02' . ':' . $staffid . ':' . $begdate . ':' . $enddate . ':' . $orgchargeid;
+                                    //. ':' . $i;
+                                    //dd($lineid);
 
-                                    if (!isset($rec)) {
+                                    if (!is_null($sum)) {
 
-                                        $rec = new self([
+                                        // может быть уже добавляли?
+                                        $itm = stf_chrg_calc::where([
                                             'staffid' => $staffid,
                                             'orgchargeid' => $orgchargeid,
                                             'forbegdate' => $begdate,
                                             'forenddate' => $enddate,
-                                            'notes' => $lineid,
-                                            'docdate' => $begdate,
-                                            'charge_dir' => -1,
-                                            'charge_qty' => 1,
-                                            'charge_price' => $sum,
-                                            'charge_sum' => $sum,
-                                        ]);
-                                        ++$items_add_cnt;
+                                            'notes' => $lineid])
+                                            ->first();
+                                        //dd ($itm);
+
+                                        if (!isset($itm)) {
+
+                                            $itm = new self([
+                                                'staffid' => $staffid,
+                                                'orgchargeid' => $orgchargeid,
+                                                'forbegdate' => $begdate,
+                                                'forenddate' => $enddate,
+                                                'notes' => $lineid,
+                                                'docdate' => $begdate,
+                                                'charge_dir' => -1,
+                                                'charge_qty' => 1,
+                                                'charge_price' => $sum,
+                                                'charge_sum' => $sum,
+                                            ]);
+                                            ++$items_add_cnt;
+                                        } else {
+                                            $itm->charge_sum = $sum;
+                                            ++$items_upd_cnt;
+                                        }
+                                        //dd ($itm);
+
+                                        //$org->name = $array[$i][$fld_idx['name'] ?? ''] ?? '';
+                                        //необязательно-присутствующие поля. Обновляем только при наличии - чтобы не затереть предыдущее значение
+                                        //                if (isset($fld_idx['address']))
+                                        //                    $org->address = $array[$i][$fld_idx['address']];
+                                        //$kpp = (isset($fld_idx['kpp'])) ? $array[$i][$fld_idx['kpp']] : null;
+
+                                        //dd($itm);
+                                        $itm->save();
                                     } else {
-                                        $rec->charge_sum = $sum;
-                                        ++$items_upd_cnt;
+                                        //Удалим, если ранее создали
+                                        $tmp = stf_chrg_calc::where([
+                                            'staffid' => $staffid,
+                                            'orgchargeid' => $orgchargeid,
+                                            'forbegdate' => $begdate,
+                                            'forenddate' => $enddate,
+                                            'notes' => $lineid])
+                                            ->delete();
+                                        $items_del_cnt += $tmp;
                                     }
-                                    //dd ($rec);
-
-                                    //$org->name = $array[$i][$fld_idx['name'] ?? ''] ?? '';
-                                    //необязательно-присутствующие поля. Обновляем только при наличии - чтобы не затереть предыдущее значение
-                                    //                if (isset($fld_idx['address']))
-                                    //                    $org->address = $array[$i][$fld_idx['address']];
-                                    //$kpp = (isset($fld_idx['kpp'])) ? $array[$i][$fld_idx['kpp']] : null;
-
-                                    //dd($rec);
-                                    $rec->save();
                                 } else {
-                                    //Удалим, если ранее создали
-                                    $tmp = stf_chrg_calc::where([
-                                        'staffid' => $staffid,
-                                        'orgchargeid' => $orgchargeid,
-                                        'forbegdate' => $begdate,
-                                        'forenddate' => $enddate,
-                                        'notes' => $lineid])
-                                        ->delete();
-                                    $items_del_cnt += $tmp;
+                                    // В организации нет нужного вида удержания
+                                    ++$items_skp_cnt[2];
+                                    $skp_lst[2] .= '; ' . PHP_EOL . $extid
+                                        . ' - "' . ($org->name ?? '.') . '"'
+                                        . ' - "' . $chargetype[1] . '"';
+                                    //dd($chargetype[1]);
                                 }
-                            } else ++$items_skp_cnt;
+                            }
                         }
+                    } else {
+                        // сотрудник не связан с организацией
+                        ++$items_skp_cnt[1];
+                        $skp_lst[1] .= '; ' . $extid;
                     }
+
                 } else {
-                    ++$items_skp_cnt;
-                    $skp_extids .= '; ' . $extid;
+                    // не удалось определить сотрудника, связанного с кодом 1с
+                    ++$items_skp_cnt[0];
+                    $skp_lst[0] .= '; ' . $extid;
                 }
             } else {
-                ++$items_skp_cnt;
+                //++$items_skp_cnt;
+                null; // не считаем строкив которых нет ключевого значения
+
             }
         }
 
@@ -495,12 +523,21 @@ class stf_chrg_calc extends Model
         $result->msg .= "- добавлено записей: {$items_add_cnt}" . PHP_EOL;
         $result->msg .= "- изменено записей: {$items_upd_cnt}" . PHP_EOL;
         $result->msg .= "- удалено записей: {$items_del_cnt}" . PHP_EOL;
-        $tclass = ($items_skp_cnt > 0) ? 'text-danger' : '';
-        $result->msg .= "- пропущено записей: <span class='{$tclass}'>{$items_skp_cnt}</span>" . PHP_EOL;
-        if ($items_skp_cnt) {
-            $skp_extids = mb_substr($skp_extids, 2);
-            $result->msg .= "-- коды пропущенных записей: <span class='text-secondary small'>{$skp_extids}</span>" . PHP_EOL;
+
+        $all_skp_cnt = array_sum($items_skp_cnt);
+        $tclass = ($all_skp_cnt > 0) ? 'text-danger' : '';
+        $result->msg .= "- пропущено записей: <span class='{$tclass}'>{$all_skp_cnt}";
+
+        if ($all_skp_cnt > 0) {
+            $result->msg .= ", в том числе:" . PHP_EOL;;
+            for ($i = 0; $i < count($items_skp_cnt); $i++) {
+                if ($items_skp_cnt[$i] > 0) {
+                    $result->msg .= " -- {$skp_rsn[$i]}: {$items_skp_cnt[$i]}:"
+                        . PHP_EOL . mb_substr($skp_lst[$i], 2) . PHP_EOL . PHP_EOL;
+                }
+            }
         }
+        $result->msg .= "</span>" . PHP_EOL;
 
         $rec->result = $result;
         //--------------------------------------------------------------------------
