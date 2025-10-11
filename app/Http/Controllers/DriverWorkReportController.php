@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\buildobj;
 use App\driver_work;
+use App\Exports\rep2xlsx_vdr_export;
 use App\Exports\rep46Export;
 use App\mr_oper;
 use App\Exports\InvoicesExport;
@@ -79,6 +80,9 @@ class DriverWorkReportController extends Controller
     {
         //
         $report_id = 58;
+        $rep = report::find($report_id);
+        //dd($rep->name);
+//        dd(str_replace( ' ', '_', $rep->name) );
 
         $userid = \Auth::user()->id;
 
@@ -87,6 +91,7 @@ class DriverWorkReportController extends Controller
                 ->with(['error' => 'У вас нет полномочий для работы с данной информацией!']);
 
         // - параметры поиска: массив из имени и значения по-умолчанию -----------------------------------------------
+        $export2xls = $request->get('xls') ?? 0;
         $fdom = new DateTime('first day of this month');
         $fdomc = $fdom->format('Y-m-d');
         $year = $fdom->format('Y');
@@ -280,6 +285,26 @@ class DriverWorkReportController extends Controller
 //            'in_driver_works_ownorgid' => 1,
 //        ]);
         //dd($data->ownorgs);
+
+        if ($export2xls == "1") {
+
+            $data->period_title = '';
+
+            if (isset($s_begdate) and $s_begdate <> '')
+                $data->period_title .= ' с ' . date_format(date_create($s_begdate), 'd.m.Y');
+            if (isset($s_enddate) and $s_enddate <> '')
+                $data->period_title .= ' по ' . date_format(date_create($s_enddate), 'd.m.Y');
+
+            $response = Excel::download(
+                new rep2xlsx_vdr_export('exports.rep58xls', $recs, $data),
+                str_replace(' ', '_', $rep->name) . "_{$s_begdate}_{$s_enddate}.xlsx",
+                \Maatwebsite\Excel\Excel::XLSX);
+
+            //HERE IS THE MAGIC FOLKS
+            ob_end_clean();
+            return $response;
+        }
+        //dd($data);
 
         return view('driver_works.rep' . $report_id, compact('recs', 'search_params', 'data'));
     }

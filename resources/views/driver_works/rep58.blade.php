@@ -207,6 +207,13 @@ $action_url = route('reports.rep' . $thisObjId);
                                         <i class="fa fa-file-excel-o" aria-hidden="true"></i>
                                     </a>
                         @endif
+                        @if(1==1)
+                            <a class="btn btn-success btn-sm mr-3"
+                               href="{{ route('reports.rep'.$thisObjId)  }}?xls=1" title="Выгрузить результаты в Excel">
+                                        <i class="fa fa-file-excel-o" aria-hidden="true"></i>
+                                    </a>
+                        @endif
+
                         <a class="btn btn-close btn-info btn-sm d-print-none"
                            href="{{ $retURL  }}"><i class="fa fa-times" aria-hidden="true"></i></a>
 
