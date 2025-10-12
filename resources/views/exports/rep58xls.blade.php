@@ -1,15 +1,17 @@
 <table>
     <thead>
     <tr>
-        <td colspan="7" align="center">Сводка по рабочим часам водителей</td>
+        <td colspan="19" align="center"><b>Сводка по рабочим часам водителей</b></td>
     </tr>
+    @if( isset($data->sub_title) and  $data->sub_title <>'')
+        <tr>
+            <td colspan="19" align="center">
+                {!! $data->sub_title !!}
+            </td>
+        </tr>
+    @endif
     <tr>
-        <td colspan="7" align="center">
-            {{$data->period_title}}
-        </td>
-    </tr>
-    <tr>
-        <td colspan="7" align="center">
+        <td colspan="19" style="text-align: right;">
             по состоянию на {{now()}}
         </td>
     </tr>
@@ -104,16 +106,16 @@
             <td x:num>{{$itm->brkhrs}}</td>
             <td x:num>{{$itm->breaks_sum}}</td>
 
-            <td x:num >{{$itm->brk_11_hrs}}</td>
-            <td x:num >{{$itm->brk_11_sum}}</td>
+            <td x:num>{{$itm->brk_11_hrs}}</td>
+            <td x:num>{{$itm->brk_11_sum}}</td>
 
-            <td x:num >{{$itm->brk_21_hrs}}</td>
-            <td x:num >{{$itm->brk_21_sum}}</td>
+            <td x:num>{{$itm->brk_21_hrs}}</td>
+            <td x:num>{{$itm->brk_21_sum}}</td>
 
-            <td x:num >{{$itm->brk_22_hrs}}</td>
-            <td x:num >{{$itm->brk_22_sum}}</td>
+            <td x:num>{{$itm->brk_22_hrs}}</td>
+            <td x:num>{{$itm->brk_22_sum}}</td>
 
-            <td x:num >{{$itm->day_hr_sum + $itm->night_hr_sum + $itm->breaks_sum}}</td>
+            <td x:num>{{$itm->day_hr_sum + $itm->night_hr_sum + $itm->breaks_sum}}</td>
         </tr>
         <?php
         $totDayWrkHrs += $itm->day_wrkhrs;

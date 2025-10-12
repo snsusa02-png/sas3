@@ -10,6 +10,7 @@ use App\mr_oper;
 use App\Exports\InvoicesExport;
 use App\Exports\PayPlanExport;
 use App\mchn_raid;
+use App\orgstaff;
 use App\report;
 use App\org;
 use App\machine;
@@ -112,9 +113,11 @@ class DriverWorkReportController extends Controller
             , 's_year' => $year
             , 's_begdate' => $begdate->format('Y-m-01')
             , 's_enddate' => $begdate->format('Y-m-t')
+            , 's_depname' => ''
         ];
 
         $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);
+        //dd($search_params, isset($search_params['s_ownorgid']) );
 
         $begdate = today();
         //$search_params['s_begdate'] = $begdate->format('Y-m-d');
@@ -127,6 +130,9 @@ class DriverWorkReportController extends Controller
 
         $s_begdate = $search_params['s_begdate'];
         $s_enddate = $search_params['s_enddate'];
+
+        $s_ownorgid = $search_params['s_ownorgid'] ?? null;
+        $s_depname = $search_params['s_depname'];
 
         if (($s_year <> '' and $s_month <> '') or ($s_begdate <> '' and $s_enddate <> '')) {
 
@@ -238,16 +244,23 @@ class DriverWorkReportController extends Controller
      ) as a
     join orgstaff as os on os.id=a.staffid
     join wrktypes as wt on wt.id=a.wrktypeid
-    left join stf_payrolltypes as spt on spt.staffid=a.staffid and '{$s_begdate}' between spt.begdate and ifnull( spt.enddate, '2024-09-01')
+    left join stf_payrolltypes as spt on spt.staffid=a.staffid and '{$s_begdate}' between spt.begdate and ifnull( spt.enddate, '{$s_enddate}')
     left join payrolltypes pt on pt.id=spt.payrolltypeid
-    order by staff_name, wt.name";
+    where 1=1";
+                if ($s_ownorgid <> '') {
+                    $sql .= " and os.orgid={$s_ownorgid}";
+                }
+                if ($s_depname <> '') {
+                    $sql .= " and ucase(os.depname)='{$s_depname}'";
+                }
+
+                $sql .= " order by staff_name, wt.name";
 
                 //dd($s_begdate, $s_yr_mn, $sql);
                 $recs = DB::select(DB::raw($sql));
-                //dd($sql, $recs);
+//                dd($sql, $recs);
 
             }
-
 
             //обновим счетчик использования отчета
             report::updUseCnt($report_id, $userid, \Auth::user()->name);
@@ -281,19 +294,46 @@ class DriverWorkReportController extends Controller
         }
         //dd($data->monthes);
 
-//        $data->ownorgs = org::lstFor_cached([
-//            'in_driver_works_ownorgid' => 1,
-//        ]);
-        //dd($data->ownorgs);
+//        if (isset($search_params['s_ownorgid'])) {
+            $data->ownorgs = org::lstFor_cached([
+                'in_driver_works_ownorgid' => 1,
+            ]);
+//            dd($data->ownorgs);
+        //}
+
+        $data->depnames = orgstaff::from('orgstaff as os')
+            ->WhereNotNull('depname')
+            ->where('depname', '<>', '')
+            ->whereRaw("exists(select 1 from driver_works dw where dw.staffid=os.id and (dw.day_wrkhrs+dw.night_wrkhrs)>0)")
+            ->select(db::raw('ucase(depname) as code'))
+            ->groupBy(db::raw('ucase(depname)'))
+            ->orderBy(db::raw('ucase(depname)'))
+            ->get()->pluck('code', 'code')->toArray();
+//                , db::raw("(select count(*) from usrsysrights as ur
+        //dd($data->depnames);
+
+        // Подзаголовок с выводом значенией параметров отбора
+        $data->sub_title = '';
+
+        if (isset($s_begdate) and $s_begdate <> '')
+            $data->sub_title .= ' с ' . date_format(date_create($s_begdate), 'd.m.Y');
+        if (isset($s_enddate) and $s_enddate <> '')
+            $data->sub_title .= ' по ' . date_format(date_create($s_enddate), 'd.m.Y');
+
+        if (isset($s_ownorgid) and $s_ownorgid <> '') {
+            if ($data->sub_title <> '')
+                $data->sub_title .= ',';
+            $data->sub_title .= ' организация: ' . $data->ownorgs[$search_params['s_ownorgid']] ?? '-';
+        }
+
+        if (isset($s_depname) and $s_depname <> '') {
+            if ($data->sub_title <> '')
+                $data->sub_title .= ',';
+            //$data->sub_title .= '<br>';
+            $data->sub_title .= ' подразделение: ' . $s_depname;
+        }
 
         if ($export2xls == "1") {
-
-            $data->period_title = '';
-
-            if (isset($s_begdate) and $s_begdate <> '')
-                $data->period_title .= ' с ' . date_format(date_create($s_begdate), 'd.m.Y');
-            if (isset($s_enddate) and $s_enddate <> '')
-                $data->period_title .= ' по ' . date_format(date_create($s_enddate), 'd.m.Y');
 
             $response = Excel::download(
                 new rep2xlsx_vdr_export('exports.rep58xls', $recs, $data),

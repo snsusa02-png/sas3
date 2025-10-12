@@ -129,7 +129,7 @@ $action_url = route('reports.rep' . $thisObjId);
                                                    required/>
                                         </div>
                                     @endif
-                                    @if(1==0)
+                                    @if(1==1)
                                         <div class="form-group col-md-3">
                                             <label for="s_ownorgid" class="">Организация:</label>
                                             {!! Form::select('s_ownorgid', $data->ownorgs, $search_params['s_ownorgid'],
@@ -140,9 +140,19 @@ $action_url = route('reports.rep' . $thisObjId);
                                                             !!}
                                         </div>
                                     @endif
-
+                                    @if(1==1)
+                                        <div class="form-group col-md-3">
+                                            <label for="s_depname" class="">Подразделение:</label>
+                                            {!! Form::select('s_depname', $data->depnames, $search_params['s_depname'],
+                                                            [
+                                                            'class' => 'form-control',
+                                                            'placeholder' => '-все-',
+                                                            ])
+                                                            !!}
+                                        </div>
+                                    @endif
                                     <?php
-                                    $s_orgname = $search_params['s_orgname'] ?? '';
+                                    $s_depname = $search_params['s_depname'] ?? '';
                                     ?>
                                 </div>
                             @endif
@@ -163,7 +173,6 @@ $action_url = route('reports.rep' . $thisObjId);
 									 <a href="{{route('objevntlog',['sysobjid'=>$thisSysObjId, 'objid'=>$thisObjId,'route'=>Route::current()->getName()])}}">журнал</a>
 								</span>
                                 @endif
-
 
                             </div>
                         </form>
@@ -201,12 +210,6 @@ $action_url = route('reports.rep' . $thisObjId);
                            title="печать">
                             <i class="fa fa-print" aria-hidden="true"></i>
                         </a>
-                        @if(1==0)
-                            <a class="btn btn-success btn-sm mr-3"
-                               href="{{ route('reports.rep43_excel')  }}" title="Выгрузить результаты в Excel">
-                                        <i class="fa fa-file-excel-o" aria-hidden="true"></i>
-                                    </a>
-                        @endif
                         @if(1==1)
                             <a class="btn btn-success btn-sm mr-3"
                                href="{{ route('reports.rep'.$thisObjId)  }}?xls=1" title="Выгрузить результаты в Excel">
@@ -219,10 +222,12 @@ $action_url = route('reports.rep' . $thisObjId);
 
                     </span>
 
-                    <div class="font-weight-bold mt-2" align="center"
+                    <div class="mt-2" align="center"
                          style="font-size: 14px;">
-                        <h4>{{$thisTitle}} {{$data->ownorgs[$search_params['s_ownorgid']]??''}}</h4>
-                        {{$data->monthes[$search_params['s_month']]??''}} {{$search_params['s_year']??''}}
+                        <h4>{{$thisTitle}}</h4>
+                        <div class="subtitle" align="center">
+                            {!!$data->sub_title!!}
+                        </div>
                         <span class="small ml-3 d-print-none"><br>по состоянию на {{now()}}</span>
                     </div>
 
