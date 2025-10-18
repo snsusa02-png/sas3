@@ -16,6 +16,7 @@ use App\org;
 use App\org_curator;
 use App\org_place;
 use App\orgstaff;
+use App\place;
 use App\refitem;
 use App\report;
 use App\saleplan;
@@ -642,7 +643,13 @@ class AnaliticsController extends Controller
             $search_params['s_buildobjid'] = $request->get("s_buildobjid");
             $search_params['s_contractid'] = $request->get("s_contractid");
             $search_params['s_contractid'] = $request->get("s_contractid");
+
             $search_params['s_sup_placeid'] = $request->get("s_sup_placeid");
+            if (is_array($search_params['s_sup_placeid']))
+                $search_params['s_sup_placeid'] = implode(',', $request->get("s_sup_placeid"));
+//            dd($search_params['s_sup_placeid'] );
+
+            //dd($request->get("s_sup_placeid"));
             $search_params['s_org_placeid'] = $request->get("s_org_placeid");
             $search_params['s_refitmid'] = $request->get("s_refitmid");
 
@@ -911,6 +918,12 @@ class AnaliticsController extends Controller
         $data->sup_places = org_place::lstFor_cached(['in_mr_opers_sup_placeid' => 1]);  //Места поставщика
         $data->org_places = org_place::lstFor_cached(['in_mr_opers_org_placeid' => 1]);  //Места клиента
 
+        //2025-10-18 -- по спр-ку places
+//        $data->sup_places = place::lstFor_cached(['loadplace_in_mchn_raids' => 1]);
+//        $data->org_places = place::lstFor_cached(['unloadplace_in_mchn_raids' => 1]);
+        //dd($data->sup_places, $data->org_places);
+
+
         $data->refitems = refitem::lstFor_cached(['in_mr_opers' => 1], null
             , ['ri.id', DB::raw("concat(ri.name,', ', ri.unit) as tname")]);  //Груз/Услуга in_mchn_raids
 
@@ -948,18 +961,32 @@ class AnaliticsController extends Controller
                 $conditions .= 'Исполнитель = "<b>' . $data->suporgs[$s_suporgid] . '</b>"; ';
             }
             if (1 == 1 and isset($s_sup_placeid)) {
-                $sc .= " and mro.sup_placeid=" . $s_sup_placeid;
-                $conditions .= 'Место поставщика = "<b>' . $data->sup_places[$s_sup_placeid] ?? '-' . '</b>"; ';
+                //$sc .= " and mro.sup_placeid=" . $s_sup_placeid;
+                //$conditions .= 'Место поставщика = "<b>' . $data->sup_places[$s_sup_placeid] ?? '-' . '</b>"; ';
+
+                //2025-10-18
+                $sc .= " and mro.sup_placeid in (" . $s_sup_placeid . ")";
+                $lst = '';
+                foreach(explode(',', $s_sup_placeid) as $m){
+                    $lst .= ', '.$data->sup_places[$m];
+                }
+                $conditions .= 'Место поставщика = "<b>' . substr($lst, 1) ?? '-' . '</b>"; ';
+
+                //2025-10-18 // переход на спр-к базовых адресов
+                //$sc .= " and p_l.placeid=" . $s_sup_placeid;
+                //$conditions .= 'Место поставщика = "<b>' . $data->sup_places[$s_sup_placeid] ?? '-' . '</b>"; ';
             }
             if (1 == 1 and isset($s_org_placeid)) {
                 $sc .= " and mro.org_placeid=" . $s_org_placeid;
+                //2025-10-18
+                //$sc .= " and p_u.placeid=" . $s_org_placeid;
                 $conditions .= 'Место клиента = "<b>' . $data->org_places[$s_org_placeid] ?? '-' . '</b>"; ';
             }
             if (1 == 1 and isset($s_refitmid)) {
                 $sc .= " and mro.refitmid=" . $s_refitmid;
                 $conditions .= 'Груз/Услуга = "<b>' . $data->refitems[$s_refitmid] ?? '-' . '</b>"; ';
                 $agg_fields .= ', sum(mro.itm_qty) as ri_qty';
-            }else $agg_fields .= ', 0 as ri_qty';
+            } else $agg_fields .= ', 0 as ri_qty';
 
             if (1 == 1 and isset($s_contractid)) {
                 $sc .= " and di.contractid=" . $s_contractid;
@@ -1074,6 +1101,10 @@ class AnaliticsController extends Controller
 
                 $recs2 = mr_oper::from('mr_opers as mro')
                     ->join('mchn_raids as mr', 'mr.id', 'mro.mr_id')
+                    // 2025-10-18
+//                    ->leftjoin('org_places as p_l', 'p_l.id', 'mro.sup_placeid')
+//                    ->leftjoin('org_places as p_u', 'p_u.id', 'mro.org_placeid')
+                    //
                     ->wherebetween('mr.wrkdate', [$begdate2, $enddate2])
                     ->whereIn('mr.active', [1])
                     ->whereraw($sc);
@@ -1092,11 +1123,15 @@ class AnaliticsController extends Controller
                 if (isTblInGrps('so', $grps))
                     $recs2 = $recs2->leftjoin('orgs as so', 'so.id', 'mro.suporgid');
 
-                if (isTblInGrps('p_l', $grps))
+                if (isTblInGrps('p_l', $grps)) // place_load
                     $recs2 = $recs2->leftjoin('org_places as p_l', 'p_l.id', 'mro.sup_placeid');
+                //2025-10-18
+//                    null;
 
                 if (isTblInGrps('p_u', $grps))
-                    $recs2 = $recs2->leftjoin('org_places as p_u', 'p_u.id', 'mro.org_placeid');
+                    $recs2 = $recs2->leftjoin('og_places as p_u', 'p_u.id', 'mro.org_placeid');
+                //2025-10-18
+//                    null;
 
                 if (isTblInGrps('с', $grps))
                     $recs2 = $recs2
@@ -1158,6 +1193,10 @@ class AnaliticsController extends Controller
 
             $recs = mr_oper::from('mr_opers as mro')
                 ->join('mchn_raids as mr', 'mr.id', 'mro.mr_id')
+                // 2025-10-18
+//                ->leftjoin('org_places as p_l', 'p_l.id', 'mro.sup_placeid')
+//                ->leftjoin('org_places as p_u', 'p_u.id', 'mro.org_placeid')
+                //
                 ->wherebetween('mr.wrkdate', [$begdate1, $enddate1])
                 ->whereIn('mro.active', [1])
                 ->whereraw($sc);
@@ -1176,9 +1215,11 @@ class AnaliticsController extends Controller
 
             if (isTblInGrps('p_l', $grps))
                 $recs = $recs->leftjoin('org_places as p_l', 'p_l.id', 'mro.sup_placeid');
+//                null;
 
             if (isTblInGrps('p_u', $grps))
                 $recs = $recs->leftjoin('org_places as p_u', 'p_u.id', 'mro.org_placeid');
+//                null;
 
             if (isTblInGrps('ds', $grps))
                 $recs = $recs->leftjoin('orgstaff as ds', 'ds.id', 'mro.disp_staffid');

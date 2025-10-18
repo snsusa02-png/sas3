@@ -375,10 +375,12 @@
                                         @if (count($data->sup_places)>1)
                                             <div class="form-group col-md-4">
                                                 <label for="s_suporgid">Место поставщика:</label>
-                                                {!! Form::select('s_sup_placeid', $data->sup_places??[], $search_params['s_sup_placeid'],
+                                                {!! Form::select('s_sup_placeid[]', $data->sup_places??[], $search_params['s_sup_placeid'],
                                                                 [
                                                                 'class' => 'form-control',
                                                                 'placeholder' => '',
+                                                                'MULTIPLE' => 'MULTIPLE',
+                                                                'size' => '10',
                                                                 ])
                                                                 !!}
                                             </div>

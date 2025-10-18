@@ -1,4 +1,58 @@
-﻿-- 2025-09-20 ------------------------------------------------------------------------
+﻿-- 2025-10-18 ------------------------------------------------------------------------
+ALTER TABLE `org_places`
+    ADD COLUMN `placeid` BIGINT UNSIGNED NULL COMMENT 'ссылка на общий справочник адресов. Опционально' AFTER `orgid`;
+
+ALTER TABLE `org_places`
+    ADD INDEX `org_places_placeid_fk_idx` (`placeid` ASC) VISIBLE;
+
+ALTER TABLE `org_places`
+    ADD CONSTRAINT `org_places_placeid_fk`
+      FOREIGN KEY (`placeid`)
+      REFERENCES `places` (`id`)
+      ON DELETE SET NULL
+      ON UPDATE CASCADE;
+
+INSERT INTO `places` (`name`, `for_load`, `for_unload`, `active`) VALUES ('Владивосток', '1', '1', '1');
+
+update org_places op
+	set op.placeid=30
+	where ucase(trim(op.name)) in ('ВЛАДИВОСТОК', 'ВЛ-К')
+      and op.placeid is null;
+
+update org_places op
+	set op.placeid=(select id from places p	where ucase(trim(p.name)) = 'ТОР')
+	where ucase(trim(op.name)) = 'ТОР'
+      and op.placeid is null;
+
+-- ---------------------------------------
+
+select * from org_places op where ucase(trim(op.name)) in ('КОНТЕЙНЕРНЫЙ ТЕРМИНАЛ');
+
+ select id from places p	where ucase(trim(p.name)) ='КОНТЕЙНЕРНЫЙ ТЕРМИНАЛ'; -- 31
+
+ INSERT INTO `places` (`name`, `for_load`, `for_unload`, `active`) VALUES ('Контейнерный терминал', '1', '1', '1');
+
+ update org_places op
+	set op.placeid=(select id from places p	where ucase(trim(p.name)) = 'КОНТЕЙНЕРНЫЙ ТЕРМИНАЛ')
+	where ucase(trim(op.name)) = 'КОНТЕЙНЕРНЫЙ ТЕРМИНАЛ'
+      and op.placeid is null;
+
+-- ---------------------------------------
+
+-- ДНЕПРОВСКАЯ
+select * from org_places op where ucase(trim(op.name)) in ('ДНЕПРОВСКАЯ');
+
+ select id from places p where ucase(trim(p.name)) ='ДНЕПРОВСКАЯ'; -- 32
+
+ INSERT INTO `places` (`name`, `for_load`, `for_unload`, `active`) VALUES ('Днепровская', '1', '1', '1');
+
+ update org_places op
+	set op.placeid=(select id from places p	where ucase(trim(p.name)) = 'ДНЕПРОВСКАЯ')
+	where ucase(trim(op.name)) = 'ДНЕПРОВСКАЯ'
+      and op.placeid is null;
+-- ---------------------------------------
+
+-- 2025-09-20 ------------------------------------------------------------------------
 INSERT INTO `chargetypes` (`id`, `dir`, `name`, `active`, `ordr`, `use_price`) VALUES (56, '-1', 'Алименты', '1', '10', '0');
 
 INSERT INTO `org_charges` (`orgid`, `chargetypeid`, `begdate`, `charge_period`, `active`) VALUES ('31', '56', '2025-09-01', 'M', '1');
