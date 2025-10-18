@@ -960,15 +960,15 @@ class AnaliticsController extends Controller
                 $sc .= " and mro.suporgid=" . $s_suporgid;
                 $conditions .= 'Исполнитель = "<b>' . $data->suporgs[$s_suporgid] . '</b>"; ';
             }
-            if (1 == 1 and isset($s_sup_placeid)) {
+            if (1 == 1 and isset($s_sup_placeid) and $s_sup_placeid <> '') {
                 //$sc .= " and mro.sup_placeid=" . $s_sup_placeid;
                 //$conditions .= 'Место поставщика = "<b>' . $data->sup_places[$s_sup_placeid] ?? '-' . '</b>"; ';
 
                 //2025-10-18
                 $sc .= " and mro.sup_placeid in (" . $s_sup_placeid . ")";
                 $lst = '';
-                foreach(explode(',', $s_sup_placeid) as $m){
-                    $lst .= ', '.$data->sup_places[$m];
+                foreach (explode(',', $s_sup_placeid) as $m) {
+                    $lst .= ', ' . $data->sup_places[$m];
                 }
                 $conditions .= 'Место поставщика = "<b>' . substr($lst, 1) ?? '-' . '</b>"; ';
 
