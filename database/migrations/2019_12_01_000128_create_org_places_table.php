@@ -18,6 +18,9 @@ class CreateOrgPlacesTable extends Migration
             $table->biginteger('orgid')->unsigned()->index('orgid');
 		$table->foreign('orgid')->references('id')->on('orgs');
 
+            $table->biginteger('placeid')->unsigned()->index('placeid')->comment('places.id');
+		$table->foreign('placeid')->references('id')->on('places');
+
             $table->string('name',160)->nullable()->comment('Название места');
 
             $table->biginteger('placetypeid')->unsigned()->comment('id типа места: 1-офис, 2-склад');

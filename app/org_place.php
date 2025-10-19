@@ -58,6 +58,9 @@ class org_place extends Model
                     } elseif ($key == 'orgid' or $key == 's_orgid') {
                         $sc .= " and p.orgid={$val}";
 
+                    } elseif ($key == 'placeid') {
+                        $sc .= " and p.placeid={$val}";
+
                     } elseif ($key == 'placetypeid') {
                         $sc .= " and p.placetypeid={$val}";
 
@@ -146,6 +149,7 @@ class org_place extends Model
             $sorts = $sorts ?? [['p.name', 'asc']];
 
             $recs = self::from('org_places as p')
+                ->join('orgs as o', 'o.id', 'p.orgid')
                 ->whereRaw($sc)
                 ->select($fields);
 

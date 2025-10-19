@@ -1538,6 +1538,15 @@ Route::get('idcard_staffs/edit/{id}/{cardid}', 'IdcardStaffController@edit')->na
 Route::match(array('POST', 'PUT'), 'idcard_staffs/{id}', "IdcardStaffController@update")->name('idcard_staffs.update');
 Route::put('idcard_staffs/{id}/delete', "IdcardStaffController@destroy")->name("idcard_staffs.delete");
 
+//Справочник Мест/Локаций/Адресов
+Route::match(array('GET', 'POST'), '/places', 'PlaceController@index')->name('places.index');
+Route::get('/places/create', 'PlaceController@create')->name('places.create');
+Route::get('/places/{id}/edit', "PlaceController@edit")->name('places.edit');
+Route::match(array('POST', 'PUT'), 'places/update/{id}', "PlaceController@update")->name('places.update');
+Route::put('/places/{id}/delete', "PlaceController@destroy")->name("places.delete");
+//Route::get('/places/info/params/', 'PlaceController@info_params');
+
+
 //загрузка новых записей об удержаниях сотрудника из файла в формате XLS с идентификацией сотрудника по номеру карты IDCard
 //stf_chrg_calcs
 //mchn_spare_usages

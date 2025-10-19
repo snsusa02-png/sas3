@@ -53,6 +53,12 @@
                                                title="Справочник спецтехники">Спецтехника</a>
                                         </li>
                                     @endif
+                                    @if( \App\usrsysright::isUserHasRightByCode_cached($userid,'places.read')
+                                     and \Illuminate\Support\Facades\Route::has('places.index'))
+                                        <li><a href="{{route('places.index')}}"
+                                               title="Справочник мест">Локации</a>
+                                        </li>
+                                    @endif
                                 </ul>
                             </div>
                         </div>

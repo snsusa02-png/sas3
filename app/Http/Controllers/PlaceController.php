@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\ac;
+use App\org_place;
 use App\place;
 use App\sysobj;
 use App\Traits\SearchDataTrait;
@@ -99,11 +100,10 @@ class PlaceController extends Controller
         }
         //-------------------------------------------------------------------------------------------------------------
 
-
         $recs = place::from('places as p')
             ->whereraw($sc)
             ->select('p.id', 'p.name'
-                , db::raw("ifnull(p.ordr, 9999) as ordr")
+                //, db::raw("ifnull(p.ordr, 9999) as ordr")
                 , 'p.active'
             );
 
@@ -173,13 +173,21 @@ class PlaceController extends Controller
         if (!isset($rec))
             response(redirect(route($this->sysobjcode . '.index')));
 
-        $rec->owners = user_place::getFor(
-            ['user_active' => 1,
-                'acsid' => $rec->id
-            ], [
-            'u.id', 'u.name', 'up.created_at as begdt'
-        ], [['u.name', 'asc']]);
+//        $rec->owners = user_place::getFor(
+//            ['user_active' => 1,
+//                'acsid' => $rec->id
+//            ], [
+//            'u.id', 'u.name', 'up.created_at as begdt'
+//        ], [['u.name', 'asc']]);
         //dd($rec->owners);
+
+        $rec->orgplaces = org_place::getFor(
+            [
+                'placeid' => $rec->id
+            ], [
+            'p.id', 'p.name', 'p.active', 'o.name as orgname'
+        ], [['o.name', 'asc']]);
+        //dd($rec->orgplaces);
 
         $rec->retURL = $request->get('returl');
 
@@ -201,7 +209,7 @@ class PlaceController extends Controller
     public function update(Request $request, $id)
     {
         $messages = [
-            'name.required' => 'Укажите название категории',
+            'name.required' => 'Укажите название места/локации',
         ];
 
         $rules = [
@@ -215,7 +223,7 @@ class PlaceController extends Controller
 
         $mess = "";
         if ($id == -1) {
-            $rec = new ac();
+            $rec = new place();
             $rec->created_by = $userid;
             $rec->created_at = now();
             $mess = "Создана запись о месте(локации)";
@@ -226,6 +234,7 @@ class PlaceController extends Controller
 
         $rec->name = $request->get('name');
         $rec->descript = $request->get('descript');
+        $rec->address = $request->get('address');
 
         $rec->active = $request->get('active');
         $rec->updated_by = $userid;
@@ -250,7 +259,7 @@ class PlaceController extends Controller
 
         $userid = \Auth::user()->id;
 
-        $retURL = $request->get('returl') ?? route('p.edit', $id);
+        $retURL = $request->get('returl') ?? route('places.edit', $id);
 
         if (usrsysright::isUserHasRightByCode_cached($userid, $this->sysobjcode . '.delete')) {
 
@@ -261,7 +270,7 @@ class PlaceController extends Controller
                 $sd["error"] = $res->msg;
             } else {
 
-                $retURL = $request->get('returl') ?? route($this->sysobjcode . '.index', $res->obj['orgid']);
+                $retURL = $request->get('returl') ?? route($this->sysobjcode . '.index');
                 $sd['success'] = 'Запись удалена';
             }
         } else {
