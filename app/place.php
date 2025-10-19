@@ -52,6 +52,9 @@ class place extends Model
                     if ($key == 'active') {
                         $sc .= " and p.active={$val}";
 
+                    } elseif ($key == 'active_or_current') {
+                        $sc .= " and (p.active=1 or p.id={$val})";
+
                     } elseif ($key == 'for_load') {
                         $sc .= " and " . (($val == 1) ? '' : 'not') . " p.for_load=1";
 

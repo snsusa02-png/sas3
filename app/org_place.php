@@ -22,6 +22,12 @@ class org_place extends Model
             ->withDefault();
     }
 
+    public function place()
+    {
+        return $this->hasOne(place::class, 'id', 'placeid')
+            ->withDefault();
+    }
+
     public function whocrt()
     {
         return $this->hasOne(User::class, 'id', 'created_by');

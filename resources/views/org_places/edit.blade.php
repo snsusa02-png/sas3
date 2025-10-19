@@ -88,15 +88,26 @@
                                 </div>
 
                                 <div class="row">
-                                    <div class="form-group col-md-9">
-                                        <label for="name">название:</label>
-                                        <div class="input-group mb-3 ">
-                                            <input type="text" class="form-control" name="name"
-                                                   id="name"
-                                                   value="{{old('name',$rec->name) }}"
-                                            />
+                                    @if(1==0)
+                                        <div class="form-group col-md-9">
+                                            <label for="name">Название места у контрагента:</label>
+                                            <div class="input-group mb-3 ">
+                                                <input type="text" class="form-control" name="name"
+                                                       id="name"
+                                                       value="{{old('name',$rec->name) }}"
+                                                />
+                                            </div>
                                         </div>
-                                    </div>
+                                    @else
+                                        <div class="form-group col-md-9">
+                                            <label for="address">Базовая локация/место:</label>
+                                            {!! Form::select('placeid', $rec->places, $rec->placeid,
+                                                      [
+                                                      'class' => 'form-control small',
+                                                      ])
+                                                      !!}
+                                        </div>
+                                    @endif
 
                                     <div class="form-group col-md-3">
                                         <label for="name">Тип:</label>

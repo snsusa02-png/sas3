@@ -97,6 +97,13 @@ class OrgPlaceController extends Controller
 
             $rec->placetypes = [1 => 'офис', 2 => 'склад'];
 
+            $rec->places = place::getFor(
+                ['active_or_current'=> $rec->placeid],
+                ['p.id', 'p.name'],
+                [['p.name', 'asc']])
+            ->pluck('name','id');
+            //dd( $rec->places);
+
             $ObjFlags = objflag::getFlags4Obj($this->sysobjid, $id);
 
             return view('org_places.edit', compact('rec'
@@ -121,10 +128,12 @@ class OrgPlaceController extends Controller
         ];
         $messages = [
             "orgid.required" => "Обязательно укажите представляемую организацию",
+            "placeid.required" => "Обязательно укажите базовое место/локацию",
         ];
 
         $messages = [
             'orgid.required' => 'Не указан контрагент',
+            'placeid.required' => 'Не указана базовая локация',
             'name.required' => 'Укажите название',
             'placetypeid.required' => 'Укажите тип места',
             'address.required' => 'Укажите адрес (индекс, город, улица, дом, корпус, офис',
@@ -132,7 +141,8 @@ class OrgPlaceController extends Controller
 
         $rules = [
             "orgid" => "required",
-            "name" => "required",
+            "placeid" => "required",
+            //"name" => "required",
             "placetypeid" => "required",
         ];
 
@@ -155,7 +165,8 @@ class OrgPlaceController extends Controller
             $mess = "Запись обновлена";
         }
 
-        $rec->name = $request->get('name');
+        $rec->placeid = $request->get('placeid');
+        $rec->name = $request->get('name')??$rec->place->name??'---';
         $rec->placetypeid = $request->get('placetypeid') ?? 1;
         $rec->address = $request->get('address');
         $rec->active = $request->get('active', 0);
