@@ -881,9 +881,24 @@ class DriverWorkController extends Controller
         $rec->updated_by = $userid;
         $rec->updated_at = now();
 
+        //соберем строку с измененными полями -------------------------------------------------------------------
+        $diffs = $this->field_diff_list($rec, ['id', 'created_by', 'updated_by', 'created_at', 'updated_at']);
+        if ($diffs === '')
+            $msg_simple = $rslt_msg = "Запись пересохранена без изменений";
+        else {
+            $msg_simple = 'Запись ' . (($id == -1) ? 'создана' : 'изменена');
+            $rslt_msg = $msg_simple . ': ' . $diffs;
+        }
+        //-------------------------------------------------------------------------------------------------------
+
         $rec->save();
 //        dd($rec);
-        objlog::log_info($this->sysobjid, $rec->id, $mess, 5);
+       //dd($rslt_msg, $this->sysobjid, $rec->id);
+
+//        objlog::log_info($this->sysobjid, $rec->id, $mess, 5);
+        objlog::log_info($this->sysobjid, $rec->id, $rslt_msg, 5);
+        connectify('success', 'Сохранение изменений', $msg_simple);
+        //-------------------------------------------------------------------------------------------------------
 
         // Регистрация расчета ЗП сотрудника за месяц
         driver_work::refr_stf_month_chrg_calc($rec->staffid, $rec->wrkdate, $userid);
