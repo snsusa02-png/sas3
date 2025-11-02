@@ -263,7 +263,7 @@ $first_col_id = null;
                         <tr class="text-left {{$tr_class}}" style="{{$tstyle}}">
                             <td colspan="1" class="text-left" data-npp="{{$npp}}">
                                 <span style="{{$stf_style}}">
-                                <b>{{$rec->lname}} {{$rec->fname}} {{$rec->mname}}</b>
+                                    <b>{{$rec->lname}} {{$rec->fname}} {{$rec->mname}}</b>
                                 </span>
                                 {{--                                <div class="small"> должность: <i>{{$rec->postname}}</i>,--}}
                                 {{--                                    подразделение: <i>{{$rec->dep_name??'-не указано-'}},--}}

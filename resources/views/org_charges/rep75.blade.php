@@ -243,6 +243,7 @@ $first_col_id = null;
                         $td_class = "";
                         $tdс_class = "";
                         $tstyle = '';
+                        $stf_style = ($rec->official_job == 1) ? 'color:red;' : '';
 
                         // инициализация массива начислений сотрудника
                         foreach ($data->cols as $tcol) {
@@ -262,7 +263,9 @@ $first_col_id = null;
                                 {{++$npp}}
                             </td>
                             <td class="text-left small" data-npp="{{$npp}}">
-                                {{$rec->name}}
+                                 <span style="{{$stf_style}}">
+                                     {{$rec->name}}
+                                 </span>
                                 <br><div class="float-right small text-secondary">{{$rec->staffid}}</div>
                                 @if(1==0)
                                     <a class="d-print-none "

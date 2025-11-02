@@ -1137,11 +1137,13 @@ class OrgChargeController extends Controller
             // основной запрос - сотрудники, соответствующие условиям запроса
             $sql =
                 "select os.id, os.id as staffid, os.orgid, os.name, os.depname
+                    , if(f.flagtypeid is null, 0, 1) as official_job
                     , (select count(distinct dw.wrkdate)
                         from driver_works as dw
                         where dw.staffid=os.id
                           and dw.wrkdate between '{$s_begdate}' and '{$s_enddate}') as wrkdays
 	                FROM orgstaff os
+	                left join objflags f on f.flagtypeid=192 and f.sysobjid=121 and f.objid=os.id
                     where exists(select 1 from stf_chrg_calcs scc where scc.staffid=os.id
                         and scc.forbegdate between '{$s_begdate}' and '{$s_enddate}'
                         and scc.forenddate between '{$s_begdate}' and '{$s_enddate}')";
