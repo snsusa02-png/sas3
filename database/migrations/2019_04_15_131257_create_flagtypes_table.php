@@ -23,7 +23,7 @@ class CreateFlagtypesTable extends Migration
 
             $table->string('remarks',60)->nullable()->comment('Примечания');
 
-            $table->bigInteger('forsysobjid')->unsigned()->nullable()->comment('Применимо для объектов этого типа');
+            $table->bigInteger('forsysobjid')->unsigned()->nullable()->comment('Применимо для объектов этого типа. УСТАРЕЛО, нужно пользоваться flagtype_sysobjs');
 
             $table->boolean('active')->nullable()->default(1);
 

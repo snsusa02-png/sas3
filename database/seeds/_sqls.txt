@@ -1,4 +1,21 @@
-﻿-- 2025-10-18 ------------------------------------------------------------------------
+﻿-- 2025-11-02 ------------------------------------------------------------------------
+INSERT INTO `flagtypes` (`id`, `code`, `name`, `forsysobjid`, `active`, `uservisible`, `clientvisible`)
+VALUES ('192', 'official_job', 'Официальное трудоустройство', '121', '1', '1', '0');
+
+-- 2025-10-19 ------------------------------------------------------------------------
+ALTER TABLE `mr_opers`
+ADD COLUMN `sup_orgplaceid` BIGINT NULL COMMENT 'ID места поставщика по спр-ку org_places' AFTER `sup_placename`,
+ADD COLUMN `org_orgplaceid` BIGINT NULL COMMENT 'ID места покупателя по спр-ку org_places' AFTER `org_placename`;
+
+update mr_opers t
+	set t.sup_orgplaceid=t.sup_placeid
+    where t.sup_orgplaceid is null;
+
+update mr_opers t
+	set t.org_orgplaceid=t.org_placeid
+    where t.org_orgplaceid is null;
+
+-- 2025-10-18 ------------------------------------------------------------------------
 ALTER TABLE `org_places`
     ADD COLUMN `placeid` BIGINT UNSIGNED NULL COMMENT 'ссылка на общий справочник адресов. Опционально' AFTER `orgid`;
 

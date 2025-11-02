@@ -45,6 +45,19 @@ class sysobj extends Model
             });
     }
 
+    static public function acl_sysobjcode_by_id($id)
+    {
+        //2025-11-02 SNS. возвращает код объекта по которому определяются права пользователя - для заданной системы ($id)
+        //Cache::forget('acl_sysobjcode_id_' . $id);
+        return Cache::remember('acl_sysobjcode_id_' . $id, now()->addMinutes(35)
+            , function () use ($id) {
+                return self::where('id', $id)
+                        ->select(db::raw("ifnull(acl_sysobjcode, code) as acl_sysobjcode"))
+                        ->first()
+                        ->acl_sysobjcode ?? '-';
+            });
+    }
+
     static public function isActiveByCode_cache($code)
     {
         //Cache::forget('isActiveByCode_' . $code);

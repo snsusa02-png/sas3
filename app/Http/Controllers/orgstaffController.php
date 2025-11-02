@@ -319,7 +319,9 @@ class orgstaffController extends Controller
             'dir' => -1,
         ]);
 
-        $rec->flags = objflag::FlagTypesForObj($this->sysobjid, $rec->id);
+        //$rec->flags = objflag::FlagTypesForObj($this->sysobjid, $rec->id);
+        $rec->flags = objflag::FlagsForObj($this->sysobjid, $rec->id);
+//dd($this->sysobjid, $rec->id, $rec->flags);
 
         $rec->sexes = ['M' => 'муж', 'F' => 'жен'];
 

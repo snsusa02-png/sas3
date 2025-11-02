@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Traits\DeleteTrait;
 use Auth;
 use Cache;
 use Illuminate\Database\Eloquent\Model;
@@ -9,6 +10,8 @@ use Log;
 
 class objflag extends Model
 {
+    use DeleteTrait;
+    
     //created_at и updated_at атоматически обрабатываются Eloquent
     //мы же первое поле обрабатываем сами, а второго у нас нет
     public $timestamps = false;
@@ -18,6 +21,11 @@ class objflag extends Model
     public function flagtype()
     {
         return $this->hasOne(flagtype::class, 'id', 'flagtypeid');
+    }
+
+    public function sysobj()
+    {
+        return $this->hasOne(sysobj::class, 'id', 'sysobjid');
     }
 
     public function whocrt()
@@ -91,7 +99,8 @@ class objflag extends Model
                     ->join('flagtypes as ft', 'ft.id', 'f.flagtypeid')
                     ->where('f.sysobjid', $sysobjid)
                     ->where('f.objid', $objid)
-                    ->select('ft.id', 'ft.name', 'ft.name as flagtype_name', 'f.id as objflagid')
+                    ->select('f.id', 'ft.name', 'ft.name as flagtype_name', 'f.id as objflagid'
+                        , 'f.created_at', 'f.created_by')
                     ->orderby('ft.name')
                     ->get();
         //    });
@@ -241,6 +250,173 @@ class objflag extends Model
                     return $arr;
                 });
         }
+    }
+
+    //2025-11-02
+    static public function search_cond($params)
+    {
+        $sc = "1=1";
+
+        //для оптимизации запроса некоторые параметры обрабатываются группой.
+        // Чтобы избежать повторного применения, используем добавление отработанных параметров
+        // в массив $used_params
+        $used_params = [];
+
+        foreach ($params as $key => $val) {
+
+            if (isset($val) and $val !== '') {
+
+                if (array_search($key, $used_params) == 0) {
+                    $used_params[] = $key;
+
+
+                    if ($key == 's_name' or $key == 'name') {
+                        $sc = $sc . " and concat(os.lname,' ',os.fname,' ',os.mname) like '%" . mb_strtoupper($val) . "%'";
+
+                    } elseif ($key == 's_orgflagid') {
+                        $sc .= " and exists(select 1 from objflags f where f.sysobjid=111 and f.objid=os.orgid and f.flagtypeid={$val})";
+
+
+                    } elseif ($key == 's_postname') {
+                        $sc = $sc . " and ( os.postname like '%{$val}%'
+                    or exists (select 1 from orgposts as op where op.id=os.postid and op.name like '%{$val}%')
+                    ) ";
+
+                    } elseif ($key == 's_file_doctypeid') {
+                        $tsysobjid = self::sysobjid;
+                        $sc = $sc . " and exists (select 1 from objfiles as f where f.sysobjid={$tsysobjid}
+                                        and f.objid=os.id and f.doctypeid={$val})";
+
+                    } elseif ($key == 's_orgid') {
+                        $sc .= " and os.orgid={$val}";
+
+                    } elseif ($key == 'depid') {
+                        $sc .= " and os.depid={$val}";
+
+                    } elseif ($key == 'postid') {
+                        $sc .= " and os.postid={$val}";
+
+                    } elseif ($key == 'active' or $key == 's_active') {
+                        $sc .= " and ifnull(os.active,0) = '{$val}'";
+
+                    } elseif ($key == 'in_cursias') {
+                        $sc .= " and " . (($val == 1) ? '' : 'not') . " exists(select 1 from cursias as crs where crs.staffid=os.id)";
+
+                    } elseif ($key == 'in_documents') {
+                        $sc .= " and " . (($val == 1) ? '' : 'not') . " exists(select 1 from obj_staffs as ojs where ojs.sysobjid=1701 and ojs.staffid=os.id)";
+
+                    } elseif ($key == 'driver_in_mchn_raids') {
+                        $sc .= " and " . (($val == 1) ? '' : 'not') . " exists(select 1 from mchn_raids as mr where mr.driverid=os.id)";
+
+                    } elseif ($key == 'dispatcher_in_mchn_raids') {
+                        $sc .= " and " . (($val == 1) ? '' : 'not') . " exists(select 1 from mchn_raids as mr where mr.disp_staffid=os.id)";
+
+                    } elseif ($key == 'dispatcher_in_mr_opers') {
+                        $sc .= " and " . (($val == 1) ? '' : 'not') . " exists(select 1 from mr_opers as mro where mro.disp_staffid=os.id)";
+
+                    } elseif ($key == 'dispatcher_in_wrhdocs') {
+                        $sc .= " and " . (($val == 1) ? '' : 'not') . " exists(select 1 from wrhdocs as wd where wd.disp_staffid=os.id)";
+
+                    } elseif ($key == 'no_signature_for_sysobj') {
+                        //нет требующейся подписи на хранимом образе документа
+                        $sc .= " and exists( select 1 from obj_staffs as ojs where ojs.sysobjid={$val} and ojs.staffid=os.id and ojs.signed=0 )";
+
+                    } elseif ($key == 'in_driver_works') {
+                        //
+                        $sc .= " and exists( select 1 from driver_works as dw where dw.staffid=os.id)";
+
+                    } elseif ($key == 'in_org_curators_now') {
+                        //сотрудник должен быть куратором организации
+                        $sc .= " and exists( select 1 from org_curators as oc where oc.staffid=os.id
+                            and oc.active=1 and now() between oc.begdt and ifnull(oc.enddt,now()) )";
+
+                    } elseif ($key == 'in_org_curators') {
+                        //сотрудник должен быть куратором организации
+                        $sc .= " and exists( select 1 from org_curators as oc where oc.staffid=os.id )";
+
+                    } elseif ($key == 'staff_in_fuelcard_pays') {
+                        $sc .= " and exists( select 1 from fuelcard_pays as fcp where fcp.driverid=os.id )";
+                    }
+                }
+
+            }
+        }
+        //Log::info($sc);
+
+        return $sc;
+
+    }
+
+    static public function lstFor($params)
+    {
+        //2021-04-29 SNS. универсальный конструктор массива с id, name сотрудников
+        // params - массив, содержащий пару "имя параметра"=>"значение параметра"
+
+        if (isset($params) and is_countable($params) and count($params) > 0) {
+
+            $sc = self::search_cond($params);
+
+            $lst = self::from('objflags as f')
+                ->join('flagtypes as ft','ft.id', 'f.flagtypeid')
+                ->whereRaw($sc)
+                ->select('f.id', 'ft.name as tname')
+                ->orderBy('tname', 'asc')
+                ->get()->pluck('tname', 'id')->toArray();
+            asort($lst);
+            //dd($sc,$lst);
+            return $lst;
+        } else
+            return null;
+    }
+
+    static public function lstFor_cached($params, $cache_minutes = null)
+    {
+        //2021-10-06 SNS. кэшируемый результат списка
+
+        if (isset($params) and is_countable($params) and count($params) > 0) {
+
+            $hash = md5(serialize($params));
+
+            //Cache::forget('lstFor_' . $hash);
+            return \Illuminate\Support\Facades\Cache::remember(self::$prefix . '_lstFor_' . $hash, now()->addMinutes($cache_minutes ?? 5)
+                , function () use ($params) {
+                    return self::lstFor($params);
+                });
+        } else
+            return null;
+    }
+
+
+    static public function getFor($s_params, $fields = null, $sorts = null)
+    {
+        //2021-04-30 SNS. универсальный конструктор коллекции из записей orgdeps
+        // params - массив, содержащий пару "имя параметра"=>"значение параметра"
+        // fields - массив со списком возвращаемых полей таблицы
+
+        if (isset($s_params) and is_countable($s_params) and count($s_params) > 0) {
+
+            $sc = self::search_cond($s_params);
+            //Log::info($sc);
+            $fields = (isset($fields) and count($fields) > 0) ? $fields : 'os.*';
+            //Log::info(json_encode($fields));
+
+            $sorts = $sorts ?? [['os.lname', 'asc'], ['os.fname', 'asc']];
+
+            $recs = self::from('orgstaff as os')
+                ->Join('orgs as o', 'o.id', 'os.orgid')
+                ->leftJoin('orgposts as op', 'op.id', 'os.postid')
+                ->whereRaw($sc)
+                ->select($fields);
+
+            foreach ($sorts as $sort) {
+                $recs = $recs->orderBy($sort[0], $sort[1] ?? 'asc');
+            }
+
+            $recs = $recs->get();
+            //dd($sc,$recs);
+            return $recs;
+        } else
+            return null;
     }
 
 }

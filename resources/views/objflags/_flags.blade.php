@@ -7,7 +7,7 @@
                     <i class="fa fa-flag text-info" aria-hidden="true"></i>
                     Особенности
 
-                    @if(1==0 and $usrrights['save']??true)
+                    @if(1==1 and $usrrights['save']??true)
                         <a href="{{ route('objflags.create',['sysobjid'=>$sysobjid, 'objid'=>$rec->id])}}"
                            class="btn btn-warning btn-sm"
                            style="margin-left:16px;float: right;">
@@ -32,9 +32,11 @@
                                     <td style="text-align: right;"
                                         class="small">{{$loop->iteration}}</td>
 
-                                    <td class="text-left small">&nbsp;{{$itm->flagtype_name}}</td>
+                                    <td class="text-left small">&nbsp;{{$itm->flagtype_name}}
+                                        <div class="small float-right"> ( {{ $itm->created_at }}, {{$itm->created_by}} {{ $itm->whocrt->name??''}} ) </div>
+                                    </td>
                                     <td style="text-align: right;">
-                                        @if(1==0)
+                                        @if(1==1 and $usrrights['save']??true)
                                         <a href="{{ route('objflags.edit',$itm->id)}}"
                                            class="btn btn-sm btn-primary">
                                             <i class="fa fa-pencil">

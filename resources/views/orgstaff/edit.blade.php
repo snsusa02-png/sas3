@@ -642,7 +642,7 @@
                             @include('stf_chrg_calcs._list')
                             @include('stf_salaries._list')
                             @include('objextids.obj_extids')
-{{--                            @include('objflags._flags')--}}
+                            @include('objflags._flags')
 
                             @if (count($rec->userrights)>0)
                                 <div class="card ">
