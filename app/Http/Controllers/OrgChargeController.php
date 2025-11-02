@@ -606,6 +606,7 @@ class OrgChargeController extends Controller
             //dd($sql, $data->cols);
 
             $sql = "SELECT scc.staffid, os.lname, os.fname, os.mname
+                    , if(f.flagtypeid is null, 0, 1) as official_job
                     , os.orgid, o.name as org_name
                     , upper (os.depname) as dep_name
                     , ct.dir, oc.chargetypeid, ct.name as chargetype_name
@@ -615,6 +616,7 @@ class OrgChargeController extends Controller
                     join orgs o on o.id=os.orgid
                     join org_charges as oc 	on oc.id=scc.orgchargeid
                     join chargetypes as ct on ct.id=oc.chargetypeid
+                    left join objflags f on f.flagtypeid=192 and f.sysobjid=121 and f.objid=os.id
                     where scc.charge_sum <> 0";
 
 //                " and forbegdate <= '" . date_create($data->enddate)->format('Y-m-d') . "'"
@@ -749,6 +751,7 @@ class OrgChargeController extends Controller
             $data->enddate = date_create($date)->format('Y-m-t');    //Последний день месяца
 
             $sql = "SELECT os.id as staffid, os.lname, os.fname, os.mname
+                    , if(f.flagtypeid is null, 0, 1) as official_job
                     , os.orgid, o.name as org_name
                     , upper (os.depname) as dep_name
                     , os.postname
@@ -761,6 +764,7 @@ class OrgChargeController extends Controller
                     join stf_chrg_calcs scc on scc.staffid=os.id
                     join org_charges as oc 	on oc.id=scc.orgchargeid
                     join chargetypes as ct on ct.id=oc.chargetypeid
+                    left join objflags f on f.flagtypeid=192 and f.sysobjid=121 and f.objid=os.id
                     where forbegdate <= '" . date_create($data->enddate)->format('Y-m-d') . "'"
                 . " and forEndDate >= '" . date_create($data->begdate)->format('Y-m-d') . "'";
 
@@ -786,6 +790,7 @@ class OrgChargeController extends Controller
             $s_enddate_ymd = date_create($s_enddate)->format('Y-m-d');
 
             $sql = "SELECT os.id as staffid, os.lname, os.fname, os.mname
+                    , if(f.flagtypeid is null, 0, 1) as official_job
                     , os.orgid, o.name as org_name
                     , upper (os.depname) as dep_name
                     , os.postname
@@ -796,6 +801,7 @@ class OrgChargeController extends Controller
                     join stf_chrg_calcs scc on scc.staffid=os.id
                     join org_charges as oc 	on oc.id=scc.orgchargeid
                     join chargetypes as ct on ct.id=oc.chargetypeid
+                    left join objflags f on f.flagtypeid=192 and f.sysobjid=121 and f.objid=os.id
                     where 1=1";
 
             //$sql .= " and scc.docdate between '". date_create($s_begdate)->format('Y-m-d') . "' and '" . date_create($s_enddate)->format('Y-m-d') . "'";

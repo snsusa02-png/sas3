@@ -251,6 +251,7 @@ $first_col_id = null;
                         <?php
                         $cur_staffid = $rec->staffid;
                         $pre_chargetypeid = $first_col_id;
+                        $stf_style = ($rec->official_job == 1) ? 'color:red;' : '';
                         //echo('<hr>');var_dump('$pre_chargetypeid =', $pre_chargetypeid);
                         ?>
                         <tr>
@@ -261,7 +262,9 @@ $first_col_id = null;
                         </tr>
                         <tr class="text-left {{$tr_class}}" style="{{$tstyle}}">
                             <td colspan="1" class="text-left" data-npp="{{$npp}}">
+                                <span style="{{$stf_style}}">
                                 <b>{{$rec->lname}} {{$rec->fname}} {{$rec->mname}}</b>
+                                </span>
                                 {{--                                <div class="small"> должность: <i>{{$rec->postname}}</i>,--}}
                                 {{--                                    подразделение: <i>{{$rec->dep_name??'-не указано-'}},--}}
                                 {{--                                        {{$rec->org_name}}</i>--}}

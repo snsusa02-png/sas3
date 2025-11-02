@@ -59,27 +59,27 @@ $first_col_id = null;
                                 <div class="row">
 
                                     @if(1==0)
-                                    <div class="form-group col-md-2 dpt_1" style="">
-                                        <label for="s_month" class="required">Год-Месяц:</label>
-                                        {!! Form::select('s_ym', $data->yms??[], $search_params['s_ym']??old('s_ym'),
-                                                        [
-                                                        'id' => 's_ym',
-                                                        'class' => 'form-control',
-                                                        'placeholder' => '-укажите-',
-                                                        ])
-                                                        !!}
-                                    </div>
+                                        <div class="form-group col-md-2 dpt_1" style="">
+                                            <label for="s_month" class="required">Год-Месяц:</label>
+                                            {!! Form::select('s_ym', $data->yms??[], $search_params['s_ym']??old('s_ym'),
+                                                            [
+                                                            'id' => 's_ym',
+                                                            'class' => 'form-control',
+                                                            'placeholder' => '-укажите-',
+                                                            ])
+                                                            !!}
+                                        </div>
                                     @else
-                                    <div class="form-group col-md-3 dpt_1" style="">
-                                        <label for="s_month" class="required">Уч. период:</label>
-                                        {!! Form::select('s_period', $data->for_periods??[], $search_params['s_period']??old('s_period'),
-                                                        [
-                                                        'id' => 's_period',
-                                                        'class' => 'form-control',
-                                                        'placeholder' => '-укажите-',
-                                                        ])
-                                                        !!}
-                                    </div>
+                                        <div class="form-group col-md-3 dpt_1" style="">
+                                            <label for="s_month" class="required">Уч. период:</label>
+                                            {!! Form::select('s_period', $data->for_periods??[], $search_params['s_period']??old('s_period'),
+                                                            [
+                                                            'id' => 's_period',
+                                                            'class' => 'form-control',
+                                                            'placeholder' => '-укажите-',
+                                                            ])
+                                                            !!}
+                                        </div>
                                     @endif
 
                                     @if(1==1)
@@ -275,6 +275,8 @@ $first_col_id = null;
                             <?php
                             $cur_staffid = $rec->staffid;
                             $pre_chargetypeid = $first_col_id;
+                            $stf_style = ($rec->official_job == 1) ? 'color:red;' : '';
+
                             //echo('<hr>');var_dump('$pre_chargetypeid =', $pre_chargetypeid);
                             ?>
                             <tr class="text-left {{$tr_class}}" style="{{$tstyle}}">
@@ -282,7 +284,8 @@ $first_col_id = null;
                                     {{++$npp}}
                                 </td>
                                 <td class="text-left small" data-npp="{{$npp}}">
-                                    {{$rec->lname}} {{$rec->fname}} {{$rec->mname}}
+                                    <span style="{{$stf_style}}">
+                                    {{$rec->lname}} {{$rec->fname}} {{$rec->mname}}</span>
                                     <a class="d-print-none "
                                        href="{{ route('stf_chrg_calcs.create', $rec->staffid)}}?returl={{Request::url()}}"
                                        title="Добавить запись">+</a>
