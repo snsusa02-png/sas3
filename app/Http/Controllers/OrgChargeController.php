@@ -550,6 +550,7 @@ class OrgChargeController extends Controller
             's_ownorgid' => null,
             's_depname' => null,
             's_stf_name' => null,
+            's_show_notes' => null,
         ];
         $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);
 
@@ -610,8 +611,14 @@ class OrgChargeController extends Controller
                     , os.orgid, o.name as org_name
                     , upper (os.depname) as dep_name
                     , ct.dir, oc.chargetypeid, ct.name as chargetype_name
-                    , sum(scc.charge_sum) charge_sum
-                    FROM stf_chrg_calcs as scc
+                    , sum(scc.charge_sum) charge_sum";
+
+            if ( $search_params['s_show_notes'] == 1)
+                $sql .= ", group_concat(scc.notes separator '; ')  as notes";
+            else
+                $sql .= ", null as notes";
+
+            $sql .= " FROM stf_chrg_calcs as scc
                     join orgstaff os on os.id=scc.staffid
                     join orgs o on o.id=os.orgid
                     join org_charges as oc 	on oc.id=scc.orgchargeid
@@ -806,7 +813,7 @@ class OrgChargeController extends Controller
 
             //$sql .= " and scc.docdate between '". date_create($s_begdate)->format('Y-m-d') . "' and '" . date_create($s_enddate)->format('Y-m-d') . "'";
             $sql .= " and scc.forbegdate between '{$s_begdate_ymd}' and '{$s_enddate_ymd}'"
-            . " and scc.forenddate between '{$s_begdate_ymd}' and '{$s_enddate_ymd}'";
+                . " and scc.forenddate between '{$s_begdate_ymd}' and '{$s_enddate_ymd}'";
             //dd($sql);
 
             if (isset($s_ownorgid))
@@ -846,8 +853,7 @@ class OrgChargeController extends Controller
                 . " and scc.staffid={$rec->staffid}"
                 //. " and scc.docdate between '" . date_create($s_begdate)->format('Y-m-d') . "' and '" . date_create($s_enddate)->format('Y-m-d') . "'";
                 . " and scc.forbegdate between '{$s_begdate_ymd}' and '{$s_enddate_ymd}'"
-                . " and scc.forenddate between '{$s_begdate_ymd}' and '{$s_enddate_ymd}'"
-                ;
+                . " and scc.forenddate between '{$s_begdate_ymd}' and '{$s_enddate_ymd}'";
 
             $sql .= " order by ct.dir desc, ct.ordr, scc.docdate";
             $rec->charges = DB::select(DB::raw($sql));
@@ -867,11 +873,11 @@ class OrgChargeController extends Controller
             //-------------------------------------------------------------------------
 
             $ssum = 0;
-            foreach ($rec->charges as $itm){
+            foreach ($rec->charges as $itm) {
                 if ($itm->dir == 1)
-                    $ssum+=$itm->charge_sum;
+                    $ssum += $itm->charge_sum;
             }
-            $rec->salary_sum=$ssum;
+            $rec->salary_sum = $ssum;
             //dd($rec->salary_sum );
 
 
@@ -1163,7 +1169,7 @@ class OrgChargeController extends Controller
             //dd($sql, $recs);
 
             // 2. дополним основной набор поднабором данных о рабочих часах и ставках
-            foreach ( $recs as $stf){
+            foreach ($recs as $stf) {
 
                 $sql =
                     "select dw.wrktypeid, wt.name as wrktypename

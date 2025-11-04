@@ -118,7 +118,14 @@ $first_col_id = null;
                                         </div>
                                     @endif
 
-                                    <?php
+                                    @if(1==1)
+                                        <div class="form-group col-md-2">
+                                            <label for="s_show_notes" class="">Примечания:</label>
+                                            {!! Form::checkbox('s_show_notes', 1
+                                                , old('subscribe', $search_params['s_show_notes'])
+                                                        , [ 'class' => 'form-control' ]) !!}
+                                        </div>
+                                    @endif<?php
                                     $s_orgname = $search_params['s_orgname'] ?? '';
                                     ?>
                                 </div>
@@ -228,6 +235,7 @@ $first_col_id = null;
                     $cur_staffid = -1;
 
                     $line_sum = [];
+                    $line_notes = [];
                     ?>
                     @foreach($recs as $rec)
                         <?php
@@ -246,7 +254,13 @@ $first_col_id = null;
                                 <?php
                                 foreach ($data->cols as $tcol) {
                                     $sum = (is_null($line_sum[$tcol->id])) ? '' : number_format($line_sum[$tcol->id], 0);
-                                    echo('<td class="text-right">' . $sum . '</td>');
+//                                    echo('<td class="text-right">' . $sum . '</td>');
+                                    echo('<td class="text-right">' . $sum);
+
+                                    if (!is_null($line_notes[$tcol->id])){
+                                        echo('<br><div class="float-right small text-secondary">' . $line_notes[$tcol->id] . '</br>');
+                                    }
+                                    echo('</td>');
                                 }
                                 echo('<td class="text-right font-weight-bold">' . number_format($totOutSum, 0) . '</td>');
                                 echo('</tr>');
@@ -293,6 +307,7 @@ $first_col_id = null;
                             <?php
                             foreach ($data->cols as $tcol) {
                                 $line_sum[$tcol->id] = null;
+                                $line_notes[$tcol->id] = null;
                             }
                             $totOutSum = 0;
                             ?>
@@ -303,6 +318,7 @@ $first_col_id = null;
                         $totSum += ($rec->dir * $rec->charge_sum);
 
                         $line_sum[$rec->chargetypeid] = $rec->charge_sum;
+                        $line_notes[$rec->chargetypeid] = $rec->notes;
                         ?>
                     @endforeach
                     @if( $cur_staffid <> -1 )
