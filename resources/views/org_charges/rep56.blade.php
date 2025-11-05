@@ -325,7 +325,13 @@ $first_col_id = null;
                         <?php
                         foreach ($data->cols as $tcol) {
                             $sum = (is_null($line_sum[$tcol->id])) ? '' : number_format($line_sum[$tcol->id], 0);
-                            echo('<td class="text-right">' . $sum . '</td>');
+//                            echo('<td class="text-right">' . $sum . '</td>');
+                            echo('<td class="text-right">' . $sum);
+
+                            if (!is_null($line_notes[$tcol->id])){
+                                echo('<br><div class="float-right small text-secondary">' . $line_notes[$tcol->id] . '</br>');
+                            }
+                            echo('</td>');
                         }
                         echo('<td class="text-right font-weight-bold">' . number_format($totOutSum, 0) . '</td>');
                         echo('</tr>');
