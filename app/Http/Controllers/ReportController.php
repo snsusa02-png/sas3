@@ -428,6 +428,114 @@ class ReportController extends Controller
         return redirect($route)->with($sd);
     }
 
+    public function info($id)
+    {
+        $userid = \Auth::user()->id;
+
+        if ($id == -1 or is_null($id)) {
+            //Переход на общий список отчетов
+            return redirect(route($this->sysobjcode . '.pub_index'));
+        } else
+            $rec = report::find($id);
+
+
+        if (!isset($rec))
+            return redirect(route($this->sysobjcode . '.pub_index'));
+
+        objlog::log_info($this->sysobjid, $rec->id, \Auth::user()->name . ' просмотр информации об отчетной форме', 3);
+
+        //преобразуем для нормальной работы <INPUT TYPE="DATE"...
+        //$contract->begdate = strftime('%Y-%m-%dT%H:%M:%S', strtotime($contract->begdate));
+//        if (isset($rec->docdate))
+//            $rec->docdate = strftime('%Y-%m-%d', strtotime($rec->docdate));
+
+
+        if ($rec->id == -1) {
+            //для новой записи ---
+            $rec->statuses = [
+                0 => 'черновик',
+                1 => 'доступен для использования',
+            ];
+
+        } else {
+            //для существующей записи ---
+            $rec->statuses = [
+                0 => 'черновик',
+                1 => 'Доступен для использования',
+            ];
+        }
+
+        $rec->acs_right_name = sysfunc::find($rec->acs_rightid);
+        if (isset($rec->acs_rightid)) {
+            $sf = sysfunc::find($rec->acs_rightid);
+            if (isset($sf))
+                $rec->acs_right_name = $sf->code . ' - ' . $sf->name;
+        }
+
+        $rec->acs = ac::lstFor(['active_or_current' => $rec->acsid]);
+
+        $usrrights = $this->setInterfaceRight($id);
+        //право изменения категории доступа
+        $usrrights['acs.edit'] = User::user_has_acs_cached($userid, $rec->acsid);
+
+        if ($rec->statusid == 0) {
+
+            //Порядок отбора:
+            //  1 - buildobjid  - объект
+            //  2 - orgid       - поставщик
+            //  3 - ownorgid    - получатель
+
+        } elseif ($rec->statusid <> 0) {
+            $usrrights['delete'] = false;
+        }
+
+        //извлечем/сформатируем теги для этой записи
+        $rec->tags_lst = objtag::lstTags($this->sysobjid, $id);
+
+        //$data = new \stdClass();
+        $rec->users_stat = objlog::from('objlogs as ol')
+            ->join('users as u', 'u.id', 'write_by')
+            ->select('write_by as userid'
+                , db::raw('max(u.name) as user_name')
+                , db::raw("count(*) as cnt")
+                , db::raw("min(write_at) as min_dt")
+                , db::raw("max(write_at) as max_dt")
+            )
+            ->where(['sysobjid' => 855, 'objid' => $id])
+            ->whereRaw("info like 'запрошен%'")
+            ->groupby('write_by')
+            ->orderby('cnt', 'desc')
+            ->orderby('max_dt', 'desc')
+            ->get();
+//dd($rec->users_stat);
+
+        // Потенциальные читатели отчета (доступен этим пользователям)
+        $rec->potential_readers = report::from('reports as r')
+            ->join('usrsysrights as ur', function ($join) {
+                $join->whereRaw('ur.sysfuncid=ifnull(r.acs_rightid, ur.sysfuncid)');
+            })
+            ->join('users as u', 'u.id','ur.userid')
+            ->join('user_acs as ua', 'ua.userid', 'u.id')
+            ->where('r.id', $id)
+            ->where('u.active', 1)
+            ->whereRaw('ua.acsid = ifnull(r.acsid, ua.acsid)')
+            ->orderBy('lname')
+            ->orderBy('fname')
+            ->get();
+
+//        $rec->potential_readers = DB::select(DB::raw("SELECT r.name, u.lname, u.fname, ua.acsid
+//            FROM `reports` AS r
+//            join usrsysrights ur on ur.sysfuncid=ifnull(r.acs_rightid, ur.sysfuncid)
+//            join users u on u.id=ur.userid and u.active=1
+//            join user_acs ua on ua.acsid = ifnull(r.acsid, ua.acsid) and ua.userid=u.id
+//            where r.ID={$id}"));
+        //dd($rec->potential_readers);
+
+        //обновим статистику открытий для данного пользователя
+        obj_reader::addOrUpdateStat($this->sysobjid, $rec->id, $userid);
+
+        return view('reports2.info', compact('rec', "usrrights"));
+    }
 
     /**
      * Display a listing of the resource.
@@ -444,7 +552,8 @@ class ReportController extends Controller
         $usrrights = array(
             'read' => usrsysright::isUserHasRightByCode_cached($userid, $this->sysobjcode . '.read'),
             'create' => usrsysright::isUserHasRightByCode_cached($userid, $this->sysobjcode . '.create'),
-            'edit_report' => usrsysright::isUserHasRightByCode_cached($userid, 'admin-global'),
+            //'edit_report' => usrsysright::isUserHasRightByCode_cached($userid, 'admin-global'),
+            'edit_report' => usrsysright::isUserHasRightByCode_cached($userid, $this->sysobjcode . '.update'),
         );
 
         //2020-09-28 Меняем концепцию - если у пользователя нет прав на чтение (ВСЕХ записей), то здесь не блокируем,

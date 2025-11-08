@@ -326,10 +326,16 @@
                                             </a>
                                             <div class="ml-3 mt-1 font-italic small">
                                                 {{$rec->descript}}
-                                                @if($usrrights['edit_report']??false)
-                                                <a href="{{route('reports.edit',$rec->id)}}" target="_blank"><i
-                                                        class="fa fa-external-link text-info"
+
+                                                <a href="{{route('reports.info',$rec->id)}}" target="_blank"><i
+                                                        class="fa fa-info-circle text-info  mr-2"
                                                         aria-hidden="true"></i></a>
+
+                                                @if( $usrrights['edit_report']??false)
+                                                    <a href="{{route('reports.edit',$rec->id)}}" target="_blank"><i
+                                                            class="fa fa-edit
+                                                             text-info mr-2"
+                                                            aria-hidden="true"></i></a>
                                                 @endif
                                             </div>
 
@@ -401,9 +407,16 @@
                                                     {{$rep->name??'-'}}
                                                 </a>
                                                 <div class="descript small ml-3">{{$rep->descript}}
-                                                    <a href="{{route('reports.edit',$rep->id)}}" target="_blank"><i
-                                                            class="fa fa-external-link text-info"
+
+                                                    <a href="{{route('reports.info',$rep->id)}}" target="_blank"><i
+                                                            class="fa fa-info text-info"
                                                             aria-hidden="true"></i></a>
+
+                                                    @if( $usrrights['edit_report']??false)
+                                                        <a href="{{route('reports.edit',$rep->id)}}" target="_blank"><i
+                                                                class="fa fa-external-link text-info"
+                                                                aria-hidden="true"></i></a>
+                                                    @endif
                                                 </div>
 
                                             </div>
