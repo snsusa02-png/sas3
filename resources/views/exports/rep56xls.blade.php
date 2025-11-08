@@ -29,6 +29,8 @@ $first_col_id = null;
             <tr style="vertical-align:middle;">
                 <td class="text-right " width="5">№п/п</td>
                 <td>ФИО</td>
+                <td>Подразделение, организация</td>
+
                 @foreach($data->cols as $col)
                     <?php
                     if (is_null($first_col_id))
@@ -51,6 +53,7 @@ $first_col_id = null;
             $cur_staffid = -1;
 
             $line_sum = [];
+            $line_notes = [];
             ?>
             @foreach($recs as $rec)
                 <?php
@@ -69,7 +72,13 @@ $first_col_id = null;
                         <?php
                         foreach ($data->cols as $tcol) {
                             $sum = (is_null($line_sum[$tcol->id])) ? '' : $line_sum[$tcol->id];
-                            echo('<td x:num width="15">' . $sum . '</td>');
+                            //echo('<td x:num width="15">' . $sum . '</td>');
+
+                            echo('<td x:num width="15">' . $sum );
+                            if (!is_null($line_notes[$tcol->id])){
+                                echo('<br><div class="float-right small text-secondary">' . $line_notes[$tcol->id] . '</div>');
+                            }
+                            echo( '</td>');
                         }
                         echo('<td x:num width="12">' . $totOutSum . '</td>');
                         echo('</tr>');
@@ -106,10 +115,14 @@ $first_col_id = null;
                         <td width="30">
                             {{$rec->lname}} {{$rec->fname}} {{$rec->mname}}
                         </td>
+                        <td width="30">
+                            {{$rec->dep_name}}<br>{{$rec->org_name}}
+                        </td>
                     <?php
                     // Заголовки колонок -----------
                     foreach ($data->cols as $tcol) {
                         $line_sum[$tcol->id] = null;
+                        $line_notes[$tcol->id] = null;
                     }
                     $totOutSum = 0;
                     ?>
@@ -120,6 +133,7 @@ $first_col_id = null;
                 $totSum += ($rec->dir * $rec->charge_sum);
 
                 $line_sum[$rec->chargetypeid] = $rec->dir * $rec->charge_sum;
+                $line_notes[$rec->chargetypeid] = $rec->notes;
                 ?>
             @endforeach
 
@@ -128,7 +142,13 @@ $first_col_id = null;
                 //--Вывод сумм по сотруднику--
                 foreach ($data->cols as $tcol) {
                     $sum = (is_null($line_sum[$tcol->id])) ? '' : $line_sum[$tcol->id];
-                    echo('<td x:num width="15">' . $sum . '</td>');
+                    //echo('<td x:num width="15">' . $sum . '</td>');
+
+                    echo('<td x:num width="15">' . $sum );
+                    if (!is_null($line_notes[$tcol->id])){
+                        echo('<br><div class="float-right small text-secondary">' . $line_notes[$tcol->id] . '</div>');
+                    }
+                    echo( '</td>');
                 }
                 echo('<td x:num width="12">' . $totOutSum . '</td>');
                 echo('</tr>');
@@ -137,7 +157,7 @@ $first_col_id = null;
 
             @if(1==1)
                 <tr>
-                    <td colspan="{{2+$cols_count}}" class="textright">Всего:</td>
+                    <td colspan="{{3+$cols_count}}" class="textright">Всего:</td>
                     <td x:num width="12">{{$totSum}}</td>
                 </tr>
             @endif

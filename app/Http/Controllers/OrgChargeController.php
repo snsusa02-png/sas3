@@ -560,6 +560,8 @@ class OrgChargeController extends Controller
         $s_depname = $search_params['s_depname'];
         $s_stf_name = $search_params['s_stf_name'];
 
+        $data->ownorgs = org::lstFor_cached(['in_stf_chrg_calcs' => 1]);
+
 //        if ($s_ym <> '') {
         if ($s_period <> '') {
             $data->s_period = $s_period;
@@ -599,7 +601,7 @@ class OrgChargeController extends Controller
                 $sql .= " and ucase(os.depname)='{$s_depname}'";
 
             if (isset($s_stf_name))
-                $sql .= " and concat(' ', os.lname, ' ', os.fname, ' ', os.mname) like '% {$s_stf_name}%'";
+                $sql .= " and concat(' ', os.lname, ' ', os.fname, ' ', ifnull(os.mname, ' ')) like '% {$s_stf_name}%'";
 
             $sql .= " group by ct.id
                     order by ct.dir desc, ct.ordr";
@@ -613,7 +615,7 @@ class OrgChargeController extends Controller
                     , ct.dir, oc.chargetypeid, ct.name as chargetype_name
                     , sum(scc.charge_sum) charge_sum";
 
-            if ( $search_params['s_show_notes'] == 1)
+            if ($search_params['s_show_notes'] == 1)
                 $sql .= ", group_concat(scc.notes separator '; ')  as notes";
             else
                 $sql .= ", null as notes";
@@ -628,18 +630,28 @@ class OrgChargeController extends Controller
 
 //                " and forbegdate <= '" . date_create($data->enddate)->format('Y-m-d') . "'"
 //                . " and forEndDate >= '" . date_create($data->begdate)->format('Y-m-d') . "'"
+
+            $data->subtitle = '';
             // 2025-08-10
-            if (isset($s_period))
+            if (isset($s_period)) {
                 $sql .= " and concat(scc.forbegdate, '..', scc.forEndDate) = '{$s_period}'";
+                $data->subtitle .= '<li>период: <b>' . date_create($data->begdate)->format('d.m.Y') . ' - ' . date_create($data->enddate)->format('d.m.Y') . '</b></li>';
+            }
 
-            if (isset($s_ownorgid))
+            if (isset($s_ownorgid)) {
                 $sql .= " and os.orgid={$s_ownorgid}";
+                $data->subtitle .= '<li>организация: <b>' . $data->ownorgs[$s_ownorgid] ?? '?' . '</b></li>';
+            }
 
-            if (isset($s_depname))
+            if (isset($s_depname)) {
                 $sql .= " and ucase(os.depname)='{$s_depname}'";
+                $data->subtitle .= '<li>подразделение: <b>' . $s_depname . '</b></li>';
+            }
 
-            if (isset($s_stf_name))
+            if (isset($s_stf_name)) {
                 $sql .= " and concat(' ', os.lname, ' ', os.fname, ' ', ifnull(os.mname,' ')) like '% {$s_stf_name}%'";
+                $data->subtitle .= '<li>сотрудник: <b>' . $s_stf_name . '</b></li>';
+            }
 
             $sql .= " group by scc.staffid, oc.chargetypeid";
             //$sql .= " order by o.name, dep_name, os.lname, os.fname, os.id, ct.dir desc, ct.ordr";
@@ -678,7 +690,7 @@ class OrgChargeController extends Controller
             ->pluck('period', 'period')->toArray();
         //dd($data->for_periods);
 
-        $data->ownorgs = org::lstFor_cached(['in_stf_chrg_calcs' => 1]);
+//        $data->ownorgs = org::lstFor_cached(['in_stf_chrg_calcs' => 1]);
 
 //        $tarr = DB::select(DB::raw("SELECT distinct upper (os.depname) as dep_name
 //                    FROM stf_chrg_calcs as scc
@@ -699,6 +711,7 @@ class OrgChargeController extends Controller
         //преобразуем индексированный массив в ассоциативный
         $data->depnames = array_column($tarr, 'depname', 'depname');
 //        dd($tarr, $data->ownorgs, $data->depnames);
+
 
         //занесем в журнал
         objlog::log_info(855, $report_id, 'запрошен отчет;');

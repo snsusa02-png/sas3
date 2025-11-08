@@ -11,7 +11,7 @@ use Log;
 class objflag extends Model
 {
     use DeleteTrait;
-    
+
     //created_at и updated_at атоматически обрабатываются Eloquent
     //мы же первое поле обрабатываем сами, а второго у нас нет
     public $timestamps = false;

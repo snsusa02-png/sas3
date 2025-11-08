@@ -149,7 +149,6 @@ $first_col_id = null;
 								</span>
                                 @endif
 
-
                             </div>
                         </form>
                     </div>
@@ -194,9 +193,12 @@ $first_col_id = null;
                 <div class="mt-2 text-center"
                      style="font-size: 18px;">
                     <h4>{{$thisTitle}}</h4>
-                    <b>{{date_create($data->begdate)->format('d.m.Y')}}
-                        - {{date_create($data->enddate)->format('d.m.Y')}}</b>
-                    <span class="small"><br>по состоянию на {{now()}}</span>
+{{--                    <b>{{date_create($data->begdate)->format('d.m.Y')}}--}}
+{{--                        - {{date_create($data->enddate)->format('d.m.Y')}}</b>--}}
+                    <div class="small text-secondary ">
+                    {!! $data->subtitle !!}
+                    </div>
+                    <span class="small">по состоянию на {{now()}}</span>
                     @if(1==0)
                         <button class="btn btn-primary btn-sm d-print-none" type="button" data-toggle="collapse"
                                 data-target=".multi-collapse" aria-expanded="false"
@@ -213,6 +215,7 @@ $first_col_id = null;
                     <tr class="text-left small" style="vertical-align:middle;">
                         <td class="text-right small" style="width: 38px">№п/п</td>
                         <td class="text-center " style="width: 38px">ФИО</td>
+                        <td class="text-center " style="width: 38px">Подразделение, организация</td>
                         @foreach($data->cols as $col)
                             <?php
                             if (is_null($first_col_id))
@@ -304,6 +307,7 @@ $first_col_id = null;
                                        href="{{ route('stf_chrg_calcs.create', $rec->staffid)}}?returl={{Request::url()}}"
                                        title="Добавить запись">+</a>
                                 </td>
+                                <td class="text-left small">{{$rec->dep_name}}<div class="float-right small">{{$rec->org_name}}</div></td>
                             <?php
                             foreach ($data->cols as $tcol) {
                                 $line_sum[$tcol->id] = null;
@@ -344,7 +348,7 @@ $first_col_id = null;
                         $tdс_class = '';
                         ?>
                         <tr>
-                            <td colspan="{{2+$cols_count}}" class="text-right" data-npp="{{$npp++}}">Всего:</td>
+                            <td colspan="{{3+$cols_count}}" class="text-right" data-npp="{{$npp++}}">Всего:</td>
                             <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totSum,0)}}</td>
                         </tr>
                     @endif
