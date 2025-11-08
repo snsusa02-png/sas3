@@ -1000,6 +1000,7 @@ Route::match(array('GET', 'POST'), '/admin/reports', "ReportController@index")->
 Route::get('reports/edit/{id}', 'ReportController@edit')->name('reports.edit');
 Route::match(array('POST', 'PUT'), 'reports.edit/{id}', "ReportController@update")->name('reports.update');
 Route::put('reports/del/{id}/delete', "ReportController@destroy")->name("reports.delete");
+Route::get('reports/info/{id}', 'ReportController@info')->name('reports.info');
 
 Route::match(array('GET', 'POST'), '/reports', "ReportController@pub_index")->name("reports.pub_index");
 
