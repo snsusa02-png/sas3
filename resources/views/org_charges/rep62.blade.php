@@ -400,7 +400,8 @@ $first_col_id = null;
                                         <td style="font-size: xx-large">{!! number_format($rec->salary_sum,2, '.', '&nbsp;')!!}
                                             руб
                                         </td>
-                                        <td class="small" style="width: 8cm;"><br>
+                                        <td class="small" style="width: 8cm;">
+                                            <div class="text-left ml-1"> <i class="fa fa-check text-secondary" aria-hidden="true"></i></div>
                                             <hr size="1" style="margin-bottom:0rem;">
                                             <sup style="font-size: 0.6em">(ФИО и подпись)</sup></td>
                                     </tr>
@@ -427,7 +428,7 @@ $first_col_id = null;
                                                 {{$chrg->notes}}
                                             </td>
                                             <td class="text-right small">{!! number_format($chrg->dir*$chrg->charge_sum, 2, '.', '&nbsp;')!!}</td>
-                                            <td class="small"></td>
+                                            <td class="small"><div class="text-left ml-1"> <i class="fa fa-check text-secondary" aria-hidden="true"></i></div></td>
                                         </tr>
                                         <?php
                                         $totOutSum += ($chrg->dir * $chrg->charge_sum);
@@ -453,7 +454,8 @@ $first_col_id = null;
                                         <td style="font-size: xx-large">{!!number_format($totOutSum,2, '.', '&nbsp;')!!}
                                             руб
                                         </td>
-                                        <td class="small" style="width:8cm;"><br>
+                                        <td class="small" style="width:8cm;">
+                                            <div class="text-left"> <i class="fa fa-check text-secondary ml-1" aria-hidden="true"></i></div>
                                             <hr size="1" style="margin-bottom:0rem;">
                                             <sup style="font-size: 0.6em">(ФИО и подпись)</sup></td>
                                     </tr>
