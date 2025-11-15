@@ -401,21 +401,23 @@ $first_col_id = null;
                                             руб
                                         </td>
                                         <td class="small" style="width: 8cm;">
-                                            <div class="text-left ml-1"> <i class="fa fa-check text-secondary" aria-hidden="true"></i></div>
+                                            <div class="text-left ml-1"><i class="fa fa-check text-secondary"
+                                                                           aria-hidden="true"></i></div>
                                             <hr size="1" style="margin-bottom:0rem;">
                                             <sup style="font-size: 0.6em">(ФИО и подпись)</sup></td>
                                     </tr>
                                     @if($rec->sum_57 > 0)
-                                    <tr>
-                                        <td style="font-size: xx-large">СУТОЧНЫЕ:</td>
-                                        <td style="font-size: xx-large">{!! number_format($rec->sum_57,2, '.', '&nbsp;')!!}
-                                            руб
-                                        </td>
-                                        <td class="small" style="width: 8cm;">
-                                            <div class="text-left ml-1"> <i class="fa fa-check text-secondary" aria-hidden="true"></i></div>
-                                            <hr size="1" style="margin-bottom:0rem;">
-                                            <sup style="font-size: 0.6em">(ФИО и подпись)</sup></td>
-                                    </tr>
+                                        <tr>
+                                            <td style="font-size: xx-large">СУТОЧНЫЕ:</td>
+                                            <td style="font-size: xx-large">{!! number_format($rec->sum_57,2, '.', '&nbsp;')!!}
+                                                руб
+                                            </td>
+                                            <td class="small" style="width: 8cm;">
+                                                <div class="text-left ml-1"><i class="fa fa-check text-secondary"
+                                                                               aria-hidden="true"></i></div>
+                                                <hr size="1" style="margin-bottom:0rem;">
+                                                <sup style="font-size: 0.6em">(ФИО и подпись)</sup></td>
+                                        </tr>
                                     @endif
                                 </table>
                             </td>
@@ -432,20 +434,25 @@ $first_col_id = null;
                                         <td class="text-center" style="width: 8cm;">Подпись:</td>
                                     </tr>
                                     @foreach($rec->charges as $chrg)
-                                        <tr>
-                                            <td>
-                                                {{$chrg->chargetype_name}}
-                                            </td>
-                                            <td class="small">
-                                                {{$chrg->notes}}
-                                            </td>
-                                            <td class="text-right small">{!! number_format($chrg->dir*$chrg->charge_sum, 2, '.', '&nbsp;')!!}</td>
-                                            <td class="small"><div class="text-left ml-1"> <i class="fa fa-check text-secondary" aria-hidden="true"></i></div></td>
-                                        </tr>
-                                        <?php
-                                        $totOutSum += ($chrg->dir * $chrg->charge_sum);
-                                        //                                        $totSum += ($chrg->dir * $chrg->charge_sum);
-                                        ?>
+                                        @if($chrg->dir<>0)
+                                            <tr>
+                                                <td>
+                                                    {{$chrg->chargetype_name}}
+                                                </td>
+                                                <td class="small">
+                                                    {{$chrg->notes}}
+                                                </td>
+                                                <td class="text-right small">{!! number_format($chrg->dir*$chrg->charge_sum, 2, '.', '&nbsp;')!!}</td>
+                                                <td class="small">
+                                                    <div class="text-left ml-1"><i class="fa fa-check text-secondary"
+                                                                                   aria-hidden="true"></i></div>
+                                                </td>
+                                            </tr>
+                                            <?php
+                                            $totOutSum += ($chrg->dir * $chrg->charge_sum);
+                                            //                                        $totSum += ($chrg->dir * $chrg->charge_sum);
+                                            ?>
+                                        @endif
                                     @endforeach
                                     {{--                                    <tr>--}}
                                     {{--                                        <td class="text-right font-weight-bold" style="font-size: 1.2rem">Итого к выдаче:</td>--}}
@@ -467,7 +474,8 @@ $first_col_id = null;
                                             руб
                                         </td>
                                         <td class="small" style="width:8cm;">
-                                            <div class="text-left"> <i class="fa fa-check text-secondary ml-1" aria-hidden="true"></i></div>
+                                            <div class="text-left"><i class="fa fa-check text-secondary ml-1"
+                                                                      aria-hidden="true"></i></div>
                                             <hr size="1" style="margin-bottom:0rem;">
                                             <sup style="font-size: 0.6em">(ФИО и подпись)</sup></td>
                                     </tr>
