@@ -184,6 +184,7 @@
                             {{--						@include('chargetypes.it_specs')--}}
 
                             @include('chargetypes.it_extids')
+                            @include('chargetypes.charge_orgs')
 
                             {{--						@include('chargetypes.it_impgroups')--}}
 

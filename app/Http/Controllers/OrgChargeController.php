@@ -190,7 +190,9 @@ class OrgChargeController extends Controller
      */
     public function create(Request $request, $orgid)
     {
-        return $this->edit($request, -1, $orgid);
+        $chargetypeid = $request->chargetypeid??null;
+//        dd($orgid, $chargetypeid);
+        return $this->edit($request, -1, $orgid, $chargetypeid);
     }
 
     public function show($id)
@@ -210,17 +212,18 @@ class OrgChargeController extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(Request $request, $id, $orgid = null)
+    public function edit(Request $request, $id, $orgid = null, $chargetypeid=null)
     {
         //
 
         $userid = \Auth::user()->id;
-
+//dd($orgid, $chargetypeid);
         if ($id == -1) {
             $orgid = ($orgid == 0) ? null : $orgid;
             $rec = new org_charge([
                 'id' => -1,
                 'orgid' => $orgid,
+                'chargetypeid' => $chargetypeid,
                 'begdate' => date_create()->format('Y-m-d'),
                 'active' => 1,
                 'created_by' => $userid,
@@ -539,7 +542,6 @@ class OrgChargeController extends Controller
         $returl = $request->get('returl') ?? route('stf_chrg_calcs.index');
         $userid = Auth::user()->id;
         $export2xls = $request->get('xls') ?? 0;
-
 
         $data = new \stdClass();
         $data->returl = $returl;
@@ -886,12 +888,17 @@ class OrgChargeController extends Controller
             //-------------------------------------------------------------------------
 
             $ssum = 0;
+            //2025-11-15 заляпуха - подсчитаем суточные
+            $sum57 = 0;
             foreach ($rec->charges as $itm) {
                 if ($itm->dir == 1)
                     $ssum += $itm->charge_sum;
+                if ($itm->chargetypeid == 57)
+                    $sum57 += $itm->charge_sum;
             }
             $rec->salary_sum = $ssum;
-            //dd($rec->salary_sum );
+            $rec->sum_57 = $sum57;
+            //dd($rec->salary_sum, $rec->sum_57 );
 
 
             // данные о рабочих часах из stf_wrkHrs (Табель)

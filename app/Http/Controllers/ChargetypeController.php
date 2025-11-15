@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\chargetype;
 use App\objextid;
 use App\objpref;
+use App\org;
+use App\org_charge;
 use App\sysobj;
 use App\usrsysright;
 use Illuminate\Http\Request;
@@ -146,7 +148,7 @@ class ChargetypeController extends Controller
         $data->dirs = [
             1 => 'Начисления',
             -1 => 'Удержания',
-            -1 => 'Удержания',
+            0 => 'Справки',
         ];
         //варианты кол-ва записей на страницу
         //$data->pageitmcnts = $this->pageitmcnts;
@@ -241,7 +243,7 @@ class ChargetypeController extends Controller
             $rec = chargetype::find($id);
         }
 
-        $rec->dirs = [-1=>'удержание', 1=>'начисление'];
+        $rec->dirs = [-1=>'удержание', 1=>'начисление', 0=>'нейтрально (справка)'];
 
         $rec->extids = objextid::from('objextids as ei')
             ->join('extsystems as s', 's.id', 'ei.extsysid')
@@ -250,6 +252,15 @@ class ChargetypeController extends Controller
             ->select('ei.id', 's.name as extsysname', 'extid')
             ->orderby('s.name')
             ->get();
+
+        $rec->charge_orgs = org_charge::from('org_charges as oc')
+            ->join('orgs as o', 'o.id', 'oc.orgid')
+            ->where('chargetypeid', $rec->id)
+            ->select('oc.id', 'o.name as orgname')
+            ->orderby('o.name')
+            ->get();
+        //dd($rec->charge_orgs);
+
 
         //$subtype = ItmSubType::where("itmtypeid", $id)->get();
         $subtype = null;

@@ -405,6 +405,18 @@ $first_col_id = null;
                                             <hr size="1" style="margin-bottom:0rem;">
                                             <sup style="font-size: 0.6em">(ФИО и подпись)</sup></td>
                                     </tr>
+                                    @if($rec->sum_57 > 0)
+                                    <tr>
+                                        <td style="font-size: xx-large">СУТОЧНЫЕ:</td>
+                                        <td style="font-size: xx-large">{!! number_format($rec->sum_57,2, '.', '&nbsp;')!!}
+                                            руб
+                                        </td>
+                                        <td class="small" style="width: 8cm;">
+                                            <div class="text-left ml-1"> <i class="fa fa-check text-secondary" aria-hidden="true"></i></div>
+                                            <hr size="1" style="margin-bottom:0rem;">
+                                            <sup style="font-size: 0.6em">(ФИО и подпись)</sup></td>
+                                    </tr>
+                                    @endif
                                 </table>
                             </td>
                         </tr>

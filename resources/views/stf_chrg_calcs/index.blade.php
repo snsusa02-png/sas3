@@ -76,6 +76,7 @@
                                 <td>Вид</td>
                                 <td>Начисление, руб</td>
                                 <td>Удержание, руб</td>
+                                <td>Справочно, руб</td>
                                 <td style="text-align: center;">
                                     @if($usrrights['create']??false)
                                         <a href="{{ route($thisSysObjCode.'.create',0)}}?returl={{$retURL}}"
@@ -139,7 +140,7 @@
                                                value="{{$data->search_params['chargetype_name']??''}}"/>
                                     </div>
                                 </td>
-                                <td colspan="2">
+                                <td colspan="3">
                                     <div class="input-group">
                                         {!! Form::select('charge_dir', $data->dirs, $data->search_params['charge_dir']??'',
                                                         [
@@ -170,7 +171,7 @@
                             @foreach($recs as $rec)
                                 @if($rec->orgid<>$curOrgId)
                                     <tr>
-                                        <td colspan="7" class="font-weight-bold"><a
+                                        <td colspan="9" class="font-weight-bold"><a
                                                 href="{{route('orgs.edit',$rec->orgid)}}">{{$rec->org_name}}</a>
                                             @if($usrrights['create']??false)
                                                 <div class="float-right">
@@ -188,7 +189,7 @@
                                 @endif
                                 @if($rec->staffid<>$curStaffId)
                                     <tr>
-                                        <td colspan="7" class="font-weight-bold"><span
+                                        <td colspan="9" class="font-weight-bold"><span
                                                 style="margin-left: 20px;">&nbsp;</span>
                                             <a href="{{route('orgstaff.edit',$rec->staffid)}}">{{$rec->stf_name}}</a>
                                             @if($usrrights['create']??false)
@@ -233,9 +234,15 @@
                                     @if($rec->charge_dir > 0 )
                                         <td class="text-right" style="color:darkgreen;">{{$rec->charge_sum}}</td>
                                         <td class="text-right"></td>
-                                    @else
+                                        <td class="text-right"></td>
+                                    @elseif($rec->charge_dir < 0 )
                                         <td class="text-right"></td>
                                         <td class="text-right" style="color:darkred;">{{$rec->charge_sum}}</td>
+                                        <td class="text-right"></td>
+                                    @else
+                                        <td class="text-right"></td>
+                                        <td class="text-right"></td>
+                                        <td class="text-right" style="color:darkgrey;">{{$rec->charge_sum}}</td>
                                     @endif
 
                                     <td style="text-align: center;">

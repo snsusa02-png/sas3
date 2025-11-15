@@ -154,7 +154,7 @@ class StfChrgCalcController extends Controller
             //'flagtypeid' => $search_params['s_orgflagid'] ?? '',
         ]);
 
-        $data->dirs = [1 => 'начисление', -1 => 'удержание'];
+        $data->dirs = [1 => 'начисление', -1 => 'удержание', 0=>'справка'];
 
         $data->yms = stf_chrg_calc::selectRaw("date_format(forbegdate, '%Y-%m') as ym")->distinct()->orderby('ym', 'desc')
             ->get()->pluck('ym', 'ym')->toArray();
