@@ -625,6 +625,35 @@ class DriverWorkController extends Controller
             //dd($rules, $messages);
         }
 
+        if (1 == 1) {
+            //2025-11-17 Контроль на пересечение времени по автомобилю
+
+            $machineid = $request->get('machineid');
+            $wrkbegdt = date_create($request->get('wrkdate'))->format('Y-m-d') . ' ' . $request->get('begtime');
+            $wrkenddt = date_create($request->get('wrkenddate'))->format('Y-m-d') . ' ' . $request->get('endtime');
+            //dd($wrkbegdt, $wrkenddt, $staffid, $id);
+
+            $rules = [
+                //В форме должно быть поле ttt
+                "ttt" => [
+                    function ($attribute, $value, $fail) use ($id, $wrkbegdt, $wrkenddt, $machineid) {
+                        //
+                        $cnt = driver_work::where(['machineid' => $machineid])
+                            ->where('id', '<>', $id)
+                            ->whereRaw("wrkbegdt < '{$wrkenddt}' and wrkenddt > '{$wrkbegdt}'")
+                            ->count();
+                        //dd($cnt);
+                        if ($cnt > 0) {
+                            $fail("У этого автомобиля(спецтехники) есть другой табель с пересекающимся периодом работы!");
+                        }
+                    },
+                ],
+            ];
+            //dd($rules);
+            $request->validate($rules, $messages);
+            //dd($rules, $messages);
+        }
+
         if ($pre_statusid == 2 and $nxt_statusid == 0) {
             //перевод табеля из "Подготовлено" в "Черновик"
 
