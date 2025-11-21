@@ -307,7 +307,7 @@ $first_col_id = null;
                                        href="{{ route('stf_chrg_calcs.create', $rec->staffid)}}?returl={{Request::url()}}"
                                        title="Добавить запись">+</a>
                                 </td>
-                                <td class="text-left small">{{$rec->dep_name}}<div class="float-right small">{{$rec->org_name}}</div></td>
+                                <td class="text-left small">{{$rec->postname??'-'}}, {{$rec->dep_name}}<div class="float-right small">{{$rec->org_name}}</div></td>
                             <?php
                             foreach ($data->cols as $tcol) {
                                 $line_sum[$tcol->id] = null;

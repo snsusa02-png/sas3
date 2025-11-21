@@ -614,6 +614,7 @@ class OrgChargeController extends Controller
                     , if(f.flagtypeid is null, 0, 1) as official_job
                     , os.orgid, o.name as org_name
                     , upper (os.depname) as dep_name
+                    , os.postname
                     , ct.dir, oc.chargetypeid, ct.name as chargetype_name
                     , sum(scc.charge_sum) charge_sum";
 
