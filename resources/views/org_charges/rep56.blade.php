@@ -193,10 +193,10 @@ $first_col_id = null;
                 <div class="mt-2 text-center"
                      style="font-size: 18px;">
                     <h4>{{$thisTitle}}</h4>
-{{--                    <b>{{date_create($data->begdate)->format('d.m.Y')}}--}}
-{{--                        - {{date_create($data->enddate)->format('d.m.Y')}}</b>--}}
+                    {{--                    <b>{{date_create($data->begdate)->format('d.m.Y')}}--}}
+                    {{--                        - {{date_create($data->enddate)->format('d.m.Y')}}</b>--}}
                     <div class="small text-secondary ">
-                    {!! $data->subtitle !!}
+                        {!! $data->subtitle !!}
                     </div>
                     <span class="small">по состоянию на {{now()}}</span>
                     @if(1==0)
@@ -225,14 +225,15 @@ $first_col_id = null;
                             ?>
                             <td class="text-center" id="col_{{$col->id}}">{{$col->name}}</td>
                         @endforeach
-                        <td class="text-center">ИТОГО</td>
+                        <td class="text-center">Итого начислено</td>
+                        <td class="text-center">ИТОГО к выдаче</td>
                     </tr>
                     </thead>
 
                     <tbody>
                     <?php
                     $npp = 0;
-                    $totSum = $totInpSum = $totOutSum = 0;
+                    $totSum = $totInpSum = $totOutSum = $lineInpSum = $lineTotSum= 0;
                     $cur_orgid = -1;
                     $cur_dep_name = '-1';
                     $cur_staffid = -1;
@@ -260,12 +261,13 @@ $first_col_id = null;
 //                                    echo('<td class="text-right">' . $sum . '</td>');
                                     echo('<td class="text-right">' . $sum);
 
-                                    if (!is_null($line_notes[$tcol->id])){
+                                    if (!is_null($line_notes[$tcol->id])) {
                                         echo('<br><div class="float-right small text-secondary">' . $line_notes[$tcol->id] . '</br>');
                                     }
                                     echo('</td>');
                                 }
-                                echo('<td class="text-right font-weight-bold">' . number_format($totOutSum, 0) . '</td>');
+                                echo('<td class="text-right font-weight-bold" title="Итого, начислено по сотруднику">' . number_format($lineInpSum, 0) . '</td>');
+                                echo('<td class="text-right font-weight-bold">' . number_format($lineTotSum, 0) . '</td>');
                                 echo('</tr>');
                                 ?>
                             @endif
@@ -307,18 +309,23 @@ $first_col_id = null;
                                        href="{{ route('stf_chrg_calcs.create', $rec->staffid)}}?returl={{Request::url()}}"
                                        title="Добавить запись">+</a>
                                 </td>
-                                <td class="text-left small">{{$rec->postname??'-'}}, {{$rec->dep_name}}<div class="float-right small">{{$rec->org_name}}</div></td>
+                                <td class="text-left small">{{$rec->postname??'-'}}, {{$rec->dep_name}}
+                                    <div class="float-right small">{{$rec->org_name}}</div>
+                                </td>
                             <?php
                             foreach ($data->cols as $tcol) {
                                 $line_sum[$tcol->id] = null;
                                 $line_notes[$tcol->id] = null;
                             }
-                            $totOutSum = 0;
+                            $lineTotSum = 0;
+                            $lineInpSum = 0;
                             ?>
                         @endif
 
                         <?php
-                        $totOutSum += ($rec->dir * $rec->charge_sum);
+                        $lineInpSum += ($rec->dir == 1) ? $rec->charge_sum : 0;
+                        $lineTotSum += ($rec->dir * $rec->charge_sum);
+                        $totInpSum += ($rec->dir == 1) ? $rec->charge_sum : 0;
                         $totSum += ($rec->dir * $rec->charge_sum);
 
                         $line_sum[$rec->chargetypeid] = $rec->charge_sum;
@@ -332,12 +339,13 @@ $first_col_id = null;
 //                            echo('<td class="text-right">' . $sum . '</td>');
                             echo('<td class="text-right">' . $sum);
 
-                            if (!is_null($line_notes[$tcol->id])){
+                            if (!is_null($line_notes[$tcol->id])) {
                                 echo('<br><div class="float-right small text-secondary">' . $line_notes[$tcol->id] . '</br>');
                             }
                             echo('</td>');
                         }
-                        echo('<td class="text-right font-weight-bold">' . number_format($totOutSum, 0) . '</td>');
+                        echo('<td class="text-right font-weight-bold">' . number_format($lineInpSum, 0) . '</td>');
+                        echo('<td class="text-right font-weight-bold">' . number_format($lineTotSum, 0) . '</td>');
                         echo('</tr>');
                         ?>
                     @endif
@@ -349,6 +357,7 @@ $first_col_id = null;
                         ?>
                         <tr>
                             <td colspan="{{3+$cols_count}}" class="text-right" data-npp="{{$npp++}}">Всего:</td>
+                            <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totInpSum,0)}}</td>
                             <td class="text-right font-weight-bold {{$td_class}}">{{number_format($totSum,0)}}</td>
                         </tr>
                     @endif
