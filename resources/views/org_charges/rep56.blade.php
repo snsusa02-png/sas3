@@ -233,13 +233,19 @@ $first_col_id = null;
                     <tbody>
                     <?php
                     $npp = 0;
-                    $totSum = $totInpSum = $totOutSum = $lineInpSum = $lineTotSum= 0;
+                    $totSum = $totInpSum = $totOutSum = $lineInpSum = $lineTotSum = 0;
                     $cur_orgid = -1;
                     $cur_dep_name = '-1';
                     $cur_staffid = -1;
 
                     $line_sum = [];
                     $line_notes = [];
+                    $dir_styles = [
+                        -1 => 'color:darkred;',
+                        0 => 'color:black;',
+                        1 => 'color:darkgreen;',
+                    ];
+
                     ?>
                     @foreach($recs as $rec)
                         <?php
@@ -257,10 +263,10 @@ $first_col_id = null;
                             @if( $cur_staffid <> -1 )
                                 <?php
                                 foreach ($data->cols as $tcol) {
-                                    $sum = (is_null($line_sum[$tcol->id])) ? '' : number_format($line_sum[$tcol->id], 0);
-//                                    echo('<td class="text-right">' . $sum . '</td>');
-                                    echo('<td class="text-right">' . $sum);
 
+                                    $sum = (is_null($line_sum[$tcol->id])) ? '' : number_format($line_sum[$tcol->id], 0);
+
+                                    echo('<td class="text-right" style="' . ($dir_styles[$tcol->dir]??'') . '" title="' . $tcol->name . '">' . $sum);
                                     if (!is_null($line_notes[$tcol->id])) {
                                         echo('<br><div class="float-right small text-secondary">' . $line_notes[$tcol->id] . '</br>');
                                     }
@@ -337,7 +343,8 @@ $first_col_id = null;
                         foreach ($data->cols as $tcol) {
                             $sum = (is_null($line_sum[$tcol->id])) ? '' : number_format($line_sum[$tcol->id], 0);
 //                            echo('<td class="text-right">' . $sum . '</td>');
-                            echo('<td class="text-right">' . $sum);
+//                            echo('<td class="text-right">' . $sum);
+                            echo('<td class="text-right" style="' . ($dir_styles[$tcol->dir]??'') . '" title="' . $tcol->name . '">' . $sum);
 
                             if (!is_null($line_notes[$tcol->id])) {
                                 echo('<br><div class="float-right small text-secondary">' . $line_notes[$tcol->id] . '</br>');

@@ -581,7 +581,7 @@ class OrgChargeController extends Controller
 //            $data->enddate = date_create($date)->format('Y-m-t');    //Последний день месяца
 
             // Какие виды начислений/Удержаний попали в рассматриваемый месяц
-            $sql = "SELECT ct.id as id, ct.name, sum(scc.charge_sum) charge_sum
+            $sql = "SELECT ct.id as id, ct.name, ct.dir, sum(scc.charge_sum) charge_sum
                     FROM stf_chrg_calcs as scc
                     join orgstaff os on os.id=scc.staffid
                     join org_charges as oc 	on oc.id=scc.orgchargeid

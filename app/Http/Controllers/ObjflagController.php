@@ -169,6 +169,8 @@ class ObjflagController extends Controller
             }
             //dd($this->objcode, $rec);
             $usrrights = $this->setInterfaceRight($rec->sysobjid, $id);
+            //dd($rec->sysobjid, $usrrights);
+
 
             return view($this->objcode . '.edit', compact(['rec', 'usrrights']));
         }
