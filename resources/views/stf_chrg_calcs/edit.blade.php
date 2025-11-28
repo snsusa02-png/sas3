@@ -225,7 +225,7 @@
                                             @if ($usrrights['save'])
                                                 <input type="date" class="form-control text-center font-weight-bold"
                                                        name="forbegdate" id="forbegdate"
-{{--                                                       max="{{today()->format('Y-m-d')}}"--}}
+                                                       {{--                                                       max="{{today()->format('Y-m-d')}}"--}}
                                                        value="{{old('forbegdate',$rec->forbegdate)}}"/>
                                             @else
                                                 <div
@@ -240,7 +240,7 @@
                                             @if ($usrrights['save'] )
                                                 <input type="date" class="form-control text-center font-weight-bold"
                                                        name="forenddate" id="forenddate"
-{{--                                                       max="{{today()->format('Y-m-d')}}"--}}
+                                                       {{--                                                       max="{{today()->format('Y-m-d')}}"--}}
                                                        value="{{old('forenddate',$rec->forenddate)}}"/>
                                             @else
                                                 <div
@@ -390,9 +390,11 @@
 
                                 @include('layouts._who_when')
 
-                                <div class="small" style="margin: 8px; color:gray">
-                                    {{$rec->tech_notes}}
-                                </div>
+                                @if(!is_null($rec->tech_notes))
+                                    <div class="small" style="margin: 8px; color:gray">
+                                        тех. данные: {{$rec->tech_notes}}
+                                    </div>
+                                @endif
                             </div>
 
                         </div>
