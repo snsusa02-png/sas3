@@ -222,7 +222,7 @@ class stf_chrg_calc extends Model
                                 'orgchargeid' => $orgchargeid,
                                 'forbegdate' => $begdate,
                                 'forenddate' => $enddate,
-                                'notes' => $lineid])
+                                'tech_notes' => $lineid])
                                 ->first();
 //                        dd ($rec);
 
@@ -233,7 +233,7 @@ class stf_chrg_calc extends Model
                                     'orgchargeid' => $orgchargeid,
                                     'forbegdate' => $begdate,
                                     'forenddate' => $enddate,
-                                    'notes' => $lineid,
+                                    'tech_notes' => $lineid,
                                     'docdate' => $begdate,
                                     'charge_dir' => -1,
                                     'charge_qty' => 1,
@@ -449,7 +449,7 @@ class stf_chrg_calc extends Model
                                             'orgchargeid' => $orgchargeid,
                                             'forbegdate' => $begdate,
                                             'forenddate' => $enddate,
-                                            'notes' => $lineid])
+                                            'tech_notes' => $lineid])
                                             ->first();
                                         //dd ($itm);
 
@@ -460,7 +460,7 @@ class stf_chrg_calc extends Model
                                                 'orgchargeid' => $orgchargeid,
                                                 'forbegdate' => $begdate,
                                                 'forenddate' => $enddate,
-                                                'notes' => $lineid,
+                                                'tech_notes' => $lineid,
                                                 'docdate' => $begdate,
                                                 'charge_dir' => -1,
                                                 'charge_qty' => 1,
@@ -489,7 +489,7 @@ class stf_chrg_calc extends Model
                                             'orgchargeid' => $orgchargeid,
                                             'forbegdate' => $begdate,
                                             'forenddate' => $enddate,
-                                            'notes' => $lineid])
+                                            'tech_notes' => $lineid])
                                             ->delete();
                                         $items_del_cnt += $tmp;
                                     }
