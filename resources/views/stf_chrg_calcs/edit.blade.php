@@ -389,6 +389,10 @@
                                 </form>
 
                                 @include('layouts._who_when')
+
+                                <div class="small" style="margin: 8px; color:gray">
+                                    {{$rec->tech_notes}}
+                                </div>
                             </div>
 
                         </div>

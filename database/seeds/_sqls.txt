@@ -1,4 +1,13 @@
-﻿-- 2025-11-15 ------------------------------------------------------------------------
+﻿-- 2025-11-29 ------------------------------------------------------------------------
+ALTER TABLE `stf_chrg_calcs` ADD COLUMN `tech_notes` VARCHAR(1024) NULL AFTER `notes`;
+
+SELECT * FROM stf_chrg_calcs where notes like '0_:%';
+update stf_chrg_calcs 	set tech_notes = notes    where notes like '0_:%';
+
+SELECT * FROM stf_chrg_calcs where tech_notes like '0_:%';
+update stf_chrg_calcs 	set notes = ''    where notes like '0_:%';
+
+-- 2025-11-15 ------------------------------------------------------------------------
 ALTER TABLE `chargetypes`
     CHANGE COLUMN `dir` `dir` INT NOT NULL COMMENT '-1 - Удержание, +1 - Начисление, 0 - Информация' ;
 
