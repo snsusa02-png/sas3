@@ -47,6 +47,7 @@ $first_col_id = null;
 
             <tbody>
             <?php
+                
             $npp = 0;
             $totSum = $totInpSum = $totOutSum = 0;
             $cur_orgid = -1;
