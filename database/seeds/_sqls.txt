@@ -1,4 +1,33 @@
-﻿-- 2025-11-29 ------------------------------------------------------------------------
+﻿-- 2025-12-08 ------------------------------------------------------------------------
+-- МОЛ
+ALTER TABLE `wrhdoctypes`
+    ADD COLUMN `formol` TINYINT NOT NULL DEFAULT 0
+    COMMENT 'Влияние на взаиморасчеты с материально-ответственными лицами (МОЛ): \"0\"-не влияет, \"1\"-передача МОЛ, \"-1\"-возврат от МОЛ' AFTER `forsale`;
+
+INSERT INTO `wrhdoctypes` (`id`, `name`, `forstock`, `forsale`, `formol`, `useprice`, `any_ownorg`, `active`, `ordr`, `need_org`, `need_relwrh`, `need_predoc`, `need_respstaffid`, `not_gt_preqty`, `ownorg_label`, `org_label`, `wrh_label`, `box_label`) VALUES ('13', 'Выдача МОЛ на ответственное хранение', '-1', '0', '1', '0', '1', '1', '255', '0', '0', '0', '0', '0', 'Владелец', 'Получатель', 'Со склада', 'Отделение-источник');
+INSERT INTO `wrhdoctypes` (`id`, `name`, `forstock`, `forsale`, `formol`, `useprice`, `any_ownorg`, `active`, `ordr`, `need_org`, `need_relwrh`, `need_predoc`, `need_respstaffid`, `not_gt_preqty`, `ownorg_label`, `org_label`, `wrh_label`, `box_label`) VALUES ('14', 'Прием от МОЛ с ответственного хранения', '1', '0', '-1', '0', '1', '1', '255', '0', '0', '0', '0', '0', 'Владелец', '-', 'На склад', 'в отделение');
+
+ALTER TABLE `wrhdocs`
+    ADD COLUMN `mol_staffid` BIGINT UNSIGNED NULL
+    COMMENT 'Идентификатор сотрудника - Материально ответственного лица' AFTER `tgtboxid`;
+
+-- пересчет товарных запасов по МОЛ --------------------
+SELECT d.mol_staffid, dl.refitmid
+, SUM(ifnull(dlt.formol,t.formol) * dl.qty * IF(d.docsigned=1,1,0)) Qty
+, SUM(ifnull(dlt.formol,t.formol) * dl.qty * IF(d.docsigned <> 1 AND ifnull(dlt.formol,t.formol) = 1, 1, 0)) PlnIncQty
+, SUM(ifnull(dlt.formol,t.formol) * dl.qty * IF(d.docsigned <> 1 AND ifnull(dlt.formol,t.formol) = -1, -1, 0)) PlnOutQty
+FROM wrhdoclst AS dl
+JOIN wrhdocs d ON d.id = dl.docid
+JOIN wrhdoctypes t ON t.id = d.doctypeid
+left JOIN wrhdoctypes dlt ON dlt.id = dl.subtypeid
+  where d.mol_staffid is not null
+  GROUP BY d.mol_staffid, d.wrhid, dl.refitmid;
+
+
+-- INSERT INTO `flagtypes` (`code`, `name`, `forsysobjid`, `active`, `uservisible`, `clientvisible`) VALUES ('mol', 'Материально-ответственное лицо (МОЛ)', '121', '1', '1', '0');
+
+
+-- 2025-11-29 ------------------------------------------------------------------------
 ALTER TABLE `stf_chrg_calcs` ADD COLUMN `tech_notes` VARCHAR(1024) NULL AFTER `notes`;
 
 SELECT * FROM stf_chrg_calcs where notes like '0_:%';

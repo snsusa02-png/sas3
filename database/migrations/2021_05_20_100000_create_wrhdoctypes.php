@@ -25,6 +25,8 @@ class CreateWrhdoctypes extends Migration
 
             $table->tinyInteger('forstock')->default(0)->comment('Влияние на запас на складе 0-не влияет, 1-увеличивает, -1-уменьшает');
             $table->tinyInteger('forsale')->default(0)->comment('Влияние на взаиморасчеты между поставщиком/покупателем "0"-не влияет, "1"-наша продажа, "-1"-наша покупка');
+  	    $table->tinyInteger('formol')->default(0)->comment('Влияние на взаиморасчеты с материально-ответственными лицами (МОЛ): "0"-не влияет, "1"-передача МОЛ, "-1"-возврат от МОЛ');
+
 
             $table->boolean('useprice')->default(0)->comment('Отображать/Редактировать цену в документе. 0-нет, 1-да');
             $table->boolean('any_ownorg')->default(0)->comment('1-Можно брать товар из запаса другого владельца');

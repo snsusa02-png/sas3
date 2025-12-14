@@ -78,6 +78,11 @@ class wrhdoc extends Model
         return $this->hasOne(orgstaff::class, 'id', 'disp_staffid')->withDefault();
     }
 
+    public function mol()
+    {
+        return $this->hasOne(orgstaff::class, 'id', 'mol_staffid')->withDefault();
+    }
+
     public function respstaff()
     {
         return $this->hasOne(orgstaff::class, 'id', 'respstaffid')

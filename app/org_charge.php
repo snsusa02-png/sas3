@@ -271,6 +271,9 @@ class org_charge extends Model
                     } elseif ($key == 'orgid' or $key == 's_orgid') {
                         $sc .= " and oc.orgid={$val}";
 
+                    } elseif ($key == 'chargetypeid') {
+                        $sc .= " and oc.chargetypeid={$val}";
+
                     } elseif ($key == 's_dir') {
                         $sc .= " and ct.dir={$val}";
 
@@ -331,7 +334,8 @@ class org_charge extends Model
             $lst = self::from('org_charges as oc')
                 ->join('chargetypes as ct', 'ct.id', 'oc.chargetypeid')
                 ->whereRaw($sc)
-                ->select('oc.id', db::raw("trim(concat('[', if((ct.dir<0), '-', '+'), '] ', ct.name, ', 1/' ,  if(oc.charge_period is null, '1', oc.charge_period), ' =' , oc.charge_sum, ' руб')) as tname"))
+                //->select('oc.id', db::raw("trim(concat('[', if(ct.dir=0, '0', if((ct.dir<0), '-', '+')), '] ', ct.name, ', 1/' ,  if(oc.charge_period is null, '1', oc.charge_period), ' =' , oc.charge_sum, ' руб')) as tname"))
+                ->select('oc.id', db::raw("trim(concat('[', if(ct.dir=0, '0', if((ct.dir<0), '-', '+')), '] ', ct.name, ', 1/' ,  if(oc.charge_period is null, '1', oc.charge_period), ' =' , if(oc.charge_sum is null, '-', oc.charge_sum), ' руб')) as tname"))
                 ->orderBy('tname', 'desc')
                 ->get()->pluck('tname', 'id')->toArray();
             asort($lst);

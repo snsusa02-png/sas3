@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\mol_stock;
 use App\obj_expense;
 use App\obj_finoper;
 use App\objflag;
@@ -643,7 +644,7 @@ class WrhdocController extends Controller
         Validator::make($request->all(), $rules, $messages)->validate();;
 
         $doctypeid = $request->get('doctypeid');
-        $doctype_params = wrhdoctype::select('need_relwrh', 'need_predoc', 'need_org')
+        $doctype_params = wrhdoctype::select('need_relwrh', 'need_predoc', 'need_org', 'formol')
             ->find($doctypeid);
 
         $rules = [
@@ -678,6 +679,10 @@ class WrhdocController extends Controller
         if ($doctype_params->need_org == 1) {
             $rules['orgid'] = 'required';
             $messages['orgid.required'] = 'Укажите Получателя';
+        }
+        if ($doctype_params->formol != 0) {
+            $rules['mol_staffid'] = 'required';
+            $messages['mol_staffid.required'] = 'Укажите сотрудника - Материально-ответственное лицо';
         }
         Validator::make($request->all(), $rules, $messages)->validate();
 
@@ -728,6 +733,7 @@ class WrhdocController extends Controller
         $rec->orgid = $request->get('orgid');
         $rec->respstaffid = $request->get('respstaffid');
         $rec->disp_staffid = $request->get('disp_staffid');
+        $rec->mol_staffid = $request->get('mol_staffid');
         $rec->remarks = $request->get('remarks');
 
         //$rec->active = $request->get('active', 0);
@@ -1020,6 +1026,133 @@ class WrhdocController extends Controller
                             }
                         }
                     }
+
+                    // Проверка влияния на запасы МОЛ -------------------------------------------
+                    $forstock = $rec->doctype->formol;
+                    if ($rslt_good and $forstock <> 0) {
+
+                        //базовое условие отбора товара из запаса МОЛ
+                        $sc = "staffid={$rec->mol_staffid}";
+
+                        // !!! для МОЛ пока все жестко - не снижаем ниже 0 , без исключений!
+                        $limit_stock = true;
+
+                        foreach ($lst as $itm) {
+
+                            if ($itm->subtypeid)
+                                //значение для индивидуального типа
+                                $itm_forstock = $itm->subtype->formol;
+                            else
+                                //значение для документа
+                                $itm_forstock = $forstock;
+
+                            $sc1 = '';
+                            // если документ снижает товарный запас
+                            // И нельзя снижать запас ниже 0
+                            // то, отсечем записи с 0 кол-вом в mol_stocks
+                            if ($itm_forstock < 0 and $limit_stock) {
+                                $sc1 .= ' and qty > 0';
+                            }
+                            $stock = mol_stock::where('refitmid', $itm->refitmid)
+                                ->whereRaw($sc . $sc1)
+                                ->first();
+
+                            if (!isset($stock)) {
+                                $stock = new mol_stock([
+                                    'refitmid' => $itm->refitmid,
+                                    'ownorgid' => $rec->ownorgid,
+                                    'staffid' => $rec->mol_staffid,
+                                    'qty' => 0,
+                                    'plnincqty' => 0,
+                                    'plnoutqty' => 0,
+                                ]);
+                            }
+
+                            if ($itm_forstock < 0) {
+                                //уменьшение остатка на складе
+                                if ($limit_stock) {
+                                    //не можем опускаться ниже 0
+                                    $stock_qty = $stock->qty ?? 0;  //mol_stock не содержит записи с нулевыми остатками
+                                    if ($stock_qty < $itm->qty) {
+                                        $rslt_good = false;
+
+                                        $itmname = $itm->refitem->searchname;
+                                        throw new \Exception( "Источник: " .$rec->mol->name
+                                            . ". Недостаточный запас для позиции: $itm->refitmid  $itmname: Требуется: $itm->qty Доступно: $stock_qty");
+                                    }
+                                }
+                                $stock->plnoutqty = $stock->plnoutqty - $itm->qty;
+                                $stock->qty = $stock->qty - $itm->qty;
+                            }
+                            if ($itm_forstock > 0) {
+                                //поступление на склад
+                                $stock->plnincqty = $stock->plnincqty - $itm->qty;
+                                $stock->qty = $stock->qty + $itm->qty;
+                            }
+                            $stock->save();
+
+                            if (1 == 0 and isset($rec->ordid)) {
+                                //!!! нужно капитально переделать!
+
+                                // видимо ранее считалось, что связь заказа с документом склада может быть только
+                                // отпуск со склада.
+                                // Но сейчас с заказом связаны разные типы документов склада:
+                                // 14 - резервирование товаров под отпуск и производство
+                                // 5 - производство товаров, необходимых заказу
+                                // 3 - расходная накладная (реализация товара) - то, что ранее было единственным
+                                // и они по-разному влияют на заказ
+
+
+                                // --- устаревший алгоритм ---
+                                //обновим поля OrdItems.plnshipqty и aprvshipqty
+                                //учитывая, что в заказе может быть несколько записей об одном товаре,
+                                // придется пройти по всем кандидатам с "ненулевой вместимостью"
+                                $orditems = orditem::where('ordid', $rec->ordid)
+                                    ->where('refitmid', $itm->refitmid)
+                                    ->where('plnshipqty', '>', 0)
+                                    ->whereraw('qty - aprvshipqty > 0')
+                                    ->get();
+
+                                $orditems = orditem::from('orditems as oi')
+                                    ->leftJoin('oi_qtys as iq1', function ($j) {
+                                        $j->on('iq1.oiid', '=', 'oi.id')
+                                            ->where('iq1.stageid', 1); //лучше 2
+                                    })
+                                    ->leftJoin('oi_qtys as iq3', function ($j) {
+                                        $j->on('iq3.oiid', '=', 'oi.id')
+                                            ->where('iq3.stageid', 3); //обеспечение товарами/материалами
+                                    })
+                                    ->where('oi.ordid', $rec->ordid)
+                                    ->where('refitmid', $itm->refitmid)
+                                    ->select('oi.ordid', 'oi.refitmid', 'iq1.qty as aprvqty', 'iq3.qty as bookqty')
+                                    ->first();
+
+
+                                $restQty = $itm->qty;
+                                foreach ($orditems as $oi) {
+                                    if ($restQty == 0) break;
+
+                                    $q = $oi->qty - $oi->aprvshipqty; //вместимость строки заказа
+                                    if ($q > $restQty) {
+                                        $setQty = $restQty;
+                                        $restQty = 0;
+                                    } else {
+                                        $setQty = $q;
+                                        $restQty = $restQty - $q;
+                                    }
+                                    if ($setQty > 0) {
+                                        //переведем из согласованного обратно в планируемое
+                                        $oi->plnshipqty = $oi->plnshipqty - $setQty;
+                                        $oi->aprvshipqty = $oi->aprvshipqty + $setQty;
+                                        $oi->save();
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+
+
                     if ($rslt_good) {
 
                         // Пересчитаем сумму документа
@@ -1143,8 +1276,39 @@ class WrhdocController extends Controller
                                 // то это признак ошибочного состояния wrh_stocks => нужно полностью пересчитать товарный запас
                                 // Установим признак полного пересчета
                                 $force_stock_recalc = true;
-
                             }
+
+                            //2025-12-13 Учтем влияние на учет по МОЛ -------------------------
+                            $forstock = $rec->doctype->formol;
+                            if ($forstock <> 0) {
+
+                                foreach ($lst as $itm) {
+
+                                    $stock = mol_stock::where('refitmid', $itm->refitmid)
+                                        ->where('ownorgid', $rec->ownorgid)
+                                        ->where('staffid', $rec->mol_staffid)
+                                        ->first();
+
+                                    if (isset($stock)) {
+                                        if ($forstock < 0) {
+                                            $stock->plnoutqty = $stock->plnoutqty + $itm->qty;
+                                            $stock->qty = $stock->qty + $itm->qty;
+                                        }
+                                        if ($forstock > 0) {
+                                            $stock->plnincqty = $stock->plnincqty + $itm->qty;
+                                            $stock->qty = $stock->qty - $itm->qty;
+                                        }
+                                        $stock->save();
+
+                                    } else {
+                                        // если не смогли найти запись с нужным складом/владельцем/товаром,
+                                        // то это признак ошибочного состояния wrh_stocks => нужно полностью пересчитать товарный запас
+                                        // Установим признак полного пересчета
+                                        $force_stock_recalc = true;
+                                    }
+                                }
+                            }
+
                             if (isset($rec->ordid)) {
                                 //обновим поля OrdItems.plnshipqty и aprvshipqty
                                 //учитывая, что в заказе может быть несколько записей об одном товаре,
@@ -1459,7 +1623,7 @@ class WrhdocController extends Controller
                     ->where('ric.active', 1)
                     ->whereRaw('curdate() between ric.begdate and ifnull(ric.enddate, curdate())');
             })
-          ->count();
+            ->count();
         //->tosql();
         //dd($itm_cnt);
 
@@ -1592,11 +1756,11 @@ class WrhdocController extends Controller
         //if (usrsysright::isUserHasRightByCode($userid, 'admin-global')) {
         if (usrsysright::isUserHasRightByCode($userid, 'wrhdocs.sign')) {
             DB::unprepared('CALL recalc_stock()');
-            objlog::log_info($this->sysobjid, 0, 'Произведен пересчет остатков на складах.', 4);
+            objlog::log_info($this->sysobjid, 0, 'Произведен пересчет остатков на складах и МОЛ.', 4);
             $sd['success'] = 'Произведен пересчет остатков на складах';
 
         } else {
-            objlog::log_info($this->sysobjid, 0, 'Попытка пересчета остатков на складах. Нет права', 2);
+            objlog::log_info($this->sysobjid, 0, 'Попытка пересчета остатков на складах и МОЛ. Нет права', 2);
             $sd['error'] = 'У Вас нет прав на выполнение этого действия!';
         }
         return redirect(route('wrhdocs.index'))->with($sd);

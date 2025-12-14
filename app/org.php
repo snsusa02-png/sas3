@@ -1197,6 +1197,11 @@ class org extends Model
                         $sc .= " and " . (($val == 0) ? "not" : "")
                             . " exists (select 1 from org_charges as oc where oc.orgid=o.id)";
 
+                    } elseif ($key == 'has_chargetypeid') {
+                        //у организации есть заданное начисление/удержания
+                        $sc .= " and exists (select 1 from org_charges as oc
+                            where oc.orgid=o.id and oc.chargetypeid={$val})";
+
                     } elseif ($key == 'in_idcards') {
                         $sc .= " and " . (($val == 0) ? "not" : "")
                             . " exists (select 1 from idcards as ic where ic.orgid=o.id)";

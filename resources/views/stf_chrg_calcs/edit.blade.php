@@ -392,7 +392,7 @@
 
                                 @if(!is_null($rec->tech_notes))
                                     <div class="small" style="margin: 8px; color:gray">
-                                        тех. данные: {{$rec->tech_notes}}
+                                        тех. данные: {{$rec->tech_notes}} 
                                     </div>
                                 @endif
                             </div>

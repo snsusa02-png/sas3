@@ -25,6 +25,7 @@
             $showRespStaff = ($rec->doctype->need_respstaffid == 1);
             $showSaleOrg = ($rec->doctypeid == 3);
             $showOrg = ($rec->doctype->need_org == 1);
+            $showMol = ($rec->doctype->formol != 0);
             $isDocSigned = ($rec->docsigned == 1);
 
             $showRelWrh = ($showRelWrh or isset($rec->relwrh->id));
@@ -36,6 +37,7 @@
             $showRespStaff = false;
             $showSaleOrg = false;
             $showOrg = false;
+            $showMol = false;
             $isDocSigned = false;
         }
 
@@ -285,6 +287,44 @@
                                     </div>
 
                                 </div>
+
+                                <?php
+                                $t_style = "display:none;";
+                                if ($showMol) $t_style = "display:block;";
+                                ?>
+
+                                <div class="row" id="mol_row" style="{{$t_style}}">
+                                    <div class="col-md-6" id="mol">
+                                        <div class="form-group">
+                                            <label for="molid" id="mol_label"
+                                                   class="required">{{$rec->doctype->mol_label?:'МОЛ'}}
+                                                :</label>
+                                            @if ($usrrights['save'])
+                                                <div class="input-group mb-3">
+                                                    <input type="text" name="mol_name" id="mol_name" required
+                                                           class="ac_name mol_name form-control font-weight-bold"
+                                                           value="{{$rec->mol->name}}">
+                                                    <input type="text"
+                                                           class="form-control text-center small ac_status"
+                                                           style="display: none; border: #d7f3e3; " readonly>
+                                                    <input type="hidden" name="mol_staffid" id="mol_staffid"
+                                                           class="ac_id staffid"
+                                                           value="{{$rec->mol_staffid}}">
+                                                    <a class="btn btn-light id_lnk" data-id="mol_staffid"
+                                                       data-obj="orgstaff"
+                                                       target="_blank">
+                                                        <i class="fa fa-info text-info" aria-hidden="true"></i>
+                                                    </a>
+                                                </div>
+
+                                            @else
+                                                {{ Form::hidden('mol_staffid', $rec->mol_staffid) }}
+                                                <p><b>{{$rec->mol->name}}</b></p>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class="row">
                                     @php($t_nxtoffset = "offset-md-6")
                                     {{--									@if($showPreDoc or isset($rec->predocid))--}}
