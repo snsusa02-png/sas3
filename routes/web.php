@@ -1442,6 +1442,8 @@ Route::put('buildobj_wrhs/{id}/delete', "BuildobjWrhController@destroy")->name("
 Route::get('wrhdoctypes/params/', 'WrhdoctypeController@params')->name('wrhdoctypes.params');
 //Отчеты по данным склада
 Route::match(array('POST', 'GET'), '/reports/rep/33', "WrhStockController@rep33")->name('reports.rep33');
+//Отчеты по запасам у МОЛ
+Route::match(array('POST', 'GET'), '/reports/rep/34', "MolStockController@rep34")->name('reports.rep34');
 
 
 //Документы регистрации получения материалов на "линии"

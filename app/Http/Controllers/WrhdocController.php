@@ -308,6 +308,11 @@ class WrhdocController extends Controller
             'title' => 'Товарный запас на складах'
         ]);
         $t_coll->push((object)[
+            'name' => 'МОЛ',
+            'url' => route('reports.rep34'),
+            'title' => 'Товарный запас у материально-ответственных лицах'
+        ]);
+        $t_coll->push((object)[
             'name' => 'Номенклатура',
             'url' => route('refitems.index'),
             'title' => 'Товары и услуги'
