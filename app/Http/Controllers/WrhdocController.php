@@ -812,6 +812,9 @@ class WrhdocController extends Controller
                     ->whereRaw("not exists (select 1 from wrhdocs as d where d.id=t.objid)")
                     ->delete();
 
+                //2026-12-14 Пересчет остатков на складах и у МОЛ
+                DB::unprepared('CALL recalc_stock()');
+
                 $route = route($this->sysobjcode . '.index') . '?page=' . session('pageno');
                 $sd['success'] = 'Запись удалена административно';
                 objlog::log_info($this->sysobjid, 0, "Административное удаление записи id=" . $id, 2);
