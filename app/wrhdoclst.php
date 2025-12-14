@@ -66,10 +66,12 @@ class wrhdoclst extends Model
         //Решает вопросы возможности добавления указанного кол-ва
         // по ограничениям заказа
         // по ограничениям товарного запаса на складе
+        // по ограничениям запаса у МОЛ
         //
         // сохраняет изменения
         // - по позициям заказа
         // - по запасу склада
+        // - по запасу МОЛ
 
         // $add_qty - добавляемое / убавляемое кол-во.
         // Для изменяемых записей = разнице между текущим (введенным) значением
@@ -82,6 +84,8 @@ class wrhdoclst extends Model
         $ownorgid = $doc->ownorgid; //Владелец товара
         $wrhid = $doc->wrhid;       //Склад
         $boxid = $doc->boxid;       //Отделение / Ячейка хранения на складе
+        $mol_staffid = $doc->mol_staffid; //МОЛ
+
 
         $restrictReasons = "";
 
@@ -107,17 +111,18 @@ class wrhdoclst extends Model
         // если для типа документа запрещено брать товар из запасов любой организации, то
         if ($doc->doctype->any_ownorg == 0) $sc = "ownorgid={$ownorgid}";
 
-        $sc .= ' and qty>0';
-        
-        $stock = wrh_stock::where('refitmid', $refitmid)
+        $sc .= ' and qty>=0';
+
+        // запас на складе
+        $wrh_stock = wrh_stock::where('refitmid', $refitmid)
             ->where(['wrhid' => $wrhid, 'boxid' => $boxid])
             ->whereRaw($sc)
             ->first();
         //dd($refitmid, $ownorgid, $wrhid, $stock);
 
-        if (!isset($stock)) {
+        if (!isset($wrh_stock)) {
             $userid = \Auth::user()->id;
-            $stock = new wrh_stock([
+            $wrh_stock = new wrh_stock([
                 "ownorgid" => $ownorgid,
                 "wrhid" => $wrhid,
                 "boxid" => $boxid,
@@ -132,22 +137,81 @@ class wrhdoclst extends Model
         }
         //dd($stock);
 
-        $forstock = $doc->doctype->forstock;
-        if ($forstock < 0) {
+        $for_wrh_stock = $doc->doctype->forstock;
+        if ($for_wrh_stock < 0) {
             //проверим возможность уменьшения
-            $avlqty = $stock->qty - $stock->plnoutqty;
+            $avlqty = $wrh_stock->qty - $wrh_stock->plnoutqty;
             if ($avlqty < $add_qty)
                 $restrictReasons = $restrictReasons . ';по запасу на складе (' . $avlqty . ')';
             $add_qty = min($avlqty, $add_qty);
 //            echo(' ' . $add_qty);
-            $stock->plnoutqty = $stock->plnoutqty + $add_qty;
         }
-        if ($forstock > 0) {
-            $stock->plnincqty = $stock->plnincqty + $add_qty;
+
+
+        //Проверим возможность и повлияем на запас МОЛ ---------------------------------------
+        $sc = "1=1";
+        // если для типа документа запрещено брать товар из запасов любой организации, то
+        if ($doc->doctype->any_ownorg == 0) $sc = "ownorgid={$ownorgid}";
+
+        $sc .= ' and qty>=0';
+
+        $mol_stock = mol_stock::where('refitmid', $refitmid)
+            ->where(['staffid' => $mol_staffid])
+            ->whereRaw($sc)
+            ->first();
+        //dd($refitmid, $ownorgid, $mol_staffid, $mol_stock);
+
+        if (!isset($mol_stock)) {
+            $userid = \Auth::user()->id;
+            $mol_stock = new mol_stock([
+                "ownorgid" => $ownorgid,
+                "staffid" => $mol_staffid,
+                "refitmid" => $refitmid,
+                "qty" => 0,
+                "plnincqty" => 0,
+                "plnoutqty" => 0,
+                "created_by" => $userid,
+                "created_at" => now(),
+                "updated_by" => $userid,
+                "updated_at" => now()]);
         }
-        //Не сохраняем нулевые добавления
-        if ($add_qty <> 0)
-            $stock->save();
+        //dd($stock);
+
+        $for_mol_stock = $doc->doctype->formol;
+        if ($for_mol_stock < 0) {
+            //проверим возможность уменьшения
+            $avlqty = $mol_stock->qty - $mol_stock->plnoutqty;
+            if ($avlqty < $add_qty)
+                $restrictReasons = $restrictReasons . ';по запасу МОЛ (' . $avlqty . ')';
+            $add_qty = min($avlqty, $add_qty);
+//            echo(' ' . $add_qty);
+        }
+
+        // изменение wrh_stock и mol_stock в одном месте - по итоговому значению $add_qty,
+        // полученносу после прохождения контроля и по WRH, и по MOL
+
+        // итоговое обновление регистров и по Складу, и по МОЛ
+        if ($add_qty <> 0) {
+            //Не сохраняем нулевые добавления
+            if ($for_wrh_stock < 0) {
+                $wrh_stock->plnoutqty = $wrh_stock->plnoutqty + $add_qty;
+            }
+            if ($for_wrh_stock > 0) {
+                $wrh_stock->plnincqty = $wrh_stock->plnincqty + $add_qty;
+            }
+
+            if ($for_mol_stock < 0) {
+                $mol_stock->plnoutqty = $mol_stock->plnoutqty + $add_qty;
+            }
+            if ($for_mol_stock > 0) {
+                $mol_stock->plnincqty = $mol_stock->plnincqty + $add_qty;
+            }
+
+            $wrh_stock->save();
+            $mol_stock->save();
+        }
+        //--------------------------------------------------------------------------------
+
 
         //влияние на заказ --------------------------
         if ($doc->ordid and $add_qty <> 0) {
