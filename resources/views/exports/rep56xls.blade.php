@@ -47,9 +47,9 @@ $first_col_id = null;
 
             <tbody>
             <?php
-                
+
             $npp = 0;
-            $totSum = $totInpSum = $totOutSum = 0;
+            $totSum = $totInpSum = $totOutSum = $lineInpSum = 0;
             $cur_orgid = -1;
             $cur_dep_name = '-1';
             $cur_staffid = -1;
@@ -82,6 +82,7 @@ $first_col_id = null;
                             }
                             echo( '</td>');
                         }
+                        echo('<td x:num width="12">' . $lineInpSum . '</td>');
                         echo('<td x:num width="12">' . $totOutSum . '</td>');
                         echo('</tr>');
                         ?>
