@@ -376,16 +376,30 @@ class driver_work extends Model
             //dd($charge_sum);
 
             // Сформируем детали расчета - для сохранения в поле примечания (stf_chrg_calc.notes)
-            $sql = "select group_concat(notes separator '; ') notes from (SELECT concat(
-        		SUM(day_wrkhrs), ' ч * ', day_hr_rate, ' руб (день)'
-                , ' + ', SUM(night_wrkhrs), ' ч * ', night_hr_rate, ' руб (ночь)'
-                , ' + ', SUM(breaks_sum), ' руб (простой)'
-		        ) as notes
-                FROM driver_works as dw
-                where staffid={$p_staffid}
-                  and wrkdate between '{$int_begdate}' and '{$int_enddate}'
-                  and salary_sum>0
-                GROUP BY day_hr_rate, night_hr_rate) a";
+            // 2025-12-14 для сокращения длины коментария, учтем случаи, когда ставки в день и ночь равны
+            $sql = "select group_concat(notes separator '; ') notes from (
+                        SELECT concat(
+                            SUM(day_wrkhrs + night_wrkhrs), ' ч * ', day_hr_rate, ' руб'
+                            , case when SUM(breaks_sum)>0 then concat(' + ', SUM(breaks_sum), ' руб (простой)') else ' ' end
+                            ) as notes
+                            FROM driver_works as dw
+                            where staffid={$p_staffid}
+                              and wrkdate between '{$int_begdate}' and '{$int_enddate}'
+                              and salary_sum>0
+                              and day_hr_rate = night_hr_rate
+                            GROUP BY day_hr_rate, night_hr_rate
+                        union
+                        SELECT concat(
+                            SUM(day_wrkhrs), ' ч * ', day_hr_rate, ' руб (день)'
+                            , ' + ', SUM(night_wrkhrs), ' ч * ', night_hr_rate, ' руб (ночь)'
+                            , case when SUM(breaks_sum)>0 then concat(' + ', SUM(breaks_sum), ' руб (простой)') else ' ' end                            ) as notes
+                            FROM driver_works as dw
+                            where staffid={$p_staffid}
+                              and wrkdate between '{$int_begdate}' and '{$int_enddate}'
+                              and salary_sum>0
+                              and day_hr_rate != night_hr_rate
+                            GROUP BY day_hr_rate, night_hr_rate
+                        ) a";
             $rslt = DB::select(DB::raw($sql));
             $notes = $rslt[0]->notes ?? '';
             //dd($sql, $notes);
