@@ -1081,7 +1081,10 @@ class WrhdocController extends Controller
                                             . ". Недостаточный запас для позиции: $itm->refitmid  $itmname: Требуется: $itm->qty Доступно: $stock_qty");
                                     }
                                 }
+                                // перенсим план в факт
+                                //снижаем кол-во планируемого расхода
                                 $stock->plnoutqty = $stock->plnoutqty - $itm->qty;
+                                //снижаем фактический остаток
                                 $stock->qty = $stock->qty - $itm->qty;
                             }
                             if ($itm_forstock > 0) {
