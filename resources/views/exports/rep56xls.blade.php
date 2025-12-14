@@ -40,6 +40,7 @@ $first_col_id = null;
                     ?>
                     <td id="col_{{$col->id}}">{{$col->name}}</td>
                 @endforeach
+                <td class="textright">Итого начислено</td>
                 <td class="textright">ИТОГО</td>
             </tr>
             </thead>
@@ -124,12 +125,15 @@ $first_col_id = null;
                         $line_sum[$tcol->id] = null;
                         $line_notes[$tcol->id] = null;
                     }
+                    $lineInpSum = 0;
                     $totOutSum = 0;
                     ?>
                 @endif
 
                 <?php
+                $lineInpSum += ($rec->dir == 1) ? $rec->charge_sum : 0;
                 $totOutSum += ($rec->dir * $rec->charge_sum);
+                $totInpSum += ($rec->dir == 1) ? $rec->charge_sum : 0;
                 $totSum += ($rec->dir * $rec->charge_sum);
 
                 $line_sum[$rec->chargetypeid] = $rec->dir * $rec->charge_sum;
@@ -150,6 +154,7 @@ $first_col_id = null;
                     }
                     echo( '</td>');
                 }
+                echo('<td x:num width="12">' . $lineInpSum . '</td>');
                 echo('<td x:num width="12">' . $totOutSum . '</td>');
                 echo('</tr>');
                 ?>
@@ -158,6 +163,7 @@ $first_col_id = null;
             @if(1==1)
                 <tr>
                     <td colspan="{{3+$cols_count}}" class="textright">Всего:</td>
+                    <td x:num width="12">{{$totInpSum}}</td>
                     <td x:num width="12">{{$totSum}}</td>
                 </tr>
             @endif

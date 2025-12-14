@@ -33,6 +33,7 @@ $first_col_id = null;
             padding: 5px;
             border-collapse: collapse;
             border: 1px solid #e2e2e2;
+            max-width: 100px;
         }
 
         .page {
