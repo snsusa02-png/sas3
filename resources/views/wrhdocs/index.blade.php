@@ -110,7 +110,7 @@
                             <tr>
                                 <th scope="col">#</th>
                                 <th scope="col" class="th-sm">Документ</th>
-                                <th class="th-sm">Склад</th>
+                                <th class="th-sm">Склад / МОЛ</th>
                                 <th scope="col" class="th-sm">Статус</th>
                                 <td class="text-right">
                                     @if($usrrights['create'])
@@ -229,7 +229,11 @@
                                             <div class="">{{$item->org_name}}</div>
                                             <div class="small font-italic"> {{$item->remarks}}</div>
                                         </td>
-                                        <td class="c">{{$item->wrh->name}}</td>
+                                        <td class="c">
+                                            {{($item->doctype->forstock==1)?'->':''}}
+                                            {{$item->wrh->name}}
+                                            {{($item->doctype->formol==1)?'->':''}}
+                                            {{$item->mol->name}}</td>
                                         <td class="text-center">
                                             <span class="{{$status_name_class}}"> {{$item->statusname}}</span>
                                             @if ($usrrights['create'])
