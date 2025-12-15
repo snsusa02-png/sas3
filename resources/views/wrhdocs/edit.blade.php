@@ -301,7 +301,7 @@
                                                 :</label>
                                             @if ($usrrights['save'])
                                                 <div class="input-group mb-3">
-                                                    <input type="text" name="mol_name" id="mol_name" required
+                                                    <input type="text" name="mol_name" id="mol_name"
                                                            class="ac_name mol_name form-control font-weight-bold"
                                                            value="{{$rec->mol->name}}">
                                                     <input type="text"
