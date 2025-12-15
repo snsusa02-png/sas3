@@ -424,6 +424,9 @@ class orgstaff extends Model
 
                     } elseif ($key == 'staff_in_fuelcard_pays') {
                         $sc .= " and exists( select 1 from fuelcard_pays as fcp where fcp.driverid=os.id )";
+
+                    } elseif ($key == 'with_stocks') {
+                        $sc .= " and exists( select 1 from mol_stocks as ms where ms.staffid=os.id )";
                     }
                 }
 
