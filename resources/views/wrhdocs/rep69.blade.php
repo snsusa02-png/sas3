@@ -152,6 +152,17 @@ $action_url = route('reports.rep' . $thisObjId);
                                                             !!}
                                         </div>
                                     @endif
+                                    @if(1==1)
+                                        <div class="form-group col-md-3">
+                                            <label for="s_ownorgid" class="">Склад:</label>
+                                            {!! Form::select('s_wrhid', $data->wrhs??[], $search_params['s_wrhid'],
+                                                            [
+                                                            'class' => 'form-control',
+                                                            'placeholder' => '-все-',
+                                                            ])
+                                                            !!}
+                                        </div>
+                                    @endif
                                 </div>
                             @endif
 

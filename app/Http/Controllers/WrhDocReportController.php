@@ -1051,7 +1051,7 @@ class WrhDocReportController extends Controller
             , 's_year' => $year
             , 's_orgid' => ''
             , 's_itmtypeid' => ''
-            , 's_fuelcardid' => ''
+            , 's_wrhid' => ''
         ];
 
         $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);
@@ -1102,7 +1102,7 @@ class WrhDocReportController extends Controller
         }
 
         $need_search = false;
-        $sc0 = $sc = "1=1";
+        $sc0 = $sc = $sc_beg = "1=1";
         $s_begdate = $search_params['s_begdate'];
 
         foreach ($search_params as $item => $val) {
@@ -1136,6 +1136,10 @@ class WrhDocReportController extends Controller
 
                 } elseif ($item == 's_year') {
                     //$sc = $sc . " and year(fp.paydate) = '{$val}'";
+
+                } elseif ($item == 's_wrhid') {
+                    $sc_beg = $sc_beg . " and d.wrhid = '{$val}'";
+                    $sc = $sc . " and d.wrhid = '{$val}'";
                 }
             }
         }
@@ -1207,6 +1211,7 @@ class WrhDocReportController extends Controller
                 left join ri_units au on au.refitmid=ri.id and au.unittypeid = 8
                 WHERE d.docsigned = 1
                     and d.docdate < '{$s_begdate}'
+                    and {$sc_beg} /*2025-12-28*/
                     /*номенклатура - из производства*/
                     and exists(select 1 from  wrhdocs d0
 						join wrhdoclst di0 on di0.docid=d0.id
@@ -1304,6 +1309,15 @@ class WrhDocReportController extends Controller
             ->pluck('name', 'id');
         //dd($data->itmtypes);
 
+        $data->wrhs = wrhdoc::from("wrhdocs as d")
+            ->join("wrhs as w", "w.id", "d.wrhid")
+            ->where("d.doctypeid", 10)  //Поступление от производства
+            ->select('w.id', 'w.name')
+            ->distinct()
+            ->orderby('name', 'asc')
+            ->get()
+            ->pluck('name', 'id');
+        //dd($data->wrhs);
 
         $s_period_type = $search_params['s_period_type'] ?? '';
         $ownorgid = $search_params['s_ownorgid'] ?? '';
@@ -1326,6 +1340,10 @@ class WrhDocReportController extends Controller
                 $data->period_title .= ' с ' . date_format(date_create($s_begdate), 'd.m.Y');
             if (isset($s_enddate) and $s_enddate <> '')
                 $data->period_title .= ' по ' . date_format(date_create($s_enddate), 'd.m.Y');
+        }
+        if(isset($search_params['s_wrhid']) and $search_params['s_wrhid']!=''){
+            //dd($search_params['s_wrhid'], !is_null($search_params['s_wrhid']));
+            $data->period_title .= ', склад: ' . $data->wrhs[$search_params['s_wrhid']??0];
         }
         //dd($s_period_type,$s_begdate, $s_enddate, $data->period_title,  date_format(date_create($s_begdate), 'd.m.Y'));
 
