@@ -334,8 +334,8 @@ class driver_work extends Model
             //dd($spp);
 
             if (isset($spp)) {
-                $int_begdate=$spp->begdate;
-                $int_enddate=$spp->enddate;
+                $int_begdate = $spp->begdate;
+                $int_enddate = $spp->enddate;
             } else {
                 $int_begdate = date_create($p_wrkdate)->format('Y-m-01');
                 $int_enddate = date_create($p_wrkdate)->format('Y-m-t');
@@ -351,7 +351,7 @@ class driver_work extends Model
                     //->whereRaw("date_format(spp.enddate, '%Y-%m')='{$ym}'")
                     ->whereRaw("date_format(spp.enddate, '%Y-%m')=date_format('{$p_wrkdate}', '%Y-%m')")
                     ->max('enddate');
-                if (isset($pre_enddate)){
+                if (isset($pre_enddate)) {
                     $int_begdate = date('Y-m-d', strtotime($pre_enddate . ' +1 day'));
                 }
 
@@ -363,7 +363,7 @@ class driver_work extends Model
                     ->where('spp.begdate', '>', $p_wrkdate)
                     ->whereRaw("date_format(spp.begdate, '%Y-%m')=date_format('{$p_wrkdate}', '%Y-%m')")
                     ->min('begdate');
-                if (isset($nxt_begdate)){
+                if (isset($nxt_begdate)) {
                     $int_enddate = date('Y-m-d', strtotime($nxt_begdate . ' -1 day'));
                 }
             }
@@ -376,8 +376,9 @@ class driver_work extends Model
             //dd($charge_sum);
 
             // Сформируем детали расчета - для сохранения в поле примечания (stf_chrg_calc.notes)
-            // 2025-12-14 для сокращения длины коментария, учтем случаи, когда ставки в день и ночь равны
-            $sql = "select group_concat(notes separator '; ') notes from (
+            if (1 == 0) {
+                // 2025-12-14 для сокращения длины коментария, учтем случаи, когда ставки в день и ночь равны
+                $sql = "select group_concat(notes separator '; ') notes from (
                         SELECT concat(
                             SUM(day_wrkhrs + night_wrkhrs), ' ч * ', day_hr_rate, ' руб'
                             , case when SUM(breaks_sum)>0 then concat(' + ', SUM(breaks_sum), ' руб (простой)') else ' ' end
@@ -400,9 +401,58 @@ class driver_work extends Model
                               and day_hr_rate != night_hr_rate
                             GROUP BY day_hr_rate, night_hr_rate
                         ) a";
-            $rslt = DB::select(DB::raw($sql));
-            $notes = $rslt[0]->notes ?? '';
-            //dd($sql, $notes);
+                $rslt = DB::select(DB::raw($sql));
+                $notes = $rslt[0]->notes ?? '';
+                //dd($sql, $notes);
+            }
+
+            if (1 == 1) {
+                // 2026-01-06 разделим на два запроса.
+                // Сначала коментарий про ставки работы, потом про простой - с разделением по видам
+                $sql = "select group_concat(notes separator '; ') notes from (
+                        SELECT concat(
+                            SUM(day_wrkhrs + night_wrkhrs), ' ч * ', day_hr_rate, ' руб'
+                            ) as notes
+                            FROM driver_works as dw
+                            where staffid={$p_staffid}
+                              and wrkdate between '{$int_begdate}' and '{$int_enddate}'
+                              and salary_sum>0
+                              and day_hr_rate = night_hr_rate
+                            GROUP BY day_hr_rate, night_hr_rate
+                        union
+                        SELECT concat(
+                            SUM(day_wrkhrs), ' ч * ', day_hr_rate, ' руб (день)'
+                                , ' + ', SUM(night_wrkhrs), ' ч * ', night_hr_rate, ' руб (ночь)'
+                            ) as notes
+                            FROM driver_works as dw
+                            where staffid={$p_staffid}
+                              and wrkdate between '{$int_begdate}' and '{$int_enddate}'
+                              and salary_sum>0
+                              and day_hr_rate != night_hr_rate
+                            GROUP BY day_hr_rate, night_hr_rate
+                        ) a";
+                $rslt = DB::select(DB::raw($sql));
+                $notes = $rslt[0]->notes ?? '';
+                //dd($sql, $notes);
+
+                // примечание по простоям, с разбивкам по видам простоя
+                $sql = "select group_concat( brk_sum separator ', ') as notes from(
+                            select b.wrktypeid
+                                , concat( max(wt.name), ': ', sum(b.brk_sum)) as brk_sum
+                                from driver_works dw
+                                join dw_breaks b on b.dw_id = dw.id and b.brk_sum >0
+                                join wrktypes wt on wt.id=b.wrktypeid
+                                where dw.staffid={$p_staffid}
+                                and dw.wrkdate between '{$int_begdate}' and '{$int_enddate}'
+                                group by b.wrktypeid
+                            ) t";
+                $rslt = DB::select(DB::raw($sql));
+                $notes2 = $rslt[0]->notes ?? '';
+                if ($notes2 != '')
+                    $notes .= ', ' . $notes2;
+                //dd($sql, $notes2, $notes);
+
+            }
 
             // Так как привязываем совокупную запись, то берем "общий" идентификатор - "0"
             $stfchrgcalc = stf_chrg_calc::where([
@@ -410,7 +460,7 @@ class driver_work extends Model
                 , 'ref_sysobjid' => self::$sysobjid
                 , 'ref_objid' => 0
 //                , 'docdate' => $int_begdate
-            //2025-08-17
+                //2025-08-17
                 , 'forbegdate' => $int_begdate
                 , 'forenddate' => $int_enddate
                 , 'orgchargeid' => $orgcharge->id

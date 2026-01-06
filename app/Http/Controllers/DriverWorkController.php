@@ -409,7 +409,6 @@ class DriverWorkController extends Controller
             if ($rec->created_by == $userid)
                 $statuses[2] = 'подготовлен для согласования';
 
-
             //--------------------------------------------------------------------------
 
 
@@ -929,6 +928,33 @@ class DriverWorkController extends Controller
         connectify('success', 'Сохранение изменений', $msg_simple);
         //-------------------------------------------------------------------------------------------------------
 
+        //-------------------------------------------------------
+        // Сохраним данные о простоях/ремонтах/доп.работах
+        foreach ($aux_worktypeid as $i => $itm) {
+
+            $hr_sum = 1 * $aux_day_hrs[$i] * $aux_hr_day_rate[$i]
+                + 1 * $aux_night_hrs[$i] * $aux_hr_night_rate[$i];
+
+            $brk_sum = $hr_sum + 1 * $aux_aux_sum[$i];
+
+            dw_break::addOrUpdate(
+                ['dw_id' => $rec->id, 'wrktypeid' => $aux_worktypeid[$i]],
+                ['dw_id' => $rec->id, 'wrktypeid' => $aux_worktypeid[$i]
+                    , 'begdt' => null
+                    , 'enddt' => null
+                    , 'day_hrs' => $aux_day_hrs[$i] * 1
+                    , 'night_hrs' => $aux_night_hrs[$i] * 1
+                    , 'hr_day_rate' => $aux_hr_day_rate[$i] * 1
+                    , 'hr_night_rate' => $aux_hr_night_rate[$i] * 1
+                    , 'hr_sum' => $hr_sum
+                    , 'aux_sum' => $aux_aux_sum[$i] * 1
+                    , 'brk_sum' => $brk_sum
+                    , 'updated_by' => $userid
+                    , 'updated_at' => now()
+                ]);
+        }
+        //-------------------------------------------------------
+
         // Регистрация расчета ЗП сотрудника за месяц
         driver_work::refr_stf_month_chrg_calc($rec->staffid, $rec->wrkdate, $userid);
         if (1 == 0) {
@@ -997,34 +1023,6 @@ class DriverWorkController extends Controller
             }
             //---------------------------------------------------------------------------------------
         }
-
-        //-------------------------------------------------------
-        // Сохраним данные о простоях/ремонтах/доп.работах
-
-        foreach ($aux_worktypeid as $i => $itm) {
-
-            $hr_sum = 1 * $aux_day_hrs[$i] * $aux_hr_day_rate[$i]
-                + 1 * $aux_night_hrs[$i] * $aux_hr_night_rate[$i];
-
-            $brk_sum = $hr_sum + 1 * $aux_aux_sum[$i];
-
-            dw_break::addOrUpdate(
-                ['dw_id' => $rec->id, 'wrktypeid' => $aux_worktypeid[$i]],
-                ['dw_id' => $rec->id, 'wrktypeid' => $aux_worktypeid[$i]
-                    , 'begdt' => null
-                    , 'enddt' => null
-                    , 'day_hrs' => $aux_day_hrs[$i] * 1
-                    , 'night_hrs' => $aux_night_hrs[$i] * 1
-                    , 'hr_day_rate' => $aux_hr_day_rate[$i] * 1
-                    , 'hr_night_rate' => $aux_hr_night_rate[$i] * 1
-                    , 'hr_sum' => $hr_sum
-                    , 'aux_sum' => $aux_aux_sum[$i] * 1
-                    , 'brk_sum' => $brk_sum
-                    , 'updated_by' => $userid
-                    , 'updated_at' => now()
-                ]);
-        }
-        //-------------------------------------------------------
 
 
         if ($id == -1 or $rec->statusid <> $pre_statusid)
