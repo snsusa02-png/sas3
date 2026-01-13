@@ -293,6 +293,8 @@ class ReportController extends Controller
             ->join('user_acs as ua', 'ua.userid', 'u.id')
             ->where('r.id', $id)
             ->where('u.active', 1)
+            ->where('ua.active', 1)
+            ->whereNull('ur.enddt')
             ->whereRaw('ua.acsid = ifnull(r.acsid, ua.acsid)')
             ->orderBy('lname')
             ->orderBy('fname')

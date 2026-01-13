@@ -1361,6 +1361,12 @@ class org extends Model
                             . " exists (select 1 from wrh_stocks as ws
                                     where ws.ownorgid=o.id and ws.qty>0)";
 
+                    } elseif ($key == 'in_mol_stocks') {
+                        //организация имеет товарный запас у МОЛ
+                        $sc .= " and " . (($val == 0) ? "not" : "")
+                            . " exists (select 1 from mol_stocks as ms
+                                    where ms.ownorgid=o.id and ms.qty>0)";
+
                     } elseif ($key == 'in_wrhdocs_ownorg') {
                         // использовалась в документах склада как Компания-владелец склада
                         $sc .= " and " . (($val == 0) ? "not" : "")

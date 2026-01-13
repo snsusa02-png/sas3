@@ -270,6 +270,12 @@ class itmtype extends Model
                         $sc .= " and " . (($val == 0) ? "not" : "")
                             . " exists (select 1 from refitems as ri where ri.itmtypeid=it.id
                                     and exists(select 1 from wrh_stocks s where s.refitmid=ri.id and s.qty>0))";
+
+                    } elseif ($key == 'in_mol_stocks') {
+                        //использована запасах МОЛ
+                        $sc .= " and " . (($val == 0) ? "not" : "")
+                            . " exists (select 1 from refitems as ri where ri.itmtypeid=it.id
+                                    and exists(select 1 from mol_stocks s where s.refitmid=ri.id and s.qty>0))";
                     }
                 }
 
