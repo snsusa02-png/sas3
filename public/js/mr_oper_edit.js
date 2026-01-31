@@ -52,9 +52,9 @@ $(document).ready(function () {
         const opertypeid = $("#opertypeid").val();
         const producttypeid = $("#producttypeid").val();
 
-        if ( sale_dir == +1
+        if (sale_dir == +1
             && (opertypeid == 3 || opertypeid == 4 || opertypeid == 9)
-            && producttypeid == 1 ) {
+            && producttypeid == 1) {
             //alert(sale_dir);
             //% вознаграждения водителя в зависимости от вида операции
             //const k2 = 0.1;     // 10%
@@ -63,14 +63,14 @@ $(document).ready(function () {
                 k2 = 0.1;   // 10%
             else if (opertypeid == 4) {    //Манипулятор
                 //k2 = 0.13;  // 13%
-                k2 = (parseFloat($("#driver_fee_pcnt").val())?? 13) / 100;
+                k2 = (parseFloat($("#driver_fee_pcnt").val()) ?? 13) / 100;
                 //alert(k2);
-            }
-            else if (opertypeid == 9)    //Рефрижераторные перевозки
+            } else if (opertypeid == 9)    //Рефрижераторные перевозки
                 k2 = 0.15;  // 15%
 
             //alert(opertypeid);
             //alert(k2);
+            //console.log(k2);
 
             $(".driver_sum_info").show();
             const itm_sum = parseFloat($("#itm_sum").val()) ?? 0;
@@ -80,20 +80,25 @@ $(document).ready(function () {
             agent_sum = (isNaN(agent_sum)) ? 0 : agent_sum;
 
             //const k1 = ($("#paytypeid").val() == 1) ? 1 : 0.8;
-            var k1 = 1;
+            var k1 = 0;
             if ($("#paytypeid").val() == 1)     //Нал
                 k1 = 1;
             else if ($("#paytypeid").val() == 2)    // б/н с НДС
-                k1 = 0.8;
+                //k1 = 0.8; // до 01.01.2026
+                k1 = 0.7;   // с 01.01.2026
             else if ($("#paytypeid").val() == 3)    // б/н без НДС
-                k1 = 0.87;
+                //k1 = 0.87;    // до 01.01.2026
+                k1 = 0.8;      // с 01.01.2026
+
+            // console.log('k1=', k1);
 
             //var driver_sum = Math.round((itm_sum * k1 - agent_sum) * k2 * 100) / 100;
-            var driver_sum = (itm_sum - auxsvc_sum - agent_sum/0.8) * k2 * k1
-                            + auxsvc_sum/2 * k1;
-            driver_sum = Math.round( driver_sum * 100) / 100;
+            var driver_sum = (itm_sum - auxsvc_sum - agent_sum / 0.8) * k2 * k1
+                + auxsvc_sum / 2 * k1;
+            driver_sum = Math.round(driver_sum * 100) / 100;
 
             driver_sum = (driver_sum < 0) ? 0 : driver_sum;
+            // alert(driver_sum);
             $("#driver_sum").val(driver_sum);
             $("#driver_sum").attr("max", driver_sum);
         } else {
@@ -101,9 +106,8 @@ $(document).ready(function () {
             $("#driver_sum").val('');
             $("#driver_sum").attr("max", 0);
         }
-        //console.log(driver_sum)
+        //console.log(driver_sum);
     }
-
 
 
     function recalc_itmsum() {
@@ -448,7 +452,7 @@ $(document).ready(function () {
                 data: {
                     name: request.term,
                     suporgid: $("#suporgid").val(),
-                    load_placeid: $("#sup_placeid").val(),
+                    load_placeid: $("#sup_orgplaceid").val(),
                     price_on_date: $("#wrkdate").val(),
                 },
                 headers: {
@@ -761,7 +765,7 @@ $(document).ready(function () {
     }
 
     //2025-04-19 отменил автодополнение в пользу datalist по route_points.tgt_placename
-    if (1==0 && $(".org_placename").length > 0) {
+    if (1 == 0 && $(".org_placename").length > 0) {
         $(".org_placename").autocomplete({
             source: function (request, response) {
 
@@ -903,7 +907,7 @@ $(document).ready(function () {
     function sup_places_rfr() {
         //console.log($("#suporgid").val());
 
-        var selector = "#sup_placeid";
+        var selector = "#sup_orgplaceid";
         var save_ID = $(selector).val();
         //console.log('save_ID='+save_ID)
 

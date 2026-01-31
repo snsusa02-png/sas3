@@ -69,7 +69,7 @@ class HomeController extends Controller
         foreach ($lstRights as $code) {
             $usrrights[$code] = usrsysright::isUserHasRightByCode_cached($userid, $code);
         }
-        //dd($usrrights);
+//        dd($usrrights);
 
 
         //согласование остатка бюджета на материалы - устарело после ввода системы бюджетов
