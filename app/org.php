@@ -1514,7 +1514,7 @@ class org extends Model
                         $sc .= " and " . (($val == 0) ? "not" : "")
                             . " exists (select 1 from fuelcards as fc where fc.suporgid=o.id)";
 
-                    } elseif ($key == 'in_machines_with_mileage') {
+                    } elseif ($key == 'orgs_in_machines_with_mileage') {
                         $sc .= " and " . (($val == 0) ? "not" : "")
                             . " exists(select 1 from machines m where m.orgid=o.id
 					            and exists(select 1 from driver_works dw where dw.machineid=m.id and dw.meter_qty is not null))";

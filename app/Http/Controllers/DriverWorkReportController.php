@@ -597,14 +597,15 @@ class DriverWorkReportController extends Controller
 
         $data->ownorgs = org::lstFor_cached([
 //            'in_driver_works_ownorgid' => 1,
-            'in_machines_with_mileage' => 1,
+            'orgs_in_machines_with_mileage' => 1,
         ]);
-//            dd($data->ownorgs);
+//           dd($data->ownorgs);
 
         $data->mchntypes = mchntype::lstFor_cached([
-            'in_machines_with_mileage' => 1,
+            'mchntype_in_machines_with_mileage' => 1,
         ]);
 //        dd($data->mchntypes);
+//        dd($data);
 
         // Подзаголовок с выводом значенией параметров отбора
         $data->sub_title = '';
