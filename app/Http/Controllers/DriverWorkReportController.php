@@ -10,6 +10,7 @@ use App\mr_oper;
 use App\Exports\InvoicesExport;
 use App\Exports\PayPlanExport;
 use App\mchn_raid;
+use App\mchntype;
 use App\orgstaff;
 use App\report;
 use App\org;
@@ -295,9 +296,9 @@ class DriverWorkReportController extends Controller
         //dd($data->monthes);
 
 //        if (isset($search_params['s_ownorgid'])) {
-            $data->ownorgs = org::lstFor_cached([
-                'in_driver_works_ownorgid' => 1,
-            ]);
+        $data->ownorgs = org::lstFor_cached([
+            'in_driver_works_ownorgid' => 1,
+        ]);
 //            dd($data->ownorgs);
         //}
 
@@ -485,5 +486,155 @@ class DriverWorkReportController extends Controller
 
         return view('driver_works.rep' . $report_id, compact('recs', 'search_params', 'data'));
     }
+
+    public function rep76(Request $request)
+    {
+        //
+        $report_id = 76;
+        $rep = report::find($report_id);
+        //dd($rep->name);
+//        dd(str_replace( ' ', '_', $rep->name) );
+
+        $userid = \Auth::user()->id;
+
+        if (!usrsysright::isUserHasRightByCode_cached($userid, $this->objcode . '.read'))
+            return redirect(route('home'))
+                ->with(['error' => 'У вас нет полномочий для работы с данной информацией!']);
+
+        // - параметры поиска: массив из имени и значения по-умолчанию -----------------------------------------------
+        $export2xls = $request->get('xls') ?? 0;
+        $fdom = new DateTime('first day of this month');
+        $fdomc = $fdom->format('Y-m-d');
+        $year = $fdom->format('Y');
+        $ldom = new DateTime('last day of this month');
+        $ldomc = $ldom->format('Y-m-d');
+        $curdate = new DateTime();
+        $cd = $curdate->format('Y-m-d');
+
+        $month = date("n");
+        $yearQuarter = ceil($month / 3);
+
+        $begdate = today();
+
+        $param_names = [
+            's_pageitmcnt' => 20
+            , 's_ownorgid' => '' //Auth::user()->curorgid
+            , 's_month' => $month
+            , 's_year' => $year
+            , 's_begdate' => $begdate->format('Y-m-01')
+            , 's_enddate' => $begdate->format('Y-m-t')
+            , 's_mchnname' => ''
+            , 's_mchntypeid' => ''
+        ];
+
+        $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);
+        //dd($search_params, isset($search_params['s_ownorgid']) );
+
+        $begdate = today();
+        //$search_params['s_begdate'] = $begdate->format('Y-m-d');
+        //$search_params['s_enddate'] = $begdate->format('Y-m-t');
+
+        $recs = null;
+
+        $s_year = $search_params['s_year'];
+        $s_month = $search_params['s_month'];
+
+        $s_begdate = $search_params['s_begdate'];
+        $s_enddate = $search_params['s_enddate'];
+
+        $s_ownorgid = $search_params['s_ownorgid'] ?? null;
+        $s_mchnname = $search_params['s_mchnname'];
+        $s_mchntypeid = $search_params['s_mchntypeid'];
+
+        if (($s_begdate <> '' and $s_enddate <> '')) {
+
+            $s_yr_mn = date_format(date_create($s_begdate), 'Y-m');
+            //dd($s_yr_mn);
+
+            $sql = " SELECT dw.machineid, m.name as mchn_name
+                            , mt.name as mchntype_name
+	                        , m.orgid, o.name as org_name
+                            , sum(dw.meter_qty) as meter_qty
+                            , sum(dw.fuel_spentqty ) as fuel_spentqty
+                            , min(dw.wrkdate) as min_wrkdate
+                            , max(dw.wrkdate) as max_wrkdate
+                            , count(distinct dw.wrkdate) as wrkdays
+                            FROM driver_works dw
+                            join machines m on m.id=dw.machineid
+                            join orgs o on o.id=m.orgid
+                            join mchntypes as mt on mt.id=m.mchntypeid
+                            where 1=1
+                            and dw.wrkdate between '{$s_begdate}' and '{$s_enddate}'
+                            and meter_qty is not null";
+
+            if ($s_ownorgid <> '') {
+                $sql .= " and m.orgid={$s_ownorgid}";
+            }
+            if ($s_mchntypeid <> '') {
+                $sql .= " and m.mchntypeid={$s_mchntypeid}";
+            }
+            if ($s_mchnname <> '') {
+                $sql .= " and ucase(m.name) like'%{$s_mchnname}%'";
+            }
+
+            $sql .= " group by dw.machineid";
+            $sql .= " order by m.name";
+
+            //dd($s_begdate, $s_yr_mn, $sql);
+            $recs = DB::select(DB::raw($sql));
+//                dd($sql, $recs);
+
+            //обновим счетчик использования отчета
+            report::updUseCnt($report_id, $userid, \Auth::user()->name);
+
+            //занесем в журнал
+            objlog::log_info(855, $report_id, 'запрошен отчет; ' . $s_year . ' ' . $s_month);
+        } else {
+            $recs = null;
+        }
+
+        $data = new \stdClass();
+
+        $data->ownorgs = org::lstFor_cached([
+//            'in_driver_works_ownorgid' => 1,
+            'in_machines_with_mileage' => 1,
+        ]);
+//            dd($data->ownorgs);
+
+        $data->mchntypes = mchntype::lstFor_cached([
+            'in_machines_with_mileage' => 1,
+        ]);
+//        dd($data->mchntypes);
+
+        // Подзаголовок с выводом значенией параметров отбора
+        $data->sub_title = '';
+
+        if (isset($s_begdate) and $s_begdate <> '')
+            $data->sub_title .= ' с ' . date_format(date_create($s_begdate), 'd.m.Y');
+        if (isset($s_enddate) and $s_enddate <> '')
+            $data->sub_title .= ' по ' . date_format(date_create($s_enddate), 'd.m.Y');
+
+        if (isset($s_ownorgid) and $s_ownorgid <> '') {
+            if ($data->sub_title <> '')
+                $data->sub_title .= ',';
+            $data->sub_title .= ' организация: ' . $data->ownorgs[$search_params['s_ownorgid']] ?? '-';
+        }
+
+        if ($export2xls == "1") {
+
+            $response = Excel::download(
+                new rep2xlsx_vdr_export('exports.rep58xls', $recs, $data),
+                str_replace(' ', '_', $rep->name) . "_{$s_begdate}_{$s_enddate}.xlsx",
+                \Maatwebsite\Excel\Excel::XLSX);
+
+            //HERE IS THE MAGIC FOLKS
+            ob_end_clean();
+            return $response;
+        }
+        //dd($data);
+
+        return view('driver_works.rep' . $report_id, compact('recs', 'search_params', 'data'));
+    }
+
 
 }

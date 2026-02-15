@@ -112,6 +112,11 @@ class mchntype extends Model
                             . " exists (select 1 from fuelcard_pays as fcp
                              join machines m on m.id=fcp.machineid and m.mchntypeid=mt.id)";
 
+                    } elseif ($key == 'in_machines_with_mileage') {
+                        $sc .= " and " . (($val == 0) ? "not" : "")
+                            . " exists(select 1 from machines m where m.mchntypeid=mt.id
+					            and exists(select 1 from driver_works dw where dw.machineid=m.id and dw.meter_qty is not null))";
+
                     } elseif ($key == 'for_user') {
                         $sc .= " and (mt.need_rightid is null"
                             . " or exists (select 1 from usrsysrights as ur"
