@@ -214,27 +214,33 @@ $action_url = route('reports.rep' . $thisObjId);
                         <tr>
                             <td rowspan="1" class="small text-right">#пп</td>
                             <td rowspan="1">Авто</td>
-                            <td rowspan="1" class="text-center">Пробег, км</td>
-                            <td class="text-center">Рабочих дней</td>
-                            <td class="text-center">Средний пробег, км</td>
                             <td class="text-center">Период</td>
+                            <td class="text-center">Рабочих дней</td>
+                            <td class="text-center">Рабочих дней с пробегом</td>
+                            <td rowspan="1" class="text-center">Пробег, км</td>
+                            <td class="text-center">Средний пробег, км</td>
                         </tr>
                         <?php
                         $npp = 0;
                         $totMeterQty = 0;
                         ?>
                         @foreach($recs as $itm)
-
+                            <?php
+                                $avg_day_meter = 0;
+                                if ($itm->meter_wrkdays>0)
+                                    $avg_day_meter = $itm->meter_qty/$itm->meter_wrkdays;
+                                ?>
                             <tr>
                                 <td class="small text-right">{{++$npp}}</td>
                                 <td><a href="{{route('machines.edit',$itm->machineid)}}"
                                        target="_blank">{{$itm->mchn_name}}</a>, <span
                                         class="small ml-2">{{$itm->mchntype_name}}, {{$itm->org_name}}</span>
                                 </td>
-                                <td class="text-right">{{number_format($itm->meter_qty,0)}}</td>
-                                <td class="text-right">{{$itm->wrkdays}} </td>
-                                <td class="text-right">{{number_format($itm->meter_qty/$itm->wrkdays,1)}}</td>
                                 <td class="text-center small">{{$itm->min_wrkdate}} .. {{$itm->max_wrkdate}}  </td>
+                                <td class="text-right">{{$itm->wrkdays}} </td>
+                                <td class="text-right">{{$itm->meter_wrkdays}} </td>
+                                <td class="text-right">{{number_format($itm->meter_qty,0)}}</td>
+                                <td class="text-right">{{number_format($avg_day_meter,1)}}</td>
                             </tr>
                             <?php
                             $totMeterQty += $itm->meter_qty;
@@ -242,7 +248,7 @@ $action_url = route('reports.rep' . $thisObjId);
                         @endforeach
 
                         <tr>
-                            <td colspan="2" class="text-right">Итого:</td>
+                            <td colspan="5" class="text-right">Итого:</td>
                             <td class="text-right font-weight-bold">{{number_format($totMeterQty,0)}}</td>
                         </tr>
                     </table>

@@ -559,14 +559,15 @@ class DriverWorkReportController extends Controller
                             , min(dw.wrkdate) as min_wrkdate
                             , max(dw.wrkdate) as max_wrkdate
                             , count(distinct dw.wrkdate) as wrkdays
+                            , sum(if( dw.meter_qty is null, 0, 1)) as meter_wrkdays
                             FROM driver_works dw
                             join machines m on m.id=dw.machineid
                             join orgs o on o.id=m.orgid
                             join mchntypes as mt on mt.id=m.mchntypeid
                             where 1=1
                             and dw.wrkdate between '{$s_begdate}' and '{$s_enddate}'
-                            and meter_qty is not null";
-
+                            and exists(select 1 from driver_works dd where dd.machineid=dw.machineid and dd.meter_qty is not null)";
+            // and meter_qty is not null
             if ($s_ownorgid <> '') {
                 $sql .= " and m.orgid={$s_ownorgid}";
             }
