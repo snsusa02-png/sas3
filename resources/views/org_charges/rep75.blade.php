@@ -387,7 +387,10 @@ $first_col_id = null;
                                     echo('<td class="text-right">' . $sum . '</td>');
                                 }
                                 //2026-02-21
-                                echo('<td class="text-right font-weight-bold">' . number_format($totInpSum/$rec->wrkdays, 0, '.', '&nbsp;') . '</td>');
+                                $avgDayInpSum = 0;
+                                if($rec->wrkdays > 0)
+                                    $avgDayInpSum = $totInpSum/$rec->wrkdays;
+                                echo('<td class="text-right font-weight-bold">' . number_format($avgDayInpSum, 0, '.', '&nbsp;') . '</td>');
 
                                 echo('<td class="text-right font-weight-bold">' . number_format($totOutSum, 0, '.', '&nbsp;') . '</td>');
                                 //                            echo('</tr>');
