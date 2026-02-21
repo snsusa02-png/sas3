@@ -91,21 +91,21 @@ $action_url = route('reports.rep' . $thisObjId);
                             @if(1==1)
                                 <div class="row">
 
-                                        <div class="form-group col-md-2">
-                                            <label for="s_begdate" class="required">Начало периода:</label>
-                                            <input type="date" class="form-control text-center"
-                                                   name="s_begdate"
-                                                   value="{{$search_params['s_begdate']??''}}"
-                                                   required/>
-                                        </div>
+                                    <div class="form-group col-md-2">
+                                        <label for="s_begdate" class="required">Начало периода:</label>
+                                        <input type="date" class="form-control text-center"
+                                               name="s_begdate"
+                                               value="{{$search_params['s_begdate']??''}}"
+                                               required/>
+                                    </div>
 
-                                        <div class="form-group col-md-2">
-                                            <label for="s_begdate" class="required">Окончание периода:</label>
-                                            <input type="date" class="form-control text-center"
-                                                   name="s_enddate"
-                                                   value="{{$search_params['s_enddate']??''}}"
-                                                   required/>
-                                        </div>
+                                    <div class="form-group col-md-2">
+                                        <label for="s_begdate" class="required">Окончание периода:</label>
+                                        <input type="date" class="form-control text-center"
+                                               name="s_enddate"
+                                               value="{{$search_params['s_enddate']??''}}"
+                                               required/>
+                                    </div>
                                     @if(1==1)
                                         <div class="form-group col-md-3">
                                             <label for="s_ownorgid" class="">Организация:</label>
@@ -128,9 +128,9 @@ $action_url = route('reports.rep' . $thisObjId);
                                                             !!}
                                         </div>
                                     @endif
-                                    <?php
-                                    $s_mchntypeid = $search_params['s_mchntypeid'] ?? '';
-                                    ?>
+                                        <?php
+                                        $s_mchntypeid = $search_params['s_mchntypeid'] ?? '';
+                                        ?>
                                 </div>
                             @endif
 
@@ -166,18 +166,18 @@ $action_url = route('reports.rep' . $thisObjId);
                 </div>
 
             @else
-                <?php
-                $s_period_type = $search_params['s_period_type'] ?? '';
-                $ownorgid = $search_params['s_ownorgid'] ?? '';
-                $s_begdate = $search_params['s_begdate'] ?? '';
-                $s_enddate = $search_params['s_enddate'] ?? '';
+                    <?php
+                    $s_period_type = $search_params['s_period_type'] ?? '';
+                    $ownorgid = $search_params['s_ownorgid'] ?? '';
+                    $s_begdate = $search_params['s_begdate'] ?? '';
+                    $s_enddate = $search_params['s_enddate'] ?? '';
 
-                $month_days = (strtotime($s_enddate) - strtotime($s_begdate)) / 3600 / 24 + 1;
-                //dd($month_days);
+                    $month_days = (strtotime($s_enddate) - strtotime($s_begdate)) / 3600 / 24 + 1;
+                    //dd($month_days);
 
-                $base_pre_date = date_create($s_begdate)->sub(new DateInterval('P1D'))->format('Y-m-d');
-                //dd($pre_date);
-                ?>
+                    $base_pre_date = date_create($s_begdate)->sub(new DateInterval('P1D'))->format('Y-m-d');
+                    //dd($pre_date);
+                    ?>
 
                 <div class="page p-2 container-fluid">
 
@@ -220,16 +220,17 @@ $action_url = route('reports.rep' . $thisObjId);
                             <td rowspan="1" class="text-center small">Пробег, км</td>
                             <td class="text-center small">Средний пробег, км</td>
                         </tr>
-                        <?php
-                        $npp = 0;
-                        $totMeterQty = 0;
-                            $meterWD_style = 'background-color:#ffe0e0;';
-                        ?>
-                        @foreach($recs as $itm)
                             <?php
+                            $npp = 0;
+                            $totMeterQty = 0;
+                            $meterWD_style = 'background-color:#ffe0e0;';
+                            ?>
+                        @foreach($recs as $itm)
+                                <?php
                                 $avg_day_meter = 0;
-                                if ($itm->meter_wrkdays>0)
-                                    $avg_day_meter = $itm->meter_qty/$itm->meter_wrkdays;
+                                if ($itm->meter_wrkdays > 0)
+                                    $avg_day_meter = $itm->meter_qty / $itm->meter_wrkdays;
+                                $meterWD_style = 'background-color:#ffe0e0;';
                                 if ($itm->meter_wrkdays == $itm->wrkdays)
                                     $meterWD_style = 'background-color:#e0ffe0;';
                                 ?>
@@ -237,17 +238,18 @@ $action_url = route('reports.rep' . $thisObjId);
                                 <td class="small text-right">{{++$npp}}</td>
                                 <td><a href="{{route('machines.edit',$itm->machineid)}}"
                                        target="_blank">{{$itm->mchn_name}}</a>, <span
-                                        class="small ml-2">{{$itm->mchntype_name}}, {{$itm->org_name}}</span>
+                                            class="small ml-2">{{$itm->mchntype_name}}, {{$itm->org_name}}</span>
                                 </td>
-                                <td class="text-center small" style="font-size: 10px;">{{$itm->min_wrkdate}} .. {{$itm->max_wrkdate}}  </td>
-                                <td class="text-center">{{$itm->wrkdays}} </td>
-                                <td class="text-center" style="{{$meterWD_style}}">{{$itm->meter_wrkdays}} </td>
-                                <td class="text-right">{{number_format($itm->meter_qty,0)}}</td>
-                                <td class="text-right">{{number_format($avg_day_meter,1)}}</td>
+                                <td class="text-center small" style="font-size: 10px;">{{$itm->min_wrkdate}}
+                                    .. {{$itm->max_wrkdate}}  </td>
+                                <td class="text-center small">{{$itm->wrkdays}} </td>
+                                <td class="text-center small" style="{{$meterWD_style}}">{{$itm->meter_wrkdays}} </td>
+                                <td class="text-right small">{{number_format($itm->meter_qty,0)}}</td>
+                                <td class="text-right small">{{number_format($avg_day_meter,1)}}</td>
                             </tr>
-                            <?php
-                            $totMeterQty += $itm->meter_qty;
-                            ?>
+                                <?php
+                                $totMeterQty += $itm->meter_qty;
+                                ?>
                         @endforeach
 
                         <tr>
