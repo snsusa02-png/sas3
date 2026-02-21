@@ -210,25 +210,28 @@ $action_url = route('reports.rep' . $thisObjId);
 
                     {{-- ------------------------------------------------------------------------------------------}}
 
-                    <table class="table table-bordered table-sm table-data" border="0" style="background-color: white">
+                    <table class="table table-bordered table-sm table-data" border="0" style="background-color: white;">
                         <tr>
                             <td rowspan="1" class="small text-right">#пп</td>
                             <td rowspan="1">Авто</td>
-                            <td class="text-center">Период</td>
-                            <td class="text-center">Рабочих дней</td>
-                            <td class="text-center">Рабочих дней с пробегом</td>
-                            <td rowspan="1" class="text-center">Пробег, км</td>
-                            <td class="text-center">Средний пробег, км</td>
+                            <td class="text-center small">Период работы</td>
+                            <td class="text-center small">Рабочих дней</td>
+                            <td class="text-center small">Рабочих дней с пробегом</td>
+                            <td rowspan="1" class="text-center small">Пробег, км</td>
+                            <td class="text-center small">Средний пробег, км</td>
                         </tr>
                         <?php
                         $npp = 0;
                         $totMeterQty = 0;
+                            $meterWD_style = 'background-color:#ffe0e0;';
                         ?>
                         @foreach($recs as $itm)
                             <?php
                                 $avg_day_meter = 0;
                                 if ($itm->meter_wrkdays>0)
                                     $avg_day_meter = $itm->meter_qty/$itm->meter_wrkdays;
+                                if ($itm->meter_wrkdays == $itm->wrkdays)
+                                    $meterWD_style = 'background-color:#e0ffe0;';
                                 ?>
                             <tr>
                                 <td class="small text-right">{{++$npp}}</td>
@@ -236,9 +239,9 @@ $action_url = route('reports.rep' . $thisObjId);
                                        target="_blank">{{$itm->mchn_name}}</a>, <span
                                         class="small ml-2">{{$itm->mchntype_name}}, {{$itm->org_name}}</span>
                                 </td>
-                                <td class="text-center small">{{$itm->min_wrkdate}} .. {{$itm->max_wrkdate}}  </td>
-                                <td class="text-right">{{$itm->wrkdays}} </td>
-                                <td class="text-right">{{$itm->meter_wrkdays}} </td>
+                                <td class="text-center small" style="font-size: 10px;">{{$itm->min_wrkdate}} .. {{$itm->max_wrkdate}}  </td>
+                                <td class="text-center">{{$itm->wrkdays}} </td>
+                                <td class="text-center" style="{{$meterWD_style}}">{{$itm->meter_wrkdays}} </td>
                                 <td class="text-right">{{number_format($itm->meter_qty,0)}}</td>
                                 <td class="text-right">{{number_format($avg_day_meter,1)}}</td>
                             </tr>
