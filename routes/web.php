@@ -1169,6 +1169,7 @@ Route::match(array('POST', 'GET'), '/reports/rep/73', "OrgChargeController@rep73
 Route::match(array('POST', 'GET'), '/reports/rep/74', "WrhDocReportController@rep74")->name('reports.rep74');
 Route::match(array('POST', 'GET'), '/reports/rep/75', "OrgChargeController@rep75")->name('reports.rep75');
 Route::match(array('POST', 'GET'), '/reports/rep/76', "DriverWorkReportController@rep76")->name('reports.rep76');
+Route::match(array('POST', 'GET'), '/reports/rep/77', "DriverWorkReportController@rep77")->name('reports.rep77');
 
 //Состав плана платежей
 Route::get('orgplnpay_items/create/{docid}/', "OrgplnpayItemController@create")->name('orgplnpay_items.create');

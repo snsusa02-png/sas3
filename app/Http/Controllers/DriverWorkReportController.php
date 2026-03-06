@@ -16,6 +16,7 @@ use App\report;
 use App\org;
 use App\machine;
 use App\objlog;
+use App\stf_chrg_calc;
 use App\stf_salary;
 use App\Traits\SearchDataTrait;
 use App\usrsysright;
@@ -638,5 +639,219 @@ class DriverWorkReportController extends Controller
         return view('driver_works.rep' . $report_id, compact('recs', 'search_params', 'data'));
     }
 
+    function rep77(Request $request)
+    {
+        //2026-03-05. Начисления и удержания за месяц. Версия 2.1
+        // Попробуем изменить порядок формирования:
+        // 1. Отберем работников, как основной "скелет" набора данных
+        // 2. К каждому сотруднику привяжем поднаборы данных: - по рабочим часам и ставкам, - по начислениям/удержаниям
 
+        $report_id = 77;
+
+        $returl = $request->get('returl') ?? route('stf_chrg_calcs.index');
+        $userid = Auth::user()->id;
+        $export2xls = $request->get('xls') ?? 0;
+
+
+        $data = new \stdClass();
+        $data->returl = $returl;
+
+        $param_names = [
+            's_ym' => null,
+            's_period' => null,
+            's_ownorgid' => null,
+            's_depname' => null,
+            's_stf_name' => null,
+        ];
+        $search_params = $this->search_params($request, $param_names, 'reports.' . $report_id);
+
+        $s_ym = $search_params['s_ym'];
+        $s_period = $search_params['s_period'];
+        $s_ownorgid = $search_params['s_ownorgid'];
+        $s_depname = $search_params['s_depname'];
+        $s_stf_name = $search_params['s_stf_name'];
+
+//        if ($s_ym <> '') {
+        if ($s_period <> '') {
+            $data->s_period = $s_period;
+            $dates = explode("..", $s_period);
+            $data->begdate = date_create($dates[0])->format('Y-m-d');
+            $data->enddate = date_create($dates[1])->format('Y-m-d');
+            $s_begdate = $data->begdate;
+            $s_enddate = $data->enddate;
+            " and forbegdate <= {$s_enddate}' and forEndDate >= '{$s_begdate}'";
+
+            //dd($s_period, $dates, $data->begdate, $data->enddate);
+
+            // основной запрос - сотрудники, соответствующие условиям запроса
+            $sql =
+                "select os.id, os.id as staffid, os.orgid, os.name, os.depname
+                    , if(f.flagtypeid is null, 0, 1) as official_job
+                    , (select count(distinct dw.wrkdate)
+                        from driver_works as dw
+                        where dw.staffid=os.id
+                          and dw.wrkdate between '{$s_begdate}' and '{$s_enddate}') as wrkdays
+	                FROM orgstaff os
+	                left join objflags f on f.flagtypeid=192 and f.sysobjid=121 and f.objid=os.id
+                    where exists(select 1 from stf_chrg_calcs scc where scc.staffid=os.id
+                        and scc.forbegdate between '{$s_begdate}' and '{$s_enddate}'
+                        and scc.forenddate between '{$s_begdate}' and '{$s_enddate}')";
+            if (isset($s_ownorgid))
+                $sql .= " and os.orgid={$s_ownorgid}";
+
+            if (isset($s_depname))
+                $sql .= " and ucase(os.depname)='{$s_depname}'";
+
+            if (isset($s_stf_name))
+                // $sql .= " and concat(' ', os.lname, ' ', os.fname, ' ', os.mname) like '% {$s_stf_name}%'";
+                $sql .= " and concat(' ', os.name) like '% {$s_stf_name}%'";
+
+            $sql .= " order by ucase(os.depname), os.lname, os.fname";
+
+            $recs = \Illuminate\Support\Facades\DB::select(DB::raw($sql));
+            //dd($sql, $recs);
+
+            // 2. дополним основной набор поднабором данных о рабочих часах и ставках
+            foreach ($recs as $stf) {
+
+                $sql =
+                    "select dw.wrktypeid, wt.name as wrktypename
+                            , dw.day_hr_rate, sum(dw.day_wrkhrs) as day_wrkhrs
+                            , dw.night_hr_rate, sum(dw.night_wrkhrs) as night_wrkhrs
+                            , sum(dw.salary_sum) as salary_sum
+                            , sum(b11.day_hrs) as b11_day_hrs, sum(b11.night_hrs) as b11_night_hrs, sum(b11.brk_sum) as repair_sum
+                            , sum(b22.day_hrs) as b22_day_hrs, sum(b22.night_hrs) as b22_night_hrs, sum(b22.brk_sum) as wait_sum
+                        from driver_works as dw
+                        join wrktypes as wt on wt.id=dw.wrktypeid
+                        left join dw_breaks b11 on b11.dw_id=dw.id and b11.wrktypeid=11 -- repair_sum
+                        left join dw_breaks b22 on b22.dw_id=dw.id and b22.wrktypeid=22	-- wait_sum
+                        where dw.staffid={$stf->id}
+                            and dw.wrkdate between '{$s_begdate}' and '{$s_enddate}'
+                            and (dw.day_hr_rate is not null or dw.night_hr_rate is not null)
+                        group by dw.wrktypeid, dw.day_hr_rate, dw.night_hr_rate";
+
+                $stf->wrkhrs = DB::select(DB::raw($sql));
+                $stf->dw_cnt = count($stf->wrkhrs);
+                //dd($stf, $stf->wrkhrs, $stf->dw_cnt);
+
+                // начисления по сотруднику
+                $sql =
+                    "SELECT  ct.dir, oc.chargetypeid, ct.name as chargetype_name, sum(scc.charge_sum) charge_sum
+                    FROM stf_chrg_calcs as scc
+                    join org_charges as oc 	on oc.id=scc.orgchargeid
+                    join chargetypes as ct on ct.id=oc.chargetypeid
+                    where scc.staffid = {$stf->id}
+                    and scc.charge_sum <> 0
+                    and scc.forbegdate between '{$s_begdate}' and '{$s_enddate}'
+                    and scc.forenddate between '{$s_begdate}' and '{$s_enddate}'
+                    group by oc.chargetypeid";
+
+                $stf->charges = DB::select(DB::raw($sql));
+                //dd($stf, $stf->charges);
+
+            }
+            //dd($recs);
+
+
+            // Какие виды начислений/Удержаний попали в рассматриваемый месяц
+            $sql = "SELECT ct.id as id, ct.name, sum(scc.charge_sum) charge_sum, count(1) as cnt
+                    FROM stf_chrg_calcs as scc
+                    join orgstaff os on os.id=scc.staffid
+                    join org_charges as oc 	on oc.id=scc.orgchargeid
+                    join chargetypes as ct on ct.id=oc.chargetypeid
+                    where scc.charge_sum <> 0";
+
+//            if (isset($s_ym))
+//                $sql .= " and forbegdate <= '" . date_create($data->enddate)->format('Y-m-d') . "'"
+//                    . " and forEndDate >= '" . date_create($data->begdate)->format('Y-m-d') . "'";
+
+            // 2025-08-10
+            if (isset($s_period))
+                //$sql .= " and concat(scc.forbegdate, '..', scc.forEndDate) = '{$s_period}'";
+                $sql .= " and scc.forbegdate between '{$s_begdate}' and '{$s_enddate}'
+                          and scc.forenddate between '{$s_begdate}' and '{$s_enddate}'";
+
+            if (isset($s_ownorgid))
+                $sql .= " and os.orgid={$s_ownorgid}";
+
+            if (isset($s_depname))
+                $sql .= " and ucase(os.depname)='{$s_depname}'";
+
+            if (isset($s_stf_name))
+                //$sql .= " and concat(' ', os.lname, ' ', os.fname, ' ', os.mname) like '% {$s_stf_name}%'";
+                $sql .= " and concat(' ', os.name) like '% {$s_stf_name}%'";
+
+            $sql .= " group by ct.id
+                    order by ct.dir desc, ct.ordr, cnt desc";
+            $data->cols = DB::select(DB::raw($sql));
+            //dd($sql, $data->cols);
+
+        } else {
+            $recs = null;
+        }
+
+        // Заполним массив "Год.Месяц" уникальными значениями из первичных данных
+        $month_names = Config::get('constants.monthes');
+        Cache::forget('stf_chrg_calc_monthes');
+        $data->yms = Cache::remember('stf_chrg_calc_monthes', now()->addMinutes(15)
+            , function () {
+                return stf_chrg_calc::selectRaw("date_format(forbegdate, '%Y-%m') as ym")->distinct()->orderby('ym', 'desc')
+                    ->get()->pluck('ym', 'ym')->toArray();
+            });
+        //dd($data->monthes);
+        foreach ($data->yms as $key => $val) {
+            $y = substr($val, 0, 4);
+            $m = 0 + substr($val, 5);
+
+            $data->yms[$val] = $month_names[$m] . ' ' . $y;
+            //dd($key,$val, $m, $y, $data->yms[$val]);
+        }
+        //dd($data->yms);
+        //dd($data, $sql, $recs);
+
+        $data->for_periods = stf_chrg_calc::
+        selectRaw("concat(forbegdate,'..', forenddate) as period")
+            ->distinct()
+            ->orderby('period', 'desc')
+            ->get()
+            ->pluck('period', 'period')->toArray();
+        //dd($data->for_periods);
+
+        $data->ownorgs = org::lstFor_cached(['in_stf_chrg_calcs' => 1]);
+
+//        $tarr = DB::select(DB::raw("SELECT distinct upper (os.depname) as dep_name
+//                    FROM stf_chrg_calcs as scc
+//                    join orgstaff os on os.id=scc.staffid
+//                    join orgs o on o.id=os.orgid
+//                    where os.depname is not null
+//                    and scc.docdate>='2024-01-01'
+//                    order by 1"));
+
+        $tarr = DB::select("SELECT distinct upper (os.depname) as depname
+                    FROM stf_chrg_calcs as scc
+                    join orgstaff os on os.id=scc.staffid
+                    join orgs o on o.id=os.orgid
+                    where trim(os.depname) <> ''
+                    -- and scc.docdate>='2024-01-01'
+                    order by 1");
+
+        //преобразуем индексированный массив в ассоциативный
+        $data->depnames = array_column($tarr, 'depname', 'depname');
+//        dd($tarr, $data->ownorgs, $data->depnames);
+
+        //занесем в журнал
+        objlog::log_info(855, $report_id, 'запрошен отчет;');
+
+        if ($export2xls == "1") {
+            //dd($recs);
+            //$response = Excel::download(new rep54Export($recs, $data), "Платежи за " . Str::slug($data->$date) . ".xlsx", \Maatwebsite\Excel\Excel::XLSX);
+            $response = Excel::download(new rep2xlsx_vdr_export('exports.rep56xls', $recs, $data), "Начисления_и_удержания_{$s_period}.xlsx", \Maatwebsite\Excel\Excel::XLSX);
+
+            //HERE IS THE MAGIC FOLKS
+            ob_end_clean();
+            return $response;
+        }
+
+        return view('driver_works.rep' . $report_id, compact('search_params', 'data', 'recs'));
+    }
 }

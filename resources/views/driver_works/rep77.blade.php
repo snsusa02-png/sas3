@@ -390,16 +390,14 @@ $first_col_id = null;
                                         @php($tmpSum+=$chrg->charge_sum)
                                     @endif
                                 @endforeach
-                                @if(1==0 or $tmpSum>0)
-                                    <div class="mb-2">
+                                <div class="mb-2">
                                     <span
                                         class="font-weight-bold "> Итого начислений:  {{number_format($tmpSum,2, '.', '')}}</span>
-                                        @if($rec->wrkdays>0)
-                                            <br>В среднем за день: <span
-                                                class="font-weight-bold ">{{number_format($tmpSum/$rec->wrkdays,2, '.', '')}}</span>
-                                        @endif
-                                    </div>
-                                @endif
+                                    @if($rec->wrkdays>0)
+                                        <br>В среднем за день: <span
+                                            class="font-weight-bold ">{{number_format($tmpSum/$rec->wrkdays,2, '.', '')}}</span>
+                                    @endif
+                                </div>
                             </td>
                             <td class="text-right">
                                 @php($tmpSum=0.00)
@@ -409,7 +407,7 @@ $first_col_id = null;
                                         @php($tmpSum+=$chrg->charge_sum)
                                     @endif
                                 @endforeach
-                                @if(1==0 or $tmpSum>0)
+                                @if(1==1 or $tmpSum>0)
                                     <div class="font-weight-bold mb-1">
                                         Итого удержаний: {{number_format($tmpSum,2, '.', '')}}
                                     </div>
