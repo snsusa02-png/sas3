@@ -433,6 +433,7 @@ class FuelcardPayController extends Controller
         //$rec->driverid = $request->get('driverid');
         $rec->machineid = $request->get('machineid');
         $rec->fuel_qty = $request->get('fuel_qty');
+        $rec->fuel_price = $request->get('fuel_price');
         $rec->paydir = -1;
         $rec->paysum = $request->get('paysum');
         $rec->notes = mb_substr($request->get('notes'), 0, 160);

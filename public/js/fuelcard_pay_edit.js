@@ -25,10 +25,47 @@ $(document).ready(function () {
         }
     });
 
+    $("#fuel_qty").change(function () {
+        // console.log(this.value)
+
+        const qty = parseFloat(this.value);
+        const price = parseFloat($("#fuel_price").val());
+
+        if (!(isNaN(qty) || isNaN(price)) ) {
+            sum = Math.round(100 * qty * price) / 100;
+        }
+        $("#paysum").val(sum);
+    });
+
+    $("#fuel_price").change(function () {
+        // console.log(this.value)
+        //$("#unload_price").val(this.value)
+
+        const price = parseFloat(this.value);
+        const qty = parseFloat($("#fuel_qty").val());
+
+        if (!(isNaN(qty) || isNaN(price))) {
+            sum = Math.round(100 * qty * price) / 100;
+        }
+        $("#paysum").val(sum);
+    });
+
+    $("#paysum").change(function () {
+        // console.log(this.value)
+
+        const sum = parseFloat(this.value);
+        const qty = parseFloat($("#fuel_qty").val());
+
+        if (!(isNaN(sum) || isNaN(qty)) && qty > 0) {
+            price = Math.round(1000000 * sum / qty) / 1000000;
+        }
+        $("#fuel_price").val(price);
+    });
+
 
     //на изменение ID заполняемого по автокомплиту
     $(".ac_id").change(function () {
-        //отработаем скрытие/открытие кнопки со ссылкой на выбраный элмент спр-ка в зависимости от наличия значения в id
+        //отработаем скрытие/открытие кнопки со ссылкой на выбранный элмент спр-ка в зависимости от наличия значения в id
         if ($(this).val()) {
             $(this).parent().find('.id_lnk').hide()
             const id_lnk = $(this).parent().find('.id_lnk');

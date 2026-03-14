@@ -327,7 +327,7 @@
                                             <div class="float-right small">{{$item->notes}}</div>
                                         </td>
                                         <td class="text-center">
-                                            {{number_format($item->fuel_qty,0)}}
+                                            {{number_format($item->fuel_qty,1)}}
                                         </td>
                                         <td class="text-right">
                                             {{number_format($item->paysum,2)}}

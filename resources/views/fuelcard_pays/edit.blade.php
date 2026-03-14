@@ -91,7 +91,7 @@
                                             <div class="input-group mb-3 ">
                                                 <input type="number" name="fuel_qty" id="fuel_qty"
                                                        class="form-control text-right font-weight-bold"
-                                                       min="0" step="1"
+                                                       min="0" step="0.1"
                                                        value="{{old('fuel_qty',$rec->fuel_qty)}}">
                                             </div>
                                         @else
@@ -100,11 +100,27 @@
                                     </div>
 
                                     <div class="form-group offset-md-0 col-md-3">
+                                        <label for="name" class="required0" title="Цена за единицу измерения">Цена за ЕИ,
+                                            &#8381;:</label>
+                                        @if ($usrrights['edit'])
+                                            <div class="input-group mb-3 ">
+                                                <input type="number" name="fuel_price" id="fuel_price" required
+                                                       title="Цена за единицу измерения"
+                                                       class="form-control text-right font-weight-bold"
+                                                       min="0" step="0.000001"
+                                                       value="{{old('fuel_price',$rec->fuel_price)}}">
+                                            </div>
+                                        @else
+                                            <div class="font-weight-bold">{{$rec->fuel_price}}</div>
+                                        @endif
+                                    </div>
+
+                                    <div class="form-group offset-md-0 col-md-3">
                                         <label for="name" class="required" title="Общая стоимость">Стоимость,
                                             &#8381;:</label>
                                         @if ($usrrights['edit'])
                                             <div class="input-group mb-3 ">
-                                                <input type="number" name="paysum" id="raid_salary" required
+                                                <input type="number" name="paysum" id="paysum" required
                                                        title="Общая стоимость топлива"
                                                        class="form-control text-right font-weight-bold"
                                                        min="0" step="0.01"
