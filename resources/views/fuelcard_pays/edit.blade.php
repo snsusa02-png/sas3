@@ -100,7 +100,7 @@
                                     </div>
 
                                     <div class="form-group offset-md-0 col-md-3">
-                                        <label for="name" class="required0" title="Цена за единицу измерения">Цена за ЕИ,
+                                        <label for="name" class="required0" title="Цена за единицу измерения (литр)">Цена,
                                             &#8381;:</label>
                                         @if ($usrrights['edit'])
                                             <div class="input-group mb-3 ">
