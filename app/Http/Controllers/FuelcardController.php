@@ -445,6 +445,7 @@ class FuelcardController extends Controller
                 ->select(
                     'fc.orgid', 'o.name as org_name'
                     , 'fc.ref_machineid', db::raw("concat(m.regnum, ' (', m.name, ', ', mo.name, ')' ) as ref_machine_name")
+                    , 'fc.suporgid'
                 )
                 ->first()->toArray();
 

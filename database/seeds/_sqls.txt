@@ -1,5 +1,12 @@
 ﻿-- 2026-03-14 ------------------------------------------------------------------------
 ALTER TABLE `fuelcard_pays`
+    ADD COLUMN `ri_sup_priceid` BIGINT UNSIGNED NULL COMMENT 'ID записи из прайслиста поставщика топлива (ri_sup_prices)` AFTER `fuel_price`,
+    ADD COLUMN `refitmid` BIGINT UNSIGNED NULL COMMENT 'ID товара(топлива) по RefItems' AFTER `ri_sup_priceid`;
+
+-- ALTER TABLE `fuelcard_pays` CHANGE COLUMN `suporgid` `ri_sup_priceid` BIGINT UNSIGNED NULL DEFAULT NULL COMMENT 'ID записи из прайслиста поставщика топлива (ri_sup_prices)' ;
+
+-- 2026-03-14 ------------------------------------------------------------------------
+ALTER TABLE `fuelcard_pays`
 ADD COLUMN `fuel_price` DECIMAL(12,6) NULL COMMENT 'Цена за ЕИ' AFTER `fuel_qty`;
 
 update fuelcard_pays t set t.fuel_price = t.paysum/t.fuel_qty	where t.fuel_qty>0;

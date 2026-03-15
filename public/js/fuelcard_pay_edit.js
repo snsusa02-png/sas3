@@ -19,6 +19,8 @@ $(document).ready(function () {
                     // console.log(data.data.ref_machineid);
                     $("#machineid").val(data.data.ref_machineid);
                     $("#machine_name").val(data.data.ref_machine_name);
+                    $("#suporgid").val(data.data.suporgid);
+                    $("#suporgid").change();  //для срабатывания слушателей за изменением этого поля
                 }
             )
             //-----------------------------------------------------------------
@@ -31,7 +33,7 @@ $(document).ready(function () {
         const qty = parseFloat(this.value);
         const price = parseFloat($("#fuel_price").val());
 
-        if (!(isNaN(qty) || isNaN(price)) ) {
+        if (!(isNaN(qty) || isNaN(price))) {
             sum = Math.round(100 * qty * price) / 100;
         }
         $("#paysum").val(sum);
@@ -65,7 +67,7 @@ $(document).ready(function () {
 
     //на изменение ID заполняемого по автокомплиту
     $(".ac_id").change(function () {
-        //отработаем скрытие/открытие кнопки со ссылкой на выбранный элмент спр-ка в зависимости от наличия значения в id
+        //отработаем скрытие/открытие кнопки со ссылкой на выбранный элемент спр-ка в зависимости от наличия значения в id
         if ($(this).val()) {
             $(this).parent().find('.id_lnk').hide()
             const id_lnk = $(this).parent().find('.id_lnk');
@@ -396,6 +398,57 @@ $(document).ready(function () {
             return $("<li></li>").append($div).appendTo(ul);
         };
     }
+
+    //2026-03-15
+    $("#paydate").change(function () {
+            $("#suporgid").change();
+    });
+
+    $("#suporgid").change(function () {
+        //alert($("#suporgid").val());
+
+        $("#ri_sup_priceid > option").remove();
+        //console.log($("#suporgid").val(), $("#paydate").val())
+        $.get("/api/ri_sup_prices/items", {orgid: $("#suporgid").val(), paydate: $("#paydate").val()},
+            function (data) {
+                console.log(data);
+
+                $("#ri_sup_priceid > option").remove()
+                $("#ri_sup_priceid").append($("<option>"))
+                $.each(data.items, function (index, value) {
+                        $("#ri_sup_priceid").append($("<option>").attr("value", index).append(value))
+                    }
+                );
+            }
+        )
+
+    });
+
+    $("#ri_sup_priceid").change(function () {
+        // alert($("#ri_sup_priceid").val());
+
+        //console.log($("#suporgid").val(), $("#paydate").val())
+        $id = $("#ri_sup_priceid").val();
+        if ($id == '')
+            // Remove readonly
+            $('#fuel_price').prop('readonly', false);
+
+        else {
+            $.get("/api/ri_sup_prices/item", {id: $id},
+                function (data) {
+                    //console.log(data);
+                    console.log(data.price);
+
+                    $("#refitmid").val(data.refitmid);
+                    $("#fuel_price").val(data.price);
+                    $("#fuel_price").change();  //для срабатывания слушателей за изменением этого поля
+                }
+            )
+            // Set readonly
+            $('#fuel_price').prop('readonly', true);
+        }
+
+    });
 
 
     if ($(".ac_suporg_name").length > 0) {
@@ -1280,7 +1333,6 @@ $(document).ready(function () {
             return $("<li></li>").append($div).appendTo(ul);
         };
     }
-
 
 
     //при загрузке -------------------------------------------------

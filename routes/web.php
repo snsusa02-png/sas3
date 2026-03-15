@@ -968,6 +968,9 @@ Route::get('ri_sup_prices/{id}/edit', "RiSupPriceController@edit")->name('ri_sup
 Route::get('ri_sup_prices/{orgid}/create', "RiSupPriceController@create")->name('ri_sup_prices.create');
 Route::match(array('POST', 'PUT'), 'ri_sup_prices/{id}', "RiSupPriceController@update")->name('ri_sup_prices.update');
 Route::get('ri_sup_prices/{id}/delete', "RiSupPriceController@destroy")->name("ri_sup_prices.delete");
+Route::get('/api/ri_sup_prices/items', "RiSupPriceController@list_items")->name("ri_sup_prices.list_items");
+Route::get('/api/ri_sup_prices/item', "RiSupPriceController@get_item")->name("ri_sup_prices.get_item");
+
 
 //Составы комплектующих для производства (Рецептуры)
 Route::match(array('GET', 'POST'), '/ri_compounds', "RiCompoundController@index")->name("ri_compounds.index");

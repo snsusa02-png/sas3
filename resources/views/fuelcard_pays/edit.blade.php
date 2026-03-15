@@ -2,29 +2,29 @@
 
 @section('content')
     @if (!isset( $rec))
-        <?php
-        redirect()->route('fuelcard_pays.index');
-        header("Location:" . route('fuelcard_pays.index'));
-        die();
-        ?>
+            <?php
+            redirect()->route('fuelcard_pays.index');
+            header("Location:" . route('fuelcard_pays.index'));
+            die();
+            ?>
     @else
         <script src="{{ asset('js/collapse.js') }}" defer></script>
 
-        <?php
-        $sysobjid = 562;
-        $thisSysObjId = $sysobjid;
-        $thisSysObjCode = 'fuelcard_pays';
-        $sysobjcode = $thisSysObjCode;
-        $ThisTitle = "Регистрация операции по топливной карте";
+            <?php
+            $sysobjid = 562;
+            $thisSysObjId = $sysobjid;
+            $thisSysObjCode = 'fuelcard_pays';
+            $sysobjcode = $thisSysObjCode;
+            $ThisTitle = "Регистрация операции по топливной карте";
 
-        //$route_index = route($thisSysObjCode . '.index') . '#item_' . $rec->id;
-        $retURL = \Request::get('returl') ?? $rec->retURL ?? (route($thisSysObjCode . '.index') . "?page=" . session($thisSysObjCode . '_pageno') . '#' . $rec->id);
+            //$route_index = route($thisSysObjCode . '.index') . '#item_' . $rec->id;
+            $retURL = \Request::get('returl') ?? $rec->retURL ?? (route($thisSysObjCode . '.index') . "?page=" . session($thisSysObjCode . '_pageno') . '#' . $rec->id);
 
-        $inputReadOnly = '';
+            $inputReadOnly = '';
 
-        $in_gk_hide = ($rec->in_gk == 0) ? 'display:none;' : '';
+            $in_gk_hide = ($rec->in_gk == 0) ? 'display:none;' : '';
 
-        ?>
+            ?>
         <style>
             label {
                 color: gray;
@@ -59,18 +59,13 @@
                                 @csrf
                                 {{ Form::hidden('ttt', 0) }}
                                 {{ Form::hidden('in_gk', $rec->in_gk,['id'=>'in_gk']) }}
+                                {{ Form::hidden('suporgid', $rec->card->suporgid,['id'=>'suporgid']) }}
                                 {!! Form::hidden('returl', $retURL) !!}
 
                                 <div class="row">
 
                                     <div class="form-group offset-md-0 col-md-3">
                                         <label for="name" class="required">Дата:</label>
-                                        @if(isset($rec->dw_id))
-                                            <a href="{{route('driver_works.edit',$rec->dw_id)}}" class="float-right"
-                                               style="{{$in_gk_hide}}">Отчет:
-                                                >>></a>
-                                        @endif
-                                        {{--                                        @if ($usrrights['edit_dmd'])--}}
                                         @if ($usrrights['edit'])
                                             <input type="date" class="form-control text-center font-weight-bold"
                                                    name="paydate" id="paydate" required
@@ -86,6 +81,40 @@
                                     </div>
 
                                     <div class="form-group offset-md-0 col-md-3">
+                                        <label for="name" class="required">Топливная карта:</label>
+                                        @if ($usrrights['save'])
+                                            {!! Form::select('cardid', $rec->cards??[], old('cardid',$rec->cardid),
+                                             [
+                                                 'id' => 'cardid',
+                                             'class' => 'form-control font-weight-bold',
+                                             'placeholder' => '-выбор-',
+                                             'required' => 'required',
+                                             ]) !!}
+                                        @else
+                                            <div class="font-weight-bold">{{$rec->card->name}}</div>
+                                        @endif
+                                    </div>
+
+                                    <div class="form-group offset-md-0 col-md-6">
+                                        <label for="name" class="required0">Предложения поставщика топлива:</label>
+                                        @if ($usrrights['save'])
+                                            {!! Form::select('ri_sup_priceid', $rec->sup_prices??[], old('ri_sup_priceid',$rec->ri_sup_priceid),
+                                             [
+                                                 'id' => 'ri_sup_priceid',
+                                             'class' => 'form-control font-weight-bold',
+                                             'placeholder' => '-выбор-',
+                                             'required0' => 'required0',
+                                             ]) !!}
+                                        @else
+                                            <div class="font-weight-bold">{{$rec->ri_sup_priceid??'---'}}</div>
+                                        @endif
+                                        {{ Form::hidden('refitmid', $rec->refitmid,['id'=>'refitmid']) }}
+                                    </div>
+
+                                </div>
+
+                                <div class="row">
+                                    <div class="form-group offset-md-3 col-md-3">
                                         <label for="name" class="required" id="lbl_raid_qty">Объем топлива, л:</label>
                                         @if ($usrrights['edit'])
                                             <div class="input-group mb-3 ">
@@ -134,22 +163,7 @@
 
                                 <div class="row">
 
-                                    <div class="form-group offset-md-0 col-md-3">
-                                        <label for="name" class="required">Топливная карта:</label>
-                                        @if ($usrrights['save'])
-                                            {!! Form::select('cardid', $rec->cards??[], old('cardid',$rec->cardid),
-                                             [
-                                                 'id' => 'cardid',
-                                             'class' => 'form-control font-weight-bold',
-                                             'placeholder' => '-выбор-',
-                                             'required' => 'required',
-                                             ]) !!}
-                                        @else
-                                            <div class="font-weight-bold">{{$rec->card->name}}</div>
-                                        @endif
-                                    </div>
-
-                                    <div class="form-group offset-md-0 col-md-9">
+                                    <div class="form-group offset-md-3 col-md-9">
                                         <label for="name" class="required">Техника:</label>
                                         @if ($usrrights['edit'])
                                             <div class="input-group mb-3 ">

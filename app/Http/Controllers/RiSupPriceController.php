@@ -374,5 +374,57 @@ class RiSupPriceController extends Controller
         return response()->json($result);
     }
 
+    static public function list_items(Request $request)
+    {
+        //для AJAX-запросов предложений поставщика с ценами
+
+        $result = "";
+        try {
+            $orgid = $request->orgid;
+            $paydate = $request->paydate;
+//            dd($orgid, $paydate);
+
+            $list = ri_sup_price::from('ri_sup_prices as p')
+                ->join("refitems as ri", "ri.id", "p.refitmid")
+                ->where('p.orgid', $orgid)
+                ->whereRaw("'{$paydate}' between p.begdate and ifnull(p.enddate,'{$paydate}')")
+                ->where('p.active', 1)
+                ->where('ri.itmtypeid', 120) // Категория: Топливо
+                ->select('p.id', db::raw("concat(ri.name, ', ', p.price) as name"))
+                ->orderBy('ri.name')
+                ->get()->pluck('name', 'id')->toArray();
+            //dd($list);
+            $result = array('items' => $list);
+            //$result = $list;
+
+        } catch (\Exception $e) {
+        }
+        return response()->json($result);
+    }
+
+    static public function get_item(Request $request)
+    {
+        //для AJAX-запросов предложения поставщика по ID
+
+        $result = "";
+        try {
+            $id = $request->id;
+//            dd($id);
+
+            $item = ri_sup_price::from('ri_sup_prices as p')
+                ->join("refitems as ri", "ri.id", "p.refitmid")
+                ->where('p.id', $id)
+                ->select('p.refitmid', 'ri.name as ri_name', 'p.price')
+                ->first()
+            //    ->toArray()
+            ;
+//            dd($item);
+            //$result = array('items' => $list);
+            $result = $item;
+
+        } catch (\Exception $e) {
+        }
+        return response()->json($result);
+    }
 
 }

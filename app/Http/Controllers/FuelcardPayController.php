@@ -11,6 +11,7 @@ use App\objlog;
 use App\objtag;
 use App\org;
 use App\orgstaff;
+use App\ri_sup_price;
 use App\srs_hr_item;
 use App\sysobj;
 use App\Traits\SearchDataTrait;
@@ -339,6 +340,17 @@ class FuelcardPayController extends Controller
         //Типы оплат
         $rec->paytypes = fuelcard_pay::paydirs();
 
+        //Предлжения поставщика по топливной карте
+        $rec->sup_prices = ri_sup_price::from('ri_sup_prices as p')
+            ->join("refitems as ri", "ri.id", "p.refitmid")
+            ->where('p.orgid', $rec->card->suporgid)
+            ->whereRaw("'{$rec->paydate}' between p.begdate and ifnull(p.enddate,'{$rec->paydate}')")
+            ->where('p.active', 1)
+            ->where('ri.itmtypeid', 120) // Категория: Топливо
+            ->select('p.id', db::raw("concat(ri.name, ', ', p.price) as name"))
+            ->orderBy('ri.name')
+            ->get()->pluck('name', 'id')->toArray();
+        //dd($rec->card->suporgid, $rec->paydate, $rec->sup_prices);
 
         if ($rec->id <> -1) {
             //для не новых записей
@@ -432,6 +444,8 @@ class FuelcardPayController extends Controller
         $rec->paydate = $request->get('paydate');
         //$rec->driverid = $request->get('driverid');
         $rec->machineid = $request->get('machineid');
+        $rec->ri_sup_priceid = $request->get('ri_sup_priceid');
+        $rec->refitmid = $request->get('refitmid');
         $rec->fuel_qty = $request->get('fuel_qty');
         $rec->fuel_price = $request->get('fuel_price');
         $rec->paydir = -1;
