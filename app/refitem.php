@@ -1385,6 +1385,9 @@ class refitem extends Model
                             $sc .= ')';
                         }
 
+                    } elseif ($key == 'itmtypeid') {
+                        $sc .= " and ri.itmtypeid={$val}";
+
                     } elseif ($key == 'in_mchn_raids') {
                         $sc .= " and " . (($val == 1) ? '' : 'not') .
                             " exists (select 1 from mchn_raids as mr where ri.id in (mr.load_refitmid, mr.unload_refitmid))";
