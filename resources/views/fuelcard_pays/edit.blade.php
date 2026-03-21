@@ -28,6 +28,7 @@
             if (count($rec->sup_prices)>1){
                 $sup_prices_style = '';
                 $refitems_style = 'display:none;';
+                
             }else{
                 $sup_prices_style = 'display:none;';
                 $refitems_style = '';
