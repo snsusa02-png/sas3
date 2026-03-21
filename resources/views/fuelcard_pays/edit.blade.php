@@ -25,10 +25,11 @@
             $in_gk_hide = ($rec->in_gk == 0) ? 'display:none;' : '';
 
 //            $usrrights['save']=false;
-            if (count($rec->sup_prices)>1){
+            //dd(count($rec->sup_prices));
+            if (count($rec->sup_prices)>0){
                 $sup_prices_style = '';
                 $refitems_style = 'display:none;';
-                
+
             }else{
                 $sup_prices_style = 'display:none;';
                 $refitems_style = '';
