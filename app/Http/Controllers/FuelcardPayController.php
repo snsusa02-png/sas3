@@ -11,6 +11,7 @@ use App\objlog;
 use App\objtag;
 use App\org;
 use App\orgstaff;
+use App\refitem;
 use App\ri_sup_price;
 use App\srs_hr_item;
 use App\sysobj;
@@ -339,6 +340,8 @@ class FuelcardPayController extends Controller
 
         //Типы оплат
         $rec->paytypes = fuelcard_pay::paydirs();
+
+        $rec->refitems = refitem::lstFor(['itmtypeid'=>120]);
 
         //Предлжения поставщика по топливной карте
         $rec->sup_prices = ri_sup_price::from('ri_sup_prices as p')

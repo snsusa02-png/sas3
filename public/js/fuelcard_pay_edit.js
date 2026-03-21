@@ -401,7 +401,7 @@ $(document).ready(function () {
 
     //2026-03-15
     $("#paydate").change(function () {
-            $("#suporgid").change();
+        $("#suporgid").change();
     });
 
     $("#suporgid").change(function () {
@@ -411,7 +411,7 @@ $(document).ready(function () {
         //console.log($("#suporgid").val(), $("#paydate").val())
         $.get("/api/ri_sup_prices/items", {orgid: $("#suporgid").val(), paydate: $("#paydate").val()},
             function (data) {
-                console.log(data);
+                // console.log(data);
 
                 $("#ri_sup_priceid > option").remove()
                 $("#ri_sup_priceid").append($("<option>"))
@@ -419,9 +419,37 @@ $(document).ready(function () {
                         $("#ri_sup_priceid").append($("<option>").attr("value", index).append(value))
                     }
                 );
+                 console.log($('#ri_sup_priceid option').length);
+                if ($('#ri_sup_priceid option').length > 1) {
+                    $('#ri_sup_priceid').prop('required', true);
+                    $('#ri_sup_priceid').addClass('required');
+                    $('#ri_sup_price_lbl').addClass('required');
+                    $('#ri_sup_price_div').show();
+                    $('#refitem_div').hide();
+                } else {
+                    $('#ri_sup_priceid').val(null);
+                    $('#ri_sup_priceid').prop('required', false);
+                    $('#ri_sup_priceid').removeClass('required');
+                    $('#ri_sup_price_lbl').removeClass('required');
+                    $('#ri_sup_price_div').hide();
+                    $('#refitem_div').show();
+                    $('#fuel_price').prop('readonly', false);
+
+                }
             }
         )
 
+        //alert($('#ri_sup_priceid option').length, cnt);
+        // console.log(cnt);
+        // // if ($('#ri_sup_priceid option').length >= 1) {
+        // if (cnt >= 1) {
+        //     $('#ri_sup_priceid').prop('required', true);
+        //     $('#ri_sup_priceid').addClass('required');
+        // } else {
+        //     $('#ri_sup_priceid').prop('required', false);
+        //     $('#ri_sup_priceid').removeClass('required');
+        //
+        // }
     });
 
     $("#ri_sup_priceid").change(function () {

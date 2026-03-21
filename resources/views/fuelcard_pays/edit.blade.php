@@ -24,6 +24,14 @@
 
             $in_gk_hide = ($rec->in_gk == 0) ? 'display:none;' : '';
 
+//            $usrrights['save']=false;
+            if (count($rec->sup_prices)>1){
+                $sup_prices_style = '';
+                $refitems_style = 'display:none;';
+            }else{
+                $sup_prices_style = 'display:none;';
+                $refitems_style = '';
+            }
             ?>
         <style>
             label {
@@ -95,20 +103,32 @@
                                         @endif
                                     </div>
 
-                                    <div class="form-group offset-md-0 col-md-6">
-                                        <label for="name" class="required0">Предложения поставщика топлива:</label>
+                                    <div id="refitem_div" class="form-group offset-md-0 col-md-6" style="{{$refitems_style}}">
+                                        <label for="refitmid" class="">Вид топлива:</label>
+                                        @if ($usrrights['save'])
+                                            {!! Form::select('refitmid', $rec->refitems??[], old('refitmid',$rec->refitmid),
+                                             [
+                                                 'id' => 'refitmid',
+                                             'class' => 'form-control font-weight-bold',
+                                             'placeholder' => '-выбор-',
+                                             ]) !!}
+                                        @else
+                                            <div class="font-weight-bold">{{$rec->refitm->name??'---'}}</div>
+                                        @endif
+                                    </div>
+
+                                    <div id="ri_sup_price_div" class="form-group offset-md-0 col-md-6" style="{{$sup_prices_style}}">
+                                        <label for="ri_sup_priceid" class="" id="ri_sup_price_lbl">Предложения поставщика топлива:</label>
                                         @if ($usrrights['save'])
                                             {!! Form::select('ri_sup_priceid', $rec->sup_prices??[], old('ri_sup_priceid',$rec->ri_sup_priceid),
                                              [
                                                  'id' => 'ri_sup_priceid',
                                              'class' => 'form-control font-weight-bold',
                                              'placeholder' => '-выбор-',
-                                             'required0' => 'required0',
                                              ]) !!}
                                         @else
                                             <div class="font-weight-bold">{{$rec->ri_sup_priceid??'---'}}</div>
                                         @endif
-                                        {{ Form::hidden('refitmid', $rec->refitmid,['id'=>'refitmid']) }}
                                     </div>
 
                                 </div>
@@ -134,6 +154,7 @@
                                         @if ($usrrights['edit'])
                                             <div class="input-group mb-3 ">
                                                 <input type="number" name="fuel_price" id="fuel_price" required
+                                                       {{(is_null($rec->ri_sup_priceid))?'':'readonly'}}
                                                        title="Цена за единицу измерения"
                                                        class="form-control text-right font-weight-bold"
                                                        min="0" step="0.000001"

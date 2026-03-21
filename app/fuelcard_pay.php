@@ -43,6 +43,16 @@ class fuelcard_pay extends Model
         return $this->hasOne(fuelcard::class, 'id', 'cardid')->withDefault();
     }
 
+    public function refitem()
+    {
+        return $this->hasOne(refitem::class, 'id', 'refitmid')->withDefault();
+    }
+
+    public function ri_sup_price()
+    {
+        return $this->hasOne(ri_sup_price::class, 'id', 'ri_sup_priceid')->withDefault();
+    }
+
     static public function paydirs()
     {
         return [+1 => 'пополнение', -1 => 'расход'];
