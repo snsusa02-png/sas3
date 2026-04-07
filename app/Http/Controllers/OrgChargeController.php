@@ -705,7 +705,7 @@ class OrgChargeController extends Controller
 
         $tarr = DB::select("SELECT distinct upper (os.depname) as depname
                     FROM stf_chrg_calcs as scc
-                    join orgstaff os on os.id=scc.staffid
+                    join orgstaff os on os.id=scc.staffid and os.active=1
                     join orgs o on o.id=os.orgid
                     where trim(os.depname) <> ''
                     -- and scc.docdate>='2024-01-01'
@@ -1331,6 +1331,8 @@ class OrgChargeController extends Controller
         }
 
         return view('org_charges.rep' . $report_id, compact('search_params', 'data', 'recs'));
+        //попробуем другую форму отчета
+        //return view('driver_works.rep77', compact('search_params', 'data', 'recs'));
     }
 
 
