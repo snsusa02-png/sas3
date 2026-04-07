@@ -109,7 +109,7 @@ $first_col_id = null;
 
                                     @if(1==1)
                                         <div class="form-group col-md-2">
-                                            <label for="s_ownorgid" class="">Сотрудник:</label>
+                                            <label for="s_stf_name" class="">Сотрудник:</label>
                                             {!! Form::text('s_stf_name', $search_params['s_stf_name'],
                                                             [
                                                             'class' => 'form-control',
