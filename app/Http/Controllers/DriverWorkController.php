@@ -98,6 +98,7 @@ class DriverWorkController extends Controller
             , 's_docdate' => ''
             , 's_name' => ''
             , 's_machineid' => ''
+            , 's_machine_name' => ''
             , 's_staffid' => ''
             , 's_statusid' => ''
         ];
@@ -124,6 +125,9 @@ class DriverWorkController extends Controller
 
                 } elseif ($item == 's_machineid') {
                     $sc = $sc . " and dw.machineid = {$val}";
+                } elseif ($item == 's_machine_name') {
+                    $sc .= " and exists(select 1 from machines as m
+                            where m.id=dw.machineid and concat(m.regnum,' - ', m.name) like '%" . mb_strtoupper($val) . "%')";
 
                 } elseif ($item == 's_staffid') {
                     $sc = $sc . " and dw.staffid = {$val}";

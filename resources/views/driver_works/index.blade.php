@@ -140,13 +140,20 @@
                                              ]) !!}
                                 </td>
                                 <td>
-                                    {!! Form::select('s_machineid', $data->machines
-                                    , $search_params['s_machineid'],
-                                         [
-                                         'class' => 'form-control',
-                                         'placeholder' => '-все-',
-                                         'onchange' => 'form.submit()',
-                                         ]) !!}
+{{--                                    {!! Form::select('s_machineid', $data->machines--}}
+{{--                                    , $search_params['s_machineid'],--}}
+{{--                                         [--}}
+{{--                                         'class' => 'form-control',--}}
+{{--                                         'placeholder' => '-все-',--}}
+{{--                                         'onchange' => 'form.submit()',--}}
+{{--                                         ]) !!}--}}
+                                    <input type="text" name="s_machine_name" list="machines" class="form-control"
+                                           value="{{$search_params['s_machine_name']}}">
+                                    <datalist id="machines">
+                                        @foreach($data->machines as $key=>$val)
+                                            <option value="{{ $val }}">
+                                        @endforeach
+                                    </datalist>
                                 </td>
                                 <td></td>
                                 <td></td>
