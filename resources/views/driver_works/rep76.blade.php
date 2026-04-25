@@ -219,17 +219,22 @@ $action_url = route('reports.rep' . $thisObjId);
                             <td class="text-center small">Рабочих дней с пробегом</td>
                             <td rowspan="1" class="text-center small">Пробег, км</td>
                             <td class="text-center small">Средний пробег, км</td>
+                            <td rowspan="1" class="text-center small">Заправлено, л</td>
+                            <td rowspan="1" class="text-center small">Расход на 100 км, л</td>
                         </tr>
                             <?php
                             $npp = 0;
-                            $totMeterQty = 0;
+                            $totMeterQty = $totFuelQty = 0;
                             $meterWD_style = 'background-color:#ffe0e0;';
                             ?>
                         @foreach($recs as $itm)
                                 <?php
                                 $avg_day_meter = 0;
-                                if ($itm->meter_wrkdays > 0)
+                                $fuel_per_100 = 0;
+                                if ($itm->meter_wrkdays > 0) {
                                     $avg_day_meter = $itm->meter_qty / $itm->meter_wrkdays;
+                                    $fuel_per_100 = $itm->fuel_qty / $itm->meter_qty * 100;
+                                }
                                 $meterWD_style = 'background-color:#ffe0e0;';
                                 if ($itm->meter_wrkdays == $itm->wrkdays)
                                     $meterWD_style = 'background-color:#e0ffe0;';
@@ -238,7 +243,7 @@ $action_url = route('reports.rep' . $thisObjId);
                                 <td class="small text-right">{{++$npp}}</td>
                                 <td><a href="{{route('machines.edit',$itm->machineid)}}"
                                        target="_blank">{{$itm->mchn_name}}</a>, <span
-                                            class="small ml-2">{{$itm->mchntype_name}}, {{$itm->org_name}}</span>
+                                        class="small ml-2">{{$itm->mchntype_name}}, {{$itm->org_name}}</span>
                                 </td>
                                 <td class="text-center small" style="font-size: 10px;">{{$itm->min_wrkdate}}
                                     .. {{$itm->max_wrkdate}}  </td>
@@ -246,15 +251,25 @@ $action_url = route('reports.rep' . $thisObjId);
                                 <td class="text-center small" style="{{$meterWD_style}}">{{$itm->meter_wrkdays}} </td>
                                 <td class="text-right small">{{number_format($itm->meter_qty,0)}}</td>
                                 <td class="text-right small">{{number_format($avg_day_meter,1)}}</td>
+                                <td class="text-right small">{{number_format($itm->fuel_qty,0)}}</td>
+                                <td class="text-right small">{{number_format($fuel_per_100,0)}}</td>
                             </tr>
                                 <?php
                                 $totMeterQty += $itm->meter_qty;
+                                $totFuelQty += $itm->fuel_qty;
                                 ?>
                         @endforeach
-
+                            <?php
+                            if ($totMeterQty > 0) {
+                                $avg_fuel_per_100 = $totFuelQty / $totMeterQty * 100;
+                            }
+                            ?>
                         <tr>
                             <td colspan="5" class="text-right">Итого:</td>
                             <td class="text-right font-weight-bold">{{number_format($totMeterQty,0)}}</td>
+                            <td></td>
+                            <td class="text-right font-weight-bold">{{number_format($totFuelQty,0)}}</td>
+                            <td class="text-right font-weight-bold">{{number_format($avg_fuel_per_100,0)}}</td>
                         </tr>
                     </table>
                     {{-- ------------------------------------------------------------------------------------------}}

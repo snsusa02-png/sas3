@@ -552,23 +552,27 @@ class DriverWorkReportController extends Controller
             $s_yr_mn = date_format(date_create($s_begdate), 'Y-m');
             //dd($s_yr_mn);
 
-            $sql = " SELECT dw.machineid, m.name as mchn_name
-                            , mt.name as mchntype_name
-	                        , m.orgid, o.name as org_name
-                            , sum(dw.meter_qty) as meter_qty
-                            , sum(dw.fuel_spentqty ) as fuel_spentqty
-                            , min(dw.wrkdate) as min_wrkdate
-                            , max(dw.wrkdate) as max_wrkdate
-                            , count(distinct dw.wrkdate) as wrkdays
-                            , sum(if( dw.meter_qty is null, 0, 1)) as meter_wrkdays
+
+            //2026-04-21 вариант с расчетом объема заправок
+            $sql = "select a.*, b.fuel_qty
+                    from (
+                        SELECT dw.machineid, m.name as mchn_name
+                                , mt.name as mchntype_name
+                                , m.orgid, o.name as org_name
+                                , sum(dw.meter_qty) as meter_qty
+                                , sum(dw.fuel_spentqty ) as fuel_spentqty
+                                , min(dw.wrkdate) as min_wrkdate
+                                , max(dw.wrkdate) as max_wrkdate
+                                , count(distinct dw.wrkdate) as wrkdays
+                                , sum(if( dw.meter_qty is null, 0, 1)) as meter_wrkdays
                             FROM driver_works dw
                             join machines m on m.id=dw.machineid
                             join orgs o on o.id=m.orgid
                             join mchntypes as mt on mt.id=m.mchntypeid
                             where 1=1
-                            and dw.wrkdate between '{$s_begdate}' and '{$s_enddate}'
-                            and exists(select 1 from driver_works dd where dd.machineid=dw.machineid and dd.meter_qty is not null)";
-            // and meter_qty is not null
+                                    and dw.wrkdate between '{$s_begdate}' and '{$s_enddate}'
+                                    -- and exists(select 1 from driver_works dd where dd.machineid=dw.machineid and dd.meter_qty is not null) and m.mchntypeid=7
+                            ";
             if ($s_ownorgid <> '') {
                 $sql .= " and m.orgid={$s_ownorgid}";
             }
@@ -579,8 +583,46 @@ class DriverWorkReportController extends Controller
                 $sql .= " and ucase(m.name) like'%{$s_mchnname}%'";
             }
 
-            $sql .= " group by dw.machineid";
-            $sql .= " order by m.name";
+            $sql .= " group by dw.machineid
+                        ) a
+                       join (
+                           select p.machineid, sum(fuel_qty) as fuel_qty
+                                from fuelcard_pays p
+                                where 1=1
+                                    and p.paydate between '{$s_begdate}' and '{$s_enddate}'
+                                group by p.machineid
+                            ) b on b.machineid=a.machineid
+                        order by a.mchn_name";
+
+//            $sql = " SELECT dw.machineid, m.name as mchn_name
+//                            , mt.name as mchntype_name
+//	                        , m.orgid, o.name as org_name
+//                            , sum(dw.meter_qty) as meter_qty
+//                            , sum(dw.fuel_spentqty ) as fuel_spentqty
+//                            , min(dw.wrkdate) as min_wrkdate
+//                            , max(dw.wrkdate) as max_wrkdate
+//                            , count(distinct dw.wrkdate) as wrkdays
+//                            , sum(if( dw.meter_qty is null, 0, 1)) as meter_wrkdays
+//                            FROM driver_works dw
+//                            join machines m on m.id=dw.machineid
+//                            join orgs o on o.id=m.orgid
+//                            join mchntypes as mt on mt.id=m.mchntypeid
+//                            where 1=1
+//                            and dw.wrkdate between '{$s_begdate}' and '{$s_enddate}'
+//                            and exists(select 1 from driver_works dd where dd.machineid=dw.machineid and dd.meter_qty is not null)";
+//            // and meter_qty is not null
+//            if ($s_ownorgid <> '') {
+//                $sql .= " and m.orgid={$s_ownorgid}";
+//            }
+//            if ($s_mchntypeid <> '') {
+//                $sql .= " and m.mchntypeid={$s_mchntypeid}";
+//            }
+//            if ($s_mchnname <> '') {
+//                $sql .= " and ucase(m.name) like'%{$s_mchnname}%'";
+//            }
+//
+//            $sql .= " group by dw.machineid";
+//            $sql .= " order by m.name";
 
             //dd($s_begdate, $s_yr_mn, $sql);
             $recs = DB::select(DB::raw($sql));
