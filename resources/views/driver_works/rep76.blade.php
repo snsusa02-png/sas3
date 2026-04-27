@@ -220,7 +220,7 @@ $action_url = route('reports.rep' . $thisObjId);
                             <td rowspan="1" class="text-center small">Пробег, км</td>
                             <td class="text-center small">Средний пробег, км</td>
                             <td rowspan="1" class="text-center small">Заправлено, л</td>
-                            <td rowspan="1" class="text-center small">Расход на 100 км, л</td>
+                            <td rowspan="1" class="text-center small">Оценка расхода на 100 км, л</td>
                         </tr>
                             <?php
                             $npp = 0;
@@ -260,6 +260,7 @@ $action_url = route('reports.rep' . $thisObjId);
                                 ?>
                         @endforeach
                             <?php
+                            $avg_fuel_per_100 = 0;
                             if ($totMeterQty > 0) {
                                 $avg_fuel_per_100 = $totFuelQty / $totMeterQty * 100;
                             }
