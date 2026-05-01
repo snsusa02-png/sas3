@@ -1,5 +1,6 @@
 ﻿-- 2026-05-01 ------------------------------------------------------------------------
 INSERT INTO `doctypes` (`name`, `acsid`, `active`) VALUES ('Страховой полис', '1', '1');
+update doctypes set active=0 where id <> 271;
 UPDATE `sysobjs` SET `model_class` = 'machine' WHERE (`id` = '482');
 
 -- 2026-03-14 ------------------------------------------------------------------------
