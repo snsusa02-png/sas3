@@ -260,6 +260,7 @@ class MachineController extends Controller
             , 'mot.driver_fee_pcnt'
         ]);
 
+//        dd($machine->docs);
 //dd($machine->controrgs);
         $usrrights = $this->setInterfaceRight($id);
 

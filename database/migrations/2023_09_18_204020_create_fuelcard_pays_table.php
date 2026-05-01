@@ -25,11 +25,17 @@ class CreateFuelcardPaysTable extends Migration
             $table->biginteger('driverid')->unsigned()->nullable()->comment('Сотрудник');
 		$table->foreign('driverid')->references('id')->on('orgstaff');
 
+            $table->biginteger('ri_sup_priceid')->unsigned()->nullable()->comment('Предложение поставщика');
+		$table->foreign('ri_sup_priceid')->references('id')->on('ri_sup_prices');
+
+            $table->biginteger('refitmid')->unsigned()->nullable()->comment('Вид топлива (refitems.id)');
+		$table->foreign('refitmid')->references('id')->on('refitems');
 
             $table->tinyInteger('paydir')->default(0)->comment('Направление платежа (от ownorgid) +1 - Пополнение, -1 - Расход/Списание');
             $table->date('paydate')->default(date("Y-m-d"))->comment('Дата платежа');
-	    $table->decimal('paysum', 12,2)->nullable()->comment('Сумма платежа');
-	    $table->decimal('fuel_qty', 12,2)->nullable()->comment('Сумма платежа');
+	    $table->decimal('paysum', 12,2)->nullable()->comment('Сумма платежа, руб');
+	    $table->decimal('fuel_qty', 12,2)->nullable()->comment('Кол-во топлива, ЕИ');
+	    $table->decimal('fuel_price', 12,6)->nullable()->comment('Цена за ЕИ, руб');
 
             $table->string('notes',160)->nullable();
 

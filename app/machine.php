@@ -73,6 +73,13 @@ class machine extends Model
         //return $this->hasMany(ri_image::class, 'refitmid', 'id');
     }
 
+    public function docs()
+    {
+        return $this->hasMany(obj_doc::class, 'objid', 'id')
+            ->where('obj_docs.sysobjid', self::$sysobjid)
+            ->orderBy('obj_docs.begdate', 'desc');
+    }
+
     public function getInfoAttribute()
     {
         if (isset($this->id)) {

@@ -1530,7 +1530,7 @@ Route::match(array('POST', 'PUT'), 'obj_expenses/{id}', "ObjExpenseController@up
 Route::put('/obj_expenses/{id}/delete', "ObjExpenseController@destroy")->name("obj_expenses.delete");
 //---------------------------------------------------------------------------------
 
-// idcards - идентифицирующие карты сотрудников - для регистрации операций/расходов по сотрдунику --------------------------------------------------------------------------------
+// idcards - идентифицирующие карты сотрудников - для регистрации операций/расходов по сотруднику --------------------------------------------------------------------------------
 Route::match(array('GET', 'POST'), '/idcards', "IdcardController@index")->name('idcards.index');
 Route::get('/idcards/sort/{field}', 'IdcardController@index_sort')->name('idcards.sort');
 Route::get('idcards/create', "IdcardController@create")->name('idcards.create');
@@ -1553,6 +1553,12 @@ Route::get('/places/{id}/edit', "PlaceController@edit")->name('places.edit');
 Route::match(array('POST', 'PUT'), 'places/update/{id}', "PlaceController@update")->name('places.update');
 Route::put('/places/{id}/delete', "PlaceController@destroy")->name("places.delete");
 //Route::get('/places/info/params/', 'PlaceController@info_params');
+
+//Документы
+Route::get('/obj_docs/create/{sysobjid}/{objid}', "ObjDocController@create")->name('obj_docs.create');
+Route::get('/obj_docs/{id}/edit', "ObjDocController@edit")->name('obj_docs.edit');
+Route::match(array('POST', 'PUT'), 'obj_docs/{id}', "ObjDocController@update")->name('obj_docs.update');
+Route::put('/obj_docs/{id}/delete', "ObjDocController@destroy")->name("obj_docs.delete");
 
 
 //загрузка новых записей об удержаниях сотрудника из файла в формате XLS с идентификацией сотрудника по номеру карты IDCard

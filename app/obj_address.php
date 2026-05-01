@@ -29,7 +29,6 @@ class obj_address extends Model
         return $this->hasOne(User::class, 'id', 'updated_by');
     }
 
-
     static public function addOrUpdate($search_params, $set_params)
     {
         if (isset($search_params) and isset($set_params)) {

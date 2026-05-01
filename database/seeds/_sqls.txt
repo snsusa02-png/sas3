@@ -1,4 +1,8 @@
-﻿-- 2026-03-14 ------------------------------------------------------------------------
+﻿-- 2026-05-01 ------------------------------------------------------------------------
+INSERT INTO `doctypes` (`name`, `acsid`, `active`) VALUES ('Страховой полис', '1', '1');
+UPDATE `sysobjs` SET `model_class` = 'machine' WHERE (`id` = '482');
+
+-- 2026-03-14 ------------------------------------------------------------------------
 ALTER TABLE `fuelcard_pays`
     ADD COLUMN `ri_sup_priceid` BIGINT UNSIGNED NULL COMMENT 'ID записи из прайслиста поставщика топлива (ri_sup_prices)` AFTER `fuel_price`,
     ADD COLUMN `refitmid` BIGINT UNSIGNED NULL COMMENT 'ID товара(топлива) по RefItems' AFTER `ri_sup_priceid`;

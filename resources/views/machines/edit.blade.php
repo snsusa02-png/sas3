@@ -213,6 +213,8 @@
                         @include('objfiles.obj_files')
                         {{--@include('machines/obj_images')--}}
 
+                        @include('obj_docs._list')
+
                         <div class="card d-none d-sm-block  p-2 my-2 my-md-3"
                              style="min-width:400px !important;">
 
