@@ -155,6 +155,11 @@ class stf_chrg_calc extends Model
         $chargetype = chargetype::where('id', $chargetypeid)->first();
         if (isset($chargetype)) {
 
+            //удалим пустые названия колонок
+            foreach ($fields as $k => $v)
+                if (empty($v)) unset($fields[$k]);
+//            dd($fields);
+
             //перевернем колонки
             $fld_idx = array_flip($fields);
             //dd($fld_idx);
