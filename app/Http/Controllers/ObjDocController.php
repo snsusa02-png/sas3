@@ -94,7 +94,6 @@ class ObjDocController extends Controller
             return redirect(route('home'));
 
         $rec->retURL = $request->get('returl');
-
         //$data = new \stdClass();
 
 //        $rec->userid = orgstaff::find($rec->staffid)->userid ?? null;

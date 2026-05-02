@@ -17,7 +17,7 @@
                         </button>
                         @endif
                         @if($usrrights['save']??true)
-                            <a href="{{ route('obj_docs.create',['sysobjid'=>$sysobjid, 'objid'=>$rec->id])}}"
+                            <a href="{{ route('obj_docs.create',['sysobjid'=>$sysobjid, 'objid'=>$rec->id])}}?returl={{Request::url()}}"
                                    class="btn btn-warning btn-sm ml-1">
                             <i class="fa fa-plus"></i>
                         </a>
