@@ -636,6 +636,7 @@
                             @include('objfiles.obj_files')
                             @include('obj_contacts._contacts')
                             @include('obj_addresses._list')
+                            @include('obj_docs._list')
                             @include('stf_payrolltypes._list')
                             @include('stf_charges._list')
                             @include('stf_prl_periods._list')

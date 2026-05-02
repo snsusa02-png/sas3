@@ -67,7 +67,7 @@
 
                                     <div class="row">
                                         <div class="form-group offset-md-0 col-md-12">
-                                            <label for="name" class="">Для:</label>
+                                            <label for="name" class="">Для: {{$rec->_sysobj_name}}</label>
                                             <input type="text" class="form-control"
                                                    readonly
                                                    value="{{ $rec->_obj_info }}"/>

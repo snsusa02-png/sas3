@@ -1,4 +1,8 @@
-﻿-- 2026-05-01 ------------------------------------------------------------------------
+﻿-- 2026-05-02 ------------------------------------------------------------------------
+INSERT INTO `doctypes` (`id`, `name`) VALUES ('272', 'Водительское удостоверение');
+INSERT INTO `sysobj_doctypes` (`id`, `sysobjid`, `doctypeid`) VALUES ('2', '121', '272');
+
+-- 2026-05-01 ------------------------------------------------------------------------
 INSERT INTO `doctypes` (`name`, `acsid`, `active`) VALUES ('Страховой полис', '1', '1');
 update doctypes set active=0 where id <> 271;
 UPDATE `sysobjs` SET `model_class` = 'machine' WHERE (`id` = '482');

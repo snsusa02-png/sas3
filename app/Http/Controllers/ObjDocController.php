@@ -100,11 +100,12 @@ class ObjDocController extends Controller
 //        $rec->userid = orgstaff::find($rec->staffid)->userid ?? null;
         $sysobj = sysobj::find($rec->sysobjid);
         $rec->_sysobj_name = $sysobj->name;
+        //dd($rec->_sysobj_name);
 
         if (isset($sysobj->model_class)) {
             $model = "App\\{$sysobj->model_class}";
             $obj = $model::find($rec->objid);
-//            dd($model, $rec->objid, $obj);
+            //dd($model, $rec->objid, $obj);
             if (isset($obj)){
                 $rec->_obj_info = $obj->Info;
                 if ($id == -1){
@@ -119,7 +120,7 @@ class ObjDocController extends Controller
         $usrrights = $this->setInterfaceRight($rec->id, $sysobj->code);
 
         if ($usrrights['save'] ?? false) {
-            $rec->doctypes = doctype::lstFor(['active_or_current' => 1]);
+            $rec->doctypes = doctype::lstFor(['active_or_current' => 1, 'for_sysobjid' => $rec->sysobjid]);
         } else {
             $rec->doctypes = null;
         }

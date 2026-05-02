@@ -93,6 +93,14 @@ class orgstaff extends Model
             ->orderby('begdate', 'desc');
     }
 
+    public function docs()
+    {
+        return $this->hasMany(obj_doc::class, 'objid', 'id')
+            ->where('obj_docs.sysobjid', self::$sysobjid)
+            ->orderBy('obj_docs.begdate', 'desc');
+    }
+
+
     public function getNamePostAttribute()
     {
         if (isset($this->id)) {
