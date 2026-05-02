@@ -693,7 +693,7 @@
                                         <div class="form-group" id="insurance_err">
                                             <label for="decision">Предупреждение:</label>
                                                     <div class="font-weight-bold">
-                                                        <div class="font-weight-bold" style="background-color: salmon">Нет действующего страхового полиса!</div>
+                                                        <div class="font-weight-bold" style="background-color: salmon">&nbsp;Нет действующего страхового полиса!</div>
                                                     </div>
                                         </div>
                                     </div>

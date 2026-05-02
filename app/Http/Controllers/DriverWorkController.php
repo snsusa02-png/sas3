@@ -6,6 +6,7 @@ use App\driver_work;
 use App\dw_break;
 use App\mchn_raid;
 use App\obj_doc;
+use App\objflag;
 use App\opertype;
 use App\org_charge;
 use App\orgstaff;
@@ -665,24 +666,32 @@ class DriverWorkController extends Controller
             $machineid = $request->get('machineid');
             $wrkdate = $request->get('wrkdate');
 
-            $rules = [
-                //В форме должно быть поле ttt
-                "ttt" => [
-                    function ($attribute, $value, $fail) use ( $wrkdate, $machineid) {
-                        //
-                        $cnt = obj_doc::where(['sysobjid' => 482, 'objid' => $machineid, 'doctypeid' => 271])
-                            ->whereRaw("'{$wrkdate}' between begdate and enddate")
-                            ->count();
-                        //dd($cnt);
-                        if ($cnt == 0) {
-                            $fail("У этого автомобиля(спецтехники) нет действующего страхового полиса на указаный период работ!");
-                        }
-                    },
-                ],
-            ];
-            //dd($rules);
-            $request->validate($rules, $messages);
-            //dd($rules, $messages);
+            //Проверим, требуется ли для указанного вида техники наличие страховки
+            $machine = machine::find($machineid);
+            $mchntypeid = $machine->mchntypeid;
+            //481 - типы спецтехники, 194 - требуется страховка
+            $cnt = objflag::where(['sysobjid' => 481, 'objid' => $mchntypeid, 'flagtypeid' => 194])->count();
+
+            if ($cnt > 0) {
+                $rules = [
+                    //В форме должно быть поле ttt
+                    "ttt" => [
+                        function ($attribute, $value, $fail) use ($wrkdate, $machineid) {
+                            //
+                            $cnt = obj_doc::where(['sysobjid' => 482, 'objid' => $machineid, 'doctypeid' => 271])
+                                ->whereRaw("'{$wrkdate}' between begdate and enddate")
+                                ->count();
+                            //dd($cnt);
+                            if ($cnt == 0) {
+                                $fail("У этого автомобиля(спецтехники) нет действующего страхового полиса на указаный период работ!");
+                            }
+                        },
+                    ],
+                ];
+                //dd($rules);
+                $request->validate($rules, $messages);
+                //dd($rules, $messages);
+            }
         }
 
         if ($pre_statusid == 2 and $nxt_statusid == 0) {
@@ -953,7 +962,7 @@ class DriverWorkController extends Controller
 
         $rec->save();
 //        dd($rec);
-       //dd($rslt_msg, $this->sysobjid, $rec->id);
+        //dd($rslt_msg, $this->sysobjid, $rec->id);
 
 //        objlog::log_info($this->sysobjid, $rec->id, $mess, 5);
         objlog::log_info($this->sysobjid, $rec->id, $rslt_msg, 5);

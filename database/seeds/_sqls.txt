@@ -1,4 +1,15 @@
-﻿-- 2026-05-02 ------------------------------------------------------------------------
+﻿-- 2026-05-03 ------------------------------------------------------------------------
+INSERT INTO `flagtypes` (`id`, `code`, `name`, `forsysobjid`) VALUES ('194', 'insurance', 'для работы требуется страховой полис', '481');
+
+insert into objflags (sysobjid, objid, flagtypeid)
+SELECT 481 as sysobjid, mt.id as objid, 194 as flagtypeid
+	FROM sasdv_3.mchntypes as mt
+	where exists(select 1 from machines m
+			join driver_works dw on dw.machineid=m.id
+			where m.mchntypeid=mt.id)
+	and mt.id not in (1, 4);
+
+-- 2026-05-02 ------------------------------------------------------------------------
 INSERT INTO `doctypes` (`id`, `name`) VALUES ('272', 'Водительское удостоверение');
 INSERT INTO `sysobj_doctypes` (`id`, `sysobjid`, `doctypeid`) VALUES ('2', '121', '272');
 
