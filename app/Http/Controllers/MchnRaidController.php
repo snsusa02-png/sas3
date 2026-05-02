@@ -455,7 +455,7 @@ class MchnRaidController extends Controller
         $rec->retURL = $request->get('returl');
 
         $rec->in_gk = machine::from('machines as m')->where('m.id', $rec->machineid)
-                ->selectRaw("(select count(*) from objflags f where f.sysobjid=111 and f.flagtypeid=12 and f.objid=m.orgid) as in_gk")->first()->in_gk ?? -1;
+            ->selectRaw("(select count(*) from objflags f where f.sysobjid=111 and f.flagtypeid=12 and f.objid=m.orgid) as in_gk")->first()->in_gk ?? -1;
         //dd($rec->in_gk);
 
         $rec->begtime = (isset($rec->wrkbegdt)) ? strftime('%H:%M', strtotime($rec->wrkbegdt)) : '';
@@ -1062,6 +1062,7 @@ class MchnRaidController extends Controller
         //2021-11-27 SNS. Данные разные
 
         $result = "";
+
         try {
 
             $list = mchn_raid::where([
@@ -1075,22 +1076,31 @@ class MchnRaidController extends Controller
 
             //$list['test']=12345;
             $wrkdate = $request->wrkdate;
-            $rates = srs_hr_item::from('srs_hr_items as i')
-                ->join('salary_rate_sets as srs', 'srs.id', 'i.srs_id')
-                ->join('orgstaff as os', 'os.id', '=', DB::raw($request->driverid))
-                //->where('srs.payrolltypeid', 1) //to-do - взять из карточки сотрдника
-                ->leftJoin('stf_payrolltypes as spt', function ($j) use ($wrkdate) {
-                    $j->on('spt.staffid', '=', 'os.id')
-                        ->whereRaw("'{$wrkdate}' between spt.begdate and ifnull(spt.enddate,'{$wrkdate}')");
-                })
-                ->where('srs.payrolltypeid', db::raw("ifnull(spt.payrolltypeid, 1)"))
-                ->where('i.wrktypeid', $request->wrktypeid)
-                ->whereRaw('ifnull(srs.ownorgid,os.orgid)=os.orgid')
-                ->whereRaw("'{$request->wrkdate}' between srs.begdate and ifnull(srs.enddate,'{$request->wrkdate}')")
-                ->whereRaw("TIMESTAMPDIFF(month, ifnull(os.begdate,'{$request->wrkdate}'), '{$request->wrkdate}' )/12 between i.min_wrkexp and i.max_wrkexp-0.001")
-                ->select('i.hr_day_rate', 'i.hr_night_rate')
-                ->first()->toArray();
-            $list = $list + $rates;
+            $driverid = $request->driverid;
+//            dd($wrkdate,is_null($wrkdate),$driverid,is_null($driverid));
+            if (!is_null($wrkdate) and !is_null($driverid)) {
+                $rates = srs_hr_item::from('srs_hr_items as i')
+                    ->join('salary_rate_sets as srs', 'srs.id', 'i.srs_id')
+                    ->join('orgstaff as os', 'os.id', '=', DB::raw($driverid))
+                    //->where('srs.payrolltypeid', 1) //to-do - взять из карточки сотрдника
+                    ->leftJoin('stf_payrolltypes as spt', function ($j) use ($wrkdate) {
+                        $j->on('spt.staffid', '=', 'os.id')
+                            ->whereRaw("'{$wrkdate}' between spt.begdate and ifnull(spt.enddate,'{$wrkdate}')");
+                    })
+                    ->where('srs.payrolltypeid', db::raw("ifnull(spt.payrolltypeid, 1)"))
+                    ->where('i.wrktypeid', $request->wrktypeid)
+                    ->whereRaw('ifnull(srs.ownorgid,os.orgid)=os.orgid')
+                    ->whereRaw("'{$request->wrkdate}' between srs.begdate and ifnull(srs.enddate,'{$request->wrkdate}')")
+                    ->whereRaw("TIMESTAMPDIFF(month, ifnull(os.begdate,'{$request->wrkdate}'), '{$request->wrkdate}' )/12 between i.min_wrkexp and i.max_wrkexp-0.001")
+                    ->select('i.hr_day_rate', 'i.hr_night_rate')
+                    ->first()->toArray();
+                //dd($rates);
+                $list = $list + $rates;
+            } else {
+                $list['hr_day_rate'] = null;
+                $list['hr_night_rate'] = null;
+            }
+//            dd($list);
 
             $break_rates = srs_hr_item::from('srs_hr_items as i')
                 ->join('wrktypes as wt', 'wt.id', 'i.wrktypeid')
@@ -1108,15 +1118,31 @@ class MchnRaidController extends Controller
             $list['break_rates'] = $break_rates;
 
             //2024-09-29
-            $rslt = DB::select(
-                "SELECT opertypeid FROM driver_works dw
+            if (!is_null($wrkdate) and !is_null($driverid)) {
+                $rslt = DB::select(
+                    "SELECT opertypeid FROM driver_works dw
                         where dw.staffid={$request->driverid}
                         and dw.opertypeid is not null
                         and dw.wrkdate <= '{$request->wrkdate}'
                         order by wrkdate desc limit 1");
-            //dd($rslt, $rslt[0]->opertypeid ?? null);
-            $list['opertypeid'] = $rslt[0]->opertypeid ?? null;
-            //dd($list);
+                //dd($rslt, $rslt[0]->opertypeid ?? null);
+                $list['opertypeid'] = $rslt[0]->opertypeid ?? null;
+            } else $list['opertypeid'] = null;
+
+            //2026-05-01 Наличие действующих полисов страхования автомобиля
+            if (!is_null($wrkdate) and !is_null($request->machineid)) {
+                $rslt = DB::select(
+                    "SELECT count(1) as cnt
+                        FROM obj_docs d
+                        where d.sysobjid=482
+                        and d.objid={$request->machineid}
+                        and d.doctypeid=271
+                        and '{$wrkdate}' between d.begdate and d.enddate
+                        ");
+                //dd($wrkdate, $request->wrkdate, $request->machineid, $rslt, $rslt[0]->cnt ?? null);
+                $list['insurance_cnt'] = $rslt[0]->cnt ?? null;
+            } else $list['insurance_cnt'] = 0;
+//            dd($list);
 
             $result = array('data' => $list);
             //Log::info(implode('; ', $list));

@@ -371,8 +371,8 @@ $(document).ready(function () {
                 , wrktypeid: $("#wrktypeid").val()
             },
             function (data) {
-                // console.log('get data raid_info_rfr--------------------------------')
-                // console.log(data);
+                 // console.log('get data raid_info_rfr--------------------------------')
+                 // console.log(data);
                 //console.log(data.data.raid_salary_sum);
 
                 $("#raid_qty").val(data.data.raid_qty);
@@ -380,6 +380,12 @@ $(document).ready(function () {
                 $("#opertypeid").val(data.data.opertypeid); //2024-09-29
                 $("#day_hr_rate").val(data.data.hr_day_rate);
                 $("#night_hr_rate").val(data.data.hr_night_rate);
+
+                // console.log('insurance_cnt = ' + data.data.insurance_cnt);
+                if(data.data.insurance_cnt==0)
+                    $("#insurance_err").show();
+                else
+                    $("#insurance_err").hide();
 
                 //console.log(data.data.break_rates);
                 var break_rates = data.data.break_rates;

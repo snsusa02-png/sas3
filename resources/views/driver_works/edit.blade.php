@@ -688,6 +688,16 @@
                                     </div>
 
                                 </div>
+                                <div class="row">
+                                    <div  class="offset-md-2 col-md-8">
+                                        <div class="form-group" id="insurance_err">
+                                            <label for="decision">Предупреждение:</label>
+                                                    <div class="font-weight-bold">
+                                                        <div class="font-weight-bold" style="background-color: salmon">Нет действующего страхового полиса!</div>
+                                                    </div>
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <hr>
                                 @if ($usrrights['save'] or $usrrights['change_status'])

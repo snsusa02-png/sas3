@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\driver_work;
 use App\dw_break;
 use App\mchn_raid;
+use App\obj_doc;
 use App\opertype;
 use App\org_charge;
 use App\orgstaff;
@@ -648,6 +649,33 @@ class DriverWorkController extends Controller
                         //dd($cnt);
                         if ($cnt > 0) {
                             $fail("У этого автомобиля(спецтехники) есть другой табель с пересекающимся периодом работы!");
+                        }
+                    },
+                ],
+            ];
+            //dd($rules);
+            $request->validate($rules, $messages);
+            //dd($rules, $messages);
+        }
+
+        if (1 == 0) {
+            //2026-05-02 Контроль наличия страхового полиса на автомобиль, действующего на дату работы
+            //временно заблокируем, до внесения данных полисов по всем авто
+
+            $machineid = $request->get('machineid');
+            $wrkdate = $request->get('wrkdate');
+
+            $rules = [
+                //В форме должно быть поле ttt
+                "ttt" => [
+                    function ($attribute, $value, $fail) use ( $wrkdate, $machineid) {
+                        //
+                        $cnt = obj_doc::where(['sysobjid' => 482, 'objid' => $machineid, 'doctypeid' => 271])
+                            ->whereRaw("'{$wrkdate}' between begdate and enddate")
+                            ->count();
+                        //dd($cnt);
+                        if ($cnt == 0) {
+                            $fail("У этого автомобиля(спецтехники) нет действующего страхового полиса на указаный период работ!");
                         }
                     },
                 ],
