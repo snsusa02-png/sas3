@@ -110,6 +110,9 @@ class doctype extends Model
                     } elseif ($key == 'in_documents') {
                         $sc .= " and exists (select 1 from documents as d where d.doctypeid=dt.id)";
 
+                    } elseif ($key == 'for_sysobjid') {
+                        $sc .= " and exists (select 1 from sysobj_doctypes as sd where sd.sysobjid={$val} and sd.doctypeid=dt.id)";
+
                     } elseif ($key == 'name') {
                         $words = explode(" ", $val);
                         if (count($words) > 0) {
