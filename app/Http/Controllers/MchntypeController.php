@@ -133,7 +133,7 @@ class MchntypeController extends Controller
         //Только в пределах контракта пользователя
         $recs = mchntype::from('mchntypes as mt');
 
-        $recs = $recs->select('mt.id', 'mt.name', 'mt.active',  'mt.descript')
+        $recs = $recs->select('mt.id', 'mt.name', 'mt.active', 'mt.descript')
             ->whereRaw($sc)
             ->orderBy($sort_by, $sort_dir)
             ->paginate(10);
@@ -285,8 +285,9 @@ class MchntypeController extends Controller
     public function destroy($id)
     {
         $route = route('mchntypes.edit', $id);
-        if (mchntype::find($id)->childs()->count() > 0)
-            return redirect($route)->with(['error' => 'Нельзя удалить - есть подчиненные записи!']);
+
+        //        if (mchntype::find($id)->childs()->count() > 0)
+//            return redirect($route)->with(['error' => 'Нельзя удалить - есть подчиненные записи!']);
 
         $res = mchntype::delete_by_id($id, $this->sysobjid);
         $route = "";
@@ -295,10 +296,7 @@ class MchntypeController extends Controller
             $route = route('mchntypes.edit', $id);
             $sd["error"] = $res->msg;
         } else {
-            if (isset($res->obj['parent_id']))
-                $route = route('mchntypes.edit', $res->obj['parent_id']);
-            else
-                $route = route('mchntypes.index');
+            $route = route('mchntypes.index');
             $sd['success'] = 'Категория была удалена';
         }
         return redirect($route)->with($sd);
