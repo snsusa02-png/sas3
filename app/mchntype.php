@@ -13,6 +13,7 @@ class mchntype extends Model
 {
     //
     static public $prefix = 'mchntype';
+    static public $sysobjid = 481;
 
     use DeleteTrait;
 
@@ -24,6 +25,14 @@ class mchntype extends Model
     public function whoupd()
     {
         return $this->hasOne(User::class, 'id', 'updated_by');
+    }
+
+    public function flags()
+    {
+        return $this->hasMany(objflag::class, 'objid', 'id')
+            ->join('flagtypes as ft', 'ft.id', '=', 'objflags.flagtypeid')
+            ->where('objflags.sysobjid', self::$sysobjid)
+            ->select('objflags.*', 'ft.name as flagtype_name');
     }
 
     static public function lstTypes()
