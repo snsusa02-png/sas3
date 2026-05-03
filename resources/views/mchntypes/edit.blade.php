@@ -23,7 +23,7 @@
                 ?>
         @else
                 <?php
-                $sysobjid = 202;
+                $sysobjid = 481;
                 $sysobjcode = 'mchntypes';
                 $thisTitle = "Тип спецтехники";
 

@@ -106,7 +106,7 @@ class ObjflagController extends Controller
             $rec->created_at = now();
 
             // только для новых записей
-            $rec->flagtypes = flagtype::lstFor(['new_or_curr_for_'.$rec->sysobjid => $rec->objid]);
+            $rec->flagtypes = flagtype::lstFor(['new_or_curr_for_' . $rec->sysobjid => $rec->objid]);
 
         } else {
 //            $rec = objflag::where('sysobjid', $sysobjid)->findOrFail($id);
@@ -115,58 +115,69 @@ class ObjflagController extends Controller
 
         if (isset($rec)) {
 
-            //$rec->flagtypes = flagtype::lstFor(['new_or_curr_for_'.$rec->sysobjid => $rec->objid]);
-            //dd($rec, $rec->flagtype->name);
+            $rec->retRoute = route($rec->sysobj->code.'.edit', $rec->objid);
 
-            $rec->objname = null;
-            if (isset($rec->objid)) {
-                if ($rec->sysobjid == 3) {
-                    //Users
-                    $obj = User::select('name')->find($rec->objid);
-                    $rec->objname = $obj->name ?? '-?-';
-                    $rec->retRoute = route('usermanage.edit', $rec->objid);
-
-                } elseif ($rec->sysobjid == 121) {
-                    //orgstaff
-                    $obj = orgstaff::select(db::raw("trim(concat(lname,' ',ifnull(fname,''),' ',ifnull(mname,''))) as name"))
-                        ->find($rec->objid);
-                    //dd($obj);
-                    $rec->objname = $obj->name ?? '-?-';
-                    $rec->retRoute = route('orgstaff.edit', $rec->objid);
-
-                } elseif ($rec->sysobjid == 105) {
-                    //RefItems
-                    $obj = refitem::select('name')->find($rec->objid);
-                    $rec->objname = $obj->name ?? '-?-';
-                    $rec->retRoute = route('refitems.edit', $rec->objid);
-
-                } elseif ($rec->sysobjid == 111) {
-                    //Orgs
-                    $obj = org::select('name')->find($rec->objid);
-                    $rec->objname = $obj->name ?? '-?-';
-                    $rec->retRoute = route('orgs.edit', $rec->objid);
-
-                } elseif ($rec->sysobjid == 482) {
-                    //Machines
-                    $obj = machine::select('name')->find($rec->objid);
-                    $rec->objname = $obj->name ?? '-?-';
-                    $rec->retRoute = route('machines.edit', $rec->objid);
-
-                } elseif ($rec->sysobjid == 202) {
-                    //Wrhs
-                    $stock = resolve('App\Http\Middleware\IStock');
-                    if (isset($stock) and $stock->active())
-                        $rec->objname = $stock->wrh_name($rec->objid);
-                    else
-                        $rec->objname = '-?-';
-                    $rec->retRoute = route('wrhs.edit', $rec->objid);
-                } elseif ($rec->sysobjid == 822) {
-                    //Groups
-                    $obj = group::select('name')->find($rec->objid);
-                    $rec->objname = $obj->name ?? '-?-';
-                    $rec->retRoute = route('groups.edit', $rec->objid);
+            if (isset($rec->sysobj->model_class)) {
+                $model = "App\\{$rec->sysobj->model_class}";
+                $obj = $model::find($rec->objid);
+                //dd($model, $rec->objid, $obj);
+                if (isset($obj)) {
+                    $rec->_obj_info = $obj->Info;
                 }
+//                dd($rec->sysobj->model_class, $rec->_obj_info);
+            } else {
+                $rec->objname = null;
+                if (isset($rec->objid)) {
+                    if ($rec->sysobjid == 3) {
+                        //Users
+                        $obj = User::select('name')->find($rec->objid);
+                        $rec->objname = $obj->name ?? '-?-';
+                        $rec->retRoute = route('usermanage.edit', $rec->objid);
+
+                    } elseif ($rec->sysobjid == 121) {
+                        //orgstaff
+                        $obj = orgstaff::select(db::raw("trim(concat(lname,' ',ifnull(fname,''),' ',ifnull(mname,''))) as name"))
+                            ->find($rec->objid);
+                        //dd($obj);
+                        $rec->objname = $obj->name ?? '-?-';
+                        $rec->retRoute = route('orgstaff.edit', $rec->objid);
+
+                    } elseif ($rec->sysobjid == 105) {
+                        //RefItems
+                        $obj = refitem::select('name')->find($rec->objid);
+                        $rec->objname = $obj->name ?? '-?-';
+                        $rec->retRoute = route('refitems.edit', $rec->objid);
+
+                    } elseif ($rec->sysobjid == 111) {
+                        //Orgs
+                        $obj = org::select('name')->find($rec->objid);
+                        $rec->objname = $obj->name ?? '-?-';
+                        $rec->retRoute = route('orgs.edit', $rec->objid);
+
+                    } elseif ($rec->sysobjid == 482) {
+                        //Machines
+                        $obj = machine::select('name')->find($rec->objid);
+                        $rec->objname = $obj->name ?? '-?-';
+                        $rec->retRoute = route('machines.edit', $rec->objid);
+
+                    } elseif ($rec->sysobjid == 202) {
+                        //Wrhs
+                        $stock = resolve('App\Http\Middleware\IStock');
+                        if (isset($stock) and $stock->active())
+                            $rec->objname = $stock->wrh_name($rec->objid);
+                        else
+                            $rec->objname = '-?-';
+                        $rec->retRoute = route('wrhs.edit', $rec->objid);
+                    } elseif ($rec->sysobjid == 822) {
+                        //Groups
+                        $obj = group::select('name')->find($rec->objid);
+                        $rec->objname = $obj->name ?? '-?-';
+                        $rec->retRoute = route('groups.edit', $rec->objid);
+                    }
+                }
+                $rec->_obj_info = $rec->objname;
             }
+//            dd($rec->sysobj->model_class, $rec->sysobj->name, $rec->_obj_info);
             //dd($this->objcode, $rec);
             $usrrights = $this->setInterfaceRight($rec->sysobjid, $id);
             //dd($rec->sysobjid, $usrrights);

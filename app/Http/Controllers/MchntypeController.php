@@ -224,61 +224,14 @@ class MchntypeController extends Controller
 
         if ($id == -1) {
             //new record
-//            $parent_id = ($parid == 0) ? null : $parid;
-//
-//            $ordr = mchntype::where('parent_id', $parent_id)->max('ordr') ?? 0;
-//            $ordr += 10;
-
             $rec = new mchntype([
                 'id' => $id,
-//                'parent_id' => $parent_id,
-//                'ordr' => $ordr,
             ]);
         } else {
             $rec = mchntype::find($id);
         }
 
-//        $NewGoodsMaxDays = objpref::getPrefVal($this->sysobjid, $id, 31);
-//        $NewGoodsMaxDays = (isset($NewGoodsMaxDays)) ? round($NewGoodsMaxDays, 0) : null;
-//        $rec->NewGoodsMaxDays = $NewGoodsMaxDays;
-//
-//        $rec->extids = objextid::from('objextids as ei')
-//            ->join('extsystems as s', 's.id', 'ei.extsysid')
-//            ->where('sysobjid', $this->sysobjid)
-//            ->where('objid', $rec->id)
-//            ->select('ei.id', 's.name as extsysname', 'extid')
-//            ->orderby('s.name')
-//            ->get();
-
-        //$subtype = ItmSubType::where("mchntypeid", $id)->get();
-        $subtype = null;
-//        $subtype = mchntype::where("parent_id", $id)->get();
-
-//        $spectype = it_si_link::where("mchntypeid", $id)
-//            ->join('specinfotypes', 'it_si_links.specinfotypeid', '=', 'specinfotypes.id')
-//            ->select("specinfotypes.name", "it_si_links.id")->get();
-        $spectype = null;
-
-//        $rec->importgroups = importgroup::select('id', 'name', 'active')
-//            ->where('mchntypeid', $id)
-//            ->orderby('name')
-//            ->get();
-
-//        $mchntypes_path = [];
-//        $itm = $rec;
-//        $parent_id = $itm->parent_id;
-//        while (isset($parent_id)) {
-//            $mchntypes_path[$parent_id] = $itm->parent->name;
-//
-//            //найдем id родительского бюджета
-//            $itm = $itm->parent()->first();
-//            $parent_id = $itm->parent_id;
-//        }
-//        $rec->mchntypes_path = $mchntypes_path;
-        //dd(array_reverse($rec->mchntypes_path));
-        //dd(array_flip($mchntypes_path));
-
-        return view('mchntypes.edit', compact(['rec', 'subtype', 'spectype', 'usrrights']));
+        return view('mchntypes.edit', compact(['rec', 'usrrights']));
     }
 
     /**

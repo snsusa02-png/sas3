@@ -2,151 +2,135 @@
 
 @section('content')
 
-	@if (!isset( $rec ))
-        <?php
-        redirect()->route('/');
-        header("Location:/");
-        die();
-        ?>
-	@else
-        <?php
-        $sysobjid = 10;
-        $sysobjcode = 'objflags';
-        $thisTitle = "Особенности объекта/субъекта";
+    @if (!isset( $rec ))
+            <?php
+            redirect()->route('/');
+            header("Location:/");
+            die();
+            ?>
+    @else
+            <?php
+            $sysobjid = 10;
+            $sysobjcode = 'objflags';
+            $thisTitle = "Особенности объекта/субъекта";
 
-        $retRoute = "/";
-        $retURL = $rec->retRoute ?? Request::get('returl');
+            $retRoute = "/";
+            $retURL = $rec->retRoute ?? Request::get('returl');
 
-        //для блокировки текстовых полей пользователям, не имеющим право на редактирование
-        $inputReadOnly = "readonly";
-        if ($usrrights['save']) $inputReadOnly = "";
+            //для блокировки текстовых полей пользователям, не имеющим право на редактирование
+            $inputReadOnly = "readonly";
+            if ($usrrights['save']) $inputReadOnly = "";
 
-        ?>
-		<style>
-			label {
-				color: gray;
-				margin-bottom: 0px;
-			}
+            ?>
+        <style>
+            label {
+                color: gray;
+                margin-bottom: 0px;
+            }
 
-			.btn {
-				margin-bottom: 4px;
-			}
+            .btn {
+                margin-bottom: 4px;
+            }
 
-		</style>
-		<div class="container">
+        </style>
+        <div class="container">
 
-			<div class="row">
-				<div class="col-md-5 col-sm-12">
+            @include('layouts.edit_msgs')
 
-					<div class="card mt-3">
-						@if(session()->get('success'))
-							<div class="alert alert-success">
-								{{ session()->get('success') }}
-							</div>
-						@endif
-						@if(session()->get('warning'))
-							<div class="alert alert-warning">
-								{{ session()->get('warning') }}
-							</div>
-						@endif
-						@if(session()->get('error'))
-							<div class="alert alert-danger">
-								{!! str_replace(chr(10),'<br>', session()->get('error')) !!}
-							</div>
-						@endif
+            <div class="row">
+                <div class="col-md-5 col-sm-12">
 
-						<form name="forEdit" id="forEdit" method="post"
-							  action="{{ route($sysobjcode.'.update', [$rec->id]) }}">
+                    <div class="card mt-3">
 
-							@method('PUT')
-							@csrf
-							{!! Form::hidden('retURL', $retURL) !!}
+                        <form name="forEdit" id="forEdit" method="post"
+                              action="{{ route($sysobjcode.'.update', [$rec->id]) }}">
 
-							<div class="card-header">
-								{{$thisTitle}}
+                            @method('PUT')
+                            @csrf
+                            {!! Form::hidden('retURL', $retURL) !!}
+                            {!! Form::hidden('sysobjid', $rec->sysobjid) !!}
+                            {!! Form::hidden('objid', $rec->objid) !!}
 
-								<a class="btn btn-close btn-info btn-sm"
-								   style="float:right;"
-								   href="{{ $retURL }}"
-								   title="Вернуться к списку">
-									<i class="fa fa-times" aria-hidden="true"></i>
-								</a>
-							</div>
-							<div class="card-body">
-								@if ($errors->any())
-									<div class="alert alert-danger">
-										<ul>
-											@foreach ($errors->all() as $error)
-												<li>{{ $error }}</li>
-											@endforeach
-										</ul>
-									</div>
-								@endif
+                            <div class="card-header">
+                                {{$thisTitle}}
 
-								<div class="form-group">
-									<label for="sysobjid">Для объекта:</label>
-									{!! Form::hidden('sysobjid', $rec->sysobjid) !!}
-									{!! Form::hidden('objid', $rec->objid) !!}
-									"<b>{{$rec->objname}}"</b>,<br> тип: "{{$rec->sysobj->name}}"
-								</div>
+                                <a class="btn btn-close btn-info btn-sm"
+                                   style="float:right;"
+                                   href="{{ $retURL }}"
+                                   title="Вернуться к списку">
+                                    <i class="fa fa-times" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                            <div class="card-body">
 
-								<div class="form-group">
-									<label for="flagtypeid" class="required">Характеристика:</label>
+                                @include('layouts.err_msgs')
+
+                                <div class="form-group offset-md-0 col-md-12">
+                                    <label for="name" class="">Для: {{$rec->sysobj->name}}</label>
+                                    <input type="text" class="form-control"
+                                           readonly
+                                           value="{{ $rec->_obj_info }}"/>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="flagtypeid" class="required">Характеристика:</label>
                                     @if(isset($rec->flagtypes))
-									{!! Form::select('flagtypeid', $rec->flagtypes, old('flagtypeid',$rec->flagtypeid),
-									['class' => 'form-control',
-									'placeholder'=>'-укажите-'
-									, 'required'=>'required']) !!}
+                                        {!! Form::select('flagtypeid', $rec->flagtypes, old('flagtypeid',$rec->flagtypeid),
+                                        ['class' => 'form-control',
+                                        'placeholder'=>'-укажите-'
+                                        , 'required'=>'required']) !!}
                                     @else
                                         {!! Form::hidden('flagtypeid', $rec->flagtypeid) !!}
-                                        "<b>{{$rec->flagtype->name}}"</b>"
+                                        <input type="text" class="form-control font-weight-bold"
+                                               readonly
+                                               value="{{ $rec->flagtype->name }}"/>
                                     @endif
-								</div>
+                                </div>
 
-								<hr size="1">
-								@if ($usrrights['save'])
-									<button type="submit" class="btn btn-success"
-											title="Сохранить изменения">
-										<i class="fa fa-floppy-o" aria-hidden="true"></i>
-										Сохранить
-									</button>
-								@endif
+                                <hr size="1">
+                                @if ($usrrights['save'])
+                                    <button type="submit" class="btn btn-success"
+                                            title="Сохранить изменения">
+                                        <i class="fa fa-floppy-o" aria-hidden="true"></i>
+                                        Сохранить
+                                    </button>
+                                @endif
 
-								<a class="btn btn-close btn-info" href="{{ $retURL }}">
-									<i class="fa fa-window-close-o" aria-hidden="true"></i>
-									Закрыть
-								</a>
+                                <a class="btn btn-close btn-info" href="{{ $retURL }}">
+                                    <i class="fa fa-window-close-o" aria-hidden="true"></i>
+                                    Закрыть
+                                </a>
 
-								@if ($usrrights['delete'])
-									<button type="submit"
-											class="btn btn-danger btn-sm ml-3"
-											formaction="{{ route($sysobjcode.'.delete', $rec->id)}}"
-											formmethod="post"
-											onclick="return confirm('Вы действительно хотите удалить запись?')"
-											title="Удалить запись"
-									>
-										<i class="fa fa-trash-o" aria-hidden="true"></i>
-									</button>
-								@endif
+                                @if ($usrrights['delete'])
+                                    <button type="submit"
+                                            class="btn btn-danger btn-sm ml-3"
+                                            formaction="{{ route($sysobjcode.'.delete', $rec->id)}}"
+                                            formmethod="post"
+                                            onclick="return confirm('Вы действительно хотите удалить запись?')"
+                                            title="Удалить запись"
+                                    >
+                                        <i class="fa fa-trash-o" aria-hidden="true"></i>
+                                    </button>
+                                @endif
 
-								@if ($rec->id != -1)
-									<div class="small" style="color: gray; margin:8px;">
-										создана: {{$rec->created_at}} / {{$rec->whocrt->name}} &nbsp;
-{{--										изменена: {{$rec->updated_at??''}} / {{$rec->whoupd->name??''}} &nbsp;--}}
-										<a href="{{route('objevntlog',['sysobjid'=>$sysobjid, 'objid'=>$rec->id,'route'=>Route::current()->getName()])}}">журнал</a>
-									</div>
-								@endif
-							</div>
-						</form>
-						&nbsp;
-					</div>
-				</div>
+                                @if ($rec->id != -1)
+                                    <div class="small" style="color: gray; margin:8px;">
+                                        создана: {{$rec->created_at}} / {{$rec->whocrt->name}} &nbsp;
+                                        {{--										изменена: {{$rec->updated_at??''}} / {{$rec->whoupd->name??''}} &nbsp;--}}
+                                        <a href="{{route('objevntlog',['sysobjid'=>$sysobjid, 'objid'=>$rec->id,'route'=>Route::current()->getName()])}}">журнал</a>
+                                    </div>
+                                @endif
+                            </div>
+                        </form>
+                        &nbsp;
+                    </div>
+                </div>
 
-				<div class="col-md-6 col-sm-12">
+                <div class="col-md-6 col-sm-12">
 
-				</div>
-			</div>
+                </div>
+            </div>
 
-		</div>
-	@endif
+        </div>
+    @endif
 @endsection

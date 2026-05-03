@@ -35,6 +35,16 @@ class mchntype extends Model
             ->select('objflags.*', 'ft.name as flagtype_name');
     }
 
+    public function getInfoAttribute()
+    {
+        if (isset($this->id)) {
+            $rslt = $this->name; // . '/ №' . $this->regnum . '.  ' . $this->org->name;
+            return $rslt;
+        } else
+            return null;
+    }
+
+
     static public function lstTypes()
     {
         //Cache::forget(self::$prefix . '_lstTypes');

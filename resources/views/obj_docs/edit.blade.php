@@ -61,6 +61,7 @@
                                       action="{{ route($sysobjcode.'.update', $rec->id) }}">
                                     @method('PUT')
                                     @csrf
+                                    {!! Form::hidden('retURL', $retURL) !!}
                                     {{ Form::hidden('sysobjid', $rec->sysobjid) }}
                                     {{ Form::hidden('objid', $rec->objid) }}
 

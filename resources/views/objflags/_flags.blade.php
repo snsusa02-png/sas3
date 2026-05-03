@@ -8,7 +8,8 @@
                     Особенности
 
                     @if(1==1 and $usrrights['save']??true)
-                        <a href="{{ route('objflags.create',['sysobjid'=>$sysobjid, 'objid'=>$rec->id])}}"
+
+                        <a href="{{ route('objflags.create',['sysobjid'=>$sysobjid, 'objid'=>$rec->id])}}?returl={{Request::url()}}"
                            class="btn btn-warning btn-sm"
                            style="margin-left:16px;float: right;">
                             <i class="fa fa-plus"></i>

@@ -36,7 +36,7 @@
                     <div class="col-md-8 ">
                         <div class="subnav shift">
                             <ul>
-                                <li><a href="{{route('refitems.index')}}" title="Справочник номенклатуры">Номенклатура</a></li>
+                                <li><a href="{{route('machines.index')}}" title="Справочник спецтехники">Спецтехника</a></li>
 {{--                                <li><a href="{{route('equiprqsts.index')}}" title="Заявки на материалы">Заявки</a></li>--}}
                             </ul>
                         </div>
