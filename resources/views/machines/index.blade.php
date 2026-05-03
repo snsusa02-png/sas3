@@ -45,7 +45,7 @@
                                     @if( \App\usrsysright::isUserHasRightByCode_cached($userid,'mchntypes.read')
                                      and \Illuminate\Support\Facades\Route::has('mchntypes.index'))
                                         <li><a href="{{route('mchntypes.index')}}"
-                                               title="Учет перевозок">Типы спецтехники</a>
+                                               title="Типы спецтехники">Типы спецтехники</a>
                                         </li>
                                     @endif
                                 </ul>
