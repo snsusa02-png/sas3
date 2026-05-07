@@ -421,7 +421,11 @@ class org_charge extends Model
             return $rec;
         }
 
-        //перевернем колонки
+         //удалим пустые названия колонок
+         foreach ($fields as $k => $v)
+                if (empty($v)) unset($fields[$k]);
+
+	    //перевернем колонки
         $fld_idx = array_flip($fields);
 
         $items_add_cnt = 0; //кол-во новых записей

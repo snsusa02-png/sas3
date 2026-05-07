@@ -287,6 +287,10 @@ class mchn_spare_usage extends Model
 
         $extsysid = $rec->extsysid;
 
+        //удалим пустые названия колонок
+        foreach ($fields as $k => $v)
+            if (empty($v)) unset($fields[$k]);
+
         //перевернем колонки
         $fld_idx = array_flip($fields);
 
