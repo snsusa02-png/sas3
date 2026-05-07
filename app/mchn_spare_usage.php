@@ -276,7 +276,7 @@ class mchn_spare_usage extends Model
         //dd($fields);
         if (!(
             in_array('Код', $fields)
-            and in_array('Выручка, ', $fields)
+            and in_array('Выручка,', $fields)
             and in_array('ДатаДляВыгрузки', $fields)
         )) {
             $result->err = 1;
@@ -286,7 +286,7 @@ class mchn_spare_usage extends Model
         }
 
         $extsysid = $rec->extsysid;
-
+//dd(2, $fields);
         //удалим пустые названия колонок
         foreach ($fields as $k => $v)
             if (empty($v)) unset($fields[$k]);
@@ -302,7 +302,7 @@ class mchn_spare_usage extends Model
 
             $code = $array[$i][$fld_idx['Код']];
             $machine_name = $array[$i][$fld_idx['Покупатель']];
-            $sum = $array[$i][$fld_idx['Выручка, ']];
+            $sum = $array[$i][$fld_idx['Выручка,']];
             $date = $array[$i][$fld_idx['ДатаДляВыгрузки']];
             $date = date_format(date_create_from_format('d.m.Y', $date), 'Y-m-d');
             //$kpp = (isset($fld_idx['kpp'])) ? $array[$i][$fld_idx['kpp']] : null;
