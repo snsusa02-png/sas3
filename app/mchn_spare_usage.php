@@ -276,11 +276,11 @@ class mchn_spare_usage extends Model
         //dd($fields);
         if (!(
             in_array('Код', $fields)
-            and in_array('Выручка,', $fields)
+            and in_array('Выручка', $fields)
             and in_array('ДатаДляВыгрузки', $fields)
         )) {
             $result->err = 1;
-            $result->msg = 'Файл должен содержать колонки "Код", "Выручка,", "ДатаДляВыгрузки"!';
+            $result->msg = 'Файл должен содержать колонки "Код", "Выручка", "ДатаДляВыгрузки"!';
             $rec->result = $result;
             return $rec;
         }
@@ -302,7 +302,7 @@ class mchn_spare_usage extends Model
 
             $code = $array[$i][$fld_idx['Код']];
             $machine_name = $array[$i][$fld_idx['Покупатель']];
-            $sum = $array[$i][$fld_idx['Выручка,']];
+            $sum = $array[$i][$fld_idx['Выручка']];
             $date = $array[$i][$fld_idx['ДатаДляВыгрузки']];
             $date = date_format(date_create_from_format('d.m.Y', $date), 'Y-m-d');
             //$kpp = (isset($fld_idx['kpp'])) ? $array[$i][$fld_idx['kpp']] : null;
