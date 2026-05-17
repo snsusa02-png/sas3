@@ -100,13 +100,21 @@
             font-variant: small-caps;
         }
 
+        .table0{
+            border-collapse: collapse;
+        }
+        .table0 td, table0 th{
+            border: 1px solid black;
+            padding: 0.75rem;
+        }
+
     </style>
 
     <div class="container">
         <div class="sheet">
             @for ($i = 0; $i < 1; $i++)
 
-                <table class="table table-bordered text-center" style="width:100%" border="1" cellspacing="0">
+                <table class="table0 table-bordered0 text-center" style="width:100%;border: 1px solid black;" border="1" cellspacing="0">
                     <tr class="align-middle">
                         <td class="w-50 doc_title font-weight-bold text-center"
                             style="vertical-align: middle">{{$rec->doctype->name}}</td>
@@ -122,7 +130,7 @@
                     </tr>
                 </table>
 
-                <table class="table table-bordered text-center" style="width:100%" border="1" cellspacing="0">
+                <table class="table0 table-bordered0 text-center" style="width:100%;" border="1" cellspacing="0">
                     @if($rec->saleorgid)
                         <tr>
                             <td>Продавец:</td>
@@ -159,7 +167,7 @@
                     @endif
                 </table>
 
-                <table cellpadding="5" class="table-bordered w-100">
+                <table cellpadding="5" class="table0 table-bordered0 w-100">
                     <tr class="text-center">
                         <td class="small" style="width:36px;">№п/п</td>
                         <td>Товар</td>
