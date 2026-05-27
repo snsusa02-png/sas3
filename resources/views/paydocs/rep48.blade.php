@@ -174,7 +174,8 @@ $thisTitle = $report->title ?? $report->name;
                             <?php
                             $curSum += $rec->opersum;
 
-                            $td_class = ($rec->itmsum < 0) ? 'text-danger' : (($rec->itmsum > 0) ? 'text-success' : '');
+                            //$td_class = ($rec->itmsum < 0) ? 'text-danger' : (($rec->itmsum > 0) ? 'text-success' : '');
+                            $td_class = ($rec->opersum < 0) ? 'text-danger' : (($rec->opersum > 0) ? 'text-success' : '');
                             $tdс_class = ($curSum < 0) ? 'text-danger' : (($totSum > 0) ? 'text-success' : '');
 
                             $sh_raid_qty = (isset($rec->raid_qty)) ? number_format($rec->raid_qty,0) : '';
