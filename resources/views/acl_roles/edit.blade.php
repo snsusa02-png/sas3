@@ -9,6 +9,7 @@
         ?>
     @else
         <?php
+	//12345
         $sysobjid = 1551;
         $sysobjcode = 'acl_roles';
         $thisTitle = "Роль доступа";
